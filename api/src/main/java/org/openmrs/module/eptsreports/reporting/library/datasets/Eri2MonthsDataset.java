@@ -83,18 +83,17 @@ public class Eri2MonthsDataset extends BaseDataSet {
                     mappings)),
             mappings),
         get2MonthsRetentionColumns());
-    
-    addRow(
-            dsd,
-            "R24",
-            "Children (0-14, excluding pregnant and breastfeeding women) retained on ART 2 months
-     after ART initiation",
-            EptsReportUtils.map(
-                eptsGeneralIndicator.getIndicator(
-                    "Children",
-                    EptsReportUtils.map(eriCohortQueries.getChildrenRetained(), mappingsInd)),
-                mappings),
-            get2MonthsRetentionColumns());
+    //    addRow(
+    //        dsd,
+    //        "R24",
+    //        "Children (0-14, excluding pregnant and breastfeeding women) retained on ART 2 months
+    // after ART initiation",
+    //        EptsReportUtils.map(
+    //            eptsGeneralIndicator.getIndicator(
+    //                "Children",
+    //                EptsReportUtils.map(eriCohortQueries.getChildrenRetained(), mappingsInd)),
+    //            mappings),
+    //        get2MonthsRetentionColumns());
     //    addRow(
     //        dsd,
     //        "R25",
