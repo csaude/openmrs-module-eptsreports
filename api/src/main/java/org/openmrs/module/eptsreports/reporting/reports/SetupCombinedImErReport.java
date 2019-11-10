@@ -70,9 +70,8 @@ public class SetupCombinedImErReport extends EptsDataExportManager {
     rd.addDataSetDefinition(
         "C", Mapped.mapStraightThrough(this.txCurrDataset.constructTxCurrDataset(true)));
 
-    // rd.addDataSetDefinition(
-    // "ERI2",
-    // Mapped.mapStraightThrough(this.eri2MonthsDataset.constructEri2MonthsDatset()));
+    rd.addDataSetDefinition(
+        "ERI2", Mapped.mapStraightThrough(this.eri2MonthsDataset.constructEri2MonthsDatset()));
     //
     // rd.addDataSetDefinition(
     // "ERI4",

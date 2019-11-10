@@ -22,6 +22,7 @@ import org.openmrs.module.eptsreports.reporting.library.cohorts.GenericCohortQue
 import org.openmrs.module.eptsreports.reporting.library.cohorts.TbPrevCohortQueries;
 import org.openmrs.module.eptsreports.reporting.library.cohorts.TxNewCohortQueries;
 import org.openmrs.module.eptsreports.reporting.library.queries.BreastfeedingQueries;
+import org.openmrs.module.eptsreports.reporting.library.queries.Eri2MonthsQueriesInterface;
 import org.openmrs.module.eptsreports.reporting.library.queries.TxCurrQueries;
 import org.openmrs.module.eptsreports.reporting.library.queries.TxNewQueries;
 import org.openmrs.module.eptsreports.reporting.utils.AgeRange;
@@ -50,6 +51,8 @@ public class EptsCommonDimension {
   @Autowired private EriCohortQueries eriCohortQueries;
 
   @Autowired private TbPrevCohortQueries tbPrevCohortQueries;
+
+  @Autowired private GenericCohortQueries genericCohorts;
 
   /**
    * Gender dimension
@@ -223,37 +226,106 @@ public class EptsCommonDimension {
     dim.addParameter(new Parameter("reportingEndDate", "Reporting End Date", Date.class));
     dim.addParameter(new Parameter("location", "location", Location.class));
     dim.setName("Get patients dimensions for Eri2Months");
+
     dim.addCohortDefinition(
         "IART",
         EptsReportUtils.map(
             this.eriCohortQueries.getAllPatientsWhoInitiatedArt(),
             "cohortStartDate=${cohortStartDate},cohortEndDate=${cohortEndDate},location=${location}"));
+
     dim.addCohortDefinition(
         "DNPUD",
         EptsReportUtils.map(
             this.eri2MonthsCohortQueries.getPatientsWhoDidNotPickDrugsOnTheirSecondVisit(),
             "cohortStartDate=${cohortStartDate},cohortEndDate=${cohortEndDate},reportingEndDate=${reportingEndDate},location=${location}"));
+
     dim.addCohortDefinition(
         "PUD",
         EptsReportUtils.map(
             this.eri2MonthsCohortQueries.getPatientsWhoPickedUpDrugsOnTheirSecondVisit(),
             "cohortStartDate=${cohortStartDate},cohortEndDate=${cohortEndDate},reportingEndDate=${reportingEndDate},location=${location}"));
+
     dim.addCohortDefinition(
         "DP",
         EptsReportUtils.map(
             this.eri2MonthsCohortQueries.getPatientsWhoInitiatedArtAndDead(),
             "cohortStartDate=${cohortStartDate},cohortEndDate=${cohortEndDate},reportingEndDate=${reportingEndDate},location=${location}"));
+
     dim.addCohortDefinition(
         "TOP",
         EptsReportUtils.map(
             this.eri2MonthsCohortQueries.getPatientsWhoInitiatedArtButTransferredOut(),
             "cohortStartDate=${cohortStartDate},cohortEndDate=${cohortEndDate},reportingEndDate=${reportingEndDate},location=${location}"));
+
     dim.addCohortDefinition(
         "STP",
         EptsReportUtils.map(
             this.eri2MonthsCohortQueries.getPatientsWhoInitiatedArtButSuspendedTreatment(),
             "cohortStartDate=${cohortStartDate},cohortEndDate=${cohortEndDate},reportingEndDate=${reportingEndDate},location=${location}"));
     return dim;
+  }
+
+  public CohortDefinitionDimension getEri2MonthsDimension2() {
+    final CohortDefinitionDimension dimension = new CohortDefinitionDimension();
+
+    dimension.setName("Get patients dimensions for Eri2Months");
+    dimension.addParameter(new Parameter("startDate", "Start Date", Date.class));
+    dimension.addParameter(new Parameter("endDate", "End Date", Date.class));
+    dimension.addParameter(new Parameter("location", "location", Location.class));
+
+    final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
+
+    dimension.addCohortDefinition(
+        "IART",
+        EptsReportUtils.map(
+            eri2MonthsCohortQueries.getEri2MonthsCompositionCohort("IART"), mappings));
+
+    dimension.addCohortDefinition(
+        "DNPUD",
+        EptsReportUtils.map(
+            this.genericCohorts.generalSql(
+                "findPatientsWhoStartedArtAtAPeriodAndDidNotHaveASecondPickupsOrClinicalConsultationWithin33DaysAfterArtInitiation",
+                Eri2MonthsQueriesInterface.QUERY
+                    .findPatientsWhoStartedArtAtAPeriodAndDidNotHaveASecondPickupsOrClinicalConsultationWithin33DaysAfterArtInitiation),
+            mappings));
+
+    dimension.addCohortDefinition(
+        "PUD",
+        EptsReportUtils.map(
+            this.genericCohorts.generalSql(
+                "findPatientsStartedArtLastMonthWith2PickupsOrConsultationWithin33DaysExcludingDeadAndTransferedOutAndIn",
+                Eri2MonthsQueriesInterface.QUERY
+                    .findPatientsStartedArtLastMonthWith2PickupsOrConsultationWithin33DaysExcludingDeadAndTransferedOutAndIn),
+            mappings));
+
+    dimension.addCohortDefinition(
+        "DP",
+        EptsReportUtils.map(
+            this.genericCohorts.generalSql(
+                "findPatientsWhoStartedArtInAPeriodAndAreDeath33DaysAfterArtInitiation",
+                Eri2MonthsQueriesInterface.QUERY
+                    .findPatientsWhoStartedArtInAPeriodAndAreDeath33DaysAfterArtInitiation),
+            mappings));
+
+    dimension.addCohortDefinition(
+        "TOP",
+        EptsReportUtils.map(
+            this.genericCohorts.generalSql(
+                "findPatientsWhoStartedArtInAPeriodAndAreTrasferedOut33DaysAfterInitiation",
+                Eri2MonthsQueriesInterface.QUERY
+                    .findPatientsWhoStartedArtInAPeriodAndAreTrasferedOut33DaysAfterInitiation),
+            mappings));
+
+    dimension.addCohortDefinition(
+        "STP",
+        EptsReportUtils.map(
+            this.genericCohorts.generalSql(
+                "findPatientsWhoStartedArtInAPeriodAndSuspendTratement33DaysAfterInitiation",
+                Eri2MonthsQueriesInterface.QUERY
+                    .findPatientsWhoStartedArtInAPeriodAndSuspendTratement33DaysAfterInitiation),
+            mappings));
+
+    return dimension;
   }
 
   public CohortDefinitionDimension getArtStatusDimension() {
