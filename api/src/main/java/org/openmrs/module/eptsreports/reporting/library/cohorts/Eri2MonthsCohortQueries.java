@@ -396,4 +396,138 @@ public class Eri2MonthsCohortQueries {
 
     return eri2MonthsCompositionCohort;
   }
+
+  public CohortDefinition getEri2MonthsAdultCompositionCohort(final String cohortName) {
+    final CompositionCohortDefinition eri2MonthsCompositionCohort =
+        new CompositionCohortDefinition();
+
+    eri2MonthsCompositionCohort.setName(cohortName);
+    eri2MonthsCompositionCohort.addParameter(new Parameter("startDate", "Start Date", Date.class));
+    eri2MonthsCompositionCohort.addParameter(new Parameter("endDate", "End Date", Date.class));
+    eri2MonthsCompositionCohort.addParameter(new Parameter("location", "location", Location.class));
+
+    final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
+
+    eri2MonthsCompositionCohort.addSearch(
+        "START-ART-2-MONTHS",
+        EptsReportUtils.map(
+            this.genericCohorts.generalSql(
+                "patientEnrolledInART2Months",
+                Eri2MonthsQueriesInterface.QUERY.findPatientsWhoStartArtOneMonth),
+            mappings));
+
+    eri2MonthsCompositionCohort.addSearch(
+        "TRANSFERED-IN",
+        EptsReportUtils.map(
+            this.genericCohorts.generalSql(
+                "findPatientsWithAProgramStateMarkedAsTransferedInInAPeriod",
+                TxNewQueries.QUERY.findPatientsWithAProgramStateMarkedAsTransferedInInAPeriod),
+            mappings));
+
+    eri2MonthsCompositionCohort.addSearch(
+        "TRANSFERED-IN-AND-IN-ART-MASTER-CARD",
+        EptsReportUtils.map(
+            this.genericCohorts.generalSql(
+                "findPatientsWhoWhereMarkedAsTransferedInAndOnARTOnInAPeriodOnMasterCard",
+                TxNewQueries.QUERY
+                    .findPatientsWhoWhereMarkedAsTransferedInAndOnARTOnInAPeriodOnMasterCard),
+            mappings));
+
+    eri2MonthsCompositionCohort.addSearch(
+        "BRESTFEETING",
+        EptsReportUtils.map(
+            this.genericCohorts.generalSql(
+                "patientsThatAreFemaleAndWereMarkedAsBrestfeetingInTheInitialConsultationOrFollowUpConsultationAndMasterCard",
+                Eri2MonthsQueriesInterface.QUERY
+                    .patientsThatAreFemaleAndWereMarkedAsBrestfeetingInTheInitialConsultationOrFollowUpConsultationAndMasterCard),
+            mappings));
+
+    eri2MonthsCompositionCohort.addSearch(
+        "PREGNANT",
+        EptsReportUtils.map(
+            this.genericCohorts.generalSql(
+                "patientsThatAreFemaleAndWereMarkedAsPregnantInTheInitialConsultationOrFollowUpConsultationAndMasterCard",
+                Eri2MonthsQueriesInterface.QUERY
+                    .patientsThatAreFemaleAndWereMarkedAsPregnantInTheInitialConsultationOrFollowUpConsultationAndMasterCard),
+            mappings));
+
+    eri2MonthsCompositionCohort.addSearch(
+        "ADULT",
+        EptsReportUtils.map(
+            this.genericCohorts.generalSql(
+                "patientsThatAreAdult", Eri2MonthsQueriesInterface.QUERY.patientsThatAreAdult),
+            mappings));
+
+    eri2MonthsCompositionCohort.setCompositionString(
+        "START-ART-2-MONTHS AND ADULT NOT (TRANSFERED-IN OR TRANSFERED-IN-AND-IN-ART-MASTER-CARD OR PREGNANT OR BRESTFEETING)");
+
+    return eri2MonthsCompositionCohort;
+  }
+
+  public CohortDefinition getEri2MonthsChildCompositionCohort(final String cohortName) {
+    final CompositionCohortDefinition eri2MonthsCompositionCohort =
+        new CompositionCohortDefinition();
+
+    eri2MonthsCompositionCohort.setName(cohortName);
+    eri2MonthsCompositionCohort.addParameter(new Parameter("startDate", "Start Date", Date.class));
+    eri2MonthsCompositionCohort.addParameter(new Parameter("endDate", "End Date", Date.class));
+    eri2MonthsCompositionCohort.addParameter(new Parameter("location", "location", Location.class));
+
+    final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
+
+    eri2MonthsCompositionCohort.addSearch(
+        "START-ART-2-MONTHS",
+        EptsReportUtils.map(
+            this.genericCohorts.generalSql(
+                "patientEnrolledInART2Months",
+                Eri2MonthsQueriesInterface.QUERY.findPatientsWhoStartArtOneMonth),
+            mappings));
+
+    eri2MonthsCompositionCohort.addSearch(
+        "TRANSFERED-IN",
+        EptsReportUtils.map(
+            this.genericCohorts.generalSql(
+                "findPatientsWithAProgramStateMarkedAsTransferedInInAPeriod",
+                TxNewQueries.QUERY.findPatientsWithAProgramStateMarkedAsTransferedInInAPeriod),
+            mappings));
+
+    eri2MonthsCompositionCohort.addSearch(
+        "TRANSFERED-IN-AND-IN-ART-MASTER-CARD",
+        EptsReportUtils.map(
+            this.genericCohorts.generalSql(
+                "findPatientsWhoWhereMarkedAsTransferedInAndOnARTOnInAPeriodOnMasterCard",
+                TxNewQueries.QUERY
+                    .findPatientsWhoWhereMarkedAsTransferedInAndOnARTOnInAPeriodOnMasterCard),
+            mappings));
+
+    eri2MonthsCompositionCohort.addSearch(
+        "BRESTFEETING",
+        EptsReportUtils.map(
+            this.genericCohorts.generalSql(
+                "patientsThatAreFemaleAndWereMarkedAsBrestfeetingInTheInitialConsultationOrFollowUpConsultationAndMasterCard",
+                Eri2MonthsQueriesInterface.QUERY
+                    .patientsThatAreFemaleAndWereMarkedAsBrestfeetingInTheInitialConsultationOrFollowUpConsultationAndMasterCard),
+            mappings));
+
+    eri2MonthsCompositionCohort.addSearch(
+        "PREGNANT",
+        EptsReportUtils.map(
+            this.genericCohorts.generalSql(
+                "patientsThatAreFemaleAndWereMarkedAsPregnantInTheInitialConsultationOrFollowUpConsultationAndMasterCard",
+                Eri2MonthsQueriesInterface.QUERY
+                    .patientsThatAreFemaleAndWereMarkedAsPregnantInTheInitialConsultationOrFollowUpConsultationAndMasterCard),
+            mappings));
+
+    eri2MonthsCompositionCohort.addSearch(
+        "CHILD",
+        EptsReportUtils.map(
+            this.genericCohorts.generalSql(
+                "patientsThatAreChild", Eri2MonthsQueriesInterface.QUERY.patientsThatAreChild),
+            mappings));
+
+    eri2MonthsCompositionCohort.setCompositionString(
+        "START-ART-2-MONTHS AND CHILD NOT (TRANSFERED-IN OR TRANSFERED-IN-AND-IN-ART-MASTER-CARD OR PREGNANT OR BRESTFEETING)");
+
+    return eri2MonthsCompositionCohort;
+  }
 }

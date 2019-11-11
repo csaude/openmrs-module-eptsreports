@@ -83,28 +83,46 @@ public class Eri2MonthsDataset extends BaseDataSet {
                     mappings)),
             mappings),
         get2MonthsRetentionColumns());
-    //    addRow(
-    //        dsd,
-    //        "R24",
-    //        "Children (0-14, excluding pregnant and breastfeeding women) retained on ART 2 months
-    // after ART initiation",
-    //        EptsReportUtils.map(
-    //            eptsGeneralIndicator.getIndicator(
-    //                "Children",
-    //                EptsReportUtils.map(eriCohortQueries.getChildrenRetained(), mappingsInd)),
-    //            mappings),
-    //        get2MonthsRetentionColumns());
-    //    addRow(
-    //        dsd,
-    //        "R25",
-    //        "Adults (15+, excluding pregnant and breastfeeding women)  retained on ART 2 months
-    // after ART initiation",
-    //        EptsReportUtils.map(
-    //            eptsGeneralIndicator.getIndicator(
-    //                "Adults", EptsReportUtils.map(eriCohortQueries.getAdultsRetained(),
-    // mappingsInd)),
-    //            mappings),
-    //        get2MonthsRetentionColumns());
+    addRow(
+        dsd,
+        "R23",
+        "Breastfeeding women retained on ART 2 months after ART initiation",
+        EptsReportUtils.map(
+            eptsGeneralIndicator.getIndicator(
+                "Breastfeeding women",
+                EptsReportUtils.map(
+                    eri2MonthsCohortQueries.getEri2MonthsBrestfeetingCompositionCohort(
+                        "BrestFeeting"),
+                    mappings)),
+            mappings),
+        get2MonthsRetentionColumns());
+
+    addRow(
+        dsd,
+        "R24",
+        "Children (0-14, excluding pregnant and breastfeeding women) retained on ART 2 months",
+        EptsReportUtils.map(
+            eptsGeneralIndicator.getIndicator(
+                "Children",
+                EptsReportUtils.map(
+                    eri2MonthsCohortQueries.getEri2MonthsChildCompositionCohort("Children"),
+                    mappings)),
+            mappings),
+        get2MonthsRetentionColumns());
+
+    addRow(
+        dsd,
+        "R25",
+        "Adults (15+, excluding pregnant and breastfeeding women)  retained on ART 2 months",
+        EptsReportUtils.map(
+            eptsGeneralIndicator.getIndicator(
+                "Adult",
+                EptsReportUtils.map(
+                    eri2MonthsCohortQueries.getEri2MonthsAdultCompositionCohort("Adult"),
+                    mappings)),
+            mappings),
+        get2MonthsRetentionColumns());
+
     return dsd;
   }
 
