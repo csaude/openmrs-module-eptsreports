@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Properties;
 import org.openmrs.module.eptsreports.reporting.library.cohorts.GenericCohortQueries;
 import org.openmrs.module.eptsreports.reporting.library.datasets.Eri2MonthsDataset;
-import org.openmrs.module.eptsreports.reporting.library.datasets.Erin2MonthDataSets;
 import org.openmrs.module.eptsreports.reporting.library.datasets.TxCurrDataset;
 import org.openmrs.module.eptsreports.reporting.library.datasets.TxNewDataset;
 import org.openmrs.module.eptsreports.reporting.library.datasets.TxPvlsDataset;
@@ -43,8 +42,6 @@ public class SetupMERQuarterly extends EptsDataExportManager {
   @Autowired private TxCurrDataset txCurrDataset;
 
   @Autowired private Eri2MonthsDataset eri2MonthsDataset;
-
-  @Autowired private Erin2MonthDataSets erin2MonthDataSets;
 
   @Autowired protected GenericCohortQueries genericCohortQueries;
 
@@ -92,7 +89,7 @@ public class SetupMERQuarterly extends EptsDataExportManager {
         "P", Mapped.mapStraightThrough(this.txPvlsDataset.constructTxPvlsDatset()));
 
     reportDefinition.addDataSetDefinition(
-        "E", Mapped.mapStraightThrough(this.erin2MonthDataSets.constructEri2MonthsDataset()));
+        "E", Mapped.mapStraightThrough(this.eri2MonthsDataset.constructEri2MonthsDatset()));
 
     reportDefinition.setBaseCohortDefinition(
         EptsReportUtils.map(

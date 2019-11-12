@@ -17,11 +17,13 @@ import org.openmrs.module.eptsreports.metadata.HivMetadata;
 import org.openmrs.module.eptsreports.reporting.library.cohorts.Eri2MonthsCohortQueries;
 import org.openmrs.module.eptsreports.reporting.library.cohorts.Eri4MonthsCohortQueries;
 import org.openmrs.module.eptsreports.reporting.library.cohorts.EriCohortQueries;
+import org.openmrs.module.eptsreports.reporting.library.cohorts.EriDSDCohortQueries;
 import org.openmrs.module.eptsreports.reporting.library.cohorts.GenderCohortQueries;
 import org.openmrs.module.eptsreports.reporting.library.cohorts.GenericCohortQueries;
 import org.openmrs.module.eptsreports.reporting.library.cohorts.TbPrevCohortQueries;
 import org.openmrs.module.eptsreports.reporting.library.cohorts.TxNewCohortQueries;
 import org.openmrs.module.eptsreports.reporting.library.queries.BreastfeedingQueries;
+import org.openmrs.module.eptsreports.reporting.library.queries.DsdQueriesInterface;
 import org.openmrs.module.eptsreports.reporting.library.queries.Eri2MonthsQueriesInterface;
 import org.openmrs.module.eptsreports.reporting.library.queries.TxCurrQueries;
 import org.openmrs.module.eptsreports.reporting.library.queries.TxNewQueries;
@@ -47,6 +49,8 @@ public class EptsCommonDimension {
   @Autowired private Eri4MonthsCohortQueries eri4MonthsCohortQueries;
 
   @Autowired private Eri2MonthsCohortQueries eri2MonthsCohortQueries;
+
+  @Autowired private EriDSDCohortQueries eriDSDCohortQueries;
 
   @Autowired private EriCohortQueries eriCohortQueries;
 
@@ -323,6 +327,25 @@ public class EptsCommonDimension {
                 "findPatientsWhoStartedArtInAPeriodAndSuspendTratement33DaysAfterInitiation",
                 Eri2MonthsQueriesInterface.QUERY
                     .findPatientsWhoStartedArtInAPeriodAndSuspendTratement33DaysAfterInitiation),
+            mappings));
+
+    return dimension;
+  }
+
+  public CohortDefinitionDimension getEri2DsdDimension2() {
+    final CohortDefinitionDimension dimension = new CohortDefinitionDimension();
+
+    dimension.setName("Get patients dimensions for Eri2Months");
+    dimension.addParameter(new Parameter("startDate", "Start Date", Date.class));
+    dimension.addParameter(new Parameter("endDate", "End Date", Date.class));
+    dimension.addParameter(new Parameter("location", "location", Location.class));
+
+    final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
+
+    dimension.addCohortDefinition(
+        "D1SNPNB",
+        EptsReportUtils.map(
+            this.genericCohorts.generalSql("", DsdQueriesInterface.QUERY.findPatientsAge15Plus),
             mappings));
 
     return dimension;
