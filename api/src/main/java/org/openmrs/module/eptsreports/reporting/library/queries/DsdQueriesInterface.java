@@ -234,5 +234,87 @@ public interface DsdQueriesInterface {
         "SELECT patient_id FROM patient "
             + "INNER JOIN person ON patient_id = person_id WHERE patient.voided=0 AND person.voided=0 "
             + "AND TIMESTAMPDIFF(year,birthdate,:endDate) between 10 and 14 and birthdate is not null";
+
+    public static final String findPatientsWhoInGaac =
+        "select patient_id from( "
+            + "Select gm.member_id as patient_id from gaac g  "
+            + "inner join gaac_member gm on g.gaac_id=gm.gaac_id "
+            + "where gm.start_date<=:endDate and gm.voided=0 and g.voided=0 and ((leaving is null) or (leaving=0) or (leaving=1 and gm.end_date>:endDate)) and location_id=:location "
+            + "union "
+            + "select max_gaac.patient_id from( "
+            + "select p.patient_id,max(o.obs_datetime) max_datagaac from patient p "
+            + "inner join encounter e on p.patient_id=e.patient_id "
+            + "inner join obs o on o.encounter_id=e.encounter_id "
+            + "where e.encounter_type=6 and e.voided=0 and o.voided=0 and p.voided=0 and o.concept_id=23724 and e.location_id=:location and o.obs_datetime<=:endDate group by p.patient_id) max_gaac "
+            + "inner join obs on obs.person_id=max_gaac.patient_id and max_gaac.max_datagaac=obs.obs_datetime "
+            + "where obs.concept_id=23724 and obs.value_coded in (1256,1257) and obs.location_id=:location) gaac  "
+            + "where patient_id not in( "
+            + "select max_gaac.patient_id from ( "
+            + "select p.patient_id,max(o.obs_datetime) max_datagaac from patient p "
+            + "inner join encounter e on p.patient_id=e.patient_id "
+            + "inner join obs o on o.encounter_id=e.encounter_id "
+            + "where e.encounter_type=6 and e.voided=0 and o.voided=0 and p.voided=0 and o.concept_id=23724 and e.location_id=:location and o.obs_datetime<=:endDate group by p.patient_id)max_gaac "
+            + "inner join obs on obs.person_id=max_gaac.patient_id and max_gaac.max_datagaac=obs.obs_datetime "
+            + "where obs.concept_id=23724 and obs.value_coded=1267 and obs.location_id=:location) ";
+
+    public static final String findPatientWhoAreMdcSemiannual =
+        "select patient_id from( "
+            + "select levantamento.patient_id from( "
+            + "Select 	p.patient_id,max(e.encounter_datetime) data_levantamento from patient p "
+            + "inner join encounter e on p.patient_id=e.patient_id "
+            + "where p.voided=0 and e.voided=0 and e.encounter_type=18 and  e.encounter_datetime<=:endDate and e.location_id=:location group by p.patient_id )levantamento "
+            + "inner join obs o on o.person_id=levantamento.patient_id "
+            + "where levantamento.data_levantamento=o.obs_datetime and o.concept_id=5096 and o.voided=0 and o.location_id=:location and  datediff(o.value_datetime,levantamento.data_levantamento) between 175 and 190 "
+            + "union "
+            + "select max_tl.patient_id from ( "
+            + "select p.patient_id,max(o.obs_datetime) max_datatl from patient p "
+            + "inner join encounter e on p.patient_id=e.patient_id "
+            + "inner join obs o on o.encounter_id=e.encounter_id "
+            + "where e.encounter_type=6 and e.voided=0 and o.voided=0 and p.voided=0 and o.concept_id=23739 and e.location_id=:location and o.obs_datetime<=:endDate group by p.patient_id) max_tl "
+            + "inner join obs on obs.person_id=max_tl.patient_id and max_tl.max_datatl=obs.obs_datetime "
+            + "where obs.concept_id=23739 and obs.value_coded=23888 and obs.location_id=:location "
+            + "union "
+            + "select max_dt.patient_id from( "
+            + "select p.patient_id,max(o.obs_datetime) max_datadt from patient p "
+            + "inner join encounter e on p.patient_id=e.patient_id "
+            + "inner join obs o on o.encounter_id=e.encounter_id "
+            + "where e.encounter_type=6 and e.voided=0 and o.voided=0 and p.voided=0 and o.concept_id=23888 and e.location_id=:location and o.obs_datetime<=:endDate group by p.patient_id) max_dt "
+            + "inner join obs on obs.person_id=max_dt.patient_id and max_dt.max_datadt=obs.obs_datetime "
+            + "where obs.concept_id=23888 and obs.value_coded in (1256,1257) and obs.location_id=:location) dt "
+            + "where patient_id not in( "
+            + "select max_dts.patient_id from( "
+            + "select p.patient_id,max(o.obs_datetime) max_datadts from patient p "
+            + "inner join encounter e on p.patient_id=e.patient_id "
+            + "inner join obs o on o.encounter_id=e.encounter_id "
+            + "where e.encounter_type=6 and e.voided=0 and o.voided=0 and p.voided=0 and o.concept_id=23888 and e.location_id=:location and o.obs_datetime<=:endDate group by p.patient_id) max_dts "
+            + "inner join obs on obs.person_id=max_dts.patient_id and max_dts.max_datadts=obs.obs_datetime "
+            + "where obs.concept_id=23888 and obs.value_coded=1267 and obs.location_id=:location) ";
+
+    public static final String findPatientWhoAreMdcCummunity =
+        "select max_dc.patient_id from ( "
+            + "select p.patient_id,max(o.obs_datetime) max_datadc from patient p "
+            + "inner join encounter e on p.patient_id=e.patient_id "
+            + "inner join obs o on o.encounter_id=e.encounter_id "
+            + "where e.encounter_type=6 and e.voided=0 and o.voided=0 and p.voided=0 and o.concept_id=23731 and e.location_id=:location and o.obs_datetime<=:endDate group by p.patient_id) max_dc "
+            + "inner join obs on obs.person_id=max_dc.patient_id and max_dc.max_datadc=obs.obs_datetime "
+            + "where obs.concept_id=23731 and obs.value_coded in (1256,1257) and obs.location_id=:location ";
+
+    public static final String findPatientWhoAreMdcFamilyApproach =
+        "select max_af.patient_id from( "
+            + "select p.patient_id,max(o.obs_datetime) max_dataaf from patient p "
+            + "inner join encounter e on p.patient_id=e.patient_id "
+            + "inner join obs o on o.encounter_id=e.encounter_id "
+            + "where e.encounter_type=6 and e.voided=0 and o.voided=0 and p.voided=0 and o.concept_id=23725 and e.location_id=:location and o.obs_datetime<=:endDate group by p.patient_id) max_af "
+            + "inner join obs on obs.person_id=max_af.patient_id and max_af.max_dataaf=obs.obs_datetime "
+            + "where obs.concept_id=23725 and obs.value_coded in (1256,1257) and obs.location_id=:location ";
+
+    public static final String findPatientWhoAreMdcAdhesionClub =
+        "select max_ca.patient_id from( "
+            + "select p.patient_id,max(o.obs_datetime) max_dataca from patient p "
+            + "inner join encounter e on p.patient_id=e.patient_id "
+            + "inner join obs o on o.encounter_id=e.encounter_id "
+            + "where e.encounter_type=6 and e.voided=0 and o.voided=0 and p.voided=0 and o.concept_id=23726 and e.location_id=:location and o.obs_datetime<=:endDate group by p.patient_id)max_ca "
+            + "inner join obs on obs.person_id=max_ca.patient_id and max_ca.max_dataca=obs.obs_datetime "
+            + "where obs.concept_id=23726 and obs.value_coded in (1256,1257) and obs.location_id=:location ";
   }
 }

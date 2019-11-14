@@ -3,7 +3,8 @@ package org.openmrs.module.eptsreports.reporting.library.datasets;
 import java.util.Arrays;
 import java.util.List;
 import org.openmrs.module.eptsreports.reporting.library.cohorts.DSDCohortQueries;
-import org.openmrs.module.eptsreports.reporting.library.cohorts.DsdElegibleCohortQuery;
+import org.openmrs.module.eptsreports.reporting.library.cohorts.DsdD01CohortQuery;
+import org.openmrs.module.eptsreports.reporting.library.cohorts.DsdN02CohortQuery;
 import org.openmrs.module.eptsreports.reporting.library.dimensions.AgeDimensionCohortInterface;
 import org.openmrs.module.eptsreports.reporting.library.dimensions.EptsCommonDimension;
 import org.openmrs.module.eptsreports.reporting.library.indicators.EptsGeneralIndicator;
@@ -18,7 +19,8 @@ import org.springframework.stereotype.Component;
 public class EriDSDDataset extends BaseDataSet {
 
   @Autowired private DSDCohortQueries dsdCohortQueries;
-  @Autowired private DsdElegibleCohortQuery elegibleCohortQuery;
+  @Autowired private DsdD01CohortQuery dsdD01CohortQuery;
+  @Autowired private DsdN02CohortQuery dsdN02CohortQuery;
   @Autowired private EptsGeneralIndicator eptsGeneralIndicator;
   @Autowired private EptsCommonDimension eptsCommonDimension;
 
@@ -46,7 +48,8 @@ public class EriDSDDataset extends BaseDataSet {
             eptsGeneralIndicator.getIndicator(
                 "DSD D1 Total",
                 EptsReportUtils.map(
-                    dsdCohortQueries.getPatientsActiveOnArtExcludingPregnantBreastfeedingAndTb(""),
+                    dsdCohortQueries.getPatientsActiveOnArtExcludingPregnantBreastfeedingAndTb(
+                        "DSD D1 Total"),
                     mappings)),
             mappings),
         "");
@@ -57,7 +60,8 @@ public class EriDSDDataset extends BaseDataSet {
             eptsGeneralIndicator.getIndicator(
                 "DSD D2 Total",
                 EptsReportUtils.map(
-                    dsdCohortQueries.getPatientsActiveOnArtEligibleForDsd(""), mappings)),
+                    dsdCohortQueries.getPatientsActiveOnArtEligibleForDsd("DSD D1 Sub Total"),
+                    mappings)),
             mappings),
         "");
     dsd.addColumn(
@@ -67,7 +71,7 @@ public class EriDSDDataset extends BaseDataSet {
             eptsGeneralIndicator.getIndicator(
                 "Adults (>=15)",
                 EptsReportUtils.map(
-                    elegibleCohortQuery.getAdultActiveOnArtElegibleDsd(""), mappings)),
+                    dsdD01CohortQuery.getAdultActiveOnArtElegibleDsd("Adults (>=15)"), mappings)),
             mappings),
         "");
     dsd.addColumn(
@@ -77,7 +81,7 @@ public class EriDSDDataset extends BaseDataSet {
             eptsGeneralIndicator.getIndicator(
                 "2-4",
                 EptsReportUtils.map(
-                    elegibleCohortQuery.getChild2To4ActiveOnArtElegibleDsd(""), mappings)),
+                    dsdD01CohortQuery.getChild2To4ActiveOnArtElegibleDsd("2-4"), mappings)),
             mappings),
         "");
     dsd.addColumn(
@@ -87,7 +91,7 @@ public class EriDSDDataset extends BaseDataSet {
             eptsGeneralIndicator.getIndicator(
                 "5-9",
                 EptsReportUtils.map(
-                    elegibleCohortQuery.getChild5To9ActiveOnArtElegibleDsd(""), mappings)),
+                    dsdD01CohortQuery.getChild5To9ActiveOnArtElegibleDsd("5-9"), mappings)),
             mappings),
         "");
     dsd.addColumn(
@@ -97,18 +101,19 @@ public class EriDSDDataset extends BaseDataSet {
             eptsGeneralIndicator.getIndicator(
                 "10-14",
                 EptsReportUtils.map(
-                    elegibleCohortQuery.getChild10To14ActiveOnArtElegibleDsd(""), mappings)),
+                    dsdD01CohortQuery.getChild10To14ActiveOnArtElegibleDsd("10-14"), mappings)),
             mappings),
         "");
 
     dsd.addColumn(
         "D2TA",
-        "10-14",
+        "D2TA",
         EptsReportUtils.map(
             eptsGeneralIndicator.getIndicator(
                 "D2TA Total",
                 EptsReportUtils.map(
-                    dsdCohortQueries.getPatientsActiveOnArtNotEligibleForDsd(""), mappings)),
+                    dsdCohortQueries.getPatientsActiveOnArtNotEligibleForDsd("D2TA Total"),
+                    mappings)),
             mappings),
         "");
 
@@ -119,7 +124,7 @@ public class EriDSDDataset extends BaseDataSet {
             eptsGeneralIndicator.getIndicator(
                 "15+",
                 EptsReportUtils.map(
-                    elegibleCohortQuery.getAdultActiveOnArtNotElegibleDsd(""), mappings)),
+                    dsdD01CohortQuery.getAdultActiveOnArtNotElegibleDsd("15+"), mappings)),
             mappings),
         "");
 
@@ -130,7 +135,7 @@ public class EriDSDDataset extends BaseDataSet {
             eptsGeneralIndicator.getIndicator(
                 "<2",
                 EptsReportUtils.map(
-                    elegibleCohortQuery.getChildLessthan2ActiveOnArtNotElegibleDsd(""), mappings)),
+                    dsdD01CohortQuery.getChildLessthan2ActiveOnArtNotElegibleDsd("<2"), mappings)),
             mappings),
         "");
 
@@ -141,7 +146,7 @@ public class EriDSDDataset extends BaseDataSet {
             eptsGeneralIndicator.getIndicator(
                 "2-4",
                 EptsReportUtils.map(
-                    elegibleCohortQuery.getChild2To4ActiveOnArtNotElegibleDsd(""), mappings)),
+                    dsdD01CohortQuery.getChild2To4ActiveOnArtNotElegibleDsd("2-4"), mappings)),
             mappings),
         "");
     dsd.addColumn(
@@ -151,7 +156,7 @@ public class EriDSDDataset extends BaseDataSet {
             eptsGeneralIndicator.getIndicator(
                 "5-9",
                 EptsReportUtils.map(
-                    elegibleCohortQuery.getChild5To9ActiveOnNotArtElegibleDsd(""), mappings)),
+                    dsdD01CohortQuery.getChild5To9ActiveOnNotArtElegibleDsd("5-9"), mappings)),
             mappings),
         "");
     dsd.addColumn(
@@ -161,7 +166,7 @@ public class EriDSDDataset extends BaseDataSet {
             eptsGeneralIndicator.getIndicator(
                 "10-14",
                 EptsReportUtils.map(
-                    elegibleCohortQuery.getChild10To14ActiveOnArtNotElegibleDsd(""), mappings)),
+                    dsdD01CohortQuery.getChild10To14ActiveOnArtNotElegibleDsd("10-14"), mappings)),
             mappings),
         "");
     // DSD: Numerator: Number of active on ART whose next ART pick-up is schedule for 83-97 days
@@ -173,7 +178,8 @@ public class EriDSDDataset extends BaseDataSet {
         EptsReportUtils.map(
             eptsGeneralIndicator.getIndicator(
                 "TOTAL",
-                EptsReportUtils.map(dsdCohortQueries.getPatientsActiveOnArtWhoInDt(""), mappings)),
+                EptsReportUtils.map(
+                    dsdCohortQueries.getPatientsActiveOnArtWhoInDt("N1T Total"), mappings)),
             mappings),
         "");
 
@@ -184,10 +190,373 @@ public class EriDSDDataset extends BaseDataSet {
             eptsGeneralIndicator.getIndicator(
                 "SUB TOTAL",
                 EptsReportUtils.map(
-                    dsdCohortQueries.getPatientsActiveOnArtElegibleDsdWhoInDt(""), mappings)),
+                    dsdCohortQueries.getPatientsActiveOnArtElegibleDsdWhoInDt("N1SST Total"),
+                    mappings)),
             mappings),
         "");
 
+    dsd.addColumn(
+        "N1SNPNBA",
+        "15+",
+        EptsReportUtils.map(
+            eptsGeneralIndicator.getIndicator(
+                "15+",
+                EptsReportUtils.map(
+                    dsdN02CohortQuery.getN02AdultActiveOnArtElegibleDsdWhoInDt("15+"), mappings)),
+            mappings),
+        "");
+    dsd.addColumn(
+        "N1SNPNBC-01",
+        "2-4",
+        EptsReportUtils.map(
+            eptsGeneralIndicator.getIndicator(
+                "2-4",
+                EptsReportUtils.map(
+                    dsdN02CohortQuery.getN02Child2To4ActiveOnArtElegibleDsdWhoInDt("2-4"),
+                    mappings)),
+            mappings),
+        "");
+    dsd.addColumn(
+        "N1SNPNBC-02",
+        "5-9",
+        EptsReportUtils.map(
+            eptsGeneralIndicator.getIndicator(
+                "5-9",
+                EptsReportUtils.map(
+                    dsdN02CohortQuery.getN02Child5To9ActiveOnArtElegibleDsdWhoInDt("5-9"),
+                    mappings)),
+            mappings),
+        "");
+    dsd.addColumn(
+        "N1SNPNBC-03",
+        "10-14",
+        EptsReportUtils.map(
+            eptsGeneralIndicator.getIndicator(
+                "10-14",
+                EptsReportUtils.map(
+                    dsdN02CohortQuery.getN02Child10To14ActiveOnArtElegibleDsdWhoInDt("10-14"),
+                    mappings)),
+            mappings),
+        "");
+
+    dsd.addColumn(
+        "N1UST",
+        "N1UST Total",
+        EptsReportUtils.map(
+            eptsGeneralIndicator.getIndicator(
+                "SUB TOTAL",
+                EptsReportUtils.map(
+                    dsdCohortQueries.getPatientsActiveOnArtNotElegibleDsdWhoInDt("N1UST Total"),
+                    mappings)),
+            mappings),
+        "");
+
+    dsd.addColumn(
+        "N1UNPNBA",
+        "15+",
+        EptsReportUtils.map(
+            eptsGeneralIndicator.getIndicator(
+                "15+",
+                EptsReportUtils.map(
+                    dsdN02CohortQuery.getN02AdultActiveOnArtNotElegibleDsdWhoInDt("15+"),
+                    mappings)),
+            mappings),
+        "");
+    dsd.addColumn(
+        "N1UNPNBC-D01",
+        "<2",
+        EptsReportUtils.map(
+            eptsGeneralIndicator.getIndicator(
+                "<2",
+                EptsReportUtils.map(
+                    dsdN02CohortQuery.getN02LessThan2ActiveOnArtNotElegibleDsdWhoInDt("<2"),
+                    mappings)),
+            mappings),
+        "");
+
+    dsd.addColumn(
+        "N1UNPNBC-01",
+        "2-4",
+        EptsReportUtils.map(
+            eptsGeneralIndicator.getIndicator(
+                "2-4",
+                EptsReportUtils.map(
+                    dsdN02CohortQuery.getN02Child2To4ActiveOnArtNotElegibleDsdWhoInDt("2-4"),
+                    mappings)),
+            mappings),
+        "");
+
+    dsd.addColumn(
+        "N1UNPNBC-02",
+        "5-9",
+        EptsReportUtils.map(
+            eptsGeneralIndicator.getIndicator(
+                "5-9",
+                EptsReportUtils.map(
+                    dsdN02CohortQuery.getN02Child5To9ActiveOnArtNotElegibleDsdWhoInDt("5-9"),
+                    mappings)),
+            mappings),
+        "");
+
+    dsd.addColumn(
+        "N1UNPNBC-03",
+        "10-14",
+        EptsReportUtils.map(
+            eptsGeneralIndicator.getIndicator(
+                "10-14",
+                EptsReportUtils.map(
+                    dsdN02CohortQuery.getN02Child10To14ActiveOnArtNotElegibleDsdWhoInDt("10-14"),
+                    mappings)),
+            mappings),
+        "");
+
+    // DSD: Numerator: Number of active patients on ART whose next clinical
+    // consultation is scheduled 175-190 days after the date of the last
+    // clinical consultation (FR) - (Non-pregnant and Non-Breastfeeding not
+    // on TB treatment)
+
+    dsd.addColumn(
+        "N2T",
+        "N2T Total",
+        EptsReportUtils.map(
+            eptsGeneralIndicator.getIndicator(
+                "TOTAL",
+                EptsReportUtils.map(
+                    dsdCohortQueries.getPatientsActiveOnArtWhoInFastFlow("N2T Total"), mappings)),
+            mappings),
+        "");
+
+    dsd.addColumn(
+        "N2SST",
+        "N2SST  SubTotal",
+        EptsReportUtils.map(
+            eptsGeneralIndicator.getIndicator(
+                "SUB TOTAL",
+                EptsReportUtils.map(
+                    dsdCohortQueries.getPatientsActiveOnArtElegibleToDsdWhoInFastFlow(
+                        "N2SST Sub Total"),
+                    mappings)),
+            mappings),
+        "");
+
+    //    Not Elegible
+    dsd.addColumn(
+        "N2UST",
+        "N2UST SubTotal",
+        EptsReportUtils.map(
+            eptsGeneralIndicator.getIndicator(
+                "SUB TOTAL",
+                EptsReportUtils.map(
+                    dsdCohortQueries.getPatientsActiveOnArtNotElegibleToDsdWhoInFastFlow(
+                        "N2UST Sub Total"),
+                    mappings)),
+            mappings),
+        "");
+
+    // DSD: Numerator: Number of active patients on ART (Non-pregnant and
+    // Non-Breastfeeding not on TB treatment) that are participating in GAAC
+    // at the end of the month prior to month of results submission deadline
+    // (GAAC)
+    dsd.addColumn(
+        "N3T",
+        "N3T Total",
+        EptsReportUtils.map(
+            eptsGeneralIndicator.getIndicator(
+                "TOTAL",
+                EptsReportUtils.map(
+                    dsdCohortQueries.getPatientsActiveOnArtWhoInGaac("N3T Total"), mappings)),
+            mappings),
+        "");
+
+    dsd.addColumn(
+        "N3SST",
+        "N3SST  SubTotal",
+        EptsReportUtils.map(
+            eptsGeneralIndicator.getIndicator(
+                "SUB TOTAL",
+                EptsReportUtils.map(
+                    dsdCohortQueries.getPatientsActiveOnArtElegibleToDsdWhoInGaac(
+                        "N3SST Sub Total"),
+                    mappings)),
+            mappings),
+        "");
+
+    //        Not Elegible
+    dsd.addColumn(
+        "N3UST",
+        "N3UST SubTotal",
+        EptsReportUtils.map(
+            eptsGeneralIndicator.getIndicator(
+                "SUB TOTAL",
+                EptsReportUtils.map(
+                    dsdCohortQueries.getPatientsActiveOnArtNotElegibleToDsdWhoInGacc(
+                        "N2UST Sub Total"),
+                    mappings)),
+            mappings),
+        "");
+
+    //    DSD: Numerator: Number of active patients on ART (Non-pregnant and Non-Breastfeeding not
+    // on TB treatment) on Abordagem Familiar (AF)
+    dsd.addColumn(
+        "N4T",
+        "N4T Total",
+        EptsReportUtils.map(
+            eptsGeneralIndicator.getIndicator(
+                "TOTAL",
+                EptsReportUtils.map(
+                    dsdCohortQueries.getPatientsActiveOnArtWhoFamilyApproach("N4T Total"),
+                    mappings)),
+            mappings),
+        "");
+
+    dsd.addColumn(
+        "N4SST",
+        "N4SST  SubTotal",
+        EptsReportUtils.map(
+            eptsGeneralIndicator.getIndicator(
+                "SUB TOTAL",
+                EptsReportUtils.map(
+                    dsdCohortQueries.getPatientsActiveOnArtElegibleToDsdWhoInFamilyApproach(
+                        "N4SST Sub Total"),
+                    mappings)),
+            mappings),
+        "");
+
+    //        Not Elegible
+    dsd.addColumn(
+        "N4UST",
+        "N4UST SubTotal",
+        EptsReportUtils.map(
+            eptsGeneralIndicator.getIndicator(
+                "SUB TOTAL",
+                EptsReportUtils.map(
+                    dsdCohortQueries.getPatientsActiveOnArtNotElegibleToDsdWhoInFamilyApproach(
+                        "N4UST Sub Total"),
+                    mappings)),
+            mappings),
+        "");
+
+    //    DSD: Numerator: Number of active patients on Clubes de Adesão (CA) - (Non-pregnant and
+    // Non-Breastfeeding not on TB treatment)
+    dsd.addColumn(
+        "N5T",
+        "N5T Total",
+        EptsReportUtils.map(
+            eptsGeneralIndicator.getIndicator(
+                "TOTAL",
+                EptsReportUtils.map(
+                    dsdCohortQueries.getPatientsActiveOnArtWhoInAdhesionClub("N5T Total"),
+                    mappings)),
+            mappings),
+        "");
+
+    dsd.addColumn(
+        "N5SST",
+        "N5SST  SubTotal",
+        EptsReportUtils.map(
+            eptsGeneralIndicator.getIndicator(
+                "SUB TOTAL",
+                EptsReportUtils.map(
+                    dsdCohortQueries.getPatientsActiveOnArtElegibleToDsdWhoInAdhesionClub(
+                        "N5SST Sub Total"),
+                    mappings)),
+            mappings),
+        "");
+
+    //        Not Elegible
+    dsd.addColumn(
+        "N5UST",
+        "N5UST SubTotal",
+        EptsReportUtils.map(
+            eptsGeneralIndicator.getIndicator(
+                "SUB TOTAL",
+                EptsReportUtils.map(
+                    dsdCohortQueries.getPatientsActiveOnArtNotElegibleToDsdWhoInAdhesionClub(
+                        "N5UST Sub Total"),
+                    mappings)),
+            mappings),
+        "");
+
+    //    DSD: Numerator: Number of active patients on ART (Non-pregnant and Non-Breastfeeding not
+    // on TB treatment) on Dispensa Semestral (DS)
+    dsd.addColumn(
+        "N6T",
+        "N6T Total",
+        EptsReportUtils.map(
+            eptsGeneralIndicator.getIndicator(
+                "TOTAL",
+                EptsReportUtils.map(
+                    dsdCohortQueries.getPatientsActiveOnArtWhoInSemiannual("N6T Total"), mappings)),
+            mappings),
+        "");
+
+    dsd.addColumn(
+        "N6SST",
+        "N6SST  SubTotal",
+        EptsReportUtils.map(
+            eptsGeneralIndicator.getIndicator(
+                "SUB TOTAL",
+                EptsReportUtils.map(
+                    dsdCohortQueries.getPatientsActiveOnArtElegibleToDsdWhoInSemiannual(
+                        "N6SST Sub Total"),
+                    mappings)),
+            mappings),
+        "");
+
+    //        Not Elegible
+    dsd.addColumn(
+        "N6UST",
+        "N6UST SubTotal",
+        EptsReportUtils.map(
+            eptsGeneralIndicator.getIndicator(
+                "SUB TOTAL",
+                EptsReportUtils.map(
+                    dsdCohortQueries.getPatientsActiveOnArtNotElegibleToDsdWhoInSemiannual(
+                        "N6UST Sub Total"),
+                    mappings)),
+            mappings),
+        "");
+
+    //        DSD: Numerator: Number of active patients on Dispensa Comunitária (DC) - (Non-pregnant
+    // and Non-Breastfeeding not on TB treatment)
+
+    dsd.addColumn(
+        "N7T",
+        "N7T Total",
+        EptsReportUtils.map(
+            eptsGeneralIndicator.getIndicator(
+                "TOTAL",
+                EptsReportUtils.map(
+                    dsdCohortQueries.getPatientsActiveOnArtWhoInCummunity("N7T Total"), mappings)),
+            mappings),
+        "");
+
+    dsd.addColumn(
+        "N7SST",
+        "N7SST  SubTotal",
+        EptsReportUtils.map(
+            eptsGeneralIndicator.getIndicator(
+                "SUB TOTAL",
+                EptsReportUtils.map(
+                    dsdCohortQueries.getPatientsActiveOnArtElegibleToDsdWhoInCummunity(
+                        "N7SST Sub Total"),
+                    mappings)),
+            mappings),
+        "");
+
+    //        Not Elegible
+    dsd.addColumn(
+        "N7UST",
+        "N7UST SubTotal",
+        EptsReportUtils.map(
+            eptsGeneralIndicator.getIndicator(
+                "SUB TOTAL",
+                EptsReportUtils.map(
+                    dsdCohortQueries.getPatientsActiveOnArtNotElegibleToDsdWhoInCummunity(
+                        "N7UST Sub Total"),
+                    mappings)),
+            mappings),
+        "");
     // addRow(
     // dsd,
     // "D1SNPNBC",
