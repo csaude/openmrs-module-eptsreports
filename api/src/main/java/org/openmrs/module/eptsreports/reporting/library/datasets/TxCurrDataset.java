@@ -63,13 +63,13 @@ public class TxCurrDataset extends BaseDataSet {
     final String mappings = "endDate=${endDate},location=${location}";
 
     final CohortDefinition txCurrCompositionCohort =
-        this.txCurrCohortQueries.findPatientsWhoAreActiveOnART();
+        this.txCurrCohortQueries.getTxCurrCalculation();
 
     final CohortIndicator txCurrIndicator =
         this.eptsGeneralIndicator.getIndicator(
             "findPatientsWhoAreActiveOnART",
             EptsReportUtils.map(
-                txCurrCompositionCohort, "endDate=${endDate},location=${location}"));
+                txCurrCompositionCohort, "onOrBefore=${endDate},location=${location}"));
 
     this.addDimensions(
         dataSetDefinition,

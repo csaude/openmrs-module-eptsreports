@@ -15,7 +15,10 @@ import java.util.Arrays;
 import java.util.Date;
 import org.apache.commons.lang3.StringUtils;
 import org.openmrs.Location;
+import org.openmrs.api.context.Context;
 import org.openmrs.module.eptsreports.metadata.HivMetadata;
+import org.openmrs.module.eptsreports.reporting.calculation.generic.TxCurrCalculation;
+import org.openmrs.module.eptsreports.reporting.cohort.definition.FGHCalculationCohortDefinition;
 import org.openmrs.module.eptsreports.reporting.library.queries.TxCurrQueries;
 import org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
@@ -387,5 +390,17 @@ public class TxCurrCohortQueries {
     definition.setQuery(TxCurrQueries.QUERY.findPatientsWhoAreCurrentlyEnrolledOnART);
 
     return definition;
+  }
+
+  @DocumentedDefinition(value = "txCurrCalculation")
+  public CohortDefinition getTxCurrCalculation() {
+
+    FGHCalculationCohortDefinition cd =
+        new FGHCalculationCohortDefinition(
+            "txCurrCalculation", Context.getRegisteredComponents(TxCurrCalculation.class).get(0));
+    cd.addParameter(new Parameter("onOrBefore", "Before Date", Date.class));
+    cd.addParameter(new Parameter("location", "Location", Location.class));
+
+    return cd;
   }
 }
