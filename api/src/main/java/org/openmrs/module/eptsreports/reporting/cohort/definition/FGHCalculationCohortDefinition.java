@@ -33,10 +33,10 @@ public class FGHCalculationCohortDefinition extends BaseCohortDefinition {
   private FGHPatientCalculation calculation;
 
   @ConfigurationProperty(group = "calculation")
-  private Date onOrAfter;
+  private Date startDate;
 
   @ConfigurationProperty(group = "calculation")
-  private Date onOrBefore;
+  private Date endDate;
 
   @ConfigurationProperty(group = "calculation")
   private Object withResult;
@@ -83,30 +83,20 @@ public class FGHCalculationCohortDefinition extends BaseCohortDefinition {
     this.calculation = calculation;
   }
 
-  public Date getOnOrAfter() {
-    return onOrAfter;
+  public Date getStartDate() {
+    return startDate;
   }
 
-  public void setOnOrAfter(Date onOrAfter) {
-    this.onOrAfter = onOrAfter;
+  public void setStartDate(Date startDate) {
+    this.startDate = startDate;
   }
 
-  /**
-   * Gets the date for which to calculate
-   *
-   * @return the date
-   */
-  public Date getOnOrBefore() {
-    return onOrBefore;
+  public Date getEndDate() {
+    return endDate;
   }
 
-  /**
-   * Sets the date for which to calculate
-   *
-   * @param onOrBefore the date
-   */
-  public void setOnOrBefore(Date onOrBefore) {
-    this.onOrBefore = onOrBefore;
+  public void setEndDate(Date endDate) {
+    this.endDate = endDate;
   }
 
   /**

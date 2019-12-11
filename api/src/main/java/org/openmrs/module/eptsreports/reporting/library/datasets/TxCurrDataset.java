@@ -60,16 +60,16 @@ public class TxCurrDataset extends BaseDataSet {
     dataSetDefinition.setName("TX_CURR Data Set");
     dataSetDefinition.addParameters(this.getParameters());
 
-    final String mappings = "endDate=${endDate},location=${location}";
+    final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
 
-    final CohortDefinition txCurrCompositionCohort =
-        this.txCurrCohortQueries.getTxCurrCalculation();
+    final CohortDefinition txCurrCohort =
+        this.txCurrCohortQueries.getTXMLPatientsWhoMissedNextApointmentCalculation();
+
+    // this.txCurrCohortQueries.getTXMLCalculation();
 
     final CohortIndicator txCurrIndicator =
         this.eptsGeneralIndicator.getIndicator(
-            "findPatientsWhoAreActiveOnART",
-            EptsReportUtils.map(
-                txCurrCompositionCohort, "onOrBefore=${endDate},location=${location}"));
+            "findPatientsWhoAreActiveOnART", EptsReportUtils.map(txCurrCohort, mappings));
 
     this.addDimensions(
         dataSetDefinition,

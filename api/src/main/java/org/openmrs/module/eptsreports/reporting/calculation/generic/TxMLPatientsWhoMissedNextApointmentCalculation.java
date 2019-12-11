@@ -7,23 +7,25 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.time.DateUtils;
 import org.openmrs.api.context.Context;
-import org.openmrs.calculation.patient.PatientCalculationContext;
 import org.openmrs.calculation.result.CalculationResult;
 import org.openmrs.calculation.result.CalculationResultMap;
 import org.openmrs.calculation.result.SimpleResult;
+import org.openmrs.module.eptsreports.reporting.calculation.BooleanResult;
 import org.openmrs.module.eptsreports.reporting.calculation.FGHAbstractPatientCalculation;
 import org.openmrs.module.reporting.common.DateUtil;
+import org.openmrs.module.reporting.evaluation.EvaluationContext;
 import org.springframework.stereotype.Component;
 
 @Component
-public class TxCurrCalculation extends FGHAbstractPatientCalculation {
+public class TxMLPatientsWhoMissedNextApointmentCalculation extends FGHAbstractPatientCalculation {
 
   @Override
-  public CalculationResultMap evaluate( // FGHCalculationCohortDefinition cohortDefinition,
-      Map<String, Object> parameterValues, PatientCalculationContext context) {
+  public CalculationResultMap evaluate(
+      Map<String, Object> parameterValues, EvaluationContext context) {
     CalculationResultMap resultMap = new CalculationResultMap();
 
-    Date onOrBefore = (Date) context.getFromCache("onOrBefore");
+    Date startDate = (Date) context.getFromCache("startDate");
+    Date endDate = (Date) context.getFromCache("endDate");
 
     CalculationResultMap inicioRealResult =
         super.calculate(
@@ -32,13 +34,6 @@ public class TxCurrCalculation extends FGHAbstractPatientCalculation {
             context);
     Set<Integer> cohort = inicioRealResult.keySet();
 
-    CalculationResultMap saidaResult =
-        super.calculate(
-            Context.getRegisteredComponents(LastPatientStateCalculation.class).get(0),
-            cohort,
-            parameterValues,
-            context);
-
     CalculationResultMap lastFilaResult =
         super.calculate(
             Context.getRegisteredComponents(LastFilaCalculation.class).get(0),
@@ -46,19 +41,22 @@ public class TxCurrCalculation extends FGHAbstractPatientCalculation {
             parameterValues,
             context);
 
+    context.removeFromCache("lastFilaResult");
+    context.addToCache("lastFilaResult", lastFilaResult);
+
     CalculationResultMap lastSeguimentoResult =
         super.calculate(
             Context.getRegisteredComponents(LastSeguimentoCalculation.class).get(0),
             cohort,
             parameterValues,
             context);
+    context.removeFromCache("lastSeguimentoResult");
+    context.addToCache("lastSeguimentoResult", lastSeguimentoResult);
 
+    LastRecepcaoLevantamentoCalculation lastRecepcaoLevantamentoCalculation =
+        Context.getRegisteredComponents(LastRecepcaoLevantamentoCalculation.class).get(0);
     CalculationResultMap lastRecepcaoLevantamentoResult =
-        super.calculate(
-            Context.getRegisteredComponents(LastRecepcaoLevantamentoCalculation.class).get(0),
-            cohort,
-            parameterValues,
-            context);
+        super.calculate(lastRecepcaoLevantamentoCalculation, cohort, parameterValues, context);
 
     CalculationResultMap nextFilaResult =
         super.calculate(
@@ -74,49 +72,43 @@ public class TxCurrCalculation extends FGHAbstractPatientCalculation {
             parameterValues,
             context);
 
-    int countTrue = 0;
     for (Integer patientId : cohort) {
       boolean isCandidate = false;
-      Date lastDateState =
-          (Date)
-              (saidaResult.get(patientId) != null ? saidaResult.get(patientId).getValue() : null);
       Date maxLastDate =
           getMaxDate(
               patientId, lastFilaResult, lastSeguimentoResult, lastRecepcaoLevantamentoResult);
+
       Date maxNextDate =
           getMaxDate(
               patientId,
               nextFilaResult,
               nextSeguimentoResult,
-              getLastRecepcaoLevantamentoPlus30(patientId, lastRecepcaoLevantamentoResult));
+              getLastRecepcaoLevantamentoPlus30(
+                  patientId, lastRecepcaoLevantamentoResult, lastRecepcaoLevantamentoCalculation));
+
       if (maxLastDate != null && maxNextDate != null) {
-        Date nextDatePlus30 = getDatePlusDays(maxNextDate, 30);
-        if ((lastDateState == null || (lastDateState.compareTo(maxLastDate) < 0))
-            && nextDatePlus30.compareTo(onOrBefore) > 0) {
+
+        Date nextDatePlus28 = getDatePlusDays(maxNextDate, 28);
+
+        if (nextDatePlus28.compareTo(startDate) > 0 && nextDatePlus28.compareTo(endDate) < 0) {
           isCandidate = true;
-          countTrue++;
         }
       }
-      resultMap.put(patientId, new SimpleResult(isCandidate, this));
+      resultMap.put(patientId, new BooleanResult(isCandidate, this));
     }
-
-    System.out.println("MNresultMap =>" + resultMap.size());
-    System.out.println("TERMINOU => END. TOTAL PASSING => " + countTrue);
-
     return resultMap;
   }
 
   @Override
-  public CalculationResultMap evaluate( // FGHCalculationCohortDefinition cohortDefinition,
-      Collection<Integer> cohort,
-      Map<String, Object> parameterValues,
-      PatientCalculationContext context) {
+  public CalculationResultMap evaluate(
+      Collection<Integer> cohort, Map<String, Object> parameterValues, EvaluationContext context) {
     return this.evaluate(parameterValues, context);
   }
 
   private Date getMaxDate(Integer patientId, CalculationResultMap... calculationResulsts) {
     Date finalComparisonDate = DateUtil.getDateTime(Integer.MAX_VALUE, 1, 1);
     Date maxDate = DateUtil.getDateTime(Integer.MAX_VALUE, 1, 1);
+
     for (CalculationResultMap resultItem : calculationResulsts) {
       CalculationResult calculationResult = resultItem.get(patientId);
       if (calculationResult != null && calculationResult.getValue() != null) {
@@ -134,7 +126,9 @@ public class TxCurrCalculation extends FGHAbstractPatientCalculation {
   }
 
   private CalculationResultMap getLastRecepcaoLevantamentoPlus30(
-      Integer patientId, CalculationResultMap lastRecepcaoLevantamentoResult) {
+      Integer patientId,
+      CalculationResultMap lastRecepcaoLevantamentoResult,
+      LastRecepcaoLevantamentoCalculation lastRecepcaoLevantamentoCalculation) {
 
     CalculationResultMap lastRecepcaoLevantamentoPlus30 = new CalculationResultMap();
     CalculationResult maxRecepcao = lastRecepcaoLevantamentoResult.get(patientId);
@@ -143,7 +137,7 @@ public class TxCurrCalculation extends FGHAbstractPatientCalculation {
           patientId,
           new SimpleResult(
               this.getDatePlusDays((Date) maxRecepcao.getValue(), 30),
-              Context.getRegisteredComponents(LastRecepcaoLevantamentoCalculation.class).get(0)));
+              lastRecepcaoLevantamentoCalculation));
     }
     return lastRecepcaoLevantamentoPlus30;
   }

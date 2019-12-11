@@ -1,32 +1,29 @@
 package org.openmrs.module.eptsreports.reporting.calculation.generic;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.time.DateUtils;
-import org.openmrs.Location;
 import org.openmrs.Obs;
 import org.openmrs.api.context.Context;
-import org.openmrs.calculation.patient.PatientCalculationContext;
 import org.openmrs.calculation.result.CalculationResult;
 import org.openmrs.calculation.result.CalculationResultMap;
-import org.openmrs.calculation.result.ListResult;
 import org.openmrs.calculation.result.SimpleResult;
-import org.openmrs.module.eptsreports.metadata.HivMetadata;
 import org.openmrs.module.eptsreports.reporting.calculation.FGHAbstractPatientCalculation;
-import org.openmrs.module.eptsreports.reporting.calculation.common.EPTSCalculationService;
-import org.openmrs.module.eptsreports.reporting.utils.EptsCalculationUtils;
+import org.openmrs.module.eptsreports.reporting.calculation.processor.NextFilaDateProcessor;
 import org.openmrs.module.reporting.common.DateUtil;
+import org.openmrs.module.reporting.common.ListMap;
+import org.openmrs.module.reporting.evaluation.EvaluationContext;
 import org.springframework.stereotype.Component;
 
 @Component
 public class NextFilaDateCalculation extends FGHAbstractPatientCalculation {
 
   @Override
-  public CalculationResultMap evaluate( // FGHCalculationCohortDefinition cohortDefinition,
-      Map<String, Object> parameterValues, PatientCalculationContext context) {
+  public CalculationResultMap evaluate(
+      Map<String, Object> parameterValues, EvaluationContext context) {
     throw new IllegalArgumentException(
         String.format(
             "The Calculation '%s' Requires a specific Cohort of patients Argument",
@@ -34,45 +31,26 @@ public class NextFilaDateCalculation extends FGHAbstractPatientCalculation {
   }
 
   @Override
-  public CalculationResultMap evaluate( // FGHCalculationCohortDefinition cohortDefinition,
-      Collection<Integer> cohort,
-      Map<String, Object> parameterValues,
-      PatientCalculationContext context) {
+  public CalculationResultMap evaluate(
+      Collection<Integer> cohort, Map<String, Object> parameterValues, EvaluationContext context) {
 
     CalculationResultMap resultMap = new CalculationResultMap();
 
-    Location location = (Location) context.getFromCache("location");
-
     CalculationResultMap lastFilaCalculationResult =
-        super.calculate(
-            Context.getRegisteredComponents(LastFilaCalculation.class).get(0),
-            cohort,
-            parameterValues,
-            context);
+        (CalculationResultMap) context.getFromCache("lastFilaResult");
 
-    HivMetadata hivMetadata = Context.getRegisteredComponents(HivMetadata.class).get(0);
-    CalculationResultMap obsFilaResult =
-        Context.getRegisteredComponents(EPTSCalculationService.class)
-            .get(0)
-            .allObservations(
-                hivMetadata.getReturnVisitDateForArvDrugConcept(),
-                null,
-                Arrays.asList(
-                    hivMetadata.getARVPharmaciaEncounterType(),
-                    hivMetadata.getAdultoSeguimentoEncounterType(),
-                    hivMetadata.getARVPediatriaSeguimentoEncounterType()),
-                location,
-                cohort,
-                context);
+    NextFilaDateProcessor nextFilaProcessor =
+        Context.getRegisteredComponents(NextFilaDateProcessor.class).get(0);
 
-    for (Integer patientId : obsFilaResult.keySet()) {
+    ListMap<Integer, Obs> resutls =
+        nextFilaProcessor.getResutls(new ArrayList<>(lastFilaCalculationResult.keySet()), context);
+
+    for (Integer patientId : lastFilaCalculationResult.keySet()) {
 
       CalculationResult calculationResult = lastFilaCalculationResult.get(patientId);
-
       Date lastDateFila = (Date) (calculationResult != null ? calculationResult.getValue() : null);
 
-      List<Obs> allObsFila =
-          EptsCalculationUtils.extractResultValues((ListResult) obsFilaResult.get(patientId));
+      List<Obs> allObsFila = resutls.get(patientId);
 
       this.setMaxValueDateTime(patientId, lastDateFila, allObsFila, resultMap);
     }
@@ -86,7 +64,7 @@ public class NextFilaDateCalculation extends FGHAbstractPatientCalculation {
     Date finalComparisonDate = DateUtil.getDateTime(Integer.MAX_VALUE, 1, 1);
     Date maxDate = DateUtil.getDateTime(Integer.MAX_VALUE, 1, 1);
 
-    if (lastDateFila != null) {
+    if (lastDateFila != null && allObsFila != null) {
       for (Obs obs : allObsFila) {
         if (obs != null && obs.getObsDatetime() != null) {
           if (obs.getObsDatetime().compareTo(lastDateFila) == 0) {
@@ -95,12 +73,9 @@ public class NextFilaDateCalculation extends FGHAbstractPatientCalculation {
               maxDate = valueDatetime;
             }
           }
-        } else {
-          System.out.println("Erro na OBS da NextDrugPickUpDateCalculation => " + obs);
         }
       }
     }
-
     if (!DateUtils.isSameDay(maxDate, finalComparisonDate)) {
       resultMap.put(pId, new SimpleResult(maxDate, this));
     }

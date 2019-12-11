@@ -1,20 +1,22 @@
 package org.openmrs.module.eptsreports.reporting.calculation.generic;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.Map;
 import org.openmrs.api.context.Context;
-import org.openmrs.calculation.patient.PatientCalculationContext;
 import org.openmrs.calculation.result.CalculationResultMap;
 import org.openmrs.calculation.result.SimpleResult;
 import org.openmrs.module.eptsreports.reporting.calculation.FGHAbstractPatientCalculation;
+import org.openmrs.module.eptsreports.reporting.calculation.processor.LastRecepcaoLevantamentoProcessor;
+import org.openmrs.module.reporting.evaluation.EvaluationContext;
 import org.springframework.stereotype.Component;
 
 @Component
 public class LastRecepcaoLevantamentoCalculation extends FGHAbstractPatientCalculation {
 
   @Override
-  public CalculationResultMap evaluate( // FGHCalculationCohortDefinition cohortDefinition,
-      Map<String, Object> parameterValues, PatientCalculationContext context) {
+  public CalculationResultMap evaluate(
+      Map<String, Object> parameterValues, EvaluationContext context) {
     throw new IllegalArgumentException(
         String.format(
             "The Calculation '%s' Requires a specific Cohort of patients Argument",
@@ -22,14 +24,12 @@ public class LastRecepcaoLevantamentoCalculation extends FGHAbstractPatientCalcu
   }
 
   @Override
-  public CalculationResultMap evaluate( // FGHCalculationCohortDefinition cohortDefinition,
-      Collection<Integer> cohort,
-      Map<String, Object> parameterValues,
-      PatientCalculationContext context) {
-    Map<Integer, Object> processorResult =
+  public CalculationResultMap evaluate(
+      Collection<Integer> cohort, Map<String, Object> parameterValues, EvaluationContext context) {
+    Map<Integer, Date> processorResult =
         Context.getRegisteredComponents(LastRecepcaoLevantamentoProcessor.class)
             .get(0)
-            .getResutls();
+            .getResutls(context);
 
     CalculationResultMap resultMap = new CalculationResultMap();
     for (Integer patientId : cohort) {

@@ -17,6 +17,7 @@ import java.util.Set;
 import org.openmrs.Cohort;
 import org.openmrs.annotation.Handler;
 import org.openmrs.calculation.result.CalculationResultMap;
+import org.openmrs.module.eptsreports.reporting.calculation.FGHPatientCalculation;
 import org.openmrs.module.eptsreports.reporting.cohort.definition.FGHCalculationCohortDefinition;
 import org.openmrs.module.eptsreports.reporting.utils.EptsCalculationUtils;
 import org.openmrs.module.reporting.cohort.EvaluatedCohort;
@@ -29,30 +30,22 @@ import org.openmrs.module.reporting.evaluation.EvaluationException;
 @Handler(supports = FGHCalculationCohortDefinition.class)
 public class FGHCalculationCohortDefinitionEvaluator implements CohortDefinitionEvaluator {
 
-  @SuppressWarnings("deprecation")
   @Override
   public EvaluatedCohort evaluate(CohortDefinition cohortDefinition, EvaluationContext context)
       throws EvaluationException {
     FGHCalculationCohortDefinition cd = (FGHCalculationCohortDefinition) cohortDefinition;
 
-    CalculationResultMap map = cd.getCalculation().evaluate(cd.getCalculationParameters(), context);
     context.addToCache("location", cd.getLocation());
-    context.addToCache("onOrAfter", cd.getOnOrAfter());
-    context.addToCache("onOrBefore", cd.getOnOrBefore());
+    context.addToCache("startDate", cd.getStartDate());
+    context.addToCache("endDate", cd.getEndDate());
+    FGHPatientCalculation calculation = cd.getCalculation();
+
+    CalculationResultMap resultMap = calculation.evaluate(cd.getCalculationParameters(), context);
 
     Set<Integer> passing =
         EptsCalculationUtils.patientsThatPass(
-            map, cd.getWithResult(), cd.getWithResultFinder(), context);
+            resultMap, cd.getWithResult(), cd.getWithResultFinder(), context);
 
-    System.out.println(
-        "FGHCalculationCohortDefinitionEvaluator resultMAP =>" + map.keySet().size());
-
-    System.out.println("FGHCalculationCohortDefinitionEvaluator passing =>" + passing.size());
-
-    EvaluatedCohort evaluatedCohort =
-        new EvaluatedCohort(new Cohort(passing), cohortDefinition, context);
-
-    System.out.println(" PatientEvaluated => " + evaluatedCohort.getPatientIds().size());
-    return evaluatedCohort; // new EvaluatedCohort(new Cohort(passing), cohortDefinition, context);
+    return new EvaluatedCohort(new Cohort(passing), cohortDefinition, context);
   }
 }
