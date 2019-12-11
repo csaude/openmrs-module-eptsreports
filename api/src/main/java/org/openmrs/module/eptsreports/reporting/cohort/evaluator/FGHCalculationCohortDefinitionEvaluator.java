@@ -38,8 +38,8 @@ public class FGHCalculationCohortDefinitionEvaluator implements CohortDefinition
     context.addToCache("location", cd.getLocation());
     context.addToCache("startDate", cd.getStartDate());
     context.addToCache("endDate", cd.getEndDate());
-    FGHPatientCalculation calculation = cd.getCalculation();
 
+    FGHPatientCalculation calculation = cd.getCalculation();
     CalculationResultMap resultMap = calculation.evaluate(cd.getCalculationParameters(), context);
 
     Set<Integer> passing =

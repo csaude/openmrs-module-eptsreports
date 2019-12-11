@@ -2,11 +2,10 @@ package org.openmrs.module.eptsreports.reporting.library.datasets;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import org.openmrs.module.eptsreports.reporting.library.cohorts.TxCurrCohortQueries;
 import org.openmrs.module.eptsreports.reporting.library.cohorts.TxMlCohortQueries;
 import org.openmrs.module.eptsreports.reporting.library.dimensions.AgeDimensionCohortInterface;
 import org.openmrs.module.eptsreports.reporting.library.dimensions.EptsCommonDimension;
+import org.openmrs.module.eptsreports.reporting.library.dimensions.TxMLDimensions;
 import org.openmrs.module.eptsreports.reporting.library.indicators.EptsGeneralIndicator;
 import org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
@@ -14,7 +13,6 @@ import org.openmrs.module.reporting.dataset.definition.CohortIndicatorDataSetDef
 import org.openmrs.module.reporting.dataset.definition.DataSetDefinition;
 import org.openmrs.module.reporting.evaluation.parameter.Mapped;
 import org.openmrs.module.reporting.indicator.CohortIndicator;
-import org.openmrs.util.OpenmrsUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -32,64 +30,54 @@ public class TxMlDataset extends BaseDataSet {
 
   @Autowired private TxMlCohortQueries txMlCohortQueries;
 
-  @Autowired private TxCurrCohortQueries txCurrCohortQueries;
+  @Autowired private TxMLDimensions txMLDimensions;
 
   public DataSetDefinition constructtxMlDataset() {
     CohortIndicatorDataSetDefinition dsd = new CohortIndicatorDataSetDefinition();
-
+    dsd.setName("Tx_Ml Data Set");
+    dsd.addParameters(getParameters());
     String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
 
-    CohortDefinition txMLDefinition =
-        txCurrCohortQueries.getTXMLPatientsWhoMissedNextApointmentCalculation();
-
+    CohortDefinition patientsWhoMissedNextApointment =
+        txMlCohortQueries.getPatientsWhoMissedNextApointment();
     CohortDefinition ltfuLessThan3Months =
-        this.txCurrCohortQueries.getPatientsWhoAreLTFULessThan3MonthsComposition();
-
+        this.txMlCohortQueries.getPatientsWhoAreLTFULessThan3Months();
     CohortDefinition ltfuLessGreatherThan3Months =
-        this.txCurrCohortQueries.getPatientsWhoAreLTFUGreaterThan3MonthsComposition();
+        this.txMlCohortQueries.getPatientsWhoAreLTFUGreaterThan3Months();
 
     final CohortIndicator patientsWhoMissedNextApointmentIndicator =
         this.eptsGeneralIndicator.getIndicator(
-            "findPatientsWhoAreActiveOnART", EptsReportUtils.map(txMLDefinition, mappings));
-
+            "findPatientsWhoMissedNextApointment",
+            EptsReportUtils.map(patientsWhoMissedNextApointment, mappings));
     final CohortIndicator ltfuLessThan3MonthsIndicator =
         this.eptsGeneralIndicator.getIndicator(
-            "findPatientsWhoAreActiveOnART", EptsReportUtils.map(ltfuLessThan3Months, mappings));
-
+            "findPatientsWhoAreLTFULessThan3Months",
+            EptsReportUtils.map(ltfuLessThan3Months, mappings));
     final CohortIndicator ltfuLessGreatherThan3MonthsIndicator =
         this.eptsGeneralIndicator.getIndicator(
-            "findPatientsWhoAreActiveOnART",
+            "findPatientsWhoAreLTFUGreaterThan3Months",
             EptsReportUtils.map(ltfuLessGreatherThan3Months, mappings));
 
-    dsd.setName("Tx_Ml Data Set");
-    dsd.addParameters(getParameters());
-    // tie dimensions to this data definition
     dsd.addDimension("gender", EptsReportUtils.map(eptsCommonDimension.gender(), ""));
     dsd.addDimension(
         "age",
         EptsReportUtils.map(
             eptsCommonDimension.age(ageDimensionCohort), "effectiveDate=${endDate}"));
     dsd.addDimension(
-        "dead",
-        EptsReportUtils.map(this.txCurrCohortQueries.findPatientsWhoAreDeadDimension(), mappings));
-
+        "dead", EptsReportUtils.map(this.txMLDimensions.findPatientsWhoAreAsDead(), mappings));
     dsd.addDimension(
         "transferedout",
-        EptsReportUtils.map(
-            this.txCurrCohortQueries.findPatientsWhoAreTransferedOutDimension(), mappings));
-
+        EptsReportUtils.map(this.txMLDimensions.findPatientsWhoAreTransferedOut(), mappings));
     dsd.addDimension(
         "refusedorstoppedtreatment",
         EptsReportUtils.map(
-            this.txCurrCohortQueries.findPatientsWhoRefusedOrStoppedTreatmentDimension(),
-            mappings));
+            this.txMLDimensions.findPatientsWhoRefusedOrStoppedTreatment(), mappings));
 
     dsd.addColumn(
         "M1",
         "Total missed appointments",
         EptsReportUtils.map(patientsWhoMissedNextApointmentIndicator, mappings),
         "");
-
     // get totals disaggregated by gender and age
     addRow(
         dsd,
@@ -99,10 +87,6 @@ public class TxMlDataset extends BaseDataSet {
         getColumnsForAgeAndGender());
 
     this.setDeadDimension(
-        dsd, EptsReportUtils.map(patientsWhoMissedNextApointmentIndicator, mappings), mappings);
-    this.setTransferedDimension(
-        dsd, EptsReportUtils.map(patientsWhoMissedNextApointmentIndicator, mappings), mappings);
-    this.setRefusedOrStoppedTreatmentDimension(
         dsd, EptsReportUtils.map(patientsWhoMissedNextApointmentIndicator, mappings), mappings);
 
     addRow(
@@ -118,49 +102,11 @@ public class TxMlDataset extends BaseDataSet {
         EptsReportUtils.map(ltfuLessGreatherThan3MonthsIndicator, mappings),
         getColumnsForAgeAndGender());
 
-    // txMlCohortQueries
-    // .getPatientsWhoMissedNextAppointmentAndNotTransferredOutButDiedDuringReportingPeriod()
+    this.setTransferedDimension(
+        dsd, EptsReportUtils.map(patientsWhoMissedNextApointmentIndicator, mappings), mappings);
 
-    // Missed appointment and dead
-    // addRow(
-    // dsd,
-    // "M3",
-    // "Dead",
-    // EptsReportUtils.map(
-    // eptsGeneralIndicator.getIndicator(
-    // "missed and dead",
-    // EptsReportUtils.map(txCurrCohortQueries.getPatientsMarkedDead(), mappings)),
-    // mappings),
-    // getColumnsForAgeAndGender());
-
-    // // Not Consented
-    // addRow(dsd, "M4", "Not Consented",
-    // EptsReportUtils.map(eptsGeneralIndicator.getIndicator("Not Consented",
-    // EptsReportUtils.map(txMlCohortQueries
-    //
-    // .getPatientsWhoMissedNextAppointmentAndNotTransferredOutAndNotConsentedDuringReportingPeriod(),
-    // mappings)),
-    // mappings), getColumnsForAgeAndGender());
-    //
-    // // Traced (Unable to locate)
-    // addRow(dsd, "M5", "Traced (Unable to locate)",
-    // EptsReportUtils.map(eptsGeneralIndicator.getIndicator("Traced (Unable to
-    // locate)",
-    // EptsReportUtils.map(
-    // txMlCohortQueries.getPatientsWhoMissedNextAppointmentAndNotTransferredOutAndTraced(),
-    // mappings)),
-    // mappings),
-    // getColumnsForAgeAndGender());
-    //
-    // // Untraced Patients
-    // addRow(dsd, "M6", "Untraced patients",
-    // EptsReportUtils.map(eptsGeneralIndicator.getIndicator("Untraced Patients",
-    // EptsReportUtils.map(
-    //
-    // txMlCohortQueries.getPatientsWhoMissedNextAppointmentAndNotTransferredOutAndUntraced(),
-    // mappings)),
-    // mappings),
-    // getColumnsForAgeAndGender());
+    this.setRefusedOrStoppedTreatmentDimension(
+        dsd, EptsReportUtils.map(patientsWhoMissedNextApointmentIndicator, mappings), mappings);
 
     return dsd;
   }
@@ -295,13 +241,5 @@ public class TxMlDataset extends BaseDataSet {
         above50F,
         unknownF,
         total);
-  }
-
-  public static void main(String[] args) {
-
-    Map<String, String> parseParameterList =
-        OpenmrsUtil.parseParameterList("gender=F|age=UK|dead=dead");
-
-    System.out.println(parseParameterList);
   }
 }

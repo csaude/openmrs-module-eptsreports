@@ -1,4 +1,4 @@
-package org.openmrs.module.eptsreports.reporting.calculation.generic;
+package org.openmrs.module.eptsreports.reporting.calculation.txml;
 
 import java.util.Collection;
 import java.util.Date;
@@ -7,21 +7,21 @@ import org.openmrs.api.context.Context;
 import org.openmrs.calculation.result.CalculationResultMap;
 import org.openmrs.module.eptsreports.reporting.calculation.BooleanResult;
 import org.openmrs.module.eptsreports.reporting.calculation.FGHAbstractPatientCalculation;
-import org.openmrs.module.eptsreports.reporting.calculation.processor.TxMLPatientsWhoAreDeadProcessor;
+import org.openmrs.module.eptsreports.reporting.calculation.processor.TxMLPatientDisagregationProcessor;
 import org.openmrs.module.reporting.evaluation.EvaluationContext;
 import org.springframework.stereotype.Component;
 
 @Component
-public class TxMLPatientsWhoAreTransferedOutCalculation extends FGHAbstractPatientCalculation {
+public class TxMLPatientsWhoAreDeadCalculation extends FGHAbstractPatientCalculation {
 
   @Override
   public CalculationResultMap evaluate(
       Map<String, Object> parameterValues, EvaluationContext context) {
 
     Map<Integer, Date> processorResult =
-        Context.getRegisteredComponents(TxMLPatientsWhoAreDeadProcessor.class)
+        Context.getRegisteredComponents(TxMLPatientDisagregationProcessor.class)
             .get(0)
-            .getPatienTransferedOutResults(context);
+            .getPatientsMarkedAsDeadResults(context);
     CalculationResultMap resultMap = new CalculationResultMap();
 
     for (Integer patientId : processorResult.keySet()) {

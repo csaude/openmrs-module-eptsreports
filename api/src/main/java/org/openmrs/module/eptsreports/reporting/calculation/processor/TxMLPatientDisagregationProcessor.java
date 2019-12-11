@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class TxMLPatientsWhoAreDeadProcessor {
+public class TxMLPatientDisagregationProcessor {
 
   @Autowired private HivMetadata hivMetadata;
 
@@ -158,21 +158,5 @@ public class TxMLPatientsWhoAreDeadProcessor {
     return Context.getRegisteredComponents(EvaluationService.class)
         .get(0)
         .evaluateToMap(qb, Integer.class, Date.class, context);
-  }
-
-  public static void main(String[] args) {
-
-    String sql =
-        "select p.patient_id, max(obsObito.obs_datetime) data_estado from 	patient p "
-            + "					inner join encounter e on p.patient_id=e.patient_id "
-            + "					inner join obs obsEncontrado on e.encounter_id=obsEncontrado.encounter_id "
-            + "					inner join obs obsObito on e.encounter_id=obsObito.encounter_id "
-            + "			where 	e.voided=0 and obsEncontrado.voided=0 and p.voided=0 and obsObito.voided=0 and "
-            + "					e.encounter_type in (21,36,37) and e.encounter_datetime>= :startDate and e.encounter_datetime<= :endDate  and  e.location_id= :location and "
-            + "					obsEncontrado.concept_id in (2003, 6348) and obsEncontrado.value_coded=1066 and "
-            + "					obsObito.concept_id in (%s) and obsObito.value_coded in (%s) "
-            + "			group by p.patient_id";
-
-    System.out.println(String.format(sql, StringUtils.join(Arrays.asList(2, 3, 48), ","), 44));
   }
 }

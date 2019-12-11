@@ -16,15 +16,6 @@ public class LastFilaCalculation extends FGHAbstractPatientCalculation {
 
   @Override
   public CalculationResultMap evaluate(
-      Map<String, Object> parameterValues, EvaluationContext context) {
-    throw new IllegalArgumentException(
-        String.format(
-            "The Calculation '%s' Requires a specific Cohort of patients Argument",
-            this.getClass().getName()));
-  }
-
-  @Override
-  public CalculationResultMap evaluate(
       Collection<Integer> cohort, Map<String, Object> parameterValues, EvaluationContext context) {
 
     Map<Integer, Date> lastFilaProcessorResults =

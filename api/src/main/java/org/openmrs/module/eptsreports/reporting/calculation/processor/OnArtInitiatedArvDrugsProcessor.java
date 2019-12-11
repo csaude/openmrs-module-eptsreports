@@ -35,13 +35,13 @@ public class OnArtInitiatedArvDrugsProcessor {
         patientWithFirstDrugPickUpDateSetInReception);
   }
 
-  /* Patients on ART who initiated the ARV DRUGS: ART Regimen Start Date */
+  /** Patients on ART who initiated the ARV DRUGS: ART Regimen Start Date */
   private Map<Integer, Date> getPatientsOnArtWhoInitiatedArvDrugsArtRegimen(
       EvaluationContext context) {
 
     SqlQueryBuilder qb =
         new SqlQueryBuilder(
-            "Select 	p.patient_id,min(e.encounter_datetime) data_inicio "
+            "Select p.patient_id,min(e.encounter_datetime) data_inicio "
                 + "				from 	patient p "
                 + "						inner join encounter e on p.patient_id=e.patient_id	"
                 + "						inner join obs o on o.encounter_id=e.encounter_id "
@@ -56,7 +56,7 @@ public class OnArtInitiatedArvDrugsProcessor {
         .evaluateToMap(qb, Integer.class, Date.class, context);
   }
 
-  /* Patients on ART who have art start date: ART Start date */
+  /** Patients on ART who have art start date: ART Start date */
   private Map<Integer, Date> getPatientsOnArtWhoHaveArtStartDate(EvaluationContext context) {
 
     SqlQueryBuilder qb =
@@ -75,12 +75,12 @@ public class OnArtInitiatedArvDrugsProcessor {
         .evaluateToMap(qb, Integer.class, Date.class, context);
   }
 
-  /* Patients enrolled in ART Program: OpenMRS Program */
+  /** Patients enrolled in ART Program: OpenMRS Program */
   private Map<Integer, Date> getPatientsEnrolledInArtProgram(EvaluationContext context) {
 
     SqlQueryBuilder qb =
         new SqlQueryBuilder(
-            "select 	pg.patient_id,min(date_enrolled) data_inicio "
+            "select pg.patient_id,min(date_enrolled) data_inicio "
                 + "				from 	patient p inner join patient_program pg on p.patient_id=pg.patient_id "
                 + "				where 	pg.voided=0 and p.voided=0 and program_id=2 and date_enrolled<= :endDate and location_id= :location "
                 + "				group by pg.patient_id",
@@ -91,9 +91,7 @@ public class OnArtInitiatedArvDrugsProcessor {
         .evaluateToMap(qb, Integer.class, Date.class, context);
   }
 
-  /*
-   * Patients with first drugs pick up date set in Pharmacy: First ART Start Date
-   */
+  /** Patients with first drugs pick up date set in Pharmacy: First ART Start Date */
   private Map<Integer, Date> getPatientsWithFirstDrugsPickUpInPharmacy(EvaluationContext context) {
 
     SqlQueryBuilder qb =
@@ -110,13 +108,12 @@ public class OnArtInitiatedArvDrugsProcessor {
         .evaluateToMap(qb, Integer.class, Date.class, context);
   }
 
-  /* Patients with first drugs pick up date set: Recepcao Levantou ARV */
+  /** Patients with first drugs pick up date set: Recepcao Levantou ARV */
   private Map<Integer, Date> getPatientsWithFirsDrugPickInRecepcao(EvaluationContext context) {
 
     SqlQueryBuilder qb =
         new SqlQueryBuilder(
-            "Select 	p.patient_id,min(value_datetime) data_inicio "
-                + "				from 	patient p "
+            "Select p.patient_id,min(value_datetime) data_inicio from 	patient p "
                 + "						inner join encounter e on p.patient_id=e.patient_id "
                 + "						inner join obs o on e.encounter_id=o.encounter_id "
                 + "				where 	p.voided=0 and e.voided=0 and o.voided=0 and e.encounter_type=52 and "

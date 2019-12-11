@@ -15,15 +15,7 @@ import java.util.Arrays;
 import java.util.Date;
 import org.apache.commons.lang3.StringUtils;
 import org.openmrs.Location;
-import org.openmrs.api.context.Context;
 import org.openmrs.module.eptsreports.metadata.HivMetadata;
-import org.openmrs.module.eptsreports.reporting.calculation.generic.TxMLPatientsWhoAreDeadCalculation;
-import org.openmrs.module.eptsreports.reporting.calculation.generic.TxMLPatientsWhoAreLTFUGreatherThan3MonthsCalculation;
-import org.openmrs.module.eptsreports.reporting.calculation.generic.TxMLPatientsWhoAreLTFULessThan3MonthsCalculation;
-import org.openmrs.module.eptsreports.reporting.calculation.generic.TxMLPatientsWhoAreTransferedOutCalculation;
-import org.openmrs.module.eptsreports.reporting.calculation.generic.TxMLPatientsWhoMissedNextApointmentCalculation;
-import org.openmrs.module.eptsreports.reporting.calculation.generic.TxMLPatientsWhoRefusedOrStoppedTreatmentCalculation;
-import org.openmrs.module.eptsreports.reporting.cohort.definition.FGHCalculationCohortDefinition;
 import org.openmrs.module.eptsreports.reporting.library.queries.TxCurrQueries;
 import org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
@@ -31,7 +23,6 @@ import org.openmrs.module.reporting.cohort.definition.CompositionCohortDefinitio
 import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
 import org.openmrs.module.reporting.definition.library.DocumentedDefinition;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
-import org.openmrs.module.reporting.indicator.dimension.CohortDefinitionDimension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -396,183 +387,5 @@ public class TxCurrCohortQueries {
     definition.setQuery(TxCurrQueries.QUERY.findPatientsWhoAreCurrentlyEnrolledOnART);
 
     return definition;
-  }
-
-  public CohortDefinition getPatientsWhoAreLTFULessThan3MonthsComposition() {
-    String mapping = "startDate=${startDate},endDate=${endDate},location=${location}";
-    CompositionCohortDefinition cd = new CompositionCohortDefinition();
-    cd.setName("Get patients who are LTFU less than 3 months");
-    cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
-    cd.addParameter(new Parameter("endDate", "End Date", Date.class));
-    cd.addParameter(new Parameter("location", "Location", Location.class));
-
-    cd.addSearch(
-        "missedAppointment",
-        EptsReportUtils.map(this.getPatientsWhoAreLTFULessThan3Months(), mapping));
-    cd.addSearch("dead", EptsReportUtils.map(this.getPatientsMarkedDead(), mapping));
-    cd.addSearch(
-        "transferedOut", EptsReportUtils.map(this.getPatientsWhoAreTransferedOut(), mapping));
-    cd.addSearch(
-        "refusedTreatment",
-        EptsReportUtils.map(this.getPatientsWhoRefusedOrStoppedTreatment(), mapping));
-
-    cd.setCompositionString("missedAppointment NOT (dead OR transferedOut OR refusedTreatment)");
-    return cd;
-  }
-
-  public CohortDefinition getPatientsWhoAreLTFUGreaterThan3MonthsComposition() {
-    String mapping = "startDate=${startDate},endDate=${endDate},location=${location}";
-    CompositionCohortDefinition cd = new CompositionCohortDefinition();
-    cd.setName("Get patients who are LTFU less than 3 months");
-    cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
-    cd.addParameter(new Parameter("endDate", "End Date", Date.class));
-    cd.addParameter(new Parameter("location", "Location", Location.class));
-
-    cd.addSearch(
-        "missedAppointment",
-        EptsReportUtils.map(this.getPatientsWhoAreLTFUGreatherThan3Months(), mapping));
-    cd.addSearch("dead", EptsReportUtils.map(this.getPatientsMarkedDead(), mapping));
-    cd.addSearch(
-        "transferedOut", EptsReportUtils.map(this.getPatientsWhoAreTransferedOut(), mapping));
-    cd.addSearch(
-        "refusedTreatment",
-        EptsReportUtils.map(this.getPatientsWhoRefusedOrStoppedTreatment(), mapping));
-
-    cd.setCompositionString("missedAppointment NOT (dead OR transferedOut OR refusedTreatment)");
-    return cd;
-  }
-
-  @DocumentedDefinition(value = "txMLPatientsWhoMissedNextApointmentCalculation")
-  public CohortDefinition getTXMLPatientsWhoMissedNextApointmentCalculation() {
-    FGHCalculationCohortDefinition cd =
-        new FGHCalculationCohortDefinition(
-            "txMLPatientsWhoMissedNextApointmentCalculation",
-            Context.getRegisteredComponents(TxMLPatientsWhoMissedNextApointmentCalculation.class)
-                .get(0));
-    cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
-    cd.addParameter(new Parameter("endDate", "end Date", Date.class));
-    cd.addParameter(new Parameter("location", "Location", Location.class));
-
-    return cd;
-  }
-
-  @DocumentedDefinition(value = "patientsMarkedAsDeadCalculation")
-  public CohortDefinition getPatientsMarkedDead() {
-    FGHCalculationCohortDefinition cd =
-        new FGHCalculationCohortDefinition(
-            "patientsMarkedAsDeadCalculation",
-            Context.getRegisteredComponents(TxMLPatientsWhoAreDeadCalculation.class).get(0));
-    cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
-    cd.addParameter(new Parameter("endDate", "end Date", Date.class));
-    cd.addParameter(new Parameter("location", "Location", Location.class));
-
-    return cd;
-  }
-
-  @DocumentedDefinition(value = "patientsWhoAreTransferedOutCalculation")
-  public CohortDefinition getPatientsWhoAreTransferedOut() {
-    FGHCalculationCohortDefinition cd =
-        new FGHCalculationCohortDefinition(
-            "patientsWhoAreTransferedOutCalculation",
-            Context.getRegisteredComponents(TxMLPatientsWhoAreTransferedOutCalculation.class)
-                .get(0));
-    cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
-    cd.addParameter(new Parameter("endDate", "end Date", Date.class));
-    cd.addParameter(new Parameter("location", "Location", Location.class));
-
-    return cd;
-  }
-
-  @DocumentedDefinition(value = "patientsWhoRefusedStoppedTreatmentCalculation")
-  public CohortDefinition getPatientsWhoRefusedOrStoppedTreatment() {
-    FGHCalculationCohortDefinition cd =
-        new FGHCalculationCohortDefinition(
-            "patientsWhoRefusedStoppedTreatmentCalculation",
-            Context.getRegisteredComponents(
-                    TxMLPatientsWhoRefusedOrStoppedTreatmentCalculation.class)
-                .get(0));
-    cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
-    cd.addParameter(new Parameter("endDate", "end Date", Date.class));
-    cd.addParameter(new Parameter("location", "Location", Location.class));
-
-    return cd;
-  }
-
-  @DocumentedDefinition(value = "patientsWhoAreLTFULessThan3MonthsCalculation")
-  public CohortDefinition getPatientsWhoAreLTFULessThan3Months() {
-    FGHCalculationCohortDefinition cd =
-        new FGHCalculationCohortDefinition(
-            "patientsWhoAreLTFULessThan3MonthsCalculation",
-            Context.getRegisteredComponents(TxMLPatientsWhoAreLTFULessThan3MonthsCalculation.class)
-                .get(0));
-    cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
-    cd.addParameter(new Parameter("endDate", "end Date", Date.class));
-    cd.addParameter(new Parameter("location", "Location", Location.class));
-
-    return cd;
-  }
-
-  @DocumentedDefinition(value = "patientsWhoAreLTFUGreatherThan3MonthsCalculation")
-  public CohortDefinition getPatientsWhoAreLTFUGreatherThan3Months() {
-    FGHCalculationCohortDefinition cd =
-        new FGHCalculationCohortDefinition(
-            "patientsWhoAreLTFUGreatherThan3MonthsCalculation",
-            Context.getRegisteredComponents(
-                    TxMLPatientsWhoAreLTFUGreatherThan3MonthsCalculation.class)
-                .get(0));
-    cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
-    cd.addParameter(new Parameter("endDate", "end Date", Date.class));
-    cd.addParameter(new Parameter("location", "Location", Location.class));
-
-    return cd;
-  }
-
-  public CohortDefinitionDimension findPatientsWhoAreDeadDimension() {
-    final CohortDefinitionDimension dimension = new CohortDefinitionDimension();
-
-    dimension.setName("Dead Dimension");
-    dimension.addParameter(new Parameter("startDate", "Start Date", Date.class));
-    dimension.addParameter(new Parameter("endDate", "End Date", Date.class));
-    dimension.addParameter(new Parameter("location", "location", Location.class));
-
-    final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
-
-    dimension.addCohortDefinition(
-        "dead", EptsReportUtils.map(this.getPatientsMarkedDead(), mappings));
-
-    return dimension;
-  }
-
-  public CohortDefinitionDimension findPatientsWhoAreTransferedOutDimension() {
-    final CohortDefinitionDimension dimension = new CohortDefinitionDimension();
-
-    dimension.setName("Transfered Out Dimension");
-    dimension.addParameter(new Parameter("startDate", "Start Date", Date.class));
-    dimension.addParameter(new Parameter("endDate", "End Date", Date.class));
-    dimension.addParameter(new Parameter("location", "location", Location.class));
-
-    final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
-
-    dimension.addCohortDefinition(
-        "transferedout", EptsReportUtils.map(this.getPatientsWhoAreTransferedOut(), mappings));
-
-    return dimension;
-  }
-
-  public CohortDefinitionDimension findPatientsWhoRefusedOrStoppedTreatmentDimension() {
-    final CohortDefinitionDimension dimension = new CohortDefinitionDimension();
-
-    dimension.setName("Refused/Stopped Treatment Dimension");
-    dimension.addParameter(new Parameter("startDate", "Start Date", Date.class));
-    dimension.addParameter(new Parameter("endDate", "End Date", Date.class));
-    dimension.addParameter(new Parameter("location", "location", Location.class));
-
-    final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
-
-    dimension.addCohortDefinition(
-        "refusedorstoppedtreatment",
-        EptsReportUtils.map(this.getPatientsWhoRefusedOrStoppedTreatment(), mappings));
-
-    return dimension;
   }
 }

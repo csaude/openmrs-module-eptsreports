@@ -60,16 +60,16 @@ public class TxCurrDataset extends BaseDataSet {
     dataSetDefinition.setName("TX_CURR Data Set");
     dataSetDefinition.addParameters(this.getParameters());
 
-    final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
+    final String mappings = "endDate=${endDate},location=${location}";
 
-    final CohortDefinition txCurrCohort =
-        this.txCurrCohortQueries.getTXMLPatientsWhoMissedNextApointmentCalculation();
-
-    // this.txCurrCohortQueries.getTXMLCalculation();
+    final CohortDefinition txCurrCompositionCohort =
+        this.txCurrCohortQueries.findPatientsWhoAreActiveOnART();
 
     final CohortIndicator txCurrIndicator =
         this.eptsGeneralIndicator.getIndicator(
-            "findPatientsWhoAreActiveOnART", EptsReportUtils.map(txCurrCohort, mappings));
+            "findPatientsWhoAreActiveOnART",
+            EptsReportUtils.map(
+                txCurrCompositionCohort, "endDate=${endDate},location=${location}"));
 
     this.addDimensions(
         dataSetDefinition,
@@ -88,17 +88,17 @@ public class TxCurrDataset extends BaseDataSet {
         ABOVE_FIFTY);
 
     dataSetDefinition.addDimension(
-        this.getColumnName(AgeRange.UNKNOWN, Gender.MALE),
+        this.getName(Gender.MALE, AgeRange.UNKNOWN),
         EptsReportUtils.map(
             this.eptsCommonDimension.findPatientsWithUnknownAgeByGender(
-                this.getColumnName(AgeRange.UNKNOWN, Gender.MALE), Gender.MALE),
+                this.getName(Gender.MALE, AgeRange.UNKNOWN), Gender.MALE),
             ""));
 
     dataSetDefinition.addDimension(
-        this.getColumnName(AgeRange.UNKNOWN, Gender.FEMALE),
+        this.getName(Gender.FEMALE, AgeRange.UNKNOWN),
         EptsReportUtils.map(
             this.eptsCommonDimension.findPatientsWithUnknownAgeByGender(
-                this.getColumnName(AgeRange.UNKNOWN, Gender.FEMALE), Gender.FEMALE),
+                this.getName(Gender.FEMALE, AgeRange.UNKNOWN), Gender.FEMALE),
             ""));
 
     dataSetDefinition.addColumn(
@@ -134,17 +134,17 @@ public class TxCurrDataset extends BaseDataSet {
     for (final AgeRange range : ranges) {
 
       cohortIndicatorDataSetDefinition.addDimension(
-          this.getColumnName(range, Gender.MALE),
+          this.getName(Gender.MALE, range),
           EptsReportUtils.map(
               this.eptsCommonDimension.findPatientsByGenderAndRange(
-                  this.getColumnName(range, Gender.MALE), range, Gender.MALE),
+                  this.getName(Gender.MALE, range), range, Gender.MALE),
               mappings));
 
       cohortIndicatorDataSetDefinition.addDimension(
-          this.getColumnName(range, Gender.FEMALE),
+          this.getName(Gender.FEMALE, range),
           EptsReportUtils.map(
               this.eptsCommonDimension.findPatientsByGenderAndRange(
-                  this.getColumnName(range, Gender.FEMALE), range, Gender.FEMALE),
+                  this.getName(Gender.FEMALE, range), range, Gender.FEMALE),
               mappings));
     }
   }
@@ -157,8 +157,8 @@ public class TxCurrDataset extends BaseDataSet {
 
     for (final AgeRange range : rannges) {
 
-      final String maleName = this.getColumnName(range, Gender.MALE);
-      final String femaleName = this.getColumnName(range, Gender.FEMALE);
+      final String maleName = this.getName(Gender.MALE, range);
+      final String femaleName = this.getName(Gender.FEMALE, range);
 
       dataSetDefinition.addColumn(
           maleName,
@@ -174,7 +174,13 @@ public class TxCurrDataset extends BaseDataSet {
     }
   }
 
-  private String getColumnName(AgeRange range, Gender gender) {
-    return range.getDesagregationColumnName("C", gender);
+  private String getName(final Gender gender, final AgeRange ageRange) {
+    String name = "C-males-" + ageRange.getName() + "" + gender.getName();
+
+    if (gender.equals(Gender.FEMALE)) {
+      name = "C-females-" + ageRange.getName() + "" + gender.getName();
+    }
+
+    return name;
   }
 }
