@@ -12,7 +12,8 @@ import org.openmrs.module.reporting.evaluation.EvaluationContext;
 import org.springframework.stereotype.Component;
 
 @Component
-public class TxMLPatientsWhoAreDeadCalculation extends FGHAbstractPatientCalculation {
+public class TxMLPatientsWhoRefusedOrStoppedTreatmentCalculation
+    extends FGHAbstractPatientCalculation {
 
   @Override
   public CalculationResultMap evaluate(
@@ -21,7 +22,7 @@ public class TxMLPatientsWhoAreDeadCalculation extends FGHAbstractPatientCalcula
     Map<Integer, Date> processorResult =
         Context.getRegisteredComponents(TxMLPatientsWhoAreDeadProcessor.class)
             .get(0)
-            .getPatientsMarkedAsDeadResults(context);
+            .getPatientsWhoRefusedOrStoppedTreatmentResults(context);
     CalculationResultMap resultMap = new CalculationResultMap();
 
     for (Integer patientId : processorResult.keySet()) {

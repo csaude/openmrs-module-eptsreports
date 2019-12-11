@@ -8,10 +8,11 @@ import org.openmrs.module.eptsreports.reporting.library.cohorts.GenericCohortQue
 import org.openmrs.module.eptsreports.reporting.library.datasets.TbPrevDataset;
 import org.openmrs.module.eptsreports.reporting.library.datasets.TxMlDataset;
 import org.openmrs.module.eptsreports.reporting.library.datasets.TxTBDataset;
+import org.openmrs.module.eptsreports.reporting.library.queries.BaseQueries;
 import org.openmrs.module.eptsreports.reporting.reports.manager.EptsDataExportManager;
+import org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils;
 import org.openmrs.module.reporting.ReportingException;
 import org.openmrs.module.reporting.evaluation.parameter.Mapped;
-import org.openmrs.module.reporting.evaluation.parameter.ParameterizableUtil;
 import org.openmrs.module.reporting.report.ReportDesign;
 import org.openmrs.module.reporting.report.definition.ReportDefinition;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,10 +65,17 @@ public class SetupMERSemiAnnualReport extends EptsDataExportManager {
     rd.addDataSetDefinition("T", Mapped.mapStraightThrough(txTBDataset.constructTxTBDataset()));
     rd.addDataSetDefinition("TBPREV", Mapped.mapStraightThrough(tbPrevDataset.constructDatset()));
     // add a base cohort to the report
-    rd.setBaseCohortDefinition(
-        genericCohortQueries.getBaseCohort(),
-        ParameterizableUtil.createParameterMappings("endDate=${endDate},location=${location}"));
 
+    //    rd.setBaseCohortDefinition(
+    //        genericCohortQueries.getBaseCohort(),
+    //
+    // ParameterizableUtil.createParameterMappings("endDate=${endDate},location=${location}"));
+
+    rd.setBaseCohortDefinition(
+        EptsReportUtils.map(
+            this.genericCohortQueries.generalSql(
+                "baseCohortQuery", BaseQueries.getBaseCohortQuery()),
+            "endDate=${endDate},location=${location}"));
     return rd;
   }
 

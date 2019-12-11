@@ -6,10 +6,11 @@ import java.util.List;
 import java.util.Properties;
 import org.openmrs.module.eptsreports.reporting.library.cohorts.GenericCohortQueries;
 import org.openmrs.module.eptsreports.reporting.library.datasets.TxMlDataset;
+import org.openmrs.module.eptsreports.reporting.library.queries.BaseQueries;
 import org.openmrs.module.eptsreports.reporting.reports.manager.EptsDataExportManager;
+import org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils;
 import org.openmrs.module.reporting.ReportingException;
 import org.openmrs.module.reporting.evaluation.parameter.Mapped;
-import org.openmrs.module.reporting.evaluation.parameter.ParameterizableUtil;
 import org.openmrs.module.reporting.report.ReportDesign;
 import org.openmrs.module.reporting.report.definition.ReportDefinition;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,17 +50,19 @@ public class SetupTxMLReport extends EptsDataExportManager {
 
   @Override
   public ReportDefinition constructReportDefinition() {
+
     ReportDefinition rd = new ReportDefinition();
     rd.setUuid(getUuid());
     rd.setName(getName());
     rd.setDescription(getDescription());
     rd.setParameters(txMlDataset.getParameters());
     rd.addDataSetDefinition("TXML", Mapped.mapStraightThrough(txMlDataset.constructtxMlDataset()));
-    // add a base cohort to the report
-    rd.setBaseCohortDefinition(
-        genericCohortQueries.getBaseCohort(),
-        ParameterizableUtil.createParameterMappings("endDate=${endDate},location=${location}"));
 
+    rd.setBaseCohortDefinition(
+        EptsReportUtils.map(
+            this.genericCohortQueries.generalSql(
+                "baseCohortQuery", BaseQueries.getBaseCohortQuery()),
+            "endDate=${endDate},location=${location}"));
     return rd;
   }
 
@@ -70,8 +73,8 @@ public class SetupTxMLReport extends EptsDataExportManager {
       reportDesign =
           createXlsReportDesign(
               reportDefinition,
-              "PEPFAR_MER_2.3_SEMIANNUAL.xls",
-              "PEPFAR MER 2.3 Semi-Annual Report",
+              "PEPFAR_TX_ML_2.4.xls",
+              "PEPFAR TX_ML 2.4 Report",
               getExcelDesignUuid(),
               null);
       Properties props = new Properties();

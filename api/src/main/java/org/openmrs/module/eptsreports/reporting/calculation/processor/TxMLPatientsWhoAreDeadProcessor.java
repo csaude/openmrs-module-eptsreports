@@ -1,25 +1,70 @@
 package org.openmrs.module.eptsreports.reporting.calculation.processor;
 
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.eptsreports.metadata.HivMetadata;
 import org.openmrs.module.reporting.evaluation.EvaluationContext;
 import org.openmrs.module.reporting.evaluation.querybuilder.SqlQueryBuilder;
 import org.openmrs.module.reporting.evaluation.service.EvaluationService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class TxMLPatientsWhoAreDeadProcessor {
 
-  @SuppressWarnings("unchecked")
-  public Map<Integer, Date> getResutls(EvaluationContext context) {
+  @Autowired private HivMetadata hivMetadata;
 
-    Map<Integer, Date> patientsDeadInArtProgram = this.getPatientsDeadInArtProgram(context);
-    Map<Integer, Date> patientsDeadInHomeVisitForm = getPatientsDeadInHomeVisitForm(context);
+  @SuppressWarnings("unchecked")
+  public Map<Integer, Date> getPatientsWhoRefusedOrStoppedTreatmentResults(
+      EvaluationContext context) {
+
+    Map<Integer, Date> patientsDeadInHomeVisitForm =
+        getPatientsDeadInHomeVisitForm(
+            context,
+            Arrays.asList(2016),
+            Arrays.asList(2005, 2007, 2010, 23915, 23946, 2015, 2013, 2017));
+
+    return CalculationProcessorUtils.getMaxMapDateByPatient(patientsDeadInHomeVisitForm);
+  }
+
+  @SuppressWarnings("unchecked")
+  public Map<Integer, Date> getPatienTransferedOutResults(EvaluationContext context) {
+
+    Map<String, Object> parameterValues = context.getParameterValues();
+    parameterValues.put(
+        "patientState", hivMetadata.getTransferredOutToAnotherHealthFacilityWorkflowState());
+
+    Map<Integer, Date> patientsDeadInArtProgram =
+        this.getPatientsDeadInArtProgram(context, parameterValues);
+    Map<Integer, Date> patientsDeadInHomeVisitForm =
+        getPatientsDeadInHomeVisitForm(context, Arrays.asList(2016), Arrays.asList(1706, 23863));
+    Map<Integer, Date> deadFichaClinicaAndFichaResumo =
+        getPatientDeadInFichaResumoAndClinica(context, 1706);
+
+    return CalculationProcessorUtils.getMaxMapDateByPatient(
+        patientsDeadInArtProgram, patientsDeadInHomeVisitForm, deadFichaClinicaAndFichaResumo);
+  }
+
+  @SuppressWarnings("unchecked")
+  public Map<Integer, Date> getPatientsMarkedAsDeadResults(EvaluationContext context) {
+
+    Map<String, Object> parameterValues = context.getParameterValues();
+    parameterValues.put("patientState", hivMetadata.getPatientHasDiedWorkflowState());
+    Map<Integer, Date> patientsDeadInArtProgram =
+        this.getPatientsDeadInArtProgram(context, parameterValues);
+    Map<Integer, Date> patientsDeadInHomeVisitForm =
+        getPatientsDeadInHomeVisitForm(
+            context, Arrays.asList(2031, 23944, 23945), Arrays.asList(1383));
     Map<Integer, Date> patientsDeadInDemographicModule =
         getPatientsDeadInDemographicModule(context);
+
+    // 1366
     Map<Integer, Date> deadFichaClinicaAndFichaResumo =
-        getPatientDeadInFichaResumoAndClinica(context);
+        getPatientDeadInFichaResumoAndClinica(context, 1366);
 
     return CalculationProcessorUtils.getMaxMapDateByPatient(
         patientsDeadInArtProgram,
@@ -34,7 +79,8 @@ public class TxMLPatientsWhoAreDeadProcessor {
    * @param context
    * @return
    */
-  private Map<Integer, Date> getPatientsDeadInArtProgram(EvaluationContext context) {
+  private Map<Integer, Date> getPatientsDeadInArtProgram(
+      EvaluationContext context, Map<String, Object> parameterValues) {
 
     SqlQueryBuilder qb =
         new SqlQueryBuilder(
@@ -42,31 +88,34 @@ public class TxMLPatientsWhoAreDeadProcessor {
                 + "					inner join patient_program pg on p.patient_id=pg.patient_id "
                 + "					inner join patient_state ps on pg.patient_program_id=ps.patient_program_id "
                 + "			where 	pg.voided=0 and ps.voided=0 and p.voided=0 and "
-                + "					pg.program_id=2 and ps.state=10 and ps.end_date is null and "
+                + "					pg.program_id=2 and ps.state= :patientState and ps.end_date is null and "
                 + "					ps.start_date<= :endDate and location_id= :location "
                 + "			group by pg.patient_id",
-            context.getParameterValues());
+            parameterValues);
+
+    context.getParameterValues();
 
     return Context.getRegisteredComponents(EvaluationService.class)
         .get(0)
         .evaluateToMap(qb, Integer.class, Date.class, context);
   }
 
-  private Map<Integer, Date> getPatientsDeadInHomeVisitForm(EvaluationContext context) {
+  private Map<Integer, Date> getPatientsDeadInHomeVisitForm(
+      EvaluationContext context, List<Integer> conceptIds, List<Integer> answerIds) {
 
     SqlQueryBuilder qb =
         new SqlQueryBuilder(
-            "select p.patient_id, max(obsObito.obs_datetime) data_estado "
-                + "			from 	patient p "
-                + "					inner join encounter e on p.patient_id=e.patient_id "
-                + "					inner join obs obsEncontrado on e.encounter_id=obsEncontrado.encounter_id "
-                + "					inner join obs obsObito on e.encounter_id=obsObito.encounter_id "
-                + "			where 	e.voided=0 and obsEncontrado.voided=0 and p.voided=0 and obsObito.voided=0 and "
-                + "					e.encounter_type in (21,36,37) and  e.encounter_datetime<= :endDate and  e.location_id= :location and "
-                + "					obsEncontrado.concept_id in (2003, 6348) and obsEncontrado.value_coded=1066 and "
-                + "					obsObito.concept_id in (2031, 23944, 23945) and obsObito.value_coded=1383 "
-                + "			group by p.patient_id",
+            String.format(
+                "select p.patient_id, max(obsObito.obs_datetime) data_estado from patient p "
+                    + "					inner join encounter e on p.patient_id=e.patient_id "
+                    + "					inner join obs obsObito on e.encounter_id=obsObito.encounter_id "
+                    + "			where 	e.voided=0 and p.voided=0 and obsObito.voided=0 and "
+                    + "					e.encounter_type in (21) and e.encounter_datetime>= :startDate and e.encounter_datetime<= :endDate  and  e.location_id= :location and "
+                    + "					obsObito.concept_id in (%s) and obsObito.value_coded in (%s) "
+                    + "			group by p.patient_id",
+                StringUtils.join(conceptIds, ","), StringUtils.join(answerIds, ",")),
             context.getParameterValues());
+
     return Context.getRegisteredComponents(EvaluationService.class)
         .get(0)
         .evaluateToMap(qb, Integer.class, Date.class, context);
@@ -90,21 +139,40 @@ public class TxMLPatientsWhoAreDeadProcessor {
    * @param context
    * @return
    */
-  private Map<Integer, Date> getPatientDeadInFichaResumoAndClinica(EvaluationContext context) {
+  private Map<Integer, Date> getPatientDeadInFichaResumoAndClinica(
+      EvaluationContext context, Integer valuedCoded) {
 
     SqlQueryBuilder qb =
         new SqlQueryBuilder(
-            "select p.patient_id, max(o.obs_datetime) data_estado from patient p "
-                + "					inner join encounter e on p.patient_id=e.patient_id "
-                + "					inner join obs  o on e.encounter_id=o.encounter_id "
-                + "			where 	e.voided=0 and o.voided=0 and p.voided=0 and "
-                + "					e.encounter_type in (53,6) and o.concept_id in (6272,6273) and o.value_coded=1366 and "
-                + "					o.obs_datetime<= :endDate and e.location_id= :location "
-                + "			group by p.patient_id",
+            String.format(
+                "select p.patient_id, max(o.obs_datetime) data_estado from patient p "
+                    + "					inner join encounter e on p.patient_id=e.patient_id "
+                    + "					inner join obs  o on e.encounter_id=o.encounter_id "
+                    + "			where 	e.voided=0 and o.voided=0 and p.voided=0 and "
+                    + "					e.encounter_type in (53,6) and o.concept_id in (6272,6273) and o.value_coded= %s and "
+                    + "					o.obs_datetime<= :endDate and e.location_id= :location "
+                    + "			group by p.patient_id",
+                valuedCoded),
             context.getParameterValues());
 
     return Context.getRegisteredComponents(EvaluationService.class)
         .get(0)
         .evaluateToMap(qb, Integer.class, Date.class, context);
+  }
+
+  public static void main(String[] args) {
+
+    String sql =
+        "select p.patient_id, max(obsObito.obs_datetime) data_estado from 	patient p "
+            + "					inner join encounter e on p.patient_id=e.patient_id "
+            + "					inner join obs obsEncontrado on e.encounter_id=obsEncontrado.encounter_id "
+            + "					inner join obs obsObito on e.encounter_id=obsObito.encounter_id "
+            + "			where 	e.voided=0 and obsEncontrado.voided=0 and p.voided=0 and obsObito.voided=0 and "
+            + "					e.encounter_type in (21,36,37) and e.encounter_datetime>= :startDate and e.encounter_datetime<= :endDate  and  e.location_id= :location and "
+            + "					obsEncontrado.concept_id in (2003, 6348) and obsEncontrado.value_coded=1066 and "
+            + "					obsObito.concept_id in (%s) and obsObito.value_coded in (%s) "
+            + "			group by p.patient_id";
+
+    System.out.println(String.format(sql, StringUtils.join(Arrays.asList(2, 3, 48), ","), 44));
   }
 }
