@@ -1,11 +1,9 @@
 package org.openmrs.module.eptsreports.reporting.calculation.txml;
 
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
-import org.apache.commons.lang3.time.DateUtils;
 import org.openmrs.api.context.Context;
 import org.openmrs.calculation.result.CalculationResult;
 import org.openmrs.calculation.result.CalculationResultMap;
@@ -16,7 +14,7 @@ import org.openmrs.module.eptsreports.reporting.calculation.generic.LastRecepcao
 import org.openmrs.module.eptsreports.reporting.calculation.generic.NextFilaDateCalculation;
 import org.openmrs.module.eptsreports.reporting.calculation.generic.NextSeguimentoDateCalculation;
 import org.openmrs.module.eptsreports.reporting.calculation.generic.OnArtInitiatedArvDrugsCalculation;
-import org.openmrs.module.reporting.common.DateUtil;
+import org.openmrs.module.eptsreports.reporting.calculation.processor.CalculationProcessorUtils;
 import org.openmrs.module.reporting.evaluation.EvaluationContext;
 import org.springframework.stereotype.Component;
 
@@ -57,14 +55,14 @@ public class TxMLPatientsWhoMissedNextApointmentCalculation extends FGHAbstractP
 
       boolean isCandidate = false;
       Date maxNextDate =
-          getMaxDate(
+          CalculationProcessorUtils.getMaxDate(
               patientId,
               nextFilaResult,
               nextSeguimentoResult,
               getLastRecepcaoLevantamentoPlus30(
                   patientId, lastRecepcaoLevantamentoResult, lastRecepcaoLevantamentoCalculation));
       if (maxNextDate != null) {
-        Date nextDatePlus28 = getDatePlusDays(maxNextDate, 28);
+        Date nextDatePlus28 = CalculationProcessorUtils.adjustDaysInDate(maxNextDate, 28);
         if (nextDatePlus28.compareTo(startDate) > 0 && nextDatePlus28.compareTo(endDate) < 0) {
           isCandidate = true;
         }
@@ -80,27 +78,7 @@ public class TxMLPatientsWhoMissedNextApointmentCalculation extends FGHAbstractP
     return this.evaluate(parameterValues, context);
   }
 
-  protected Date getMaxDate(Integer patientId, CalculationResultMap... calculationResulsts) {
-    Date finalComparisonDate = DateUtil.getDateTime(Integer.MAX_VALUE, 1, 1);
-    Date maxDate = DateUtil.getDateTime(Integer.MAX_VALUE, 1, 1);
-
-    for (CalculationResultMap resultItem : calculationResulsts) {
-      CalculationResult calculationResult = resultItem.get(patientId);
-      if (calculationResult != null && calculationResult.getValue() != null) {
-        Date date = (Date) calculationResult.getValue();
-
-        if (date.compareTo(maxDate) > 0) {
-          maxDate = date;
-        }
-      }
-    }
-    if (!DateUtils.isSameDay(maxDate, finalComparisonDate)) {
-      return maxDate;
-    }
-    return null;
-  }
-
-  protected CalculationResultMap getLastRecepcaoLevantamentoPlus30(
+  public static CalculationResultMap getLastRecepcaoLevantamentoPlus30(
       Integer patientId,
       CalculationResultMap lastRecepcaoLevantamentoResult,
       LastRecepcaoLevantamentoCalculation lastRecepcaoLevantamentoCalculation) {
@@ -111,16 +89,9 @@ public class TxMLPatientsWhoMissedNextApointmentCalculation extends FGHAbstractP
       lastRecepcaoLevantamentoPlus30.put(
           patientId,
           new SimpleResult(
-              this.getDatePlusDays((Date) maxRecepcao.getValue(), 30),
+              CalculationProcessorUtils.adjustDaysInDate((Date) maxRecepcao.getValue(), 30),
               lastRecepcaoLevantamentoCalculation));
     }
     return lastRecepcaoLevantamentoPlus30;
-  }
-
-  protected Date getDatePlusDays(Date date, int days) {
-    Calendar calendar = Calendar.getInstance();
-    calendar.setTime(date);
-    calendar.add(Calendar.DATE, days);
-    return calendar.getTime();
   }
 }
