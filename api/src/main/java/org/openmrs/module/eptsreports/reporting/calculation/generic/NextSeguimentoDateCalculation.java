@@ -28,7 +28,9 @@ public class NextSeguimentoDateCalculation extends FGHAbstractPatientCalculation
     CalculationResultMap resultMap = new CalculationResultMap();
 
     CalculationResultMap lastSeguimentoResult =
-        (CalculationResultMap) context.getFromCache("lastSeguimentoResult");
+        Context.getRegisteredComponents(LastSeguimentoCalculation.class)
+            .get(0)
+            .evaluate(cohort, parameterValues, context);
 
     NextSeguimentoDateProcessor nextSeguimentoProcessor =
         Context.getRegisteredComponents(NextSeguimentoDateProcessor.class).get(0);

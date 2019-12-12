@@ -28,8 +28,9 @@ public class NextFilaDateCalculation extends FGHAbstractPatientCalculation {
     CalculationResultMap resultMap = new CalculationResultMap();
 
     CalculationResultMap lastFilaCalculationResult =
-        (CalculationResultMap) context.getFromCache("lastFilaResult");
-
+        Context.getRegisteredComponents(LastFilaCalculation.class)
+            .get(0)
+            .evaluate(cohort, parameterValues, context);
     NextFilaDateProcessor nextFilaProcessor =
         Context.getRegisteredComponents(NextFilaDateProcessor.class).get(0);
 

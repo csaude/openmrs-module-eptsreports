@@ -1,14 +1,18 @@
 package org.openmrs.module.eptsreports.reporting.calculation.txml;
 
+import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.lang3.time.DateUtils;
 import org.openmrs.api.context.Context;
+import org.openmrs.calculation.result.CalculationResult;
 import org.openmrs.calculation.result.CalculationResultMap;
+import org.openmrs.calculation.result.SimpleResult;
 import org.openmrs.module.eptsreports.reporting.calculation.BooleanResult;
-import org.openmrs.module.eptsreports.reporting.calculation.generic.LastFilaCalculation;
+import org.openmrs.module.eptsreports.reporting.calculation.FGHAbstractPatientCalculation;
 import org.openmrs.module.eptsreports.reporting.calculation.generic.LastRecepcaoLevantamentoCalculation;
-import org.openmrs.module.eptsreports.reporting.calculation.generic.LastSeguimentoCalculation;
 import org.openmrs.module.eptsreports.reporting.calculation.generic.NextFilaDateCalculation;
 import org.openmrs.module.eptsreports.reporting.calculation.generic.NextSeguimentoDateCalculation;
 import org.openmrs.module.eptsreports.reporting.calculation.generic.OnArtInitiatedArvDrugsCalculation;
@@ -18,7 +22,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class TxMLPatientsWhoAreLTFUGreatherThan3MonthsCalculation
-    extends TxMLPatientsWhoMissedNextApointmentCalculation {
+    extends FGHAbstractPatientCalculation {
 
   @Override
   public CalculationResultMap evaluate(
@@ -34,21 +38,6 @@ public class TxMLPatientsWhoAreLTFUGreatherThan3MonthsCalculation
             .evaluate(parameterValues, context);
 
     Set<Integer> cohort = inicioRealResult.keySet();
-
-    CalculationResultMap lastFilaResult =
-        Context.getRegisteredComponents(LastFilaCalculation.class)
-            .get(0)
-            .evaluate(cohort, parameterValues, context);
-    context.removeFromCache("lastFilaResult");
-    context.addToCache("lastFilaResult", lastFilaResult);
-
-    CalculationResultMap lastSeguimentoResult =
-        Context.getRegisteredComponents(LastSeguimentoCalculation.class)
-            .get(0)
-            .evaluate(cohort, parameterValues, context);
-
-    context.removeFromCache("lastSeguimentoResult");
-    context.addToCache("lastSeguimentoResult", lastSeguimentoResult);
 
     LastRecepcaoLevantamentoCalculation lastRecepcaoLevantamentoCalculation =
         Context.getRegisteredComponents(LastRecepcaoLevantamentoCalculation.class).get(0);
@@ -68,6 +57,7 @@ public class TxMLPatientsWhoAreLTFUGreatherThan3MonthsCalculation
     for (Integer patientId : cohort) {
 
       boolean isCandidate = false;
+      Date inicioRealDate = (Date) inicioRealResult.get(patientId).getValue();
       Date maxNextDate =
           getMaxDate(
               patientId,
@@ -75,11 +65,8 @@ public class TxMLPatientsWhoAreLTFUGreatherThan3MonthsCalculation
               nextSeguimentoResult,
               getLastRecepcaoLevantamentoPlus30(
                   patientId, lastRecepcaoLevantamentoResult, lastRecepcaoLevantamentoCalculation));
-
-      if ((maxNextDate != null && DateUtil.getDaysBetween(endDate, maxNextDate) >= 90)) {
-
+      if (maxNextDate != null && DateUtil.getDaysBetween(inicioRealDate, maxNextDate) >= 90) {
         Date nextDatePlus28 = getDatePlusDays(maxNextDate, 28);
-
         if (nextDatePlus28.compareTo(startDate) > 0 && nextDatePlus28.compareTo(endDate) < 0) {
           isCandidate = true;
         }
@@ -87,5 +74,55 @@ public class TxMLPatientsWhoAreLTFUGreatherThan3MonthsCalculation
       resultMap.put(patientId, new BooleanResult(isCandidate, this));
     }
     return resultMap;
+  }
+
+  @Override
+  public CalculationResultMap evaluate(
+      Collection<Integer> cohort, Map<String, Object> parameterValues, EvaluationContext context) {
+    return this.evaluate(parameterValues, context);
+  }
+
+  protected Date getMaxDate(Integer patientId, CalculationResultMap... calculationResulsts) {
+    Date finalComparisonDate = DateUtil.getDateTime(Integer.MAX_VALUE, 1, 1);
+    Date maxDate = DateUtil.getDateTime(Integer.MAX_VALUE, 1, 1);
+
+    for (CalculationResultMap resultItem : calculationResulsts) {
+      CalculationResult calculationResult = resultItem.get(patientId);
+      if (calculationResult != null && calculationResult.getValue() != null) {
+        Date date = (Date) calculationResult.getValue();
+
+        if (date.compareTo(maxDate) > 0) {
+          maxDate = date;
+        }
+      }
+    }
+    if (!DateUtils.isSameDay(maxDate, finalComparisonDate)) {
+      return maxDate;
+    }
+    return null;
+  }
+
+  protected CalculationResultMap getLastRecepcaoLevantamentoPlus30(
+      Integer patientId,
+      CalculationResultMap lastRecepcaoLevantamentoResult,
+      LastRecepcaoLevantamentoCalculation lastRecepcaoLevantamentoCalculation) {
+
+    CalculationResultMap lastRecepcaoLevantamentoPlus30 = new CalculationResultMap();
+    CalculationResult maxRecepcao = lastRecepcaoLevantamentoResult.get(patientId);
+    if (maxRecepcao != null) {
+      lastRecepcaoLevantamentoPlus30.put(
+          patientId,
+          new SimpleResult(
+              this.getDatePlusDays((Date) maxRecepcao.getValue(), 30),
+              lastRecepcaoLevantamentoCalculation));
+    }
+    return lastRecepcaoLevantamentoPlus30;
+  }
+
+  protected Date getDatePlusDays(Date date, int days) {
+    Calendar calendar = Calendar.getInstance();
+    calendar.setTime(date);
+    calendar.add(Calendar.DATE, days);
+    return calendar.getTime();
   }
 }

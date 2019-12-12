@@ -12,9 +12,7 @@ import org.openmrs.calculation.result.CalculationResultMap;
 import org.openmrs.calculation.result.SimpleResult;
 import org.openmrs.module.eptsreports.reporting.calculation.BooleanResult;
 import org.openmrs.module.eptsreports.reporting.calculation.FGHAbstractPatientCalculation;
-import org.openmrs.module.eptsreports.reporting.calculation.generic.LastFilaCalculation;
 import org.openmrs.module.eptsreports.reporting.calculation.generic.LastRecepcaoLevantamentoCalculation;
-import org.openmrs.module.eptsreports.reporting.calculation.generic.LastSeguimentoCalculation;
 import org.openmrs.module.eptsreports.reporting.calculation.generic.NextFilaDateCalculation;
 import org.openmrs.module.eptsreports.reporting.calculation.generic.NextSeguimentoDateCalculation;
 import org.openmrs.module.eptsreports.reporting.calculation.generic.OnArtInitiatedArvDrugsCalculation;
@@ -40,21 +38,6 @@ public class TxMLPatientsWhoMissedNextApointmentCalculation extends FGHAbstractP
 
     Set<Integer> cohort = inicioRealResult.keySet();
 
-    CalculationResultMap lastFilaResult =
-        Context.getRegisteredComponents(LastFilaCalculation.class)
-            .get(0)
-            .evaluate(cohort, parameterValues, context);
-    context.removeFromCache("lastFilaResult");
-    context.addToCache("lastFilaResult", lastFilaResult);
-
-    CalculationResultMap lastSeguimentoResult =
-        Context.getRegisteredComponents(LastSeguimentoCalculation.class)
-            .get(0)
-            .evaluate(cohort, parameterValues, context);
-
-    context.removeFromCache("lastSeguimentoResult");
-    context.addToCache("lastSeguimentoResult", lastSeguimentoResult);
-
     LastRecepcaoLevantamentoCalculation lastRecepcaoLevantamentoCalculation =
         Context.getRegisteredComponents(LastRecepcaoLevantamentoCalculation.class).get(0);
     CalculationResultMap lastRecepcaoLevantamentoResult =
@@ -73,7 +56,6 @@ public class TxMLPatientsWhoMissedNextApointmentCalculation extends FGHAbstractP
     for (Integer patientId : cohort) {
 
       boolean isCandidate = false;
-
       Date maxNextDate =
           getMaxDate(
               patientId,
@@ -82,9 +64,7 @@ public class TxMLPatientsWhoMissedNextApointmentCalculation extends FGHAbstractP
               getLastRecepcaoLevantamentoPlus30(
                   patientId, lastRecepcaoLevantamentoResult, lastRecepcaoLevantamentoCalculation));
       if (maxNextDate != null) {
-
         Date nextDatePlus28 = getDatePlusDays(maxNextDate, 28);
-
         if (nextDatePlus28.compareTo(startDate) > 0 && nextDatePlus28.compareTo(endDate) < 0) {
           isCandidate = true;
         }
