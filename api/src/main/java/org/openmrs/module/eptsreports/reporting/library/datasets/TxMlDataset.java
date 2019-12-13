@@ -78,6 +78,7 @@ public class TxMlDataset extends BaseDataSet {
         "Total missed appointments",
         EptsReportUtils.map(patientsWhoMissedNextApointmentIndicator, mappings),
         "");
+
     // get totals disaggregated by gender and age
     addRow(
         dsd,
@@ -101,6 +102,12 @@ public class TxMlDataset extends BaseDataSet {
         "LTFU >= 90 days",
         EptsReportUtils.map(ltfuLessGreatherThan3MonthsIndicator, mappings),
         getColumnsForAgeAndGender());
+
+    dsd.addColumn(
+        "M10", "LTFU < 3", EptsReportUtils.map(ltfuLessThan3MonthsIndicator, mappings), "");
+
+    dsd.addColumn(
+        "M11", "LTFU > 3", EptsReportUtils.map(ltfuLessGreatherThan3MonthsIndicator, mappings), "");
 
     this.setTransferedDimension(
         dsd, EptsReportUtils.map(patientsWhoMissedNextApointmentIndicator, mappings), mappings);
@@ -139,6 +146,8 @@ public class TxMlDataset extends BaseDataSet {
               : "";
       dataSetDefinition.addColumn(name, label, indicator, newDimension);
     }
+    dataSetDefinition.addColumn(
+        "M10", "total transfered out", indicator, "transferedout=transferedout");
   }
 
   private void setRefusedOrStoppedTreatmentDimension(

@@ -64,7 +64,7 @@ public class TxMLPatientsWhoAreLTFUGreatherThan3MonthsCalculation
                   patientId, lastRecepcaoLevantamentoResult, lastRecepcaoLevantamentoCalculation));
       if (maxNextDate != null && DateUtil.getDaysBetween(inicioRealDate, maxNextDate) >= 90) {
         Date nextDatePlus28 = CalculationProcessorUtils.adjustDaysInDate(maxNextDate, 28);
-        if (nextDatePlus28.compareTo(startDate) > 0 && nextDatePlus28.compareTo(endDate) < 0) {
+        if (nextDatePlus28.compareTo(startDate) >= 0 && nextDatePlus28.compareTo(endDate) < 0) {
           isCandidate = true;
         }
       }

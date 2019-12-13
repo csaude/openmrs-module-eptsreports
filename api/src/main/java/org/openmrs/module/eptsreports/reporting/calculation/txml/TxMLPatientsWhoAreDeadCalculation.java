@@ -7,6 +7,7 @@ import org.openmrs.api.context.Context;
 import org.openmrs.calculation.result.CalculationResultMap;
 import org.openmrs.module.eptsreports.reporting.calculation.BooleanResult;
 import org.openmrs.module.eptsreports.reporting.calculation.FGHAbstractPatientCalculation;
+import org.openmrs.module.eptsreports.reporting.calculation.generic.MaxLastDateFromFilaSeguimentoRecepcaoCalculation;
 import org.openmrs.module.eptsreports.reporting.calculation.processor.TxMLPatientDisagregationProcessor;
 import org.openmrs.module.reporting.evaluation.EvaluationContext;
 import org.springframework.stereotype.Component;
@@ -17,15 +18,25 @@ public class TxMLPatientsWhoAreDeadCalculation extends FGHAbstractPatientCalcula
   @Override
   public CalculationResultMap evaluate(
       Map<String, Object> parameterValues, EvaluationContext context) {
+    CalculationResultMap resultMap = new CalculationResultMap();
 
     Map<Integer, Date> processorResult =
         Context.getRegisteredComponents(TxMLPatientDisagregationProcessor.class)
             .get(0)
             .getPatientsMarkedAsDeadResults(context);
-    CalculationResultMap resultMap = new CalculationResultMap();
+
+    CalculationResultMap exclusionsToUse =
+        Context.getRegisteredComponents(MaxLastDateFromFilaSeguimentoRecepcaoCalculation.class)
+            .get(0)
+            .evaluate(parameterValues, context);
 
     for (Integer patientId : processorResult.keySet()) {
-      resultMap.put(patientId, new BooleanResult(Boolean.TRUE, this));
+
+      Date candidateDate = processorResult.get(patientId);
+      if (!TxMLPatientDisagregationProcessor.hasExclusion(
+          patientId, candidateDate, exclusionsToUse)) {
+        resultMap.put(patientId, new BooleanResult(Boolean.TRUE, this));
+      }
     }
     return resultMap;
   }

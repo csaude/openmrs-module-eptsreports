@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.openmrs.api.context.Context;
+import org.openmrs.calculation.result.CalculationResult;
+import org.openmrs.calculation.result.CalculationResultMap;
 import org.openmrs.module.eptsreports.metadata.HivMetadata;
 import org.openmrs.module.reporting.evaluation.EvaluationContext;
 import org.openmrs.module.reporting.evaluation.querybuilder.SqlQueryBuilder;
@@ -26,7 +28,7 @@ public class TxMLPatientDisagregationProcessor {
         getPatientsDeadInHomeVisitForm(
             context,
             Arrays.asList(2016),
-            Arrays.asList(2005, 2007, 2010, 23915, 23946, 2015, 2013, 2017));
+            Arrays.asList(2005, 2006, 2007, 2010, 23915, 23946, 2015, 2013, 2017));
 
     return CalculationProcessorUtils.getMaxMapDateByPatient(patientsDeadInHomeVisitForm);
   }
@@ -34,14 +36,16 @@ public class TxMLPatientDisagregationProcessor {
   @SuppressWarnings("unchecked")
   public Map<Integer, Date> getPatienTransferedOutResults(EvaluationContext context) {
 
-    Map<String, Object> parameterValues = context.getParameterValues();
-    parameterValues.put(
-        "patientState", hivMetadata.getTransferredOutToAnotherHealthFacilityWorkflowState());
-
     Map<Integer, Date> patientsDeadInArtProgram =
-        this.getPatientsDeadInArtProgram(context, parameterValues);
+        this.getPatientsDeadInArtProgram(
+            context,
+            hivMetadata
+                .getTransferredOutToAnotherHealthFacilityWorkflowState()
+                .getProgramWorkflowStateId());
+
     Map<Integer, Date> patientsDeadInHomeVisitForm =
         getPatientsDeadInHomeVisitForm(context, Arrays.asList(2016), Arrays.asList(1706, 23863));
+
     Map<Integer, Date> deadFichaClinicaAndFichaResumo =
         getPatientDeadInFichaResumoAndClinica(context, 1706);
 
@@ -52,10 +56,9 @@ public class TxMLPatientDisagregationProcessor {
   @SuppressWarnings("unchecked")
   public Map<Integer, Date> getPatientsMarkedAsDeadResults(EvaluationContext context) {
 
-    Map<String, Object> parameterValues = context.getParameterValues();
-    parameterValues.put("patientState", hivMetadata.getPatientHasDiedWorkflowState());
     Map<Integer, Date> patientsDeadInArtProgram =
-        this.getPatientsDeadInArtProgram(context, parameterValues);
+        this.getPatientsDeadInArtProgram(
+            context, hivMetadata.getPatientHasDiedWorkflowState().getProgramWorkflowStateId());
     Map<Integer, Date> patientsDeadInHomeVisitForm =
         getPatientsDeadInHomeVisitForm(
             context, Arrays.asList(2031, 23944, 23945), Arrays.asList(1383));
@@ -73,25 +76,39 @@ public class TxMLPatientDisagregationProcessor {
         deadFichaClinicaAndFichaResumo);
   }
 
+  public static boolean hasExclusion(
+      Integer patientId, Date candidateDate, CalculationResultMap exclusionsToUse) {
+
+    CalculationResult exclusionDateResult = exclusionsToUse.get(patientId);
+    Date exclusionDate =
+        (Date) ((exclusionDateResult != null) ? exclusionDateResult.getValue() : null);
+
+    if (exclusionDate != null && exclusionDate.compareTo(candidateDate) > 0) {
+      return Boolean.TRUE;
+    }
+    return Boolean.FALSE;
+  }
+
   /**
    * DEAD Patients who registered in ART Program SERVICO TARV TRATAMENTO
    *
    * @param context
    * @return
    */
-  private Map<Integer, Date> getPatientsDeadInArtProgram(
-      EvaluationContext context, Map<String, Object> parameterValues) {
+  private Map<Integer, Date> getPatientsDeadInArtProgram(EvaluationContext context, Integer state) {
 
     SqlQueryBuilder qb =
         new SqlQueryBuilder(
-            "select pg.patient_id, max(ps.start_date) data_estado from 	patient p "
-                + "					inner join patient_program pg on p.patient_id=pg.patient_id "
-                + "					inner join patient_state ps on pg.patient_program_id=ps.patient_program_id "
-                + "			where 	pg.voided=0 and ps.voided=0 and p.voided=0 and "
-                + "					pg.program_id=2 and ps.state= :patientState and ps.end_date is null and "
-                + "					ps.start_date<= :endDate and location_id= :location "
-                + "			group by pg.patient_id",
-            parameterValues);
+            String.format(
+                "select pg.patient_id, max(ps.start_date) data_estado from 	patient p "
+                    + "					inner join patient_program pg on p.patient_id=pg.patient_id "
+                    + "					inner join patient_state ps on pg.patient_program_id=ps.patient_program_id "
+                    + "			where 	pg.voided=0 and ps.voided=0 and p.voided=0 and "
+                    + "					pg.program_id=2 and ps.state= %s and ps.end_date is null and "
+                    + "					ps.start_date<= :endDate and location_id= :location "
+                    + "			group by pg.patient_id",
+                state),
+            context.getParameterValues());
 
     context.getParameterValues();
 

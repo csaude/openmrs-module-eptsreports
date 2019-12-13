@@ -63,7 +63,7 @@ public class TxMLPatientsWhoMissedNextApointmentCalculation extends FGHAbstractP
                   patientId, lastRecepcaoLevantamentoResult, lastRecepcaoLevantamentoCalculation));
       if (maxNextDate != null) {
         Date nextDatePlus28 = CalculationProcessorUtils.adjustDaysInDate(maxNextDate, 28);
-        if (nextDatePlus28.compareTo(startDate) > 0 && nextDatePlus28.compareTo(endDate) < 0) {
+        if (nextDatePlus28.compareTo(startDate) >= 0 && nextDatePlus28.compareTo(endDate) < 0) {
           isCandidate = true;
         }
       }
