@@ -18,62 +18,63 @@ import org.openmrs.module.reporting.evaluation.EvaluationContext;
 import org.springframework.stereotype.Component;
 
 @Component
-public class TxMLPatientsWhoAreLTFULessThan3MonthsCalculation extends FGHAbstractPatientCalculation {
+public class TxMLPatientsWhoAreLTFULessThan3MonthsCalculation
+    extends FGHAbstractPatientCalculation {
 
-	@Override
-	public CalculationResultMap evaluate(Map<String, Object> parameterValues, EvaluationContext context) {
-		CalculationResultMap resultMap = new CalculationResultMap();
+  @Override
+  public CalculationResultMap evaluate(
+      Map<String, Object> parameterValues, EvaluationContext context) {
+    CalculationResultMap resultMap = new CalculationResultMap();
 
-		Date startDate = (Date) context.getFromCache("startDate");
-		Date endDate = (Date) context.getFromCache("endDate");
+    Date startDate = (Date) context.getFromCache("startDate");
+    Date endDate = (Date) context.getFromCache("endDate");
 
-		CalculationResultMap inicioRealResult = Context.getRegisteredComponents(OnArtInitiatedArvDrugsCalculation.class)
-				.get(0).evaluate(parameterValues, context);
+    CalculationResultMap inicioRealResult =
+        Context.getRegisteredComponents(OnArtInitiatedArvDrugsCalculation.class)
+            .get(0)
+            .evaluate(parameterValues, context);
 
-		Set<Integer> cohort = inicioRealResult.keySet();
+    Set<Integer> cohort = inicioRealResult.keySet();
 
-		LastRecepcaoLevantamentoCalculation lastRecepcaoLevantamentoCalculation = Context
-				.getRegisteredComponents(LastRecepcaoLevantamentoCalculation.class).get(0);
-		CalculationResultMap lastRecepcaoLevantamentoResult = lastRecepcaoLevantamentoCalculation.evaluate(cohort,
-				parameterValues, context);
+    LastRecepcaoLevantamentoCalculation lastRecepcaoLevantamentoCalculation =
+        Context.getRegisteredComponents(LastRecepcaoLevantamentoCalculation.class).get(0);
+    CalculationResultMap lastRecepcaoLevantamentoResult =
+        lastRecepcaoLevantamentoCalculation.evaluate(cohort, parameterValues, context);
 
-		CalculationResultMap nextFilaResult = Context.getRegisteredComponents(NextFilaDateCalculation.class).get(0)
-				.evaluate(cohort, parameterValues, context);
+    CalculationResultMap nextFilaResult =
+        Context.getRegisteredComponents(NextFilaDateCalculation.class)
+            .get(0)
+            .evaluate(cohort, parameterValues, context);
 
-		CalculationResultMap nextSeguimentoResult = Context.getRegisteredComponents(NextSeguimentoDateCalculation.class)
-				.get(0).evaluate(cohort, parameterValues, context);
+    CalculationResultMap nextSeguimentoResult =
+        Context.getRegisteredComponents(NextSeguimentoDateCalculation.class)
+            .get(0)
+            .evaluate(cohort, parameterValues, context);
 
-		for (Integer patientId : cohort) {
-			boolean isCandidate = false;
-			Date inicioRealDate = (Date) inicioRealResult.get(patientId).getValue();
-			Date maxNextDate = CalculationProcessorUtils.getMaxDate(patientId, nextFilaResult, nextSeguimentoResult,
-					TxMLPatientsWhoMissedNextApointmentCalculation.getLastRecepcaoLevantamentoPlus30(patientId,
-							lastRecepcaoLevantamentoResult, lastRecepcaoLevantamentoCalculation));
-			if (maxNextDate != null && DateUtil.getDaysBetween(inicioRealDate, maxNextDate) < 90) {
-				Date nextDatePlus28 = CalculationProcessorUtils.adjustDaysInDate(maxNextDate, 28);
-				if (nextDatePlus28.compareTo(startDate) >= 0 && nextDatePlus28.compareTo(endDate) < 0) {
-					isCandidate = true;
-				}
-			}
-			resultMap.put(patientId, new BooleanResult(isCandidate, this));
-		}
-		return resultMap;
-	}
+    for (Integer patientId : cohort) {
+      boolean isCandidate = false;
+      Date inicioRealDate = (Date) inicioRealResult.get(patientId).getValue();
+      Date maxNextDate =
+          CalculationProcessorUtils.getMaxDate(
+              patientId,
+              nextFilaResult,
+              nextSeguimentoResult,
+              TxMLPatientsWhoMissedNextApointmentCalculation.getLastRecepcaoLevantamentoPlus30(
+                  patientId, lastRecepcaoLevantamentoResult, lastRecepcaoLevantamentoCalculation));
+      if (maxNextDate != null && DateUtil.getDaysBetween(inicioRealDate, maxNextDate) < 90) {
+        Date nextDatePlus28 = CalculationProcessorUtils.adjustDaysInDate(maxNextDate, 28);
+        if (nextDatePlus28.compareTo(startDate) >= 0 && nextDatePlus28.compareTo(endDate) < 0) {
+          isCandidate = true;
+        }
+      }
+      resultMap.put(patientId, new BooleanResult(isCandidate, this));
+    }
+    return resultMap;
+  }
 
-	@Override
-	public CalculationResultMap evaluate(Collection<Integer> cohort, Map<String, Object> parameterValues,
-			EvaluationContext context) {
-		return this.evaluate(parameterValues, context);
-	}
-
-	public static void main(String[] args) {
-
-		Date startDate = DateUtil.getDateTime(2019, 3, 28);
-
-		Date endDate = DateUtil.getDateTime(2019, 6, 24);
-
-		System.out.println(startDate);
-		System.out.println(endDate);
-		System.out.println(DateUtil.getDaysBetween(startDate, endDate));
-	}
+  @Override
+  public CalculationResultMap evaluate(
+      Collection<Integer> cohort, Map<String, Object> parameterValues, EvaluationContext context) {
+    return this.evaluate(parameterValues, context);
+  }
 }
