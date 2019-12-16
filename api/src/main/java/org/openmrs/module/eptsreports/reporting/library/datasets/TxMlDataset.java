@@ -108,6 +108,36 @@ public class TxMlDataset extends BaseDataSet {
     this.setRefusedOrStoppedTreatmentDimension(
         dsd, EptsReportUtils.map(patientsWhoMissedNextApointmentIndicator, mappings), mappings);
 
+    dsd.addColumn(
+        "TotalDead",
+        "Total Dead",
+        EptsReportUtils.map(patientsWhoMissedNextApointmentIndicator, mappings),
+        "dead=dead");
+
+    dsd.addColumn(
+        "TotalLTFU1",
+        "Total LTFU < 90",
+        EptsReportUtils.map(ltfuLessThan3MonthsIndicator, mappings),
+        "");
+
+    dsd.addColumn(
+        "TotalLTFU2",
+        "Total LTFU >= 90",
+        EptsReportUtils.map(ltfuLessGreatherThan3MonthsIndicator, mappings),
+        "");
+
+    dsd.addColumn(
+        "TotalTransferedOut",
+        "Total Transfered Out",
+        EptsReportUtils.map(patientsWhoMissedNextApointmentIndicator, mappings),
+        "transferedout=transferedout");
+
+    dsd.addColumn(
+        "TotalRefusedTreatment",
+        "Total Refused(Stopped) Treatment",
+        EptsReportUtils.map(patientsWhoMissedNextApointmentIndicator, mappings),
+        "refusedorstoppedtreatment=refusedorstoppedtreatment");
+
     return dsd;
   }
 
