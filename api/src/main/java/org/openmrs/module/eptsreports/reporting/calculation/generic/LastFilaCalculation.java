@@ -19,7 +19,9 @@ public class LastFilaCalculation extends FGHAbstractPatientCalculation {
       Collection<Integer> cohort, Map<String, Object> parameterValues, EvaluationContext context) {
 
     Map<Integer, Date> lastFilaProcessorResults =
-        Context.getRegisteredComponents(LastFilaProcessor.class).get(0).getResutls(context);
+        Context.getRegisteredComponents(LastFilaProcessor.class)
+            .get(0)
+            .getLastLevantamentoOnFila(context);
 
     CalculationResultMap resultMap = new CalculationResultMap();
     for (Integer patientId : cohort) {
