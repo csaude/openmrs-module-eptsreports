@@ -433,7 +433,14 @@ public class TxCurrCohortQueries {
             this.getPatientsOnArtOnArvDispenseBetween3And5MonthsCalculation(),
             "startDate=${startDate},endDate=${endDate},location=${location}"));
 
-    cd.setCompositionString("patientsWhoAreActiveOnART AND arvDispenseBetween3And5Months");
+    cd.addSearch(
+        "arvDispenseForLessThan3Months",
+        EptsReportUtils.map(
+            this.getPatientsOnArtOnArvDispenseForLessThan3Months(),
+            "startDate=${startDate},endDate=${endDate},location=${location}"));
+
+    cd.setCompositionString(
+        "patientsWhoAreActiveOnART AND arvDispenseBetween3And5Months NOT (arvDispenseForLessThan3Months)");
     return cd;
   }
 
@@ -455,7 +462,20 @@ public class TxCurrCohortQueries {
             this.getPatientsOnArtOnArvDispenseFor6OrMoreMonthsCalculation(),
             "startDate=${startDate},endDate=${endDate},location=${location}"));
 
-    cd.setCompositionString("patientsWhoAreActiveOnART AND arvDispenseFor6OrMoreMonths");
+    cd.addSearch(
+        "arvDispenseBetween3And5Months",
+        EptsReportUtils.map(
+            this.getPatientsOnArtOnArvDispenseBetween3And5Months(),
+            "startDate=${startDate},endDate=${endDate},location=${location}"));
+
+    cd.addSearch(
+        "arvDispenseForLessThan3Months",
+        EptsReportUtils.map(
+            this.getPatientsOnArtOnArvDispenseForLessThan3Months(),
+            "startDate=${startDate},endDate=${endDate},location=${location}"));
+
+    cd.setCompositionString(
+        "patientsWhoAreActiveOnART AND arvDispenseFor6OrMoreMonths NOT (arvDispenseBetween3And5Months OR arvDispenseForLessThan3Months)");
     return cd;
   }
 
