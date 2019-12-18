@@ -7,14 +7,13 @@ import java.util.Set;
 import org.openmrs.api.context.Context;
 import org.openmrs.calculation.result.CalculationResultMap;
 import org.openmrs.calculation.result.SimpleResult;
-import org.openmrs.module.eptsreports.reporting.calculation.FGHAbstractPatientCalculation;
-import org.openmrs.module.eptsreports.reporting.calculation.processor.CalculationProcessorUtils;
+import org.openmrs.module.eptsreports.reporting.calculation.BaseFghCalculation;
+import org.openmrs.module.eptsreports.reporting.calculation.util.processor.CalculationProcessorUtils;
 import org.openmrs.module.reporting.evaluation.EvaluationContext;
 import org.springframework.stereotype.Component;
 
 @Component
-public class MaxLastDateFromFilaSeguimentoRecepcaoCalculation
-    extends FGHAbstractPatientCalculation {
+public class MaxLastDateFromFilaSeguimentoRecepcaoCalculation extends BaseFghCalculation {
 
   public CalculationResultMap evaluate(
       Map<String, Object> parameterValues, EvaluationContext context) {

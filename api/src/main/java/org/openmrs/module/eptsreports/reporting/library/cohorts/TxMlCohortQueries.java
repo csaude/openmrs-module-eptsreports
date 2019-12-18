@@ -10,7 +10,7 @@ import org.openmrs.module.eptsreports.reporting.calculation.txml.TxMLPatientsWho
 import org.openmrs.module.eptsreports.reporting.calculation.txml.TxMLPatientsWhoAreTransferedOutCalculation;
 import org.openmrs.module.eptsreports.reporting.calculation.txml.TxMLPatientsWhoMissedNextApointmentCalculation;
 import org.openmrs.module.eptsreports.reporting.calculation.txml.TxMLPatientsWhoRefusedOrStoppedTreatmentCalculation;
-import org.openmrs.module.eptsreports.reporting.cohort.definition.FGHCalculationCohortDefinition;
+import org.openmrs.module.eptsreports.reporting.cohort.definition.BaseFghCalculationCohortDefinition;
 import org.openmrs.module.eptsreports.reporting.library.queries.TxMlQueries;
 import org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
@@ -424,8 +424,8 @@ public class TxMlCohortQueries {
 
   @DocumentedDefinition(value = "patientsWhoMissedNextApointment")
   public CohortDefinition getPatientsWhoMissedNextApointment() {
-    FGHCalculationCohortDefinition cd =
-        new FGHCalculationCohortDefinition(
+    BaseFghCalculationCohortDefinition cd =
+        new BaseFghCalculationCohortDefinition(
             "txMLPatientsWhoMissedNextApointmentCalculation",
             Context.getRegisteredComponents(TxMLPatientsWhoMissedNextApointmentCalculation.class)
                 .get(0));
@@ -438,8 +438,8 @@ public class TxMlCohortQueries {
 
   @DocumentedDefinition(value = "patientsMarkedAsDead")
   public CohortDefinition getPatientsMarkedAsDead() {
-    FGHCalculationCohortDefinition cd =
-        new FGHCalculationCohortDefinition(
+    BaseFghCalculationCohortDefinition cd =
+        new BaseFghCalculationCohortDefinition(
             "patientsMarkedAsDeadCalculation",
             Context.getRegisteredComponents(TxMLPatientsWhoAreDeadCalculation.class).get(0));
     cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
@@ -451,8 +451,8 @@ public class TxMlCohortQueries {
 
   @DocumentedDefinition(value = "patientsWhoAreTransferedOut")
   public CohortDefinition getPatientsWhoAreTransferedOut() {
-    FGHCalculationCohortDefinition cd =
-        new FGHCalculationCohortDefinition(
+    BaseFghCalculationCohortDefinition cd =
+        new BaseFghCalculationCohortDefinition(
             "patientsWhoAreTransferedOutCalculation",
             Context.getRegisteredComponents(TxMLPatientsWhoAreTransferedOutCalculation.class)
                 .get(0));
@@ -465,8 +465,8 @@ public class TxMlCohortQueries {
 
   @DocumentedDefinition(value = "patientsWhoRefusedStoppedTreatmentCalculation")
   public CohortDefinition getPatientsWhoRefusedOrStoppedTreatment() {
-    FGHCalculationCohortDefinition cd =
-        new FGHCalculationCohortDefinition(
+    BaseFghCalculationCohortDefinition cd =
+        new BaseFghCalculationCohortDefinition(
             "patientsWhoRefusedStoppedTreatmentCalculation",
             Context.getRegisteredComponents(
                     TxMLPatientsWhoRefusedOrStoppedTreatmentCalculation.class)
@@ -480,8 +480,8 @@ public class TxMlCohortQueries {
 
   @DocumentedDefinition(value = "patientsWhoAreLTFULessThan3MonthsCalculation")
   private CohortDefinition getPatientsWhoAreLTFULessThan3MonthsCalculation() {
-    FGHCalculationCohortDefinition cd =
-        new FGHCalculationCohortDefinition(
+    BaseFghCalculationCohortDefinition cd =
+        new BaseFghCalculationCohortDefinition(
             "patientsWhoAreLTFULessThan3MonthsCalculation",
             Context.getRegisteredComponents(TxMLPatientsWhoAreLTFULessThan3MonthsCalculation.class)
                 .get(0));
@@ -494,8 +494,8 @@ public class TxMlCohortQueries {
 
   @DocumentedDefinition(value = "patientsWhoAreLTFUGreatherThan3MonthsCalculation")
   private CohortDefinition getPatientsWhoAreLTFUGreatherThan3MonthsCalculation() {
-    FGHCalculationCohortDefinition cd =
-        new FGHCalculationCohortDefinition(
+    BaseFghCalculationCohortDefinition cd =
+        new BaseFghCalculationCohortDefinition(
             "patientsWhoAreLTFUGreatherThan3MonthsCalculation",
             Context.getRegisteredComponents(
                     TxMLPatientsWhoAreLTFUGreatherThan3MonthsCalculation.class)

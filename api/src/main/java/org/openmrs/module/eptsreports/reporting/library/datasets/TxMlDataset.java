@@ -78,65 +78,30 @@ public class TxMlDataset extends BaseDataSet {
         "Total missed appointments",
         EptsReportUtils.map(patientsWhoMissedNextApointmentIndicator, mappings),
         "");
-
-    addRow(
+    super.addRow(
         dsd,
         "M2",
         "Age and Gender",
         EptsReportUtils.map(patientsWhoMissedNextApointmentIndicator, mappings),
         getColumnsForAgeAndGender());
-
     this.setDeadDimension(
         dsd, EptsReportUtils.map(patientsWhoMissedNextApointmentIndicator, mappings), mappings);
-
-    addRow(
+    super.addRow(
         dsd,
         "M4",
         "LTFU < 90 days",
         EptsReportUtils.map(ltfuLessThan3MonthsIndicator, mappings),
         getColumnsForAgeAndGender());
-    addRow(
+    super.addRow(
         dsd,
         "M5",
         "LTFU >= 90 days",
         EptsReportUtils.map(ltfuLessGreatherThan3MonthsIndicator, mappings),
         getColumnsForAgeAndGender());
-
     this.setTransferedDimension(
         dsd, EptsReportUtils.map(patientsWhoMissedNextApointmentIndicator, mappings), mappings);
-
     this.setRefusedOrStoppedTreatmentDimension(
         dsd, EptsReportUtils.map(patientsWhoMissedNextApointmentIndicator, mappings), mappings);
-
-    dsd.addColumn(
-        "TotalDead",
-        "Total Dead",
-        EptsReportUtils.map(patientsWhoMissedNextApointmentIndicator, mappings),
-        "dead=dead");
-
-    dsd.addColumn(
-        "TotalLTFU1",
-        "Total LTFU < 90",
-        EptsReportUtils.map(ltfuLessThan3MonthsIndicator, mappings),
-        "");
-
-    dsd.addColumn(
-        "TotalLTFU2",
-        "Total LTFU >= 90",
-        EptsReportUtils.map(ltfuLessGreatherThan3MonthsIndicator, mappings),
-        "");
-
-    dsd.addColumn(
-        "TotalTransferedOut",
-        "Total Transfered Out",
-        EptsReportUtils.map(patientsWhoMissedNextApointmentIndicator, mappings),
-        "transferedout=transferedout");
-
-    dsd.addColumn(
-        "TotalRefusedTreatment",
-        "Total Refused(Stopped) Treatment",
-        EptsReportUtils.map(patientsWhoMissedNextApointmentIndicator, mappings),
-        "refusedorstoppedtreatment=refusedorstoppedtreatment");
 
     return dsd;
   }
@@ -145,13 +110,15 @@ public class TxMlDataset extends BaseDataSet {
       final CohortIndicatorDataSetDefinition dataSetDefinition,
       Mapped<? extends CohortIndicator> indicator,
       final String mappings) {
-
+    String dimension = "dead=dead";
     for (ColumnParameters column : getColumnsForAgeAndGender()) {
       String name = "M3" + "-" + column.getColumn();
       String label = "Dead" + " (" + column.getLabel() + ")";
-      String newDimension =
-          (column.getDimensions().length() > 2) ? column.getDimensions() + "|dead=dead" : "";
-      dataSetDefinition.addColumn(name, label, indicator, newDimension);
+      String dimensionIter =
+          (column.getDimensions().length() > 2)
+              ? column.getDimensions() + "|" + dimension
+              : dimension;
+      dataSetDefinition.addColumn(name, label, indicator, dimensionIter);
     }
   }
 
@@ -159,15 +126,15 @@ public class TxMlDataset extends BaseDataSet {
       final CohortIndicatorDataSetDefinition dataSetDefinition,
       Mapped<? extends CohortIndicator> indicator,
       final String mappings) {
-
+    String dimension = "transferedout=transferedout";
     for (ColumnParameters column : getColumnsForAgeAndGender()) {
       String name = "M6" + "-" + column.getColumn();
       String label = "Transfered Out" + " (" + column.getLabel() + ")";
-      String newDimension =
+      String dimensionIter =
           (column.getDimensions().length() > 2)
-              ? column.getDimensions() + "|transferedout=transferedout"
-              : "";
-      dataSetDefinition.addColumn(name, label, indicator, newDimension);
+              ? column.getDimensions() + "|" + dimension
+              : dimension;
+      dataSetDefinition.addColumn(name, label, indicator, dimensionIter);
     }
     dataSetDefinition.addColumn(
         "M10", "total transfered out", indicator, "transferedout=transferedout");
@@ -178,14 +145,15 @@ public class TxMlDataset extends BaseDataSet {
       Mapped<? extends CohortIndicator> indicator,
       final String mappings) {
 
+    String dimension = "refusedorstoppedtreatment=refusedorstoppedtreatment";
     for (ColumnParameters column : getColumnsForAgeAndGender()) {
       String name = "M7" + "-" + column.getColumn();
       String label = "Transfered Out" + " (" + column.getLabel() + ")";
-      String newDimension =
+      String dimensionIter =
           (column.getDimensions().length() > 2)
-              ? column.getDimensions() + "|refusedorstoppedtreatment=refusedorstoppedtreatment"
-              : "";
-      dataSetDefinition.addColumn(name, label, indicator, newDimension);
+              ? column.getDimensions() + "|" + dimension
+              : dimension;
+      dataSetDefinition.addColumn(name, label, indicator, dimensionIter);
     }
   }
 

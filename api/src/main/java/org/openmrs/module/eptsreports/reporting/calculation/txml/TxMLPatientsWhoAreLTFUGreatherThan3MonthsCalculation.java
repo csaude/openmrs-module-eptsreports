@@ -6,29 +6,27 @@ import java.util.Map;
 import java.util.Set;
 import org.openmrs.api.context.Context;
 import org.openmrs.calculation.result.CalculationResultMap;
+import org.openmrs.module.eptsreports.reporting.calculation.BaseFghCalculation;
 import org.openmrs.module.eptsreports.reporting.calculation.BooleanResult;
-import org.openmrs.module.eptsreports.reporting.calculation.FGHAbstractPatientCalculation;
 import org.openmrs.module.eptsreports.reporting.calculation.generic.LastRecepcaoLevantamentoCalculation;
 import org.openmrs.module.eptsreports.reporting.calculation.generic.NextFilaDateCalculation;
 import org.openmrs.module.eptsreports.reporting.calculation.generic.NextSeguimentoDateCalculation;
 import org.openmrs.module.eptsreports.reporting.calculation.generic.OnArtInitiatedArvDrugsCalculation;
-import org.openmrs.module.eptsreports.reporting.calculation.processor.CalculationProcessorUtils;
+import org.openmrs.module.eptsreports.reporting.calculation.util.processor.CalculationProcessorUtils;
 import org.openmrs.module.reporting.common.DateUtil;
 import org.openmrs.module.reporting.evaluation.EvaluationContext;
 import org.springframework.stereotype.Component;
 
 @Component
-public class TxMLPatientsWhoAreLTFUGreatherThan3MonthsCalculation
-    extends FGHAbstractPatientCalculation {
+public class TxMLPatientsWhoAreLTFUGreatherThan3MonthsCalculation extends BaseFghCalculation {
 
   @Override
   public CalculationResultMap evaluate(
       Map<String, Object> parameterValues, EvaluationContext context) {
     CalculationResultMap resultMap = new CalculationResultMap();
 
-    Date startDate = (Date) context.getFromCache("startDate");
-    Date endDate = (Date) context.getFromCache("endDate");
-
+    Date startDate = (Date) context.getParameterValues().get("startDate");
+    Date endDate = (Date) context.getParameterValues().get("endDate");
     CalculationResultMap inicioRealResult =
         Context.getRegisteredComponents(OnArtInitiatedArvDrugsCalculation.class)
             .get(0)
@@ -52,8 +50,6 @@ public class TxMLPatientsWhoAreLTFUGreatherThan3MonthsCalculation
             .evaluate(cohort, parameterValues, context);
 
     for (Integer patientId : cohort) {
-
-      boolean isCandidate = false;
       Date inicioRealDate = (Date) inicioRealResult.get(patientId).getValue();
       Date maxNextDate =
           CalculationProcessorUtils.getMaxDate(
@@ -65,10 +61,9 @@ public class TxMLPatientsWhoAreLTFUGreatherThan3MonthsCalculation
       if (maxNextDate != null && DateUtil.getDaysBetween(inicioRealDate, maxNextDate) >= 90) {
         Date nextDatePlus28 = CalculationProcessorUtils.adjustDaysInDate(maxNextDate, 28);
         if (nextDatePlus28.compareTo(startDate) >= 0 && nextDatePlus28.compareTo(endDate) < 0) {
-          isCandidate = true;
+          resultMap.put(patientId, new BooleanResult(Boolean.TRUE, this));
         }
       }
-      resultMap.put(patientId, new BooleanResult(isCandidate, this));
     }
     return resultMap;
   }

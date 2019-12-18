@@ -1,4 +1,4 @@
-package org.openmrs.module.eptsreports.reporting.calculation.processor;
+package org.openmrs.module.eptsreports.reporting.calculation.util.processor;
 
 import java.util.Arrays;
 import java.util.List;
@@ -14,14 +14,15 @@ import org.openmrs.module.reporting.evaluation.service.EvaluationService;
 import org.springframework.stereotype.Component;
 
 @Component
-public class NextSeguimentoDateProcessor {
+public class NextFilaDateProcessor {
 
   public ListMap<Integer, Obs> getResutls(List<Integer> cohort, EvaluationContext context) {
 
     if (cohort == null || cohort.isEmpty()) {
       return new ListMap<>();
     }
-    Location location = (Location) context.getFromCache("location");
+    Location location = (Location) context.getParameterValues().get("location");
+
     HivMetadata hivMetadata = Context.getRegisteredComponents(HivMetadata.class).get(0);
 
     EvaluationContext newContext = new EvaluationContext();
@@ -31,13 +32,10 @@ public class NextSeguimentoDateProcessor {
     q.select("o.personId", "o");
     q.from(Obs.class, "o");
     q.wherePersonIn("o.personId", newContext);
-    q.whereEqual("o.concept", hivMetadata.getReturnVisitDateConcept());
+    q.whereEqual("o.concept", hivMetadata.getReturnVisitDateForArvDrugConcept());
 
     q.whereIn(
-        "o.encounter.encounterType",
-        Arrays.asList(
-            hivMetadata.getAdultoSeguimentoEncounterType(),
-            hivMetadata.getARVPediatriaSeguimentoEncounterType()));
+        "o.encounter.encounterType", Arrays.asList(hivMetadata.getARVPharmaciaEncounterType()));
     q.whereIn("o.encounter.location", Arrays.asList(location));
     q.whereNotNull("o.valueDatetime");
     q.orderDesc("o.obsDatetime");

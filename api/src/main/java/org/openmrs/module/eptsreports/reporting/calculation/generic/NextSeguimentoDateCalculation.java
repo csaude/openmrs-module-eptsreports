@@ -11,15 +11,15 @@ import org.openmrs.api.context.Context;
 import org.openmrs.calculation.result.CalculationResult;
 import org.openmrs.calculation.result.CalculationResultMap;
 import org.openmrs.calculation.result.SimpleResult;
-import org.openmrs.module.eptsreports.reporting.calculation.FGHAbstractPatientCalculation;
-import org.openmrs.module.eptsreports.reporting.calculation.processor.NextSeguimentoDateProcessor;
+import org.openmrs.module.eptsreports.reporting.calculation.BaseFghCalculation;
+import org.openmrs.module.eptsreports.reporting.calculation.util.processor.NextSeguimentoDateProcessor;
 import org.openmrs.module.reporting.common.DateUtil;
 import org.openmrs.module.reporting.common.ListMap;
 import org.openmrs.module.reporting.evaluation.EvaluationContext;
 import org.springframework.stereotype.Component;
 
 @Component
-public class NextSeguimentoDateCalculation extends FGHAbstractPatientCalculation {
+public class NextSeguimentoDateCalculation extends BaseFghCalculation {
 
   @Override
   public CalculationResultMap evaluate(

@@ -6,13 +6,13 @@ import java.util.Map;
 import org.openmrs.api.context.Context;
 import org.openmrs.calculation.result.CalculationResultMap;
 import org.openmrs.calculation.result.SimpleResult;
-import org.openmrs.module.eptsreports.reporting.calculation.FGHAbstractPatientCalculation;
-import org.openmrs.module.eptsreports.reporting.calculation.processor.LastFilaProcessor;
+import org.openmrs.module.eptsreports.reporting.calculation.BaseFghCalculation;
+import org.openmrs.module.eptsreports.reporting.calculation.util.processor.LastFilaProcessor;
 import org.openmrs.module.reporting.evaluation.EvaluationContext;
 import org.springframework.stereotype.Component;
 
 @Component
-public class LastFilaCalculation extends FGHAbstractPatientCalculation {
+public class LastFilaCalculation extends BaseFghCalculation {
 
   @Override
   public CalculationResultMap evaluate(

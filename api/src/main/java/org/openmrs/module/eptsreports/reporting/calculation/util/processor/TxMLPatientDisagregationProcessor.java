@@ -1,4 +1,4 @@
-package org.openmrs.module.eptsreports.reporting.calculation.processor;
+package org.openmrs.module.eptsreports.reporting.calculation.util.processor;
 
 import java.util.Arrays;
 import java.util.Date;

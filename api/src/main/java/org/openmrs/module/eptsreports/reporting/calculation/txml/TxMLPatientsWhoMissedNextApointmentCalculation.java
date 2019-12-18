@@ -8,26 +8,26 @@ import org.openmrs.api.context.Context;
 import org.openmrs.calculation.result.CalculationResult;
 import org.openmrs.calculation.result.CalculationResultMap;
 import org.openmrs.calculation.result.SimpleResult;
+import org.openmrs.module.eptsreports.reporting.calculation.BaseFghCalculation;
 import org.openmrs.module.eptsreports.reporting.calculation.BooleanResult;
-import org.openmrs.module.eptsreports.reporting.calculation.FGHAbstractPatientCalculation;
 import org.openmrs.module.eptsreports.reporting.calculation.generic.LastRecepcaoLevantamentoCalculation;
 import org.openmrs.module.eptsreports.reporting.calculation.generic.NextFilaDateCalculation;
 import org.openmrs.module.eptsreports.reporting.calculation.generic.NextSeguimentoDateCalculation;
 import org.openmrs.module.eptsreports.reporting.calculation.generic.OnArtInitiatedArvDrugsCalculation;
-import org.openmrs.module.eptsreports.reporting.calculation.processor.CalculationProcessorUtils;
+import org.openmrs.module.eptsreports.reporting.calculation.util.processor.CalculationProcessorUtils;
 import org.openmrs.module.reporting.evaluation.EvaluationContext;
 import org.springframework.stereotype.Component;
 
 @Component
-public class TxMLPatientsWhoMissedNextApointmentCalculation extends FGHAbstractPatientCalculation {
+public class TxMLPatientsWhoMissedNextApointmentCalculation extends BaseFghCalculation {
 
   @Override
   public CalculationResultMap evaluate(
       Map<String, Object> parameterValues, EvaluationContext context) {
     CalculationResultMap resultMap = new CalculationResultMap();
 
-    Date startDate = (Date) context.getFromCache("startDate");
-    Date endDate = (Date) context.getFromCache("endDate");
+    Date startDate = (Date) context.getParameterValues().get("startDate");
+    Date endDate = (Date) context.getParameterValues().get("endDate");
 
     CalculationResultMap inicioRealResult =
         Context.getRegisteredComponents(OnArtInitiatedArvDrugsCalculation.class)
@@ -53,7 +53,6 @@ public class TxMLPatientsWhoMissedNextApointmentCalculation extends FGHAbstractP
 
     for (Integer patientId : cohort) {
 
-      boolean isCandidate = false;
       Date maxNextDate =
           CalculationProcessorUtils.getMaxDate(
               patientId,
@@ -64,10 +63,9 @@ public class TxMLPatientsWhoMissedNextApointmentCalculation extends FGHAbstractP
       if (maxNextDate != null) {
         Date nextDatePlus28 = CalculationProcessorUtils.adjustDaysInDate(maxNextDate, 28);
         if (nextDatePlus28.compareTo(startDate) >= 0 && nextDatePlus28.compareTo(endDate) < 0) {
-          isCandidate = true;
+          resultMap.put(patientId, new BooleanResult(Boolean.TRUE, this));
         }
       }
-      resultMap.put(patientId, new BooleanResult(isCandidate, this));
     }
     return resultMap;
   }
