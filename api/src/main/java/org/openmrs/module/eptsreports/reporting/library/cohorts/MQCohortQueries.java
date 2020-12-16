@@ -5,10 +5,11 @@ import org.openmrs.Location;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.eptsreports.reporting.cohort.definition.BaseFghCalculationCohortDefinition;
 import org.openmrs.module.eptsreports.reporting.library.quality.improvment.calculation.QualityImprovmentCategory11SectionICalculation;
-import org.openmrs.module.eptsreports.reporting.library.queries.QualityImprovementQueriesInterface;
-import org.openmrs.module.eptsreports.reporting.library.queries.QualityImprovementQueriesInterfaceCategory12;
 import org.openmrs.module.eptsreports.reporting.library.queries.QualityImprovementQueriesCAT13DenominatorP2;
 import org.openmrs.module.eptsreports.reporting.library.queries.QualityImprovementQueriesCAT13NuminatorP2;
+import org.openmrs.module.eptsreports.reporting.library.queries.QualityImprovementQueriesCAT13P4;
+import org.openmrs.module.eptsreports.reporting.library.queries.QualityImprovementQueriesInterface;
+import org.openmrs.module.eptsreports.reporting.library.queries.QualityImprovementQueriesInterfaceCategory12;
 import org.openmrs.module.eptsreports.reporting.utils.EptsReportConstants;
 import org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
@@ -184,9 +185,9 @@ public class MQCohortQueries {
   }
 
   @DocumentedDefinition(
-          value = "findPatientsWhoAreNewlyEnrolledOnARTByAgeUsingYearChildrenBiggerThen9MontheLess2")
+      value = "findPatientsWhoAreNewlyEnrolledOnARTByAgeUsingYearChildrenBiggerThen9MontheLess2")
   public CohortDefinition
-  findPatientsWhoAreNewlyEnrolledOnARTByAgeUsingYearChildrenBiggerThen9MontheLess2() {
+      findPatientsWhoAreNewlyEnrolledOnARTByAgeUsingYearChildrenBiggerThen9MontheLess2() {
 
     final SqlCohortDefinition definition = new SqlCohortDefinition();
 
@@ -197,8 +198,8 @@ public class MQCohortQueries {
     definition.addParameter(new Parameter("location", "Location", Location.class));
 
     String query =
-            QualityImprovementQueriesInterface.QUERY
-                    .findPatientsWhoAreNewlyEnrolledOnARTByAgeUsingYearChildrenBiggerThen9MontheLess2;
+        QualityImprovementQueriesInterface.QUERY
+            .findPatientsWhoAreNewlyEnrolledOnARTByAgeUsingYearChildrenBiggerThen9MontheLess2;
 
     definition.setQuery(query);
 
@@ -3614,126 +3615,135 @@ public class MQCohortQueries {
   }
 
   @DocumentedDefinition(
-          value =
-                  "findChildernWith9MonthAnd2YearOnARTStartedExcludingPregantAndBreastfeedingAndTransferredInTRANSFEREDOutCategory11Denominator")
+      value =
+          "findChildernWith9MonthAnd2YearOnARTStartedExcludingPregantAndBreastfeedingAndTransferredInTRANSFEREDOutCategory11Denominator")
   public CohortDefinition
-  findChildernWith9MonthAnd2YearOnARTStartedExcludingPregantAndBreastfeedingAndTransferredInTRANSFEREDOutCategory11Denominator() {
+      findChildernWith9MonthAnd2YearOnARTStartedExcludingPregantAndBreastfeedingAndTransferredInTRANSFEREDOutCategory11Denominator() {
     final CompositionCohortDefinition definition = new CompositionCohortDefinition();
     definition.setName("");
     definition.addParameter(
-            new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
+        new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
     definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
     definition.addParameter(new Parameter("endRevisionDate", "Data Fim Revisão", Date.class));
     definition.addParameter(new Parameter("location", "location", Date.class));
     final String mappings =
-            "startInclusionDate=${startInclusionDate},endInclusionDate=${endInclusionDate},endRevisionDate=${endRevisionDate},location=${location}";
+        "startInclusionDate=${startInclusionDate},endInclusionDate=${endInclusionDate},endRevisionDate=${endRevisionDate},location=${location}";
     definition.addSearch(
-            "CHILDREN",
-            EptsReportUtils.map(
-                    this.findPatientsWhoAreNewlyEnrolledOnARTByAgeUsingYearChildrenBiggerThen9MontheLess2(),
-                    mappings));
+        "CHILDREN",
+        EptsReportUtils.map(
+            this.findPatientsWhoAreNewlyEnrolledOnARTByAgeUsingYearChildrenBiggerThen9MontheLess2(),
+            mappings));
     definition.addSearch(
-            "PREGNANT",
-            EptsReportUtils.map(this.findPatientsWhoArePregnantInclusionDateRF08(), mappings));
+        "PREGNANT",
+        EptsReportUtils.map(this.findPatientsWhoArePregnantInclusionDateRF08(), mappings));
     definition.addSearch(
-            "BREASTFEEDING",
-            EptsReportUtils.map(this.findPatientsWhoAreBreastfeedingInclusionDateRF09(), mappings));
+        "BREASTFEEDING",
+        EptsReportUtils.map(this.findPatientsWhoAreBreastfeedingInclusionDateRF09(), mappings));
     definition.addSearch(
-            "TRANSFERED-IN",
-            EptsReportUtils.map(
-                    this.findPatientsWhoWhereMarkedAsTransferedInAndOnARTOnInAPeriodOnMasterCardRF06(),
-                    mappings));
+        "TRANSFERED-IN",
+        EptsReportUtils.map(
+            this.findPatientsWhoWhereMarkedAsTransferedInAndOnARTOnInAPeriodOnMasterCardRF06(),
+            mappings));
     definition.addSearch(
-            "TRANSFERED-OUT", EptsReportUtils.map(this.findPatientsWhoTransferedOutRF07(), mappings));
+        "TRANSFERED-OUT", EptsReportUtils.map(this.findPatientsWhoTransferedOutRF07(), mappings));
     definition.setCompositionString(
-            "CHILDREN NOT (PREGNANT OR BREASTFEEDING OR TRANSFERED-IN OR TRANSFERED-OUT)");
+        "CHILDREN NOT (PREGNANT OR BREASTFEEDING OR TRANSFERED-IN OR TRANSFERED-OUT)");
     return definition;
   }
 
   @DocumentedDefinition(
-          value =
-                  "findChildernWith9MonthAnd2YearOnARTStartedExcludingPregantAndBreastfeedingAndTransferredInTRANSFEREDOutCategory11Numerator")
+      value =
+          "findChildernWith9MonthAnd2YearOnARTStartedExcludingPregantAndBreastfeedingAndTransferredInTRANSFEREDOutCategory11Numerator")
   public CohortDefinition
-  findChildernWith9MonthAnd2YearOnARTStartedExcludingPregantAndBreastfeedingAndTransferredInTRANSFEREDOutCategory11Numerator() {
+      findChildernWith9MonthAnd2YearOnARTStartedExcludingPregantAndBreastfeedingAndTransferredInTRANSFEREDOutCategory11Numerator() {
     final CompositionCohortDefinition definition = new CompositionCohortDefinition();
 
     definition.setName("");
 
     definition.addParameter(
-            new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
+        new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
     definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
     definition.addParameter(new Parameter("endRevisionDate", "Data Fim Revisão", Date.class));
     definition.addParameter(new Parameter("location", "location", Date.class));
 
     final String mappings =
-            "startInclusionDate=${startInclusionDate},endInclusionDate=${endInclusionDate},endRevisionDate=${endRevisionDate},location=${location}";
+        "startInclusionDate=${startInclusionDate},endInclusionDate=${endInclusionDate},endRevisionDate=${endRevisionDate},location=${location}";
 
     definition.addSearch(
-            "CHILDREN",
-            EptsReportUtils.map(
-                    this.findPatientsWhoAreNewlyEnrolledOnARTByAgeUsingYearChildrenBiggerThen9MontheLess2(),
-                    mappings));
+        "CHILDREN",
+        EptsReportUtils.map(
+            this.findPatientsWhoAreNewlyEnrolledOnARTByAgeUsingYearChildrenBiggerThen9MontheLess2(),
+            mappings));
 
     definition.addSearch(
-            "CHILDREN-I",
-            EptsReportUtils.map(
-                    this.findChildrenPatientsWithAtLeast9APSSConsultationByInclusionPeriod(),
-                    mappings));
+        "CHILDREN-I",
+        EptsReportUtils.map(
+            this.findChildrenPatientsWithAtLeast9APSSConsultationByInclusionPeriod(), mappings));
 
     definition.addSearch(
-            "PREGNANT",
-            EptsReportUtils.map(this.findPatientsWhoArePregnantInclusionDateRF08(), mappings));
+        "PREGNANT",
+        EptsReportUtils.map(this.findPatientsWhoArePregnantInclusionDateRF08(), mappings));
 
     definition.addSearch(
-            "BREASTFEEDING",
-            EptsReportUtils.map(this.findPatientsWhoAreBreastfeedingInclusionDateRF09(), mappings));
+        "BREASTFEEDING",
+        EptsReportUtils.map(this.findPatientsWhoAreBreastfeedingInclusionDateRF09(), mappings));
 
     definition.addSearch(
-            "TRANSFERED-IN",
-            EptsReportUtils.map(
-                    this.findPatientsWhoWhereMarkedAsTransferedInAndOnARTOnInAPeriodOnMasterCardRF06(),
-                    mappings));
+        "TRANSFERED-IN",
+        EptsReportUtils.map(
+            this.findPatientsWhoWhereMarkedAsTransferedInAndOnARTOnInAPeriodOnMasterCardRF06(),
+            mappings));
 
     definition.addSearch(
-            "TRANSFERED-OUT", EptsReportUtils.map(this.findPatientsWhoTransferedOutRF07(), mappings));
+        "TRANSFERED-OUT", EptsReportUtils.map(this.findPatientsWhoTransferedOutRF07(), mappings));
 
     definition.setCompositionString(
-            "(CHILDREN AND CHILDREN-I) NOT (PREGNANT OR BREASTFEEDING OR TRANSFERED-IN OR TRANSFERED-OUT)");
+        "(CHILDREN AND CHILDREN-I) NOT (PREGNANT OR BREASTFEEDING OR TRANSFERED-IN OR TRANSFERED-OUT)");
     return definition;
   }
 
-  @DocumentedDefinition(value = "findPatientsWhoAreRequestForLaboratoryInvestigationAndPregnantInclusionPeriodCAT13DenumeratorP2ByB4")
-  public CohortDefinition findPatientsWhoAreRequestForLaboratoryInvestigationAndPregnantInclusionPeriodCAT13DenumeratorP2ByB4() {
+  @DocumentedDefinition(
+      value =
+          "findPatientsWhoAreRequestForLaboratoryInvestigationAndPregnantInclusionPeriodCAT13DenumeratorP2ByB4")
+  public CohortDefinition
+      findPatientsWhoAreRequestForLaboratoryInvestigationAndPregnantInclusionPeriodCAT13DenumeratorP2ByB4() {
 
     final SqlCohortDefinition definition = new SqlCohortDefinition();
 
-    definition.setName("findPatientsWhoAreRequestForLaboratoryInvestigationAndPregnantInclusionPeriodCAT13DenumeratorP2ByB4");
+    definition.setName(
+        "findPatientsWhoAreRequestForLaboratoryInvestigationAndPregnantInclusionPeriodCAT13DenumeratorP2ByB4");
     definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
     definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
     definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
     definition.addParameter(new Parameter("location", "Location", Location.class));
 
     String query =
-            QualityImprovementQueriesCAT13DenominatorP2.QUERY.findPatientsWhoAreRequestForLaboratoryInvestigationAndPregnantInclusionPeriodByB4;
+        QualityImprovementQueriesCAT13DenominatorP2.QUERY
+            .findPatientsWhoAreRequestForLaboratoryInvestigationAndPregnantInclusionPeriodByB4;
 
     definition.setQuery(query);
 
     return definition;
   }
 
-  @DocumentedDefinition(value = "findPatientsWhoAreRequestForLaboratoryInvestigationsInclusionPeriodCAT13DenumeratorP2ByB3")
-  public CohortDefinition findPatientsWhoAreRequestForLaboratoryInvestigationsInclusionPeriodCAT13DenumeratorP2ByB3() {
+  @DocumentedDefinition(
+      value =
+          "findPatientsWhoAreRequestForLaboratoryInvestigationsInclusionPeriodCAT13DenumeratorP2ByB3")
+  public CohortDefinition
+      findPatientsWhoAreRequestForLaboratoryInvestigationsInclusionPeriodCAT13DenumeratorP2ByB3() {
 
     final SqlCohortDefinition definition = new SqlCohortDefinition();
 
-    definition.setName("findPatientsWhoAreRequestForLaboratoryInvestigationsInclusionPeriodCAT13DenumeratorP2ByB3");
+    definition.setName(
+        "findPatientsWhoAreRequestForLaboratoryInvestigationsInclusionPeriodCAT13DenumeratorP2ByB3");
     definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
     definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
     definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
     definition.addParameter(new Parameter("location", "Location", Location.class));
 
     String query =
-            QualityImprovementQueriesCAT13DenominatorP2.QUERY.findPatientsWhoAreRequestForLaboratoryInvestigationsInclusionPeriodByB3;
+        QualityImprovementQueriesCAT13DenominatorP2.QUERY
+            .findPatientsWhoAreRequestForLaboratoryInvestigationsInclusionPeriodByB3;
 
     definition.setQuery(query);
 
@@ -3752,7 +3762,8 @@ public class MQCohortQueries {
     definition.addParameter(new Parameter("location", "Location", Location.class));
 
     String query =
-            QualityImprovementQueriesCAT13DenominatorP2.QUERY.findPatientsWhoArePregnantInclusionPeriodByB1;
+        QualityImprovementQueriesCAT13DenominatorP2.QUERY
+            .findPatientsWhoArePregnantInclusionPeriodByB1;
 
     definition.setQuery(query);
 
@@ -3771,149 +3782,160 @@ public class MQCohortQueries {
     definition.addParameter(new Parameter("location", "Location", Location.class));
 
     String query =
-            QualityImprovementQueriesCAT13DenominatorP2.QUERY.findPatientsWhoArePregnantInFirstConsultationInclusionPeriodByB2;
+        QualityImprovementQueriesCAT13DenominatorP2.QUERY
+            .findPatientsWhoArePregnantInFirstConsultationInclusionPeriodByB2;
 
     definition.setQuery(query);
 
     return definition;
   }
 
-  @DocumentedDefinition(
-          value =
-                  "findPatientsWhoArePregnantWithCVInTARVCategory13P2Denumerator")
-  public CohortDefinition
-  findPatientsWhoArePregnantWithCVInTARVCategory13P2Denumerator() {
+  @DocumentedDefinition(value = "findPatientsWhoArePregnantWithCVInTARVCategory13P2Denumerator")
+  public CohortDefinition findPatientsWhoArePregnantWithCVInTARVCategory13P2Denumerator() {
     final CompositionCohortDefinition definition = new CompositionCohortDefinition();
 
     definition.setName("findPatientsWhoArePregnantWithCVInTARVCategory13P2Denumerator");
 
-    definition.addParameter(new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
+    definition.addParameter(
+        new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
     definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
     definition.addParameter(new Parameter("endRevisionDate", "Data Fim Revisão", Date.class));
     definition.addParameter(new Parameter("location", "location", Date.class));
 
     final String mappings =
-            "startInclusionDate=${startInclusionDate},endInclusionDate=${endInclusionDate},endRevisionDate=${endRevisionDate},location=${location}";
+        "startInclusionDate=${startInclusionDate},endInclusionDate=${endInclusionDate},endRevisionDate=${endRevisionDate},location=${location}";
 
     definition.addSearch(
-            "ADULT-START-ART",
-            EptsReportUtils.map(
-                    this.findPatientsWhoAreNewlyEnrolledOnARTByAgeUsingYearAdultDesagragation(),
-                    mappings));
+        "ADULT-START-ART",
+        EptsReportUtils.map(
+            this.findPatientsWhoAreNewlyEnrolledOnARTByAgeUsingYearAdultDesagragation(), mappings));
 
     definition.addSearch(
-            "ADULT-B1",
-            EptsReportUtils.map(this.findPatientsWhoArePregnantInclusionPeriodCAT13DenumeratorP2ByB1(), mappings));
+        "ADULT-B1",
+        EptsReportUtils.map(
+            this.findPatientsWhoArePregnantInclusionPeriodCAT13DenumeratorP2ByB1(), mappings));
 
     definition.addSearch(
-            "BREASTFEEDING",
-            EptsReportUtils.map(this.findPatientsWhoAreBreastfeedingInclusionDateRF09(), mappings));
+        "BREASTFEEDING",
+        EptsReportUtils.map(this.findPatientsWhoAreBreastfeedingInclusionDateRF09(), mappings));
 
     definition.addSearch(
-            "TRANSFERED-OUT", EptsReportUtils.map(this.findPatientsWhoTransferedOutRF07(), mappings));
+        "TRANSFERED-OUT", EptsReportUtils.map(this.findPatientsWhoTransferedOutRF07(), mappings));
 
     definition.setCompositionString(
-            "(ADULT-START-ART AND ADULT-B1) NOT (BREASTFEEDING OR TRANSFERED-OUT)");
+        "(ADULT-START-ART AND ADULT-B1) NOT (BREASTFEEDING OR TRANSFERED-OUT)");
     return definition;
   }
 
   @DocumentedDefinition(
-          value =
-                  "findPatientsWhoArePregnantWithCVInFirstConsultationTARVCategory13P2Denumerator")
+      value = "findPatientsWhoArePregnantWithCVInFirstConsultationTARVCategory13P2Denumerator")
   public CohortDefinition
-  findPatientsWhoArePregnantWithCVInFirstConsultationTARVCategory13P2Denumerator() {
+      findPatientsWhoArePregnantWithCVInFirstConsultationTARVCategory13P2Denumerator() {
     final CompositionCohortDefinition definition = new CompositionCohortDefinition();
 
-    definition.setName("findPatientsWhoArePregnantWithCVInFirstConsultationTARVCategory13P2Denumerator");
+    definition.setName(
+        "findPatientsWhoArePregnantWithCVInFirstConsultationTARVCategory13P2Denumerator");
 
-    definition.addParameter(new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
+    definition.addParameter(
+        new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
     definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
     definition.addParameter(new Parameter("endRevisionDate", "Data Fim Revisão", Date.class));
     definition.addParameter(new Parameter("location", "location", Date.class));
 
     final String mappings =
-            "startInclusionDate=${startInclusionDate},endInclusionDate=${endInclusionDate},endRevisionDate=${endRevisionDate},location=${location}";
+        "startInclusionDate=${startInclusionDate},endInclusionDate=${endInclusionDate},endRevisionDate=${endRevisionDate},location=${location}";
 
     definition.addSearch(
-            "ADULT-B2",
-            EptsReportUtils.map(this.findPatientsWhoArePregnantInFirstConsultationInclusionPeriodByB2(), mappings));
+        "ADULT-B2",
+        EptsReportUtils.map(
+            this.findPatientsWhoArePregnantInFirstConsultationInclusionPeriodByB2(), mappings));
 
     definition.addSearch(
-            "BREASTFEEDING",
-            EptsReportUtils.map(this.findPatientsWhoAreBreastfeedingInclusionDateRF09(), mappings));
+        "BREASTFEEDING",
+        EptsReportUtils.map(this.findPatientsWhoAreBreastfeedingInclusionDateRF09(), mappings));
 
     definition.addSearch(
-            "TRANSFERED-IN",
-            EptsReportUtils.map(
-                    this.findPatientsWhoWhereMarkedAsTransferedInAndOnARTOnInAPeriodOnMasterCardRF06(),
-                    mappings));
+        "TRANSFERED-IN",
+        EptsReportUtils.map(
+            this.findPatientsWhoWhereMarkedAsTransferedInAndOnARTOnInAPeriodOnMasterCardRF06(),
+            mappings));
 
     definition.addSearch(
-            "TRANSFERED-OUT", EptsReportUtils.map(this.findPatientsWhoTransferedOutRF07(), mappings));
+        "TRANSFERED-OUT", EptsReportUtils.map(this.findPatientsWhoTransferedOutRF07(), mappings));
 
     definition.setCompositionString(
-            "(ADULT-B2) NOT (BREASTFEEDING OR TRANSFERED-IN OR TRANSFERED-OUT)");
+        "(ADULT-B2) NOT (BREASTFEEDING OR TRANSFERED-IN OR TRANSFERED-OUT)");
     return definition;
   }
 
   @DocumentedDefinition(
-          value =
-                  "findPatientsWhoArePregnantWithCVIn33DaysAfterInclusionDateTARVCategory13P2Denumerator")
+      value =
+          "findPatientsWhoArePregnantWithCVIn33DaysAfterInclusionDateTARVCategory13P2Denumerator")
   public CohortDefinition
-  findPatientsWhoArePregnantWithCVIn33DaysAfterInclusionDateTARVCategory13P2Denumerator() {
+      findPatientsWhoArePregnantWithCVIn33DaysAfterInclusionDateTARVCategory13P2Denumerator() {
     final CompositionCohortDefinition definition = new CompositionCohortDefinition();
 
-    definition.setName("findPatientsWhoArePregnantWithCVIn33DaysAfterInclusionDateTARVCategory13P2Denumerator");
+    definition.setName(
+        "findPatientsWhoArePregnantWithCVIn33DaysAfterInclusionDateTARVCategory13P2Denumerator");
 
-    definition.addParameter(new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
+    definition.addParameter(
+        new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
     definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
     definition.addParameter(new Parameter("endRevisionDate", "Data Fim Revisão", Date.class));
     definition.addParameter(new Parameter("location", "location", Date.class));
 
     final String mappings =
-            "startInclusionDate=${startInclusionDate},endInclusionDate=${endInclusionDate},endRevisionDate=${endRevisionDate},location=${location}";
+        "startInclusionDate=${startInclusionDate},endInclusionDate=${endInclusionDate},endRevisionDate=${endRevisionDate},location=${location}";
 
     definition.addSearch(
-            "ADULT-START-ART",
-            EptsReportUtils.map(
-                    this.findPatientsWhoAreNewlyEnrolledOnARTByAgeUsingYearAdultDesagragation(),
-                    mappings));
+        "ADULT-START-ART",
+        EptsReportUtils.map(
+            this.findPatientsWhoAreNewlyEnrolledOnARTByAgeUsingYearAdultDesagragation(), mappings));
 
     definition.addSearch(
-            "ADULT-B1",
-            EptsReportUtils.map(this.findPatientsWhoArePregnantInclusionPeriodCAT13DenumeratorP2ByB1(), mappings));
+        "ADULT-B1",
+        EptsReportUtils.map(
+            this.findPatientsWhoArePregnantInclusionPeriodCAT13DenumeratorP2ByB1(), mappings));
 
     definition.addSearch(
-            "ADULT-B2",
-            EptsReportUtils.map(this.findPatientsWhoArePregnantInFirstConsultationInclusionPeriodByB2(), mappings));
+        "ADULT-B2",
+        EptsReportUtils.map(
+            this.findPatientsWhoArePregnantInFirstConsultationInclusionPeriodByB2(), mappings));
 
     definition.addSearch(
-            "ADULT-B3",
-            EptsReportUtils.map(this.findPatientsWhoAreRequestForLaboratoryInvestigationsInclusionPeriodCAT13DenumeratorP2ByB3(), mappings));
+        "ADULT-B3",
+        EptsReportUtils.map(
+            this
+                .findPatientsWhoAreRequestForLaboratoryInvestigationsInclusionPeriodCAT13DenumeratorP2ByB3(),
+            mappings));
 
     definition.addSearch(
-            "ADULT-B4",
-            EptsReportUtils.map(this.findPatientsWhoAreRequestForLaboratoryInvestigationAndPregnantInclusionPeriodCAT13DenumeratorP2ByB4(), mappings));
+        "ADULT-B4",
+        EptsReportUtils.map(
+            this
+                .findPatientsWhoAreRequestForLaboratoryInvestigationAndPregnantInclusionPeriodCAT13DenumeratorP2ByB4(),
+            mappings));
 
     definition.addSearch(
-            "BREASTFEEDING",
-            EptsReportUtils.map(this.findPatientsWhoAreBreastfeedingInclusionDateRF09(), mappings));
+        "BREASTFEEDING",
+        EptsReportUtils.map(this.findPatientsWhoAreBreastfeedingInclusionDateRF09(), mappings));
 
     definition.addSearch(
-            "TRANSFERED-IN",
-            EptsReportUtils.map(
-                    this.findPatientsWhoWhereMarkedAsTransferedInAndOnARTOnInAPeriodOnMasterCardRF06(),
-                    mappings));
+        "TRANSFERED-IN",
+        EptsReportUtils.map(
+            this.findPatientsWhoWhereMarkedAsTransferedInAndOnARTOnInAPeriodOnMasterCardRF06(),
+            mappings));
 
     definition.addSearch(
-            "TRANSFERED-OUT", EptsReportUtils.map(this.findPatientsWhoTransferedOutRF07(), mappings));
+        "TRANSFERED-OUT", EptsReportUtils.map(this.findPatientsWhoTransferedOutRF07(), mappings));
 
     definition.setCompositionString(
-            "((ADULT-START-ART AND ADULT-B1 AND ADULT-B3) OR (ADULT-B2 AND ADULT-B4)) NOT (BREASTFEEDING OR TRANSFERED-IN OR TRANSFERED-OUT)");
+        "((ADULT-START-ART AND ADULT-B1 AND ADULT-B3) OR (ADULT-B2 AND ADULT-B4)) NOT (BREASTFEEDING OR TRANSFERED-IN OR TRANSFERED-OUT)");
     return definition;
   }
 
-  @DocumentedDefinition(value = "findPatientsWhoAreRequestForLaboratoryInvestigationsInclusionPeriodByH")
+  @DocumentedDefinition(
+      value = "findPatientsWhoAreRequestForLaboratoryInvestigationsInclusionPeriodByH")
   public CohortDefinition findPatientsWhoAreRequestForLaboratoryInvestigationsInclusionPeriodByH() {
 
     final SqlCohortDefinition definition = new SqlCohortDefinition();
@@ -3925,26 +3947,31 @@ public class MQCohortQueries {
     definition.addParameter(new Parameter("location", "Location", Location.class));
 
     String query =
-            QualityImprovementQueriesCAT13NuminatorP2.QUERY.findPatientsWhoAreRequestForLaboratoryInvestigationsInclusionPeriodByH;
+        QualityImprovementQueriesCAT13NuminatorP2.QUERY
+            .findPatientsWhoAreRequestForLaboratoryInvestigationsInclusionPeriodByH;
 
     definition.setQuery(query);
 
     return definition;
   }
 
-  @DocumentedDefinition(value = "findPatientsWhoAreRequestForLaboratoryInvestigationAndPregnantInclusionPeriodByJ")
-  public CohortDefinition findPatientsWhoAreRequestForLaboratoryInvestigationAndPregnantInclusionPeriodByJ() {
+  @DocumentedDefinition(
+      value = "findPatientsWhoAreRequestForLaboratoryInvestigationAndPregnantInclusionPeriodByJ")
+  public CohortDefinition
+      findPatientsWhoAreRequestForLaboratoryInvestigationAndPregnantInclusionPeriodByJ() {
 
     final SqlCohortDefinition definition = new SqlCohortDefinition();
 
-    definition.setName("findPatientsWhoAreRequestForLaboratoryInvestigationAndPregnantInclusionPeriodByJ");
+    definition.setName(
+        "findPatientsWhoAreRequestForLaboratoryInvestigationAndPregnantInclusionPeriodByJ");
     definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
     definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
     definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
     definition.addParameter(new Parameter("location", "Location", Location.class));
 
     String query =
-            QualityImprovementQueriesCAT13NuminatorP2.QUERY.findPatientsWhoAreRequestForLaboratoryInvestigationAndPregnantInclusionPeriodByJ;
+        QualityImprovementQueriesCAT13NuminatorP2.QUERY
+            .findPatientsWhoAreRequestForLaboratoryInvestigationAndPregnantInclusionPeriodByJ;
 
     definition.setQuery(query);
 
@@ -3963,26 +3990,31 @@ public class MQCohortQueries {
     definition.addParameter(new Parameter("location", "Location", Location.class));
 
     String query =
-            QualityImprovementQueriesCAT13NuminatorP2.QUERY.findPatientsWhoHaveCVResultAfter33DaysOfRequestByK;
+        QualityImprovementQueriesCAT13NuminatorP2.QUERY
+            .findPatientsWhoHaveCVResultAfter33DaysOfRequestByK;
 
     definition.setQuery(query);
 
     return definition;
   }
 
-  @DocumentedDefinition(value = "findPatientsWhoHaveCVResultAfeter33DaysOfRequestForPregnantWishRequestedCVByL")
-  public CohortDefinition findPatientsWhoHaveCVResultAfeter33DaysOfRequestForPregnantWishRequestedCVByL() {
+  @DocumentedDefinition(
+      value = "findPatientsWhoHaveCVResultAfeter33DaysOfRequestForPregnantWishRequestedCVByL")
+  public CohortDefinition
+      findPatientsWhoHaveCVResultAfeter33DaysOfRequestForPregnantWishRequestedCVByL() {
 
     final SqlCohortDefinition definition = new SqlCohortDefinition();
 
-    definition.setName("findPatientsWhoHaveCVResultAfeter33DaysOfRequestForPregnantWishRequestedCVByL");
+    definition.setName(
+        "findPatientsWhoHaveCVResultAfeter33DaysOfRequestForPregnantWishRequestedCVByL");
     definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
     definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
     definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
     definition.addParameter(new Parameter("location", "Location", Location.class));
 
     String query =
-            QualityImprovementQueriesCAT13NuminatorP2.QUERY.findPatientsWhoHaveCVResultAfeter33DaysOfRequestForPregnantWishRequestedCVByL;
+        QualityImprovementQueriesCAT13NuminatorP2.QUERY
+            .findPatientsWhoHaveCVResultAfeter33DaysOfRequestForPregnantWishRequestedCVByL;
 
     definition.setQuery(query);
 
@@ -3990,153 +4022,506 @@ public class MQCohortQueries {
   }
 
   @DocumentedDefinition(
-          value =
-                  "findPatientsWhoArePregnantWithCVIn33DaysAfterInclusionDateTARVCategory13P2Numerator")
+      value = "findPatientsWhoArePregnantWithCVIn33DaysAfterInclusionDateTARVCategory13P2Numerator")
   public CohortDefinition
-  findPatientsWhoArePregnantWithCVIn33DaysAfterInclusionDateTARVCategory13P2Numerator() {
+      findPatientsWhoArePregnantWithCVIn33DaysAfterInclusionDateTARVCategory13P2Numerator() {
     final CompositionCohortDefinition definition = new CompositionCohortDefinition();
 
-    definition.setName("findPatientsWhoArePregnantWithCVIn33DaysAfterInclusionDateTARVCategory13P2Numerator");
+    definition.setName(
+        "findPatientsWhoArePregnantWithCVIn33DaysAfterInclusionDateTARVCategory13P2Numerator");
 
-    definition.addParameter(new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
+    definition.addParameter(
+        new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
     definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
     definition.addParameter(new Parameter("endRevisionDate", "Data Fim Revisão", Date.class));
     definition.addParameter(new Parameter("location", "location", Date.class));
 
     final String mappings =
-            "startInclusionDate=${startInclusionDate},endInclusionDate=${endInclusionDate},endRevisionDate=${endRevisionDate},location=${location}";
+        "startInclusionDate=${startInclusionDate},endInclusionDate=${endInclusionDate},endRevisionDate=${endRevisionDate},location=${location}";
 
     definition.addSearch(
-            "ADULT-START-ART",
-            EptsReportUtils.map(
-                    this.findPatientsWhoAreNewlyEnrolledOnARTByAgeUsingYearAdultDesagragation(),
-                    mappings));
+        "ADULT-START-ART",
+        EptsReportUtils.map(
+            this.findPatientsWhoAreNewlyEnrolledOnARTByAgeUsingYearAdultDesagragation(), mappings));
 
     definition.addSearch(
-            "ADULT-B1",
-            EptsReportUtils.map(this.findPatientsWhoArePregnantInclusionPeriodCAT13DenumeratorP2ByB1(), mappings));
+        "ADULT-B1",
+        EptsReportUtils.map(
+            this.findPatientsWhoArePregnantInclusionPeriodCAT13DenumeratorP2ByB1(), mappings));
 
     definition.addSearch(
-            "ADULT-B2",
-            EptsReportUtils.map(this.findPatientsWhoArePregnantInFirstConsultationInclusionPeriodByB2(), mappings));
+        "ADULT-B2",
+        EptsReportUtils.map(
+            this.findPatientsWhoArePregnantInFirstConsultationInclusionPeriodByB2(), mappings));
 
     definition.addSearch(
-            "ADULT-B3",
-            EptsReportUtils.map(this.findPatientsWhoAreRequestForLaboratoryInvestigationsInclusionPeriodCAT13DenumeratorP2ByB3(), mappings));
+        "ADULT-B3",
+        EptsReportUtils.map(
+            this
+                .findPatientsWhoAreRequestForLaboratoryInvestigationsInclusionPeriodCAT13DenumeratorP2ByB3(),
+            mappings));
 
     definition.addSearch(
-            "ADULT-B4",
-            EptsReportUtils.map(this.findPatientsWhoAreRequestForLaboratoryInvestigationAndPregnantInclusionPeriodCAT13DenumeratorP2ByB4(), mappings));
+        "ADULT-B4",
+        EptsReportUtils.map(
+            this
+                .findPatientsWhoAreRequestForLaboratoryInvestigationAndPregnantInclusionPeriodCAT13DenumeratorP2ByB4(),
+            mappings));
 
     definition.addSearch(
-            "ADULT-K",
-            EptsReportUtils.map(this.findPatientsWhoHaveCVResultAfter33DaysOfRequestByK(), mappings));
+        "ADULT-K",
+        EptsReportUtils.map(this.findPatientsWhoHaveCVResultAfter33DaysOfRequestByK(), mappings));
 
     definition.addSearch(
-            "ADULT-L",
-            EptsReportUtils.map(this.findPatientsWhoHaveCVResultAfeter33DaysOfRequestForPregnantWishRequestedCVByL(), mappings));
+        "ADULT-L",
+        EptsReportUtils.map(
+            this.findPatientsWhoHaveCVResultAfeter33DaysOfRequestForPregnantWishRequestedCVByL(),
+            mappings));
 
     definition.addSearch(
-            "BREASTFEEDING",
-            EptsReportUtils.map(this.findPatientsWhoAreBreastfeedingInclusionDateRF09(), mappings));
+        "BREASTFEEDING",
+        EptsReportUtils.map(this.findPatientsWhoAreBreastfeedingInclusionDateRF09(), mappings));
 
     definition.addSearch(
-            "TRANSFERED-IN",
-            EptsReportUtils.map(
-                    this.findPatientsWhoWhereMarkedAsTransferedInAndOnARTOnInAPeriodOnMasterCardRF06(),
-                    mappings));
+        "TRANSFERED-IN",
+        EptsReportUtils.map(
+            this.findPatientsWhoWhereMarkedAsTransferedInAndOnARTOnInAPeriodOnMasterCardRF06(),
+            mappings));
 
     definition.addSearch(
-            "TRANSFERED-OUT", EptsReportUtils.map(this.findPatientsWhoTransferedOutRF07(), mappings));
+        "TRANSFERED-OUT", EptsReportUtils.map(this.findPatientsWhoTransferedOutRF07(), mappings));
 
     definition.setCompositionString(
-            "((ADULT-START-ART AND ADULT-B1 AND ADULT-B3 AND ADULT-K) OR (ADULT-B2 AND ADULT-B4 AND ADULT-L)) NOT (BREASTFEEDING OR TRANSFERED-IN OR TRANSFERED-OUT)");
+        "((ADULT-START-ART AND ADULT-B1 AND ADULT-B3 AND ADULT-K) OR (ADULT-B2 AND ADULT-B4 AND ADULT-L)) NOT (BREASTFEEDING OR TRANSFERED-IN OR TRANSFERED-OUT)");
     return definition;
   }
 
-  @DocumentedDefinition(
-          value =
-                  "findPatientsWhoArePregnantWithCVInTARVCategory13P2Numerator")
-  public CohortDefinition
-  findPatientsWhoArePregnantWithCVInTARVCategory13P2Numerator() {
+  @DocumentedDefinition(value = "findPatientsWhoArePregnantWithCVInTARVCategory13P2Numerator")
+  public CohortDefinition findPatientsWhoArePregnantWithCVInTARVCategory13P2Numerator() {
     final CompositionCohortDefinition definition = new CompositionCohortDefinition();
 
     definition.setName("findPatientsWhoArePregnantWithCVInTARVCategory13P2Numerator");
 
-    definition.addParameter(new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
+    definition.addParameter(
+        new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
     definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
     definition.addParameter(new Parameter("endRevisionDate", "Data Fim Revisão", Date.class));
     definition.addParameter(new Parameter("location", "location", Date.class));
 
     final String mappings =
-            "startInclusionDate=${startInclusionDate},endInclusionDate=${endInclusionDate},endRevisionDate=${endRevisionDate},location=${location}";
+        "startInclusionDate=${startInclusionDate},endInclusionDate=${endInclusionDate},endRevisionDate=${endRevisionDate},location=${location}";
 
     definition.addSearch(
-            "ADULT-START-ART",
-            EptsReportUtils.map(
-                    this.findPatientsWhoAreNewlyEnrolledOnARTByAgeUsingYearAdultDesagragation(),
-                    mappings));
+        "ADULT-START-ART",
+        EptsReportUtils.map(
+            this.findPatientsWhoAreNewlyEnrolledOnARTByAgeUsingYearAdultDesagragation(), mappings));
 
     definition.addSearch(
-            "ADULT-B1",
-            EptsReportUtils.map(this.findPatientsWhoArePregnantInclusionPeriodCAT13DenumeratorP2ByB1(), mappings));
+        "ADULT-B1",
+        EptsReportUtils.map(
+            this.findPatientsWhoArePregnantInclusionPeriodCAT13DenumeratorP2ByB1(), mappings));
 
     definition.addSearch(
-            "ADULT-H",
-            EptsReportUtils.map(this.findPatientsWhoAreRequestForLaboratoryInvestigationsInclusionPeriodByH(), mappings));
+        "ADULT-H",
+        EptsReportUtils.map(
+            this.findPatientsWhoAreRequestForLaboratoryInvestigationsInclusionPeriodByH(),
+            mappings));
 
     definition.addSearch(
-            "BREASTFEEDING",
-            EptsReportUtils.map(this.findPatientsWhoAreBreastfeedingInclusionDateRF09(), mappings));
+        "BREASTFEEDING",
+        EptsReportUtils.map(this.findPatientsWhoAreBreastfeedingInclusionDateRF09(), mappings));
 
     definition.addSearch(
-            "TRANSFERED-OUT", EptsReportUtils.map(this.findPatientsWhoTransferedOutRF07(), mappings));
+        "TRANSFERED-OUT", EptsReportUtils.map(this.findPatientsWhoTransferedOutRF07(), mappings));
 
     definition.setCompositionString(
-            "(ADULT-START-ART AND ADULT-B1 AND ADULT-H) NOT (BREASTFEEDING OR TRANSFERED-OUT)");
+        "(ADULT-START-ART AND ADULT-B1 AND ADULT-H) NOT (BREASTFEEDING OR TRANSFERED-OUT)");
     return definition;
   }
 
   @DocumentedDefinition(
-          value =
-                  "findPatientsWhoArePregnantWithCVInFirstConsultationTARVCategory13P2Numerator")
+      value = "findPatientsWhoArePregnantWithCVInFirstConsultationTARVCategory13P2Numerator")
   public CohortDefinition
-  findPatientsWhoArePregnantWithCVInFirstConsultationTARVCategory13P2Numerator() {
+      findPatientsWhoArePregnantWithCVInFirstConsultationTARVCategory13P2Numerator() {
     final CompositionCohortDefinition definition = new CompositionCohortDefinition();
 
-    definition.setName("findPatientsWhoArePregnantWithCVInFirstConsultationTARVCategory13P2Numerator");
+    definition.setName(
+        "findPatientsWhoArePregnantWithCVInFirstConsultationTARVCategory13P2Numerator");
 
-    definition.addParameter(new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
+    definition.addParameter(
+        new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
     definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
     definition.addParameter(new Parameter("endRevisionDate", "Data Fim Revisão", Date.class));
     definition.addParameter(new Parameter("location", "location", Date.class));
 
     final String mappings =
-            "startInclusionDate=${startInclusionDate},endInclusionDate=${endInclusionDate},endRevisionDate=${endRevisionDate},location=${location}";
+        "startInclusionDate=${startInclusionDate},endInclusionDate=${endInclusionDate},endRevisionDate=${endRevisionDate},location=${location}";
 
     definition.addSearch(
-            "ADULT-B2",
-            EptsReportUtils.map(this.findPatientsWhoArePregnantInFirstConsultationInclusionPeriodByB2(), mappings));
+        "ADULT-B2",
+        EptsReportUtils.map(
+            this.findPatientsWhoArePregnantInFirstConsultationInclusionPeriodByB2(), mappings));
 
     definition.addSearch(
-            "ADULT-J",
-            EptsReportUtils.map(this.findPatientsWhoAreRequestForLaboratoryInvestigationAndPregnantInclusionPeriodByJ(), mappings));
+        "ADULT-J",
+        EptsReportUtils.map(
+            this.findPatientsWhoAreRequestForLaboratoryInvestigationAndPregnantInclusionPeriodByJ(),
+            mappings));
 
     definition.addSearch(
-            "BREASTFEEDING",
-            EptsReportUtils.map(this.findPatientsWhoAreBreastfeedingInclusionDateRF09(), mappings));
+        "BREASTFEEDING",
+        EptsReportUtils.map(this.findPatientsWhoAreBreastfeedingInclusionDateRF09(), mappings));
 
     definition.addSearch(
-            "TRANSFERED-IN",
-            EptsReportUtils.map(
-                    this.findPatientsWhoWhereMarkedAsTransferedInAndOnARTOnInAPeriodOnMasterCardRF06(),
-                    mappings));
+        "TRANSFERED-IN",
+        EptsReportUtils.map(
+            this.findPatientsWhoWhereMarkedAsTransferedInAndOnARTOnInAPeriodOnMasterCardRF06(),
+            mappings));
 
     definition.addSearch(
-            "TRANSFERED-OUT", EptsReportUtils.map(this.findPatientsWhoTransferedOutRF07(), mappings));
+        "TRANSFERED-OUT", EptsReportUtils.map(this.findPatientsWhoTransferedOutRF07(), mappings));
 
     definition.setCompositionString(
-            "(ADULT-B2 AND ADULT-J) NOT (BREASTFEEDING OR TRANSFERED-IN OR TRANSFERED-OUT)");
+        "(ADULT-B2 AND ADULT-J) NOT (BREASTFEEDING OR TRANSFERED-IN OR TRANSFERED-OUT)");
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "findPatientsWhoHaveLastTerapeutcLineByQueryB1")
+  public CohortDefinition findPatientsWhoHaveLastTerapeutcLineByQueryB1() {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName("findPatientsWhoHaveLastTerapeutcLineByQueryB1");
+    definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
+
+    String query =
+        QualityImprovementQueriesCAT13P4.QUERY.findPatientsWhoHaveLastTerapeutcLineByQueryB1;
+
+    definition.setQuery(query);
+
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "findPatientsWhohaveCVMoreThan1000CopiesByQueryB2")
+  public CohortDefinition findPatientsWhohaveCVMoreThan1000CopiesByQueryB2() {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName("findPatientsWhohaveCVMoreThan1000CopiesByQueryB2");
+    definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
+
+    String query =
+        QualityImprovementQueriesCAT13P4.QUERY.findPatientsWhohaveCVMoreThan1000CopiesByQueryB2;
+
+    definition.setQuery(query);
+
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "findPatientsWhoHave3APSSPPConsultationInSameDayOfCVByQueryG")
+  public CohortDefinition findPatientsWhoHave3APSSPPConsultationInSameDayOfCVByQueryG() {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName("findPatientsWhoHave3APSSPPConsultationInSameDayOfCVByQueryG");
+    definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
+
+    String query =
+        QualityImprovementQueriesCAT13P4.QUERY
+            .findPatientsWhoHave3APSSPPConsultationInSameDayOfCVByQueryG;
+
+    definition.setQuery(query);
+
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "findPatientsWhoHaveRequestedCV120DaysAfterCVResultByQueryH")
+  public CohortDefinition findPatientsWhoHaveRequestedCV120DaysAfterCVResultByQueryH() {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName("findPatientsWhoHaveRequestedCV120DaysAfterCVResultByQueryH");
+    definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
+
+    String query =
+        QualityImprovementQueriesCAT13P4.QUERY
+            .findPatientsWhoHaveRequestedCV120DaysAfterCVResultByQueryH;
+
+    definition.setQuery(query);
+
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "findCHILDRENBETWEEN2AND15WhoHaveLastTerapeutcLineByQueryB1")
+  public CohortDefinition findCHILDRENBETWEEN2AND15WhoHaveLastTerapeutcLineByQueryB1() {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName("patientsPregnantEnrolledOnART");
+    definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
+
+    String query =
+        QualityImprovementQueriesCAT13P4.QUERY
+            .findCHILDRENBETWEEN2AND15WhoHaveLastTerapeutcLineByQueryB1;
+
+    definition.setQuery(query);
+
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "findCHILDRENBETWEEN2AND15WhohaveCVMoreThan1000CopiesByQueryB2")
+  public CohortDefinition findCHILDRENBETWEEN2AND15WhohaveCVMoreThan1000CopiesByQueryB2() {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName("findCHILDRENBETWEEN2AND15WhohaveCVMoreThan1000CopiesByQueryB2");
+    definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
+
+    String query =
+        QualityImprovementQueriesCAT13P4.QUERY
+            .findCHILDRENBETWEEN2AND15WhohaveCVMoreThan1000CopiesByQueryB2;
+
+    definition.setQuery(query);
+
+    return definition;
+  }
+
+  @DocumentedDefinition(
+      value = "findPatientsWhoReceivedResultMoreThan1000CVCategory13P4Denumerator")
+  public CohortDefinition findPatientsWhoReceivedResultMoreThan1000CVCategory13P4Denumerator() {
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+
+    definition.setName("findPatientsWhoReceivedResultMoreThan1000CVCategory13P4Denumerator");
+
+    definition.addParameter(
+        new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "Data Fim Revisão", Date.class));
+    definition.addParameter(new Parameter("location", "location", Date.class));
+
+    final String mappings =
+        "startInclusionDate=${startInclusionDate},endInclusionDate=${endInclusionDate},endRevisionDate=${endRevisionDate},location=${location}";
+
+    definition.addSearch(
+        "ADULT-B1",
+        EptsReportUtils.map(this.findPatientsWhoHaveLastTerapeutcLineByQueryB1(), mappings));
+
+    definition.addSearch(
+        "ADULT-B2",
+        EptsReportUtils.map(this.findPatientsWhohaveCVMoreThan1000CopiesByQueryB2(), mappings));
+
+    definition.addSearch(
+        "PREGNANT",
+        EptsReportUtils.map(this.findPatientsWhoArePregnantInclusionDateRF08(), mappings));
+
+    definition.addSearch(
+        "BREASTFEEDING",
+        EptsReportUtils.map(this.findPatientsWhoAreBreastfeedingInclusionDateRF09(), mappings));
+
+    definition.addSearch(
+        "TRANSFERED-OUT", EptsReportUtils.map(this.findPatientsWhoTransferedOutRF07(), mappings));
+
+    definition.setCompositionString(
+        "(ADULT-B1 AND ADULT-B2) NOT (PREGNANT OR BREASTFEEDING OR TRANSFERED-OUT)");
+    return definition;
+  }
+
+  @DocumentedDefinition(
+      value = "findChildrenBetween2And15WhoHaveRequestedCVCategory13P4Denumerator")
+  public CohortDefinition findChildrenBetween2And15WhoHaveRequestedCVCategory13P4Denumerator() {
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+
+    definition.setName("findChildrenBetween2And15WhoHaveRequestedCVCategory13P4Denumerator");
+
+    definition.addParameter(
+        new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "Data Fim Revisão", Date.class));
+    definition.addParameter(new Parameter("location", "location", Date.class));
+
+    final String mappings =
+        "startInclusionDate=${startInclusionDate},endInclusionDate=${endInclusionDate},endRevisionDate=${endRevisionDate},location=${location}";
+
+    definition.addSearch(
+        "CHILDREN-B1",
+        EptsReportUtils.map(
+            this.findCHILDRENBETWEEN2AND15WhoHaveLastTerapeutcLineByQueryB1(), mappings));
+
+    definition.addSearch(
+        "CHILDREN-B2",
+        EptsReportUtils.map(
+            this.findCHILDRENBETWEEN2AND15WhohaveCVMoreThan1000CopiesByQueryB2(), mappings));
+
+    definition.addSearch(
+        "PREGNANT",
+        EptsReportUtils.map(this.findPatientsWhoArePregnantInclusionDateRF08(), mappings));
+
+    definition.addSearch(
+        "BREASTFEEDING",
+        EptsReportUtils.map(this.findPatientsWhoAreBreastfeedingInclusionDateRF09(), mappings));
+
+    definition.addSearch(
+        "TRANSFERED-OUT", EptsReportUtils.map(this.findPatientsWhoTransferedOutRF07(), mappings));
+
+    definition.setCompositionString(
+        "(CHILDREN-B1 AND CHILDREN-B2) NOT (PREGNANT OR BREASTFEEDING OR TRANSFERED-OUT)");
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "findPregnantWhoHaveRequestedCVCategory13P4Denumerator")
+  public CohortDefinition findPregnantWhoHaveRequestedCVCategory13P4Denumerator() {
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+
+    definition.setName("findPregnantWhoHaveRequestedCVCategory13P4Denumerator");
+
+    definition.addParameter(
+        new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "Data Fim Revisão", Date.class));
+    definition.addParameter(new Parameter("location", "location", Date.class));
+
+    final String mappings =
+        "startInclusionDate=${startInclusionDate},endInclusionDate=${endInclusionDate},endRevisionDate=${endRevisionDate},location=${location}";
+
+    definition.addSearch(
+        "ADULT-B1",
+        EptsReportUtils.map(this.findPatientsWhoHaveLastTerapeutcLineByQueryB1(), mappings));
+
+    definition.addSearch(
+        "ADULT-B2",
+        EptsReportUtils.map(this.findPatientsWhohaveCVMoreThan1000CopiesByQueryB2(), mappings));
+
+    definition.addSearch(
+        "PREGNANT",
+        EptsReportUtils.map(this.findPatientsWhoArePregnantInclusionDateRF08(), mappings));
+
+    definition.addSearch(
+        "BREASTFEEDING",
+        EptsReportUtils.map(this.findPatientsWhoAreBreastfeedingInclusionDateRF09(), mappings));
+
+    definition.addSearch(
+        "TRANSFERED-OUT", EptsReportUtils.map(this.findPatientsWhoTransferedOutRF07(), mappings));
+
+    definition.setCompositionString(
+        "(ADULT-B1 AND ADULT-B2 AND PREGNANT) NOT (BREASTFEEDING OR TRANSFERED-OUT)");
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "findPatientsWhoReceivedResultMoreThan1000CVCategory13P4Numerator")
+  public CohortDefinition findPatientsWhoReceivedResultMoreThan1000CVCategory13P4Numerator() {
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+
+    definition.setName("findPatientsWhoReceivedResultMoreThan1000CVCategory13P4Numerator");
+
+    definition.addParameter(
+        new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "Data Fim Revisão", Date.class));
+    definition.addParameter(new Parameter("location", "location", Date.class));
+
+    final String mappings =
+        "startInclusionDate=${startInclusionDate},endInclusionDate=${endInclusionDate},endRevisionDate=${endRevisionDate},location=${location}";
+
+    definition.addSearch(
+        "ADULT-B1",
+        EptsReportUtils.map(this.findPatientsWhoHaveLastTerapeutcLineByQueryB1(), mappings));
+
+    definition.addSearch(
+        "ADULT-B2",
+        EptsReportUtils.map(this.findPatientsWhohaveCVMoreThan1000CopiesByQueryB2(), mappings));
+
+    definition.addSearch(
+        "ADULT-G",
+        EptsReportUtils.map(
+            this.findPatientsWhoHave3APSSPPConsultationInSameDayOfCVByQueryG(), mappings));
+
+    definition.addSearch(
+        "ADULT-H",
+        EptsReportUtils.map(
+            this.findPatientsWhoHaveRequestedCV120DaysAfterCVResultByQueryH(), mappings));
+
+    definition.addSearch(
+        "PREGNANT",
+        EptsReportUtils.map(this.findPatientsWhoArePregnantInclusionDateRF08(), mappings));
+
+    definition.addSearch(
+        "BREASTFEEDING",
+        EptsReportUtils.map(this.findPatientsWhoAreBreastfeedingInclusionDateRF09(), mappings));
+
+    definition.addSearch(
+        "TRANSFERED-OUT", EptsReportUtils.map(this.findPatientsWhoTransferedOutRF07(), mappings));
+
+    definition.setCompositionString(
+        "(ADULT-B1 AND ADULT-B2 AND ADULT-G AND ADULT-H) NOT (PREGNANT OR BREASTFEEDING OR TRANSFERED-OUT)");
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "findChildrenBetween2And15WhoHaveRequestedCVCategory13P4Numerator")
+  public CohortDefinition findChildrenBetween2And15WhoHaveRequestedCVCategory13P4Numerator() {
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+
+    definition.setName("findChildrenBetween2And15WhoHaveRequestedCVCategory13P4Numerator");
+
+    definition.addParameter(
+        new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "Data Fim Revisão", Date.class));
+    definition.addParameter(new Parameter("location", "location", Date.class));
+
+    final String mappings =
+        "startInclusionDate=${startInclusionDate},endInclusionDate=${endInclusionDate},endRevisionDate=${endRevisionDate},location=${location}";
+
+    definition.addSearch(
+        "CHILDREN-B1",
+        EptsReportUtils.map(
+            this.findCHILDRENBETWEEN2AND15WhoHaveLastTerapeutcLineByQueryB1(), mappings));
+
+    definition.addSearch(
+        "CHILDREN-B2",
+        EptsReportUtils.map(
+            this.findCHILDRENBETWEEN2AND15WhohaveCVMoreThan1000CopiesByQueryB2(), mappings));
+
+    definition.addSearch(
+        "CHILDREN-G",
+        EptsReportUtils.map(
+            this.findPatientsWhoHave3APSSPPConsultationInSameDayOfCVByQueryG(), mappings));
+
+    definition.addSearch(
+        "CHILDREN-H",
+        EptsReportUtils.map(
+            this.findPatientsWhoHaveRequestedCV120DaysAfterCVResultByQueryH(), mappings));
+
+    definition.addSearch(
+        "PREGNANT",
+        EptsReportUtils.map(this.findPatientsWhoArePregnantInclusionDateRF08(), mappings));
+
+    definition.addSearch(
+        "BREASTFEEDING",
+        EptsReportUtils.map(this.findPatientsWhoAreBreastfeedingInclusionDateRF09(), mappings));
+
+    definition.addSearch(
+        "TRANSFERED-OUT", EptsReportUtils.map(this.findPatientsWhoTransferedOutRF07(), mappings));
+
+    definition.setCompositionString(
+        "(CHILDREN-B1 AND CHILDREN-B2 AND CHILDREN-G AND CHILDREN-G) NOT (PREGNANT OR BREASTFEEDING OR TRANSFERED-OUT)");
     return definition;
   }
 }
