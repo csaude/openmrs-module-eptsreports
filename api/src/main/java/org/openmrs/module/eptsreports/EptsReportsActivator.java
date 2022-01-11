@@ -33,6 +33,7 @@ public class EptsReportsActivator extends BaseModuleActivator {
   @Override
   public void contextRefreshed() {
     log.debug("EPTS Reports Module refreshed");
+    log.debug("EPTS Reports Module refreshed");
   }
 
   @Override
