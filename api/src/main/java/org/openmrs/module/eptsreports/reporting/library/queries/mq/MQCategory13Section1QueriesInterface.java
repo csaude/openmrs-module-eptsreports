@@ -100,22 +100,22 @@ public interface MQCategory13Section1QueriesInterface {
 
     public static final String
         findPatientsWithLastClinicalConsultationwhoAreInLinhaAlternativaDenominatorB3 =
-            "select ultimaConsulta.patient_id from  ( "
-                + "Select p.patient_id,max(e.encounter_datetime) ultimaConsulta from patient p  "
+            "select ultimaConsulta.patient_id from ( "
+                + "Select p.patient_id,max(e.encounter_datetime) ultimaConsulta from patient p "
                 + "inner join encounter e on p.patient_id=e.patient_id  "
                 + "where p.voided=0 and e.voided=0 and e.encounter_type=6 and  "
-                + "e.encounter_datetime >=:startInclusionDate and e.encounter_datetime<=:endRevisionDate   "
+                + "e.encounter_datetime >=:startInclusionDate and e.encounter_datetime<=:endRevisionDate "
                 + "and e.location_id=:location  "
                 + "group by p.patient_id "
                 + ")ultimaConsulta  "
                 + "inner join ( "
                 + "Select p.patient_id, max(obsLinha.obs_datetime) dataLinha, e.encounter_id from patient p "
                 + "inner join encounter  e on e.patient_id=p.patient_id  "
-                + "inner join obs obsLinha on obsLinha.encounter_id=e.encounter_id  "
+                + "inner join obs obsLinha on obsLinha.encounter_id=e.encounter_id "
                 + "where obsLinha.concept_id=21190 and e.encounter_type=53  "
                 + "and obsLinha.voided=0  "
                 + "and e.voided=0  "
-                + "and e.location_id=:location  "
+                + "and e.location_id=:location "
                 + "group by p.patient_id  "
                 + ")alternativaLinha on ultimaConsulta.patient_id=alternativaLinha.patient_id "
                 + "where (TIMESTAMPDIFF(MONTH,alternativaLinha.dataLinha,ultimaConsulta.ultimaConsulta)) >= 6 ";
