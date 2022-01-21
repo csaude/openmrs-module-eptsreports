@@ -109,7 +109,7 @@ public interface MQCategory13Section1QueriesInterface {
                 + "group by p.patient_id "
                 + ")ultimaConsulta  "
                 + "inner join ( "
-                + "Select p.patient_id, max(obsLinha.obs_datetime) dataLinha, e.encounter_id from patient p "
+                + "Select p.patient_id, max(obsLinha.obs_datetime) dataLinha from patient p "
                 + "inner join encounter  e on e.patient_id=p.patient_id  "
                 + "inner join obs obsLinha on obsLinha.encounter_id=e.encounter_id "
                 + "where obsLinha.concept_id=21190 and e.encounter_type=53  "
