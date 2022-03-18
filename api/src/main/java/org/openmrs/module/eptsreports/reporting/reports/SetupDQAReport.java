@@ -59,12 +59,12 @@ public class SetupDQAReport extends EptsDataExportManager {
 
   @Override
   public String getName() {
-    return "DQA - MISAU";
+    return " DQA HIV - MISAU";
   }
 
   @Override
   public String getDescription() {
-    return "DQA - MISAU";
+    return " DQA HIV - MISAU";
   }
 
   @Override
