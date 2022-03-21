@@ -107,7 +107,7 @@ public class SetupDQAReport extends EptsDataExportManager {
           createXlsReportDesign(
               reportDefinition,
               "DQA_Carga_Viral_MISAU.xls",
-              "DQA - MISAU",
+              "DQA HIV - MISAU",
               getExcelDesignUuid(),
               null);
       Properties props = new Properties();
