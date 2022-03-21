@@ -5,10 +5,13 @@ import static org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils.map
 import java.util.Date;
 import org.openmrs.Location;
 import org.openmrs.module.eptsreports.metadata.HivMetadata;
+import org.openmrs.module.eptsreports.reporting.library.queries.DQAQueries;
 import org.openmrs.module.eptsreports.reporting.library.queries.ResumoMensalQueries;
 import org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.CompositionCohortDefinition;
+import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
+import org.openmrs.module.reporting.definition.library.DocumentedDefinition;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -202,6 +205,19 @@ public class DQACohortQueries {
             mappingsB1M1));
 
     definition.setCompositionString("(B13 AND VL) NOT Ex2");
+
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "patientsWhoAreActiveOnART")
+  public CohortDefinition findPatientsWhoAreActiveOnART() {
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName("patientsWhoAreActiveOnART");
+    definition.addParameter(new Parameter("endDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("location", "location", Location.class));
+
+    definition.setQuery(DQAQueries.QUERY.findPatientsWhoAreCurrentlyEnrolledOnART);
 
     return definition;
   }

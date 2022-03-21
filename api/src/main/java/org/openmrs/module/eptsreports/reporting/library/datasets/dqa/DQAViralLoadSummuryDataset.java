@@ -81,7 +81,7 @@ public class DQAViralLoadSummuryDataset extends BaseDataSet {
             this.eptsGeneralIndicator.getIndicator(
                 "Number de Activos em TARV no fim do período de revisao (SESP - SISMA)",
                 EptsReportUtils.map(
-                    this.txCurrCohortQueries.findPatientsWhoAreActiveOnART(), mappingsTxCurr)),
+                    this.dQACohortQueries.findPatientsWhoAreActiveOnART(), mappingsTxCurr)),
             mappingsTxCurr),
         this.getDQAColumns());
 
