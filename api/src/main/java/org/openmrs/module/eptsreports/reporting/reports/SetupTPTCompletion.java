@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import org.openmrs.module.eptsreports.reporting.library.cohorts.GenericCohortQueries;
+import org.openmrs.module.eptsreports.reporting.library.datasets.DatimCodeDataSet;
 import org.openmrs.module.eptsreports.reporting.library.datasets.TPTCompletationDataSet;
 import org.openmrs.module.eptsreports.reporting.library.queries.BaseQueries;
 import org.openmrs.module.eptsreports.reporting.reports.manager.EptsDataExportManager;
@@ -25,6 +26,8 @@ public class SetupTPTCompletion extends EptsDataExportManager {
   @Autowired private GenericCohortQueries genericCohortQueries;
 
   @Autowired private TPTCompletationDataSet tPTCompletationDataSet;
+
+  @Autowired private DatimCodeDataSet datimCodeDataSet;
 
   @Override
   public String getExcelDesignUuid() {
@@ -60,6 +63,10 @@ public class SetupTPTCompletion extends EptsDataExportManager {
     rd.setParameters(this.getParameters());
     rd.addDataSetDefinition(
         "TPT", Mapped.mapStraightThrough(tPTCompletationDataSet.constructDatset()));
+
+    rd.addDataSetDefinition(
+        "D",
+        Mapped.mapStraightThrough(this.datimCodeDataSet.constructDataset(this.getParameters())));
 
     rd.setBaseCohortDefinition(
         EptsReportUtils.map(
