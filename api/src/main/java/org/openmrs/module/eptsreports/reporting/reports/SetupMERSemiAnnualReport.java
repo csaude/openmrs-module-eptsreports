@@ -60,7 +60,7 @@ public class SetupMERSemiAnnualReport extends EptsDataExportManager {
 
   @Override
   public String getDescription() {
-    return "The TB_PREV indicator reports the proportion of ART patients who completed a standard course of TB preventive treatment within the semiannual reporting period";
+    return "PEPFAR MER 2.6 Semi-Annual";
   }
 
   @Override
