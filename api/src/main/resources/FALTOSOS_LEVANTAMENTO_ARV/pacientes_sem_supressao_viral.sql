@@ -34,6 +34,15 @@ from	(
 																 where p.voided = 0  and e.voided = 0 and o.voided = 0 and e.encounter_type  = 6 and o.concept_id = 856 
 																     and e.location_id =:location and e.encounter_datetime between date_sub(:endDate, interval 12 month) and :endDate
 															     group by p.patient_id
+															     union
+															   
+															     select p.patient_id, max(o.obs_datetime)  encounter_datetime, 4 as ordem from patient p
+																	inner join encounter e on e.patient_id = p.patient_id
+																	inner join obs o on o.encounter_id = e.encounter_id
+																where p.voided = 0  and e.voided = 0 and o.voided = 0 and e.encounter_type  = 53 and o.concept_id = 856 
+																		and e.location_id =:location and o.obs_datetime between date_sub(:endDate, interval 12 month) and :endDate
+																	group by p.patient_id
+
 															  ) 
 														cargaQuantitaviva group by patient_id, encounter_datetime desc, ordem asc
 						   							) 
