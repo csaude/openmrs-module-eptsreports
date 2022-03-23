@@ -1,6 +1,6 @@
 package org.openmrs.module.eptsreports.reporting.library.queries;
 
-import org.openmrs.module.eptsreports.reporting.library.queries.TxTbPrevQueriesInterface.QUERY.DisaggregationTypes;
+import org.openmrs.module.eptsreports.reporting.utils.DisaggregationTypes;
 
 public interface TPTCompletationQueries {
 

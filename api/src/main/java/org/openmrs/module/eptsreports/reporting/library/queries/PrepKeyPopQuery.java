@@ -1,5 +1,7 @@
 package org.openmrs.module.eptsreports.reporting.library.queries;
 
+import org.openmrs.module.eptsreports.reporting.utils.KeyPopType;
+
 public class PrepKeyPopQuery {
 
   public static final String findPatientsWhoAreKeyPop(final KeyPopType keyPopType) {

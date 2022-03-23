@@ -1,4 +1,4 @@
-package org.openmrs.module.eptsreports.reporting.library.queries;
+package org.openmrs.module.eptsreports.reporting.utils;
 
 public enum KeyPopType {
   HOMOSEXUAL,

@@ -1,5 +1,7 @@
 package org.openmrs.module.eptsreports.reporting.library.queries;
 
+import org.openmrs.module.eptsreports.reporting.utils.ErimType;
+
 public interface Eri2MonthsQueriesInterface {
   class QUERY {
     @SuppressWarnings("incomplete-switch")

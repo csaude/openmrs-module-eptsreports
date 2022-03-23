@@ -15,6 +15,8 @@ package org.openmrs.module.eptsreports.reporting.library.queries;
 
 import java.util.Arrays;
 import org.apache.commons.lang.StringUtils;
+import org.openmrs.module.eptsreports.reporting.utils.DiagnosticTestTypes;
+import org.openmrs.module.eptsreports.reporting.utils.EnrollmentPeriod;
 
 public interface TXTBMontlyCascadeReportQueries {
 
@@ -46,11 +48,6 @@ public interface TXTBMontlyCascadeReportQueries {
             + "lastConsultation 																															"
             + "	inner join encounter e on e.patient_id = lastConsultation.patient_id 																		"
             + "where e.voided is false and e.location_id = :location and e.encounter_datetime < (:endDate - interval 6 month) and :endDate and e.encounter_type in (6,9) 								";
-
-    public enum EnrollmentPeriod {
-      NEWLY,
-      PREVIOUSLY;
-    }
 
     public static final String findPatientsWhoAreCurrentlyEnrolledOnARTByPeriod(
         EnrollmentPeriod enrollmentPeriod) {
@@ -250,13 +247,6 @@ public interface TXTBMontlyCascadeReportQueries {
           break;
       }
       return query;
-    }
-
-    public enum DiagnosticTestTypes {
-      GENEXPERT,
-      BACILOSCOPIA,
-      TBLAM,
-      CULTURA;
     }
 
     public static final String findDiagnosticTests(DiagnosticTestTypes diagnosticTestType) {

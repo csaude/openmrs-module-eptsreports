@@ -1,5 +1,7 @@
 package org.openmrs.module.eptsreports.reporting.library.queries;
 
+import org.openmrs.module.eptsreports.reporting.utils.PrepReasonInterruptionType;
+
 public class ReasonsOfPrepInterruptionQuery {
 
   public static final String findPatientsWhoInterruptPrep(

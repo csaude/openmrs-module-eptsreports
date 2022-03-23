@@ -1,13 +1,10 @@
 package org.openmrs.module.eptsreports.reporting.library.queries;
 
+import org.openmrs.module.eptsreports.reporting.utils.DisaggregationTypes;
+
 public interface TxTbPrevQueriesInterface {
 
   class QUERY {
-
-    public enum DisaggregationTypes {
-      NEWLY_ENROLLED,
-      PREVIOUSLY_ENROLLED;
-    }
 
     public static final String
         findPatientsWhoStartedArtAndTbPrevPreventiveTreatmentInDisaggregation(

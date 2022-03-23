@@ -1,5 +1,7 @@
 package org.openmrs.module.eptsreports.reporting.library.queries;
 
+import org.openmrs.module.eptsreports.reporting.utils.CxType;
+
 public interface CxCaTXQueries {
   class QUERY {
     public static final String findPatientsWhoerceivedTreatmentTypeDuringReportingPeriod(

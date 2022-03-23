@@ -14,7 +14,7 @@ package org.openmrs.module.eptsreports.reporting.library.cohorts;
 import java.util.Date;
 import org.openmrs.Location;
 import org.openmrs.module.eptsreports.reporting.library.queries.TXTBMontlyCascadeReportQueries;
-import org.openmrs.module.eptsreports.reporting.library.queries.TXTBMontlyCascadeReportQueries.QUERY.EnrollmentPeriod;
+import org.openmrs.module.eptsreports.reporting.utils.EnrollmentPeriod;
 import org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.CompositionCohortDefinition;

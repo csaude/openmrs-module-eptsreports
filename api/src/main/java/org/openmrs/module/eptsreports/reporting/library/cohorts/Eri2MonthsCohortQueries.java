@@ -13,17 +13,14 @@ package org.openmrs.module.eptsreports.reporting.library.cohorts;
 
 import java.util.Date;
 import org.openmrs.Location;
-import org.openmrs.module.eptsreports.metadata.HivMetadata;
 import org.openmrs.module.eptsreports.reporting.library.queries.BreastfeedingQueries;
-import org.openmrs.module.eptsreports.reporting.library.queries.Eri2MonthsQueries;
 import org.openmrs.module.eptsreports.reporting.library.queries.Eri2MonthsQueriesInterface;
-import org.openmrs.module.eptsreports.reporting.library.queries.ErimType;
 import org.openmrs.module.eptsreports.reporting.library.queries.PregnantQueries;
 import org.openmrs.module.eptsreports.reporting.utils.AgeRange;
 import org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils;
+import org.openmrs.module.eptsreports.reporting.utils.ErimType;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.CompositionCohortDefinition;
-import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -31,37 +28,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class Eri2MonthsCohortQueries {
 
-  @Autowired private HivMetadata hivMetadata;
-
   @Autowired private GenericCohortQueries genericCohortQueries;
 
   @Autowired private GenericCohortQueries genericCohorts;
 
   @Autowired private TxNewCohortQueries txNewCohortQueries;
-
-  /**
-   * C
-   *
-   * @return
-   */
-  public CohortDefinition
-      getAllPatientsWhoReturnedFor2ndConsultationOR2ndDrugsPickUpWithin33Days() {
-    final SqlCohortDefinition cd = new SqlCohortDefinition();
-    cd.setName("Patients who picked up drugs in 33 days");
-    cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
-    cd.addParameter(new Parameter("endDate", "End Date", Date.class));
-    cd.addParameter(new Parameter("location", "Location", Location.class));
-    cd.setQuery(
-        Eri2MonthsQueries.getAllPatientsWhoReturnedFor2ndConsultationOR2ndDrugsPickUpWithin33Days(
-            this.hivMetadata.getARVPharmaciaEncounterType().getEncounterTypeId(),
-            this.hivMetadata.getAdultoSeguimentoEncounterType().getEncounterTypeId(),
-            this.hivMetadata.getARVPediatriaSeguimentoEncounterType().getEncounterTypeId(),
-            this.hivMetadata.getARVPlanConcept().getConceptId(),
-            this.hivMetadata.getStartDrugsConcept().getConceptId(),
-            this.hivMetadata.getHistoricalDrugStartDateConcept().getConceptId(),
-            this.hivMetadata.getARTProgram().getProgramId()));
-    return cd;
-  }
 
   public CohortDefinition
       getPatientsStartedArtLastMonthWith2PickupsOrConsultationWithin33DaysExcludingDeadAndTransferedOutAndIn() {
