@@ -12,9 +12,12 @@ from	(
 										from	(
 												select patient_id, encounter_datetime, ordem
 												from (			
-														select patient_id, encounter_datetime, ordem
+														select patient_id, encounter_datetime,ordem
 														from (			
-																select p.patient_id, max(e.encounter_datetime)  encounter_datetime, 1 as ordem from patient p
+														select f.patient_id, max(f.encounter_datetime) encounter_datetime,f.ordem from (
+														 select f.patient_id,max(f.encounter_datetime) encounter_datetime,f.ordem from (																
+	
+														 select p.patient_id, max(e.encounter_datetime)  encounter_datetime, 1 as ordem from patient p
 																	inner join encounter e on e.patient_id = p.patient_id
 																	inner join obs o on o.encounter_id = e.encounter_id
 																where p.voided = 0  and e.voided = 0 and o.voided = 0 and e.encounter_type  = 13 and o.concept_id = 856 
@@ -42,8 +45,9 @@ from	(
 																where p.voided = 0  and e.voided = 0 and o.voided = 0 and e.encounter_type  = 53 and o.concept_id = 856 
 																		and e.location_id =:location and o.obs_datetime between date_sub(:endDate, interval 12 month) and :endDate
 																	group by p.patient_id
-
-															  ) cargaQuantitaviva group by patient_id, encounter_datetime desc, ordem asc
+															)f group by f.patient_id, encounter_datetime desc, ordem asc
+															)f group by f.patient_id
+														) cargaQuantitaviva group by patient_id
 						   							) cargaQuantitaviva group by patient_id
 											) cargaQuantitativa group by patient_id
 									) cargaQuantitativa
@@ -82,14 +86,18 @@ from	(
 							) cargaQuantitativa
 							join 
 					        (
-					            select p.patient_id, max(e.encounter_datetime) encounter_datetime from  patient p
+					          select f.patient_id,f.encounter_datetime,obCv.value_numeric
+                              from (  
+							    select p.patient_id, max(o.obs_datetime) encounter_datetime from  patient p
 								inner join encounter e on e.patient_id = p.patient_id 
 								inner join obs o on o.encounter_id = e.encounter_id
-								where e.voided = 0 and o.voided =0 and e.encounter_type in (13, 51, 6,53) and o.concept_id = 856 and e.location_id =:location 
-								and e.encounter_datetime between date_sub(:endDate, interval 12 month) and :endDate and o.value_numeric >= 1000
-					            group by p.patient_id
+								where e.voided = 0 and o.voided =0 and e.encounter_type in (13, 51, 6,53) and o.concept_id = 856 and e.location_id =:location  
+								and o.obs_datetime between date_sub(:endDate, interval 12 month) and :endDate 
+                                group by p.patient_id
+                                ) f 
+                                inner join obs obCv on obCv.person_id=f.patient_id and obCv.concept_id=856 and obCv.value_numeric>=1000 and obCv.obs_datetime=f.encounter_datetime and obCv.voided=0
 					
-						     ) filter on filter.patient_id=cargaQuantitativa.patient_id and filter.encounter_datetime=cargaQuantitativa.encounter_datetime
+						     ) filter on filter.patient_id=cargaQuantitativa.patient_id
 						
 					    union
 						
@@ -124,14 +132,18 @@ from	(
 							) cargaQuantitativa
 							join 
 					        (
-					            select p.patient_id, max(e.encounter_datetime) encounter_datetime from  patient p
+					          select f.patient_id,f.encounter_datetime,obCv.value_numeric
+                              from (  
+							    select p.patient_id, max(o.obs_datetime) encounter_datetime from  patient p
 								inner join encounter e on e.patient_id = p.patient_id 
 								inner join obs o on o.encounter_id = e.encounter_id
-								where e.voided = 0 and o.voided =0 and e.encounter_type in (13, 51, 6,53) and o.concept_id = 856 and e.location_id =:location 
-								and e.encounter_datetime between date_sub(:endDate, interval 12 month) and :endDate and o.value_numeric >= 1000
-					            group by p.patient_id
+								where e.voided = 0 and o.voided =0 and e.encounter_type in (13, 51, 6,53) and o.concept_id = 856 and e.location_id =:location  
+								and o.obs_datetime between date_sub(:endDate, interval 12 month) and :endDate 
+                                group by p.patient_id
+								   ) f 
+                                inner join obs obCv on obCv.person_id=f.patient_id and obCv.concept_id=856 and obCv.value_numeric>=1000 and obCv.obs_datetime=f.encounter_datetime and obCv.voided=0
 					
-						     ) filter on filter.patient_id=cargaQuantitativa.patient_id and filter.encounter_datetime=cargaQuantitativa.obs_datetime
+						     ) filter on filter.patient_id=cargaQuantitativa.patient_id 
 				     ) cargaQuantitativa group by patient_id, encounter_datetime desc, ordem asc 
 			) cargaQuantitativa group by patient_id
 	) cargaQuantitativa
