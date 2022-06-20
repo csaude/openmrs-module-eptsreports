@@ -326,10 +326,13 @@ public class MICategory15CohortQueries {
     definition.addParameter(new Parameter("location", "location", Date.class));
 
     final String mappingsMI =
-        "startInclusionDate=${endRevisionDate-2m+1d},endInclusionDate=${endRevisionDate-1m},endRevisionDate=${endRevisionDate},location=${location}";
+        "startInclusionDate=${endRevisionDate-2m+1d},endInclusionDate=${endRevisionDate-1m},endRevisionDate=${endRevisionDate-1m},location=${location}";
 
     final String mappings =
         "startInclusionDate=${startInclusionDate},endInclusionDate=${endInclusionDate},endRevisionDate=${endRevisionDate},location=${location}";
+
+    final String mappingsPregnant =
+        "startInclusionDate=${endRevisionDate-20m},endInclusionDate=${endRevisionDate-2m},endRevisionDate=${endRevisionDate},location=${location}";
 
     final String mappingsCd4 = "endRevisionDate=${endRevisionDate-1m},location=${location}";
 
@@ -354,7 +357,8 @@ public class MICategory15CohortQueries {
 
     definition.addSearch(
         "C",
-        EptsReportUtils.map(this.findPatientOnARTMarkedPregnantOnTheLastNineMonthsRF8(), mappings));
+        EptsReportUtils.map(
+            this.findPatientOnARTMarkedPregnantOnTheLastNineMonthsRF8(), mappingsPregnant));
 
     definition.addSearch(
         "D",

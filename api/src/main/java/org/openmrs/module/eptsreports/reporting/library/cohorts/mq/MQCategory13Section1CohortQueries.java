@@ -268,6 +268,26 @@ public class MQCategory13Section1CohortQueries {
     return definition;
   }
 
+  @DocumentedDefinition(value = "findPatientsWithRequestCVInTheLast12MonthsBeforeLastConsultation")
+  public CohortDefinition findPatientsWithRequestCVInTheLast12MonthsBeforeLastConsultation() {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName("Patients with request CV in the last 12 months before last consultation");
+    definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
+
+    String query =
+        MQCategory13Section1QueriesInterface.QUERY
+            .findPatientsWithRequestCVInTheLast12MonthsBeforeLastConsultation;
+
+    definition.setQuery(query);
+
+    return definition;
+  }
+
   @DocumentedDefinition(value = "findNumeratorCategory13Section1C")
   public CohortDefinition findNumeratorCategory13Section1C() {
 

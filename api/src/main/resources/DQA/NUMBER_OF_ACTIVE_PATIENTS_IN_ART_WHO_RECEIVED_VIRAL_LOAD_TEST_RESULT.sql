@@ -82,7 +82,7 @@ select (@cnt := @cnt + 1) as ID,cv.patient_id,cv.data_usar,cv.DATA_INICIO_TARV,c
             Select p.patient_id,max(encounter_datetime) data_fila from patient p  
             inner join encounter e on e.patient_id=p.patient_id 
             inner join person pe on pe.person_id = p.patient_id
-            where p.voided=0 and pe.voided = 0 and e.voided=0 and e.encounter_type=18 and e.location_id=:location and date(e.encounter_datetime) BETWEEN :startDate AND :startDate + interval 1 month - interval 1 day  
+            where p.voided=0 and pe.voided = 0 and e.voided=0 and e.encounter_type=18 and e.location_id=:location and date(e.encounter_datetime) <= :startDate + interval 1 month - interval 1 day  
             group by p.patient_id) max_fila on inicio.patient_id=max_fila.patient_id  
             left join (Select p.patient_id,max(encounter_datetime) data_seguimento from patient p 
             inner join encounter e on e.patient_id=p.patient_id 
