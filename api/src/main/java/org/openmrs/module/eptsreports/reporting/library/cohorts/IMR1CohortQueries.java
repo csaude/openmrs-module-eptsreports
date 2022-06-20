@@ -14,6 +14,7 @@ package org.openmrs.module.eptsreports.reporting.library.cohorts;
 import java.util.Date;
 import org.openmrs.Location;
 import org.openmrs.module.eptsreports.reporting.library.queries.IMR1Queries;
+import org.openmrs.module.eptsreports.reporting.utils.AgeRange;
 import org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.CompositionCohortDefinition;
@@ -48,6 +49,34 @@ public class IMR1CohortQueries {
     return compsitionDefinition;
   }
 
+  @DocumentedDefinition(value = "ChildrenNewlyEnrolledOnArtCare")
+  public CohortDefinition getChildrenNewlyEnrolledOnArtCare() {
+
+    final CompositionCohortDefinition compsitionDefinition = new CompositionCohortDefinition();
+    compsitionDefinition.setName("Patients newly enrolled on ART Care");
+    final String mappings = "endDate=${endDate},location=${location}";
+
+    compsitionDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+    compsitionDefinition.addParameter(new Parameter("location", "location", Location.class));
+
+    compsitionDefinition.addSearch(
+        "NEWLY-ENROLLED",
+        EptsReportUtils.map(this.getAllPatientsEnrolledInArtCareDuringReportingPeriod(), mappings));
+
+    compsitionDefinition.addSearch(
+        "TRANSFERRED-IN",
+        EptsReportUtils.map(this.getAllPatientsTransferredInByEndReportingDate(), mappings));
+
+    compsitionDefinition.addSearch(
+        "CHILDREN",
+        EptsReportUtils.map(
+            this.findPatientsWhoAreNewlyEnrolledOnArtByAgeRange(AgeRange.CHILDREN), mappings));
+
+    compsitionDefinition.setCompositionString("(NEWLY-ENROLLED NOT TRANSFERRED-IN) AND CHILDREN");
+
+    return compsitionDefinition;
+  }
+
   @DocumentedDefinition(
       value = "PatientsNewlyEnrolledOnArtCareExcludingPregnantsAndBreastFeedingDenominator")
   public CohortDefinition
@@ -69,7 +98,13 @@ public class IMR1CohortQueries {
     compsitionDefinition.addSearch(
         "BREASTFEEDING", EptsReportUtils.map(this.getAllPatientsWhoAreBreastfeeding(), mappings));
 
-    compsitionDefinition.setCompositionString("DENOMINATOR NOT (PREGNANT OR BREASTFEEDING)");
+    compsitionDefinition.addSearch(
+        "CHILDREN",
+        EptsReportUtils.map(
+            this.findPatientsWhoAreNewlyEnrolledOnArtByAgeRange(AgeRange.CHILDREN), mappings));
+
+    compsitionDefinition.setCompositionString(
+        "(DENOMINATOR NOT (PREGNANT OR BREASTFEEDING)) NOT CHILDREN");
 
     return compsitionDefinition;
   }
@@ -94,9 +129,15 @@ public class IMR1CohortQueries {
         "PREGNANT", EptsReportUtils.map(this.getAllPatientsWhoArePregnantInAPeriod(), mappings));
 
     compsitionDefinition.addSearch(
+        "CHILDREN",
+        EptsReportUtils.map(
+            this.findPatientsWhoAreNewlyEnrolledOnArtByAgeRange(AgeRange.CHILDREN), mappings));
+
+    compsitionDefinition.addSearch(
         "BREASTFEEDING", EptsReportUtils.map(this.getAllPatientsWhoAreBreastfeeding(), mappings));
 
-    compsitionDefinition.setCompositionString("NUMERATOR NOT (PREGNANT OR BREASTFEEDING)");
+    compsitionDefinition.setCompositionString(
+        "(NUMERATOR NOT (PREGNANT OR BREASTFEEDING)) NOT CHILDREN");
 
     return compsitionDefinition;
   }
@@ -128,6 +169,42 @@ public class IMR1CohortQueries {
 
     compsitionDefinition.setCompositionString(
         "(NEWLY-ENROLLED AND CONSULTATION-SAME-DIAGNOSIS-DAY) NOT TRANSFERRED-IN");
+
+    return compsitionDefinition;
+  }
+
+  @DocumentedDefinition(value = "ChildrenNewlyEnrolledOnArtCareNumerator")
+  public CohortDefinition getChildrenNewlyEnrolledOnArtCareNumerator() {
+
+    final CompositionCohortDefinition compsitionDefinition = new CompositionCohortDefinition();
+    compsitionDefinition.setName("Patients newly enrolled on ART Care");
+    final String mappings = "endDate=${endDate},location=${location}";
+
+    compsitionDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+    compsitionDefinition.addParameter(new Parameter("location", "location", Location.class));
+
+    compsitionDefinition.addSearch(
+        "NEWLY-ENROLLED",
+        EptsReportUtils.map(this.getAllPatientsEnrolledInArtCareDuringReportingPeriod(), mappings));
+
+    compsitionDefinition.addSearch(
+        "CONSULTATION-SAME-DIAGNOSIS-DAY",
+        EptsReportUtils.map(
+            this
+                .getAllPatientsWithClinicianConsultationInTheSameDiagnosisDayByBeforeEndOfReportingPeriod(),
+            "endDate=${endDate-1m},location=${location}"));
+
+    compsitionDefinition.addSearch(
+        "TRANSFERRED-IN",
+        EptsReportUtils.map(this.getAllPatientsTransferredInByEndReportingDate(), mappings));
+
+    compsitionDefinition.addSearch(
+        "CHILDREN",
+        EptsReportUtils.map(
+            this.findPatientsWhoAreNewlyEnrolledOnArtByAgeRange(AgeRange.CHILDREN), mappings));
+
+    compsitionDefinition.setCompositionString(
+        "((NEWLY-ENROLLED AND CONSULTATION-SAME-DIAGNOSIS-DAY) NOT TRANSFERRED-IN) AND CHILDREN");
 
     return compsitionDefinition;
   }
@@ -195,6 +272,28 @@ public class IMR1CohortQueries {
 
     definition.setQuery(
         IMR1Queries.QUERY.findPatientsWithClinicianConsultationInTheSameDiagnosisDay);
+
+    return definition;
+  }
+
+  public CohortDefinition findPatientsWhoAreNewlyEnrolledOnArtByAgeRange(final AgeRange ageRange) {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+    definition.setName("patientsPregnantEnrolledOnARTCare");
+    definition.addParameter(new Parameter("endDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
+
+    String query = IMR1Queries.QUERY.findPatientsWhoAreNewlyEnrolledOnArtCareByAgeRange;
+    query = String.format(query, ageRange.getMin(), ageRange.getMax());
+
+    if (AgeRange.ADULT.equals(ageRange)) {
+      query =
+          query.replace(
+              "BETWEEN " + ageRange.getMin() + " AND " + ageRange.getMax(),
+              ">= " + ageRange.getMax());
+    }
+
+    definition.setQuery(query);
 
     return definition;
   }

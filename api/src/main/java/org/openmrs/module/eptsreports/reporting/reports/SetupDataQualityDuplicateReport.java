@@ -54,12 +54,12 @@ public class SetupDataQualityDuplicateReport extends EptsDataExportManager {
 
   @Override
   public String getName() {
-    return "RELATÓRIO DE QUALIDADE DE DADOS PARA POTENCIAIS DUPLICAÇÕES";
+    return "RQD3: Relatório de Qualidade de Dados para Identificar Potenciais Duplicações de NIDs-Pacientes";
   }
 
   @Override
   public String getDescription() {
-    return "Este relatório gera uma listagem de pacientes que atendem a determinadas verificações/validações dos dados existentes no sistema, e permite que os utilizadores confirmem as informações de modo a corrigir os registos duplicados no sistema OpenMRS EPTS";
+    return "Este relatório gera uma listagem de pacientes que atendem a determinadas verificações/validações dos dados existentes no sistema, e permite que os utilizadores confirmem as informações de modo a corrigir os registos duplicados no sistema SESP.";
   }
 
   @Override
@@ -80,7 +80,7 @@ public class SetupDataQualityDuplicateReport extends EptsDataExportManager {
 
     rd.addDataSetDefinition(
         "ECD2",
-        Mapped.mapStraightThrough(ec2PatientListDuplicateDataset.ec1PatientDuplicateListDataset()));
+        Mapped.mapStraightThrough(ec2PatientListDuplicateDataset.ec2PatientDuplicateListDataset()));
 
     rd.setBaseCohortDefinition(
         EptsReportUtils.map(
@@ -103,7 +103,7 @@ public class SetupDataQualityDuplicateReport extends EptsDataExportManager {
           createXlsReportDesign(
               reportDefinition,
               "Data_Quality_Duplicates_Report.xls",
-              "RELATÓRIO DE QUALIDADE DE DADOS PARA POTENCIAIS DUPLICAÇÕES",
+              "Relatório de Qualidade de Dados para Identificar Potenciais Duplicações de NIDs-Pacientes",
               getExcelDesignUuid(),
               null);
       Properties props = new Properties();

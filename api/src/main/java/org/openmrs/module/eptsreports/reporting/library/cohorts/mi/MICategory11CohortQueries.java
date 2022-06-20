@@ -1,11 +1,14 @@
 package org.openmrs.module.eptsreports.reporting.library.cohorts.mi;
 
 import java.util.Date;
+import org.openmrs.Location;
 import org.openmrs.module.eptsreports.reporting.library.cohorts.mq.MQCohortQueries;
 import org.openmrs.module.eptsreports.reporting.library.cohorts.mq.MQGenericCohortQueries;
+import org.openmrs.module.eptsreports.reporting.library.queries.mi.MICategory11QueriesInterface;
 import org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.CompositionCohortDefinition;
+import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
 import org.openmrs.module.reporting.definition.library.DocumentedDefinition;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,13 +22,13 @@ public class MICategory11CohortQueries {
 
   @DocumentedDefinition(
       value =
-          "findPatietnsOnARTStartedExcludingPregantAndBreastfeedingAndTransferredInTRANSFEREDOUTWITH1000CVCategory11Denominator")
+          "findPatietsOnARTStartedExcludingPregantAndBreastfeedingAndTRANSFEREDOUTWITH1000CVCategory11Denominator")
   public CohortDefinition
-      findPatietsOnARTStartedExcludingPregantAndBreastfeedingAndTransferredInTRANSFEREDOUTWITH1000CVCategory11Denominator() {
+      findPatietsOnARTStartedExcludingPregantAndBreastfeedingAndTRANSFEREDOUTWITH1000CVCategory11Denominator() {
     final CompositionCohortDefinition definition = new CompositionCohortDefinition();
 
     definition.setName(
-        "findAdultsOnARTStartedExcludingPregantAndBreastfeedingAndTransferredInTRANSFEREDOUTWITH1000CVCategory11Denominator");
+        "findPatietsOnARTStartedExcludingPregantAndBreastfeedingAndTRANSFEREDOUTWITH1000CVCategory11Denominator");
 
     definition.addParameter(
         new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
@@ -47,35 +50,27 @@ public class MICategory11CohortQueries {
     definition.addSearch(
         "B2",
         EptsReportUtils.map(
-            this.mQCohortQueries.findPatientWithCVOver1000CopiesCategory11B2(), mappingsMIB1));
+            this.findPatientWithCVOver1000CopiesRegistredInClinicalConsultation(), mappingsMIB1));
 
     definition.addSearch(
         "B4",
         EptsReportUtils.map(
-            this.mQCohortQueries
+            this
                 .findPatientsWhoHasCVBiggerThan1000AndMarkedAsPregnantInTheSameClinicalConsultation(),
             mappingsMIB1));
 
     definition.addSearch(
         "B5",
         EptsReportUtils.map(
-            this.mQCohortQueries
+            this
                 .findPatientsWhoHasCVBiggerThan1000AndMarkedAsBreastFeedingInTheSameClinicalConsultation(),
             mappingsMIB1));
-
-    definition.addSearch(
-        "TRANSFERED-IN",
-        EptsReportUtils.map(
-            this.mQCohortQueries
-                .findPatientsWhoWhereMarkedAsTransferedInAndOnARTOnInAPeriodOnMasterCardRF06(),
-            mappings));
 
     definition.addSearch(
         "TRANSFERED-OUT",
         EptsReportUtils.map(this.mQCohortQueries.findPatientsWhoTransferedOutRF07(), mappings));
 
-    definition.setCompositionString(
-        "(B1 AND B2) NOT (B4 OR B5 OR TRANSFERED-IN OR TRANSFERED-OUT)");
+    definition.setCompositionString("(B1 AND B2) NOT (B4 OR B5 OR TRANSFERED-OUT)");
 
     return definition;
   }
@@ -150,9 +145,7 @@ public class MICategory11CohortQueries {
     definition.addSearch(
         "I-APSS-PP",
         EptsReportUtils.map(
-            this.mQCohortQueries
-                .findChildrenPatientsWithAtLeast9APSSConsultationByInclusionPeriod(),
-            mappings));
+            this.findPatientsWhoHaveAtLeast3APSSConsultationIn99DaysAfterInitiatedART(), mappings));
 
     definition.setCompositionString("(DENOMINATOR AND I-APSS-PP)");
     return definition;
@@ -160,14 +153,14 @@ public class MICategory11CohortQueries {
 
   @DocumentedDefinition(
       value =
-          "findPatietsOnARTStartedExcludingPregantAndBreastfeedingAndTransferredInTRANSFEREDOUTWITH1000CVCategory11NUMERATOR")
+          "findPatietsOnARTStartedExcludingPregantAndBreastfeedingAndTRANSFEREDOUTWITH1000CVCategory11NUMERATOR")
   public CohortDefinition
-      findPatietsOnARTStartedExcludingPregantAndBreastfeedingAndTransferredInTRANSFEREDOUTWITH1000CVCategory11NUMERATOR() {
+      findPatietsOnARTStartedExcludingPregantAndBreastfeedingAndTRANSFEREDOUTWITH1000CVCategory11NUMERATOR() {
 
     final CompositionCohortDefinition definition = new CompositionCohortDefinition();
 
     definition.setName(
-        "findPatietsOnARTStartedExcludingPregantAndBreastfeedingAndTransferredInTRANSFEREDOUTWITH1000CVCategory11NUMERATOR");
+        "findPatietsOnARTStartedExcludingPregantAndBreastfeedingAndTRANSFEREDOUTWITH1000CVCategory11NUMERATOR");
 
     definition.addParameter(
         new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
@@ -185,7 +178,7 @@ public class MICategory11CohortQueries {
         "DENOMINADOR",
         EptsReportUtils.map(
             this
-                .findPatietsOnARTStartedExcludingPregantAndBreastfeedingAndTransferredInTRANSFEREDOUTWITH1000CVCategory11Denominator(),
+                .findPatietsOnARTStartedExcludingPregantAndBreastfeedingAndTRANSFEREDOUTWITH1000CVCategory11Denominator(),
             mappings));
 
     definition.addSearch(
@@ -196,6 +189,94 @@ public class MICategory11CohortQueries {
             mappingsMI));
 
     definition.setCompositionString("(DENOMINADOR AND H)");
+
+    return definition;
+  }
+
+  @DocumentedDefinition(
+      value = "findPatientsWhoHaveAtLeast3APSSConsultationIn99DaysAfterInitiatedART")
+  public CohortDefinition findPatientsWhoHaveAtLeast3APSSConsultationIn99DaysAfterInitiatedART() {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName("Patients with at least 3 APSS consultation in 99 days after initiated ART");
+    definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
+
+    String query =
+        MICategory11QueriesInterface.QUERY
+            .findPatientsWhoHaveAtLeast3APSSConsultationIn99DaysAfterInitiatedART;
+
+    definition.setQuery(query);
+
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "findPatientWithCVOver1000CopiesRegistredInClinicalConsultation")
+  public CohortDefinition findPatientWithCVOver1000CopiesRegistredInClinicalConsultation() {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName("Patients who received Viral Load Result >= 1000 Copies");
+    definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
+
+    String query =
+        MICategory11QueriesInterface.QUERY
+            .findPatientWithCVOver1000CopiesRegistredInClinicalConsultation;
+
+    definition.setQuery(query);
+
+    return definition;
+  }
+
+  @DocumentedDefinition(
+      value = "findPatientsWhoHasCVBiggerThan1000AndMarkedAsPregnantInTheSameClinicalConsultation")
+  public CohortDefinition
+      findPatientsWhoHasCVBiggerThan1000AndMarkedAsPregnantInTheSameClinicalConsultation() {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName(
+        "Patients who received Viral Load Result >= 1000 Copies and Marked as Pregnant in the same consultation");
+    definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
+
+    String query =
+        MICategory11QueriesInterface.QUERY
+            .findPatientsWhoHasCVBiggerThan1000AndMarkedAsPregnantInTheSameClinicalConsultation;
+
+    definition.setQuery(query);
+
+    return definition;
+  }
+
+  @DocumentedDefinition(
+      value =
+          "findPatientsWhoHasCVBiggerThan1000AndMarkedAsBreastFeedingInTheSameClinicalConsultation")
+  public CohortDefinition
+      findPatientsWhoHasCVBiggerThan1000AndMarkedAsBreastFeedingInTheSameClinicalConsultation() {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName(
+        "Patients who received Viral Load Result >= 1000 Copies and Marked as Breastfeeding in the same consultation");
+    definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
+
+    String query =
+        MICategory11QueriesInterface.QUERY
+            .findPatientsWhoHasCVBiggerThan1000AndMarkedAsBreastFeedingInTheSameClinicalConsultation;
+
+    definition.setQuery(query);
 
     return definition;
   }

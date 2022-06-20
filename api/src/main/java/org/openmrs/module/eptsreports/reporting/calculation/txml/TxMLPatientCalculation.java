@@ -134,18 +134,25 @@ public abstract class TxMLPatientCalculation extends BaseFghCalculation {
   }
 
   public static Map<Integer, Date> excludeEarlyHomeVisitDatesFromNextExpectedDateNumerator(
-      CalculationResultMap numerator, Map<Integer, Date> deadInHomeVisitForm) {
+      CalculationResultMap numerator,
+      Map<Integer, Date> deadInHomeVisitForm,
+      CalculationResultMap lastFilaCalculationResult,
+      CalculationResultMap lastSeguimentoCalculationResult,
+      CalculationResultMap lastRecepcaoLevantamentoResult) {
     Map<Integer, Date> result = new HashMap<>();
     for (Integer patientId : numerator.keySet()) {
-      CalculationResult numeratorResult = numerator.get(patientId);
-      if (numeratorResult != null) {
-        Date numeratorNextExpectedDate = (Date) numeratorResult.getValue();
-        if (numeratorNextExpectedDate != null) {
-          Date candidateDate = deadInHomeVisitForm.get(patientId);
-          if (candidateDate != null) {
-            if (candidateDate.compareTo(numeratorNextExpectedDate) > 0) {
-              result.put(patientId, candidateDate);
-            }
+      Date maxDate =
+          CalculationProcessorUtils.getMaxDate(
+              patientId,
+              lastFilaCalculationResult,
+              lastSeguimentoCalculationResult,
+              lastRecepcaoLevantamentoResult);
+
+      if (maxDate != null) {
+        Date candidateDate = deadInHomeVisitForm.get(patientId);
+        if (candidateDate != null) {
+          if (candidateDate.compareTo(maxDate) > 0) {
+            result.put(patientId, candidateDate);
           }
         }
       }

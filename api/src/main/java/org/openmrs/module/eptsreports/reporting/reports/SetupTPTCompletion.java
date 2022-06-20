@@ -87,6 +87,11 @@ public class SetupTPTCompletion extends EptsDataExportManager {
               "TPT Completion Cascade Report",
               getExcelDesignUuid(),
               null);
+
+      reportDefinition.addDataSetDefinition(
+          "D",
+          Mapped.mapStraightThrough(this.datimCodeDataSet.constructDataset(this.getParameters())));
+
       Properties props = new Properties();
       props.put("sortWeight", "5000");
       reportDesign.setProperties(props);

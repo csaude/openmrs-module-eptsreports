@@ -23,6 +23,8 @@ import org.openmrs.Location;
 import org.openmrs.module.eptsreports.metadata.HivMetadata;
 import org.openmrs.module.eptsreports.reporting.library.cohorts.data.quality.SummaryDataQualityCohorts;
 import org.openmrs.module.eptsreports.reporting.library.cohorts.data.quality.SummaryEc20DataQualityCohorts;
+import org.openmrs.module.eptsreports.reporting.library.datasets.DatimCodeDataSet;
+import org.openmrs.module.eptsreports.reporting.library.datasets.SismaCodeDataSet;
 import org.openmrs.module.eptsreports.reporting.library.datasets.data.quality.Ec10PatientListDataset;
 import org.openmrs.module.eptsreports.reporting.library.datasets.data.quality.Ec11PatientListDataset;
 import org.openmrs.module.eptsreports.reporting.library.datasets.data.quality.Ec12PatientListDataset;
@@ -38,6 +40,8 @@ import org.openmrs.module.eptsreports.reporting.library.datasets.data.quality.Ec
 import org.openmrs.module.eptsreports.reporting.library.datasets.data.quality.Ec21PatientListDataset;
 import org.openmrs.module.eptsreports.reporting.library.datasets.data.quality.Ec22PatientListDataset;
 import org.openmrs.module.eptsreports.reporting.library.datasets.data.quality.Ec23PatientListDataset;
+import org.openmrs.module.eptsreports.reporting.library.datasets.data.quality.Ec24PatientListDataset;
+import org.openmrs.module.eptsreports.reporting.library.datasets.data.quality.Ec25PatientListDataset;
 import org.openmrs.module.eptsreports.reporting.library.datasets.data.quality.Ec2PatientListDataset;
 import org.openmrs.module.eptsreports.reporting.library.datasets.data.quality.Ec3PatientListDataset;
 import org.openmrs.module.eptsreports.reporting.library.datasets.data.quality.Ec4PatientListDataset;
@@ -111,6 +115,14 @@ public class SetupDataQualityReport extends EptsDataExportManager {
 
   private Ec22PatientListDataset ec22PatientListDataset;
 
+  private Ec24PatientListDataset ec24PatientListDataset;
+
+  private Ec25PatientListDataset ec25PatientListDataset;
+
+  @Autowired private DatimCodeDataSet datimCodeDataset;
+
+  @Autowired private SismaCodeDataSet sismaCodeDataset;
+
   @Autowired
   public SetupDataQualityReport(
       SummaryDataQualityDataset summaryDataQualityDataset,
@@ -137,6 +149,8 @@ public class SetupDataQualityReport extends EptsDataExportManager {
       Ec20PatientListDataset ec20PatientListDataset,
       Ec21PatientListDataset ec21PatientListDataset,
       Ec22PatientListDataset ec22PatientListDataset,
+      Ec24PatientListDataset ec24PatientListDataset,
+      Ec25PatientListDataset ec25PatientListDataset,
       SummaryEc20DataQualityDataset summaryEc20DataQualityDataset,
       SummaryEc20DataQualityCohorts summaryEc20DataQualityCohorts,
       GetCustomConfigurationDataset getCustomConfigurationDataset,
@@ -166,6 +180,8 @@ public class SetupDataQualityReport extends EptsDataExportManager {
     this.ec23PatientListDataset = ec23PatientListDataset;
     this.ec21PatientListDataset = ec21PatientListDataset;
     this.ec22PatientListDataset = ec22PatientListDataset;
+    this.ec24PatientListDataset = ec24PatientListDataset;
+    this.ec25PatientListDataset = ec25PatientListDataset;
     this.summaryEc20DataQualityDataset = summaryEc20DataQualityDataset;
   }
 
@@ -181,12 +197,12 @@ public class SetupDataQualityReport extends EptsDataExportManager {
 
   @Override
   public String getName() {
-    return "Data Quality Report";
+    return "RQD1: Relatório de Qualidade de Dados";
   }
 
   @Override
   public String getDescription() {
-    return "This report provides a line listing of patient records failing to meet certain edit checks and allows the user to review the information so the patient’s information can be corrected";
+    return "Este relatório gera uma listagem de pacientes que não atendem a determinadas verificações/validações dos dados existentes no sistema, e permite que os utilizadores confirmem as informações do paciente de modo a corrigir os dados no sistema.";
   }
 
   @Override
@@ -201,6 +217,14 @@ public class SetupDataQualityReport extends EptsDataExportManager {
         "S",
         Mapped.mapStraightThrough(
             summaryDataQualityDataset.constructSummaryDataQualityDatset(getDataParameters())));
+
+    rd.addDataSetDefinition(
+        "D",
+        Mapped.mapStraightThrough(this.datimCodeDataset.constructDataset(this.getParameters())));
+
+    rd.addDataSetDefinition(
+        "SC",
+        Mapped.mapStraightThrough(this.sismaCodeDataset.constructDataset(this.getParameters())));
 
     rd.addDataSetDefinition(
         "S20",
@@ -302,6 +326,16 @@ public class SetupDataQualityReport extends EptsDataExportManager {
         Mapped.mapStraightThrough(
             ec22PatientListDataset.ec22PatientListDataset(getDataParameters())));
 
+    rd.addDataSetDefinition(
+        "EC24",
+        Mapped.mapStraightThrough(
+            ec24PatientListDataset.ec24PatientListDatset(getDataParameters())));
+
+    rd.addDataSetDefinition(
+        "EC25",
+        Mapped.mapStraightThrough(
+            ec25PatientListDataset.ec25PatientListDatset(getDataParameters())));
+
     return rd;
   }
 
@@ -318,13 +352,13 @@ public class SetupDataQualityReport extends EptsDataExportManager {
           createXlsReportDesign(
               reportDefinition,
               "Data_Quality_Report.xls",
-              "Data Quality Report",
+              "Relatório de Qualidade de Dados",
               getExcelDesignUuid(),
               null);
       Properties props = new Properties();
       props.put(
           "repeatingSections",
-          "sheet:2,row:7,dataset:EC1 | sheet:3,row:7,dataset:EC2 | sheet:4,row:7,dataset:EC3 | sheet:5,row:7,dataset:EC4 | sheet:6,row:7,dataset:EC5 | sheet:7,row:7,dataset:EC6 | sheet:8,row:7,dataset:EC7 | sheet:9,row:7,dataset:EC8 | sheet:10,row:7,dataset:EC9 | sheet:11,row:7,dataset:EC10 | sheet:12,row:7,dataset:EC11 | sheet:13,row:7,dataset:EC12 | sheet:14,row:7,dataset:EC13 | sheet:15,row:7,dataset:EC14 | sheet:16,row:7,dataset:EC15 | sheet:17,row:7,dataset:EC16 | sheet:18,row:7,dataset:EC17 | sheet:19,row:7,dataset:EC18 | sheet:20,row:7,dataset:EC19 |sheet:21,row:7,dataset:EC20 |sheet:22,row:7,dataset:EC21 |sheet:23,row:7,dataset:EC22 |sheet:24,row:7,dataset:EC23");
+          "sheet:2,row:7,dataset:EC1 | sheet:3,row:7,dataset:EC2 | sheet:4,row:7,dataset:EC3 | sheet:5,row:7,dataset:EC4 | sheet:6,row:7,dataset:EC5 | sheet:7,row:7,dataset:EC6 | sheet:8,row:7,dataset:EC7 | sheet:9,row:7,dataset:EC8 | sheet:10,row:7,dataset:EC9 | sheet:11,row:7,dataset:EC10 | sheet:12,row:7,dataset:EC11 | sheet:13,row:7,dataset:EC12 | sheet:14,row:7,dataset:EC13 | sheet:15,row:7,dataset:EC14 | sheet:16,row:7,dataset:EC15 | sheet:17,row:7,dataset:EC16 | sheet:18,row:7,dataset:EC17 | sheet:19,row:7,dataset:EC18 | sheet:20,row:7,dataset:EC19 |sheet:21,row:7,dataset:EC20 |sheet:22,row:7,dataset:EC21 |sheet:23,row:7,dataset:EC22 | sheet:24,row:7,dataset:EC23 | sheet:25,row:7,dataset:EC24 | sheet:26,row:7,dataset:EC25");
       props.put("sortWeight", "5000");
       props.put("sortWeight", "5000");
       reportDesign.setProperties(props);

@@ -8,6 +8,7 @@ import java.util.Properties;
 import org.openmrs.module.eptsreports.reporting.library.cohorts.GenericCohortQueries;
 import org.openmrs.module.eptsreports.reporting.library.datasets.DatimCodeDataSet;
 import org.openmrs.module.eptsreports.reporting.library.datasets.FaltososAoLevantamentoARVDataSet;
+import org.openmrs.module.eptsreports.reporting.library.datasets.SismaCodeDataSet;
 import org.openmrs.module.eptsreports.reporting.library.queries.BaseQueries;
 import org.openmrs.module.eptsreports.reporting.reports.manager.EptsDataExportManager;
 import org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils;
@@ -26,6 +27,7 @@ public class SetupFaltososAoLevantamentoARVReport extends EptsDataExportManager 
   @Autowired private FaltososAoLevantamentoARVDataSet faltososAoLevantamentoARVDataSet;
   @Autowired private GenericCohortQueries genericCohortQueries;
   @Autowired private DatimCodeDataSet datimCodeDataSet;
+  @Autowired private SismaCodeDataSet sismaCodeDataSet;
 
   @Override
   public String getExcelDesignUuid() {
@@ -67,6 +69,10 @@ public class SetupFaltososAoLevantamentoARVReport extends EptsDataExportManager 
         Mapped.mapStraightThrough(
             this.datimCodeDataSet.constructDataset(this.getDataParameters())));
 
+    rd.addDataSetDefinition(
+        "S",
+        Mapped.mapStraightThrough(
+            this.sismaCodeDataSet.constructDataset(this.getDataParameters())));
     rd.setBaseCohortDefinition(
         EptsReportUtils.map(
             this.genericCohortQueries.generalSql(

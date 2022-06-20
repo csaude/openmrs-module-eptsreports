@@ -60,12 +60,12 @@ public class SetupDQAReport extends EptsDataExportManager {
 
   @Override
   public String getName() {
-    return "DQA HIV - MISAU";
+    return "AQD HIV MISAU";
   }
 
   @Override
   public String getDescription() {
-    return "DQA HIV - MISAU";
+    return "AQD HIV MISAU";
   }
 
   @Override
@@ -107,7 +107,7 @@ public class SetupDQAReport extends EptsDataExportManager {
           createXlsReportDesign(
               reportDefinition,
               "DQA_Carga_Viral_MISAU.xls",
-              "DQA HIV - MISAU",
+              "AQD HIV MISAU",
               getExcelDesignUuid(),
               null);
       Properties props = new Properties();

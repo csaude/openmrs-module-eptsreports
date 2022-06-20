@@ -273,7 +273,7 @@ public class MICategory15CohortQueries {
 
   @DocumentedDefinition(
       value = "findPatientsWithTheLastCD4LessThan200OrEqualInClinicalConsultation")
-  public CohortDefinition findPatientsWithTheLastCD4LessThan200OrEqualInClinicalConsultation() {
+  public CohortDefinition findPatientsWithTheLastCD4LessThan20O() {
 
     final SqlCohortDefinition definition = new SqlCohortDefinition();
 
@@ -284,9 +284,26 @@ public class MICategory15CohortQueries {
     definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
     definition.addParameter(new Parameter("location", "Location", Location.class));
 
-    String query =
-        MICategory15QueriesInterface.QUERY
-            .findPatientsWithTheLastCD4LessThan200OrEqualInClinicalConsultation;
+    String query = MICategory15QueriesInterface.QUERY.findPatientsWithTheLastCD4LessThan20O;
+
+    definition.setQuery(query);
+
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "findPatientsWithTheLastCVBiggerThan1000")
+  public CohortDefinition findPatientsWithTheLastCVBiggerThan1000() {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName(
+        "MI Category 15 - Get patients with the last CD4<=200 in clinical consultation");
+    definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
+
+    String query = MICategory15QueriesInterface.QUERY.findPatientsWithTheLastCVBiggerThan1000;
 
     definition.setQuery(query);
 
@@ -313,6 +330,8 @@ public class MICategory15CohortQueries {
 
     final String mappings =
         "startInclusionDate=${startInclusionDate},endInclusionDate=${endInclusionDate},endRevisionDate=${endRevisionDate},location=${location}";
+
+    final String mappingsCd4 = "endRevisionDate=${endRevisionDate-1m},location=${location}";
 
     definition.addSearch(
         "A",
@@ -343,15 +362,10 @@ public class MICategory15CohortQueries {
             this.findPatientOnARTMarkedBreastfeedingOnTheLastEighTeenMonthsRF9(), mappings));
 
     definition.addSearch(
-        "F",
-        EptsReportUtils.map(
-            this.findPatientsWithTheLastCD4LessThan200OrEqualInClinicalConsultation(), mappingsMI));
+        "F", EptsReportUtils.map(this.findPatientsWithTheLastCD4LessThan20O(), mappingsCd4));
 
     definition.addSearch(
-        "G",
-        EptsReportUtils.map(
-            this.findPatientsWithTheLastCargaViralGreaterOrEqualThan1000InClinicalConsultation(),
-            mappingsMI));
+        "G", EptsReportUtils.map(this.findPatientsWithTheLastCVBiggerThan1000(), mappingsMI));
 
     definition.addSearch(
         "J",

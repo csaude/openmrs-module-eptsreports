@@ -56,6 +56,8 @@ public class SummaryDataQualityDataset extends BaseDataSet {
     final CohortDefinition summaryCohortQueryEC15 = summaryCohortQuery.getEC15Total();
     final CohortDefinition summaryCohortQueryEC20 = summaryCohortQuery.getEC20Total();
     final CohortDefinition summaryCohortQueryEC23 = summaryCohortQuery.getEC23Total();
+    final CohortDefinition summaryCohortQueryEC24 = summaryCohortQuery.getEC24Total();
+    final CohortDefinition summaryCohortQueryEC25 = summaryCohortQuery.getEC25Total();
 
     dsd.addColumn(
         "EC1",
@@ -335,6 +337,26 @@ public class SummaryDataQualityDataset extends BaseDataSet {
             this.eptsGeneralIndicator.getIndicator(
                 "summaryCohortQueryEC23Indicator",
                 EptsReportUtils.map(summaryCohortQueryEC23, mappings)),
+            mappings),
+        "");
+
+    dsd.addColumn(
+        "EC24",
+        "EC24:The patient has clinical consultations or drug pick-ups registered but no Ficha Resumo",
+        EptsReportUtils.map(
+            this.eptsGeneralIndicator.getIndicator(
+                "summaryCohortQueryEC24Indicator",
+                EptsReportUtils.map(summaryCohortQueryEC24, mappings)),
+            mappings),
+        "");
+
+    dsd.addColumn(
+        "EC25",
+        "EC25:The patient has both qualitative and quantitative viral load results informed in the same form",
+        EptsReportUtils.map(
+            this.eptsGeneralIndicator.getIndicator(
+                "summaryCohortQueryEC25Indicator",
+                EptsReportUtils.map(summaryCohortQueryEC25, mappings)),
             mappings),
         "");
 

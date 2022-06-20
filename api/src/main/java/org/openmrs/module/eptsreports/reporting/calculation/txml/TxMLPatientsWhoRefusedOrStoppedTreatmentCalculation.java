@@ -3,11 +3,15 @@ package org.openmrs.module.eptsreports.reporting.calculation.txml;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
+import java.util.Set;
 import org.openmrs.api.context.Context;
 import org.openmrs.calculation.result.CalculationResultMap;
 import org.openmrs.module.eptsreports.metadata.HivMetadata;
 import org.openmrs.module.eptsreports.reporting.calculation.BaseFghCalculation;
 import org.openmrs.module.eptsreports.reporting.calculation.BooleanResult;
+import org.openmrs.module.eptsreports.reporting.calculation.generic.LastFilaCalculation;
+import org.openmrs.module.eptsreports.reporting.calculation.generic.LastRecepcaoLevantamentoCalculation;
+import org.openmrs.module.eptsreports.reporting.calculation.generic.LastSeguimentoCalculation;
 import org.openmrs.module.eptsreports.reporting.calculation.generic.MaxLastDateFromFilaSeguimentoRecepcaoCalculation;
 import org.openmrs.module.eptsreports.reporting.calculation.util.processor.CalculationProcessorUtils;
 import org.openmrs.module.eptsreports.reporting.calculation.util.processor.QueryDisaggregationProcessor;
@@ -49,9 +53,27 @@ public class TxMLPatientsWhoRefusedOrStoppedTreatmentCalculation extends BaseFgh
                 hivMetadata.getPatientIsTreatingHivWithTradittionalMedicine().getConceptId(),
                 hivMetadata.getOtherReasonWhyPatientMissedVisit().getConceptId()));
 
+    Set<Integer> cohort = numerator.keySet();
+    CalculationResultMap lastFilaCalculationResult =
+        Context.getRegisteredComponents(LastFilaCalculation.class)
+            .get(0)
+            .evaluate(cohort, parameterValues, context);
+    CalculationResultMap lastSeguimentoCalculationResult =
+        Context.getRegisteredComponents(LastSeguimentoCalculation.class)
+            .get(0)
+            .evaluate(cohort, parameterValues, context);
+    LastRecepcaoLevantamentoCalculation lastRecepcaoLevantamentoCalculation =
+        Context.getRegisteredComponents(LastRecepcaoLevantamentoCalculation.class).get(0);
+    CalculationResultMap lastRecepcaoLevantamentoResult =
+        lastRecepcaoLevantamentoCalculation.evaluate(cohort, parameterValues, context);
+
     deadInHomeVisitForm =
         TxMLPatientCalculation.excludeEarlyHomeVisitDatesFromNextExpectedDateNumerator(
-            numerator, deadInHomeVisitForm);
+            numerator,
+            deadInHomeVisitForm,
+            lastFilaCalculationResult,
+            lastSeguimentoCalculationResult,
+            lastRecepcaoLevantamentoResult);
 
     Map<Integer, Date> maxResultFromAllSources =
         CalculationProcessorUtils.getMaxMapDateByPatient(deadInHomeVisitForm);

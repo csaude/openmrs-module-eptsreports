@@ -59,18 +59,11 @@ public class MQCategory11CohortQueries {
             mappings));
 
     definition.addSearch(
-        "TRANSFERED-IN",
-        EptsReportUtils.map(
-            this.mQCohortQueries
-                .findPatientsWhoWhereMarkedAsTransferedInAndOnARTOnInAPeriodOnMasterCardRF06(),
-            mappings));
-
-    definition.addSearch(
         "TRANSFERED-OUT",
         EptsReportUtils.map(this.mQCohortQueries.findPatientsWhoTransferedOutRF07(), mappings));
 
     definition.setCompositionString(
-        "(B1 AND B2) NOT (PREGNANT OR BREASTFEEDING OR TRANSFERED-IN OR TRANSFERED-OUT)");
+        "(B1 AND B2) NOT (PREGNANT OR BREASTFEEDING OR TRANSFERED-OUT)");
 
     return definition;
   }

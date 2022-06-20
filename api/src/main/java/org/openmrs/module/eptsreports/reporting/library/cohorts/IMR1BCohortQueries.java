@@ -14,6 +14,7 @@ package org.openmrs.module.eptsreports.reporting.library.cohorts;
 import java.util.Date;
 import org.openmrs.Location;
 import org.openmrs.module.eptsreports.reporting.library.queries.IMR1BQueries;
+import org.openmrs.module.eptsreports.reporting.utils.AgeRange;
 import org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.CompositionCohortDefinition;
@@ -62,6 +63,29 @@ public class IMR1BCohortQueries {
     return compsitionDefinition;
   }
 
+  public CohortDefinition getChildrenNewlyEnrolledOnArtCare() {
+
+    final CompositionCohortDefinition compsitionDefinition = new CompositionCohortDefinition();
+    compsitionDefinition.setName("Patients newly enrolled on ART Care");
+    final String mappings = "endDate=${endDate},location=${location}";
+
+    compsitionDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+    compsitionDefinition.addParameter(new Parameter("location", "location", Location.class));
+
+    compsitionDefinition.addSearch(
+        "DENOMINATOR", EptsReportUtils.map(this.getPatientsNewlyEnrolledOnArtCare(), mappings));
+
+    compsitionDefinition.addSearch(
+        "CHILDREN",
+        EptsReportUtils.map(
+            iMR1CohortQueries.findPatientsWhoAreNewlyEnrolledOnArtByAgeRange(AgeRange.CHILDREN),
+            mappings));
+
+    compsitionDefinition.setCompositionString("DENOMINATOR AND CHILDREN");
+
+    return compsitionDefinition;
+  }
+
   @DocumentedDefinition(
       value = "PatientsNewlyEnrolledOnArtCareExcludingPregnantsAndBreastFeedingDenominator")
   public CohortDefinition
@@ -85,7 +109,14 @@ public class IMR1BCohortQueries {
         "BREASTFEEDING",
         EptsReportUtils.map(iMR1CohortQueries.getAllPatientsWhoAreBreastfeeding(), mappings));
 
-    compsitionDefinition.setCompositionString("DENOMINATOR NOT (PREGNANT OR BREASTFEEDING)");
+    compsitionDefinition.addSearch(
+        "CHILDREN",
+        EptsReportUtils.map(
+            iMR1CohortQueries.findPatientsWhoAreNewlyEnrolledOnArtByAgeRange(AgeRange.CHILDREN),
+            mappings));
+
+    compsitionDefinition.setCompositionString(
+        "(DENOMINATOR NOT (PREGNANT OR BREASTFEEDING)) NOT CHILDREN");
 
     return compsitionDefinition;
   }
@@ -115,7 +146,14 @@ public class IMR1BCohortQueries {
         "BREASTFEEDING",
         EptsReportUtils.map(iMR1CohortQueries.getAllPatientsWhoAreBreastfeeding(), mappings));
 
-    compsitionDefinition.setCompositionString("NUMERATOR NOT (PREGNANT OR BREASTFEEDING)");
+    compsitionDefinition.addSearch(
+        "CHILDREN",
+        EptsReportUtils.map(
+            iMR1CohortQueries.findPatientsWhoAreNewlyEnrolledOnArtByAgeRange(AgeRange.CHILDREN),
+            mappings));
+
+    compsitionDefinition.setCompositionString(
+        "(NUMERATOR NOT (PREGNANT OR BREASTFEEDING)) NOT CHILDREN");
 
     return compsitionDefinition;
   }
@@ -143,6 +181,32 @@ public class IMR1BCohortQueries {
             this.iMR1CohortQueries.getAllPatientsTransferredInByEndReportingDate(), mappings));
 
     compsitionDefinition.setCompositionString("NEWLY-ENROLLED NOT TRANSFERRED-IN");
+
+    return compsitionDefinition;
+  }
+
+  @DocumentedDefinition(value = "ChildrenNewlyEnrolledOnArtWhoInitiatedArtTreatment")
+  public CohortDefinition getChildrenNewlyEnrolledOnArtWhoInitiatedArtTreatment() {
+
+    final CompositionCohortDefinition compsitionDefinition = new CompositionCohortDefinition();
+    compsitionDefinition.setName("Patients newly enrolled on ART Care");
+    final String mappings = "endDate=${endDate},location=${location}";
+
+    compsitionDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
+    compsitionDefinition.addParameter(new Parameter("location", "location", Location.class));
+
+    compsitionDefinition.addSearch(
+        "NUMERATOR",
+        EptsReportUtils.map(
+            this.getPatientsNewlyEnrolledOnArtWhoInitiatedArtTreatment(), mappings));
+
+    compsitionDefinition.addSearch(
+        "CHILDREN",
+        EptsReportUtils.map(
+            iMR1CohortQueries.findPatientsWhoAreNewlyEnrolledOnArtByAgeRange(AgeRange.CHILDREN),
+            mappings));
+
+    compsitionDefinition.setCompositionString("NUMERATOR AND CHILDREN ");
 
     return compsitionDefinition;
   }

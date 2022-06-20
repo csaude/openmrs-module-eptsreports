@@ -118,7 +118,15 @@ public class MQCategory13Section2CohortQueries {
             mQCategory13Section1CohortQueries.findPatientsWhoAreBreastfeedingCAT13Part1(),
             mappings));
 
-    definition.setCompositionString("(B1 AND (B2NEWII NOT B2ENEW))  NOT (B4E OR B5E OR C OR D)");
+    definition.addSearch(
+        "SECOND-LINE-ART",
+        EptsReportUtils.map(
+            mQCategory13Section1CohortQueries
+                .findPatientsWhoAbandonedARTInTheFirstSixMonthsAfterInitiatedSecondLineRegimenART(),
+            mappings));
+
+    definition.setCompositionString(
+        "(B1 AND (B2NEWII NOT (B2ENEW OR SECOND-LINE-ART)))  NOT (B4E OR B5E OR C OR D)");
 
     return definition;
   }

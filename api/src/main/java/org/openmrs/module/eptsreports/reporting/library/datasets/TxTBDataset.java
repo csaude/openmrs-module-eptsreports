@@ -51,10 +51,10 @@ public class TxTBDataset extends BaseDataSet {
         "age",
         EptsReportUtils.map(
             eptsCommonDimension.age(ageDimensionCohort), "effectiveDate=${endDate}"));
-    addTXTBNumerator(mappings, dataSetDefinition);
 
     addTXTBDenominator(mappings, dataSetDefinition);
 
+    addTXTBNumerator(mappings, dataSetDefinition);
     addSpecimenSentDisaggregation(mappings, dataSetDefinition);
     addDiagnositcTestDisaggregation(mappings, dataSetDefinition);
     addPositiveResultsDisaggregation(mappings, dataSetDefinition);

@@ -5,6 +5,7 @@ import static org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils.map
 import org.openmrs.module.eptsreports.reporting.library.dimensions.AgeDimensionCohortInterface;
 import org.openmrs.module.eptsreports.reporting.library.dimensions.EptsCommonDimension;
 import org.openmrs.module.eptsreports.reporting.library.dimensions.MIAgeDimentions;
+import org.openmrs.module.eptsreports.reporting.library.dimensions.MQAgeDimensions;
 import org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils;
 import org.openmrs.module.reporting.dataset.definition.CohortIndicatorDataSetDefinition;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,8 @@ public class MICommonsDementions {
   private AgeDimensionCohortInterface ageDimensionCohort;
 
   @Autowired private MIAgeDimentions mIAgeDimentions;
+
+  @Autowired private MQAgeDimensions mQAgeDimensions;
 
   public void getMICommonDementions(
       final CohortIndicatorDataSetDefinition dataSetDefinition, String mappings) {
@@ -52,5 +55,10 @@ public class MICommonsDementions {
             this.mIAgeDimentions
                 .findAllPatientsWhoHaveTherapheuticLineSecondLineDuringInclusionPeriodP3B2NEWCalculeteAgeBiggerThan(),
             mappings));
+
+    dataSetDefinition.addDimension(
+        "ageMiEndRevisionDate",
+        EptsReportUtils.map(
+            this.mQAgeDimensions.getDimensionAgeEndInclusionDateEndRevisionDate(), mappings));
   }
 }

@@ -242,6 +242,17 @@ from (
 				and e.encounter_datetime between (:startDate- interval 6 month) and (:endDate - interval 6 month) and  e.location_id=:location
 				group by p.patient_id
 			union
+			
+			select 	p.patient_id,min(e.encounter_datetime) data_inicio_tpi  																		
+			from 	patient p  																														
+					inner join encounter e on p.patient_id=e.patient_id  																				
+					inner join obs o on o.encounter_id=e.encounter_id  																					
+			where 	e.voided=0 and p.voided=0 and e.encounter_datetime between (:startDate - interval 6 month) and (:endDate - interval 6 month)  												
+					and o.voided=0 and o.concept_id=6122 and o.value_coded=1256 and e.encounter_type in (6,9) and  e.location_id=:location 				
+			group by p.patient_id
+		
+			union	
+			
 			/*
 			 *   Patients who have Regime de TPT with the values (“Isoniazida” or
 					“Isoniazida + Piridoxina”) and “Seguimento de tratamento TPT” = (‘Inicio’ or

@@ -25,7 +25,7 @@ public class SummaryDataQualityDuplicateDataset extends BaseDataSet {
 
     final CohortDefinition summaryCohortQueryEC1 = eC1PatientListDuplicateDataset.getEC1Total();
 
-    final CohortDefinition summaryCohortQueryEC2 = eC2PatientListDuplicateDataset.getEC1Total();
+    final CohortDefinition summaryCohortQueryEC2 = eC2PatientListDuplicateDataset.getEC2Total();
 
     dsd.addColumn(
         "EC1D-TOTAL",

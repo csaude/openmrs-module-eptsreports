@@ -24,6 +24,8 @@ public class MQCategory15CohortQueries {
 
   @Autowired private MICategory15CohortQueries mICategory15CohortQueries;
 
+  private static final int CONCEPT_DT_23730 = 23730;
+
   @DocumentedDefinition(value = "NumeratorCategory15_Indicator_1")
   public CohortDefinition getNumeratorCategory15_Indicator_1() {
 
@@ -70,6 +72,86 @@ public class MQCategory15CohortQueries {
     return definition;
   }
 
+  @DocumentedDefinition(value = "findPatientsWithDTWithRequestForVLCategory15_7_FR20")
+  public CohortDefinition findPatientsWithDTWithRequestForVLCategory15_7_FR20() {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName("patientsPregnantEnrolledOnART");
+    definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
+
+    String query =
+        MQCategory15QueriesInterface.QUERY.findPatientsWithDTWithRequestForVLCategory15_7_FR20;
+
+    definition.setQuery(query);
+
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "findPatientsOnDMCWhoHaveTwoVLRequestAndOneVLResultWhoOnDT")
+  public CohortDefinition findPatientsOnDMCWhoHaveTwoVLRequestAndOneVLResultWhoOnDT() {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName("findPatientsOnDMCWhoHaveTwoVLRequestAndOneVLResultWhoOnDT");
+    definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
+
+    String query =
+        MQCategory15QueriesInterface.QUERY
+            .findPatientsOnDMCWhoHaveTwoVLRequestAndOneVLResultWhoOnDT;
+
+    definition.setQuery(String.format(query, CONCEPT_DT_23730));
+
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "findPatientsOnDMCWhoOnDTAndHaveTwoRequestVLAndVLOnLabForm")
+  public CohortDefinition findPatientsOnDMCWhoOnDTAndHaveTwoRequestVLAndVLOnLabForm() {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName("findPatientsOnDMCWhoHaveTwoVLRequestAndOneVLResultWhoOnDT");
+    definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
+
+    String query =
+        MQCategory15QueriesInterface.QUERY
+            .findPatientsOnDMCWhoOnDTAndHaveTwoRequestVLAndVLOnLabForm;
+
+    definition.setQuery(String.format(query, CONCEPT_DT_23730));
+
+    return definition;
+  }
+
+  @DocumentedDefinition(
+      value = "findPatientsOnDMCWhoOnDTAndHaveTwoRequestVLAndVLOnLabFormOverThan1000")
+  public CohortDefinition findPatientsOnDMCWhoOnDTAndHaveTwoRequestVLAndVLOnLabFormOverThan1000() {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName("findPatientsOnDMCWhoHaveTwoVLRequestAndOneVLResultWhoOnDT");
+    definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
+
+    String query =
+        MQCategory15QueriesInterface.QUERY
+            .findPatientsOnDMCWhoOnDTAndHaveTwoRequestVLAndVLOnLabFormOverThan1000;
+
+    definition.setQuery(String.format(query, CONCEPT_DT_23730));
+
+    return definition;
+  }
+
   @DocumentedDefinition(value = "findPatientsWithDTandGaacWithRequestForVLCategory15H2")
   public CohortDefinition findPatientsWithDTandGaacWithRequestForVLCategory15H2() {
 
@@ -83,6 +165,80 @@ public class MQCategory15CohortQueries {
 
     String query =
         MQCategory15QueriesInterface.QUERY.findPatientsWithDTandGaacWithRequestForVLCategory15H2;
+
+    definition.setQuery(query);
+
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "findPatientsWithRequestOnLabFormCategory15")
+  public CohortDefinition findPatientsWithRequestOnLabFormCategory15() {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName("patientsPregnantEnrolledOnART");
+    definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
+
+    String query = MQCategory15QueriesInterface.QUERY.findPatientsWithRequestOnLabFormCategory15;
+
+    definition.setQuery(query);
+
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "findPatientsWithRequestOnLabFormCategory15OverThan1000")
+  public CohortDefinition findPatientsWithRequestOnLabFormCategory15OverThan1000() {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName("patientsPregnantEnrolledOnART");
+    definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
+
+    String query =
+        MQCategory15QueriesInterface.QUERY.findPatientsWithRequestOnLabFormCategory15OverThan1000;
+
+    definition.setQuery(query);
+
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "findPatientsWithDTWithRequestForVLAndVLResultCategory15")
+  public CohortDefinition findPatientsWithDTWithRequestForVLAndVLResultCategory15() {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName("patientsPregnantEnrolledOnART");
+    definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
+
+    String query =
+        MQCategory15QueriesInterface.QUERY.findPatientsWithDTWithRequestForVLAndVLResultCategory15;
+
+    definition.setQuery(query);
+
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "findPatientsWithDTWithCV1000Category15I")
+  public CohortDefinition findPatientsWithDTWithCV1000Category15I() {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName("patientsPregnantEnrolledOnART");
+    definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
+
+    String query = MQCategory15QueriesInterface.QUERY.findPatientsWithDTWithCV1000Category15I;
 
     definition.setQuery(query);
 
@@ -108,6 +264,25 @@ public class MQCategory15CohortQueries {
     return definition;
   }
 
+  @DocumentedDefinition(value = "findPatientsWithMDSWhoHaveTwoVLRequestAndOneVLResult")
+  public CohortDefinition findPatientsWithMDSWhoHaveTwoVLRequestAndOneVLResult() {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName("patientsPregnantEnrolledOnART");
+    definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
+
+    String query =
+        MQCategory15QueriesInterface.QUERY.findPatientsWithMDSWhoHaveTwoVLRequestAndOneVLResult;
+
+    definition.setQuery(query);
+
+    return definition;
+  }
+
   @DocumentedDefinition(value = "NumeratorCategory15_Indicator_2")
   public CohortDefinition getNumeratorCategory15_Indicator_2() {
 
@@ -123,15 +298,14 @@ public class MQCategory15CohortQueries {
         "startInclusionDate=${startInclusionDate},endInclusionDate=${endInclusionDate},endRevisionDate=${endRevisionDate},location=${location}";
 
     definition.addSearch(
-        "H1",
-        EptsReportUtils.map(
-            this.findPatientsWithDTandGaacWithRequestForVLCategory15H1(), mappings));
+        "VL",
+        EptsReportUtils.map(this.findPatientsWithMDSWhoHaveTwoVLRequestAndOneVLResult(), mappings));
 
     definition.addSearch(
         "DENOMINATOR",
         EptsReportUtils.map(getDenominatorCategory15_Indicator_2_and_3_And_4(), mappings));
 
-    definition.setCompositionString("H1 AND DENOMINATOR");
+    definition.setCompositionString("VL AND DENOMINATOR");
 
     return definition;
   }
@@ -151,13 +325,10 @@ public class MQCategory15CohortQueries {
         "startInclusionDate=${startInclusionDate},endInclusionDate=${endInclusionDate},endRevisionDate=${endRevisionDate},location=${location}";
 
     definition.addSearch(
-        "H2",
-        EptsReportUtils.map(
-            this.findPatientsWithDTandGaacWithRequestForVLCategory15H2(), mappings));
+        "H2", EptsReportUtils.map(this.findPatientsWithRequestOnLabFormCategory15(), mappings));
 
     definition.addSearch(
-        "DENOMINATOR",
-        EptsReportUtils.map(getDenominatorCategory15_Indicator_2_and_3_And_4(), mappings));
+        "DENOMINATOR", EptsReportUtils.map(getDenominatorCategory15_Indicator_1_3(), mappings));
 
     definition.setCompositionString("H2 AND DENOMINATOR");
 
@@ -179,11 +350,12 @@ public class MQCategory15CohortQueries {
         "startInclusionDate=${startInclusionDate},endInclusionDate=${endInclusionDate},endRevisionDate=${endRevisionDate},location=${location}";
 
     definition.addSearch(
-        "I", EptsReportUtils.map(this.findPatientsWithDTandGaacWithCV1000Category15I(), mappings));
+        "I",
+        EptsReportUtils.map(
+            this.findPatientsWithRequestOnLabFormCategory15OverThan1000(), mappings));
 
     definition.addSearch(
-        "DENOMINATOR",
-        EptsReportUtils.map(getDenominatorCategory15_Indicator_2_and_3_And_4(), mappings));
+        "DENOMINATOR", EptsReportUtils.map(getDenominatorCategory15_Indicator15_4(), mappings));
 
     definition.setCompositionString("I AND DENOMINATOR");
 
@@ -263,7 +435,7 @@ public class MQCategory15CohortQueries {
     definition.addSearch(
         "H1",
         EptsReportUtils.map(
-            this.findPatientsWithDTandGaacWithRequestForVLCategory15H1(), mappings));
+            this.findPatientsOnDMCWhoHaveTwoVLRequestAndOneVLResultWhoOnDT(), mappings));
 
     definition.addSearch(
         "DENOMINATOR",
@@ -291,7 +463,7 @@ public class MQCategory15CohortQueries {
     definition.addSearch(
         "H1",
         EptsReportUtils.map(
-            this.findPatientsWithDTandGaacWithRequestForVLCategory15H1(), mappings));
+            this.findPatientsOnDMCWhoHaveTwoVLRequestAndOneVLResultWhoOnDT(), mappings));
 
     definition.addSearch(
         "DENOMINATOR",
@@ -319,11 +491,10 @@ public class MQCategory15CohortQueries {
     definition.addSearch(
         "H2",
         EptsReportUtils.map(
-            this.findPatientsWithDTandGaacWithRequestForVLCategory15H2(), mappings));
+            this.findPatientsOnDMCWhoOnDTAndHaveTwoRequestVLAndVLOnLabForm(), mappings));
 
     definition.addSearch(
-        "DENOMINATOR",
-        EptsReportUtils.map(getDenominatorCategory15_Indicator_7_And_9_And_11(), mappings));
+        "DENOMINATOR", EptsReportUtils.map(getDenominatorCategory15_Indicator_15_9(), mappings));
 
     definition.setCompositionString("H2 AND DENOMINATOR");
 
@@ -347,11 +518,10 @@ public class MQCategory15CohortQueries {
     definition.addSearch(
         "H2",
         EptsReportUtils.map(
-            this.findPatientsWithDTandGaacWithRequestForVLCategory15H2(), mappings));
+            this.findPatientsOnDMCWhoOnDTAndHaveTwoRequestVLAndVLOnLabForm(), mappings));
 
     definition.addSearch(
-        "DENOMINATOR",
-        EptsReportUtils.map(getDenominatorCategory15_Indicator_8_And_10_And_12(), mappings));
+        "DENOMINATOR", EptsReportUtils.map(getDenominatorCategory15_Indicator_15_10(), mappings));
 
     definition.setCompositionString("H2 AND DENOMINATOR");
 
@@ -373,7 +543,10 @@ public class MQCategory15CohortQueries {
         "startInclusionDate=${startInclusionDate},endInclusionDate=${endInclusionDate},endRevisionDate=${endRevisionDate},location=${location}";
 
     definition.addSearch(
-        "I", EptsReportUtils.map(this.findPatientsWithDTandGaacWithCV1000Category15I(), mappings));
+        "I",
+        EptsReportUtils.map(
+            this.findPatientsOnDMCWhoOnDTAndHaveTwoRequestVLAndVLOnLabFormOverThan1000(),
+            mappings));
 
     definition.addSearch(
         "DENOMINATOR",
@@ -399,7 +572,10 @@ public class MQCategory15CohortQueries {
         "startInclusionDate=${startInclusionDate},endInclusionDate=${endInclusionDate},endRevisionDate=${endRevisionDate},location=${location}";
 
     definition.addSearch(
-        "I", EptsReportUtils.map(this.findPatientsWithDTandGaacWithCV1000Category15I(), mappings));
+        "I",
+        EptsReportUtils.map(
+            this.findPatientsOnDMCWhoOnDTAndHaveTwoRequestVLAndVLOnLabFormOverThan1000(),
+            mappings));
 
     definition.addSearch(
         "DENOMINATOR",
@@ -428,7 +604,7 @@ public class MQCategory15CohortQueries {
     definition.addSearch(
         "A",
         EptsReportUtils.map(
-            findPatientsFromFichaClinicaForGivenConceptsDenominadorCategoria15A(),
+            findPatientsFromFichaClinicaForGivenConceptsDenominadorCategoria15ARF5(),
             mappingEndRevisionDate));
 
     definition.addSearch(
@@ -440,7 +616,10 @@ public class MQCategory15CohortQueries {
     definition.addSearch(
         "F", EptsReportUtils.map(mQCohortQueries.findPatientsWhoTransferedOutRF07(), mappings));
 
-    definition.setCompositionString("A NOT (C OR D OR F)");
+    definition.addSearch(
+        "E", EptsReportUtils.map(mQCohortQueries.getPatientsWhoDiedEndRevisioDate(), mappings));
+
+    definition.setCompositionString("A NOT (C OR D OR F OR E)");
 
     return definition;
   }
@@ -463,7 +642,7 @@ public class MQCategory15CohortQueries {
     definition.addSearch(
         "A",
         EptsReportUtils.map(
-            findPatientsFromFichaClinicaForGivenConceptsDenominadorCategoria15A(),
+            findPatientsFromFichaClinicaForGivenConceptsDenominadorCategoria15ARF5(),
             mappingEndRevisionDate));
 
     definition.addSearch(
@@ -481,7 +660,111 @@ public class MQCategory15CohortQueries {
     definition.addSearch(
         "F", EptsReportUtils.map(mQCohortQueries.findPatientsWhoTransferedOutRF07(), mappings));
 
-    definition.setCompositionString("(A AND G2) NOT (C OR D OR F)");
+    definition.addSearch(
+        "CV", EptsReportUtils.map(this.findPatientsWhoHaveCVOverThan10000Category15(), mappings));
+
+    definition.setCompositionString("(A AND G2) NOT (C OR D OR F OR CV)");
+
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "getDenominatorCategory15_Indicator15_4")
+  public CohortDefinition getDenominatorCategory15_Indicator15_4() {
+
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+
+    definition.setName("MQ - DenominatorCategory15_Indicator_2_and_3_And_4");
+    definition.addParameter(
+        new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "Data Fim Revisão", Date.class));
+    definition.addParameter(new Parameter("location", "location", Date.class));
+    final String mappings =
+        "startInclusionDate=${startInclusionDate},endInclusionDate=${endInclusionDate},endRevisionDate=${endRevisionDate},location=${location}";
+    final String mappingEndRevisionDate = "endRevisionDate=${endRevisionDate},location=${location}";
+
+    definition.addSearch(
+        "A",
+        EptsReportUtils.map(
+            findPatientsFromFichaClinicaForGivenConceptsDenominadorCategoria15ARF5(),
+            mappingEndRevisionDate));
+
+    definition.addSearch(
+        "G2",
+        EptsReportUtils.map(
+            resumoMensalCohortQueries.findPatientsWhoAreCurrentlyEnrolledOnArtMOHB13(),
+            "endDate=${endRevisionDate},location=${location}"));
+
+    definition.addSearch(
+        "CVP",
+        EptsReportUtils.map(
+            findPatientsWithMDSWhoHaveTwoVLRequestAndOneVLResult(), mappingEndRevisionDate));
+
+    definition.addSearch(
+        "CVR",
+        EptsReportUtils.map(findPatientsWithRequestOnLabFormCategory15(), mappingEndRevisionDate));
+
+    definition.addSearch(
+        "C", EptsReportUtils.map(findPatientsWhoArePregnantSpecificForCategory15(), mappings));
+
+    definition.addSearch(
+        "D", EptsReportUtils.map(findPatientsWhoAreBreastfeedingSpecificForCategory15(), mappings));
+
+    definition.addSearch(
+        "F", EptsReportUtils.map(mQCohortQueries.findPatientsWhoTransferedOutRF07(), mappings));
+
+    definition.addSearch(
+        "CV", EptsReportUtils.map(this.findPatientsWhoHaveCVOverThan10000Category15(), mappings));
+
+    definition.setCompositionString("(A AND G2 AND CVP AND CVR) NOT (C OR D OR F OR CV)");
+
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "getDenominatorCategory15_Indicator_1_3")
+  public CohortDefinition getDenominatorCategory15_Indicator_1_3() {
+
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+
+    definition.setName("MQ - DenominatorCategory15_Indicator_2_and_3_And_4");
+    definition.addParameter(
+        new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "Data Fim Revisão", Date.class));
+    definition.addParameter(new Parameter("location", "location", Date.class));
+    final String mappings =
+        "startInclusionDate=${startInclusionDate},endInclusionDate=${endInclusionDate},endRevisionDate=${endRevisionDate},location=${location}";
+    final String mappingEndRevisionDate = "endRevisionDate=${endRevisionDate},location=${location}";
+
+    definition.addSearch(
+        "A",
+        EptsReportUtils.map(
+            findPatientsFromFichaClinicaForGivenConceptsDenominadorCategoria15ARF5(),
+            mappingEndRevisionDate));
+
+    definition.addSearch(
+        "G2",
+        EptsReportUtils.map(
+            resumoMensalCohortQueries.findPatientsWhoAreCurrentlyEnrolledOnArtMOHB13(),
+            "endDate=${endRevisionDate},location=${location}"));
+
+    definition.addSearch(
+        "CVR",
+        EptsReportUtils.map(this.findPatientsWithMDSWhoHaveTwoVLRequestAndOneVLResult(), mappings));
+
+    definition.addSearch(
+        "C", EptsReportUtils.map(findPatientsWhoArePregnantSpecificForCategory15(), mappings));
+
+    definition.addSearch(
+        "D", EptsReportUtils.map(findPatientsWhoAreBreastfeedingSpecificForCategory15(), mappings));
+
+    definition.addSearch(
+        "F", EptsReportUtils.map(mQCohortQueries.findPatientsWhoTransferedOutRF07(), mappings));
+
+    definition.addSearch(
+        "CV", EptsReportUtils.map(this.findPatientsWhoHaveCVOverThan10000Category15(), mappings));
+
+    definition.setCompositionString("(A AND G2 AND CVR) NOT (C OR D OR F OR CV)");
 
     return definition;
   }
@@ -502,15 +785,9 @@ public class MQCategory15CohortQueries {
     final String mappingEndRevisionDate = "endRevisionDate=${endRevisionDate},location=${location}";
 
     definition.addSearch(
-        "A2",
+        "A",
         EptsReportUtils.map(
-            findPatientsWithDispensaTrimestralInicarInFichaClinicaDuringTheRevisionPeriodA2(),
-            mappingEndRevisionDate));
-
-    definition.addSearch(
-        "A3",
-        EptsReportUtils.map(
-            findPatientsWithLastTipoDeDispensaTrimestralInFichaClinicaWithinRevisionPeriodA3(),
+            findPatientsFromFichaClinicaForGivenConceptsDenominadorCategoria15ARF6(),
             mappingEndRevisionDate));
 
     definition.addSearch(
@@ -522,7 +799,10 @@ public class MQCategory15CohortQueries {
     definition.addSearch(
         "F", EptsReportUtils.map(mQCohortQueries.findPatientsWhoTransferedOutRF07(), mappings));
 
-    definition.setCompositionString("(A2 OR A3) NOT (C OR D OR F)");
+    definition.addSearch(
+        "E", EptsReportUtils.map(mQCohortQueries.getPatientsWhoDiedEndRevisioDate(), mappings));
+
+    definition.setCompositionString("A NOT (C OR D OR F OR E)");
 
     return definition;
   }
@@ -543,15 +823,9 @@ public class MQCategory15CohortQueries {
     final String mappingEndRevisionDate = "endRevisionDate=${endRevisionDate},location=${location}";
 
     definition.addSearch(
-        "A2",
+        "A",
         EptsReportUtils.map(
-            findPatientsWithDispensaTrimestralInicarInFichaClinicaDuringTheRevisionPeriodA2(),
-            mappingEndRevisionDate));
-
-    definition.addSearch(
-        "A3",
-        EptsReportUtils.map(
-            findPatientsWithLastTipoDeDispensaTrimestralInFichaClinicaWithinRevisionPeriodA3(),
+            findPatientsFromFichaClinicaForGivenConceptsDenominadorCategoria15ARF6(),
             mappingEndRevisionDate));
 
     definition.addSearch(
@@ -569,7 +843,113 @@ public class MQCategory15CohortQueries {
     definition.addSearch(
         "F", EptsReportUtils.map(mQCohortQueries.findPatientsWhoTransferedOutRF07(), mappings));
 
-    definition.setCompositionString("((A2 OR A3) AND G2) NOT (C OR D OR F)");
+    definition.addSearch(
+        "CV", EptsReportUtils.map(this.findPatientsWhoHaveCVOverThan10000Category15(), mappings));
+
+    definition.setCompositionString("(A AND G2) NOT (C OR D OR F OR CV)");
+
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "getDenominatorCategory15_Indicator_15_11")
+  public CohortDefinition getDenominatorCategory15_Indicator_15_11() {
+
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+
+    definition.setName("MQ - DenominatorCategory15_Indicator_7_And_9_And_11");
+    definition.addParameter(
+        new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "Data Fim Revisão", Date.class));
+    definition.addParameter(new Parameter("location", "location", Date.class));
+    final String mappings =
+        "startInclusionDate=${startInclusionDate},endInclusionDate=${endInclusionDate},endRevisionDate=${endRevisionDate},location=${location}";
+    final String mappingEndRevisionDate = "endRevisionDate=${endRevisionDate},location=${location}";
+
+    definition.addSearch(
+        "A",
+        EptsReportUtils.map(
+            findPatientsFromFichaClinicaForGivenConceptsDenominadorCategoria15ARF6(),
+            mappingEndRevisionDate));
+
+    definition.addSearch(
+        "CVP",
+        EptsReportUtils.map(
+            findPatientsOnDMCWhoHaveTwoVLRequestAndOneVLResultWhoOnDT(), mappingEndRevisionDate));
+
+    definition.addSearch(
+        "CVR",
+        EptsReportUtils.map(
+            findPatientsOnDMCWhoOnDTAndHaveTwoRequestVLAndVLOnLabForm(), mappingEndRevisionDate));
+
+    definition.addSearch(
+        "G2",
+        EptsReportUtils.map(
+            resumoMensalCohortQueries.findPatientsWhoAreCurrentlyEnrolledOnArtMOHB13(),
+            "endDate=${endRevisionDate},location=${location}"));
+
+    definition.addSearch(
+        "C", EptsReportUtils.map(findPatientsWhoArePregnantSpecificForCategory15(), mappings));
+
+    definition.addSearch(
+        "D", EptsReportUtils.map(findPatientsWhoAreBreastfeedingSpecificForCategory15(), mappings));
+
+    definition.addSearch(
+        "F", EptsReportUtils.map(mQCohortQueries.findPatientsWhoTransferedOutRF07(), mappings));
+
+    definition.addSearch(
+        "CV", EptsReportUtils.map(this.findPatientsWhoHaveCVOverThan10000Category15(), mappings));
+
+    definition.setCompositionString("(A AND G2 AND CVP OR CVR) NOT (C OR D OR F OR CV)");
+
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "getDenominatorCategory15_Indicator_15")
+  public CohortDefinition getDenominatorCategory15_Indicator_15_9() {
+
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+
+    definition.setName("MQ - DenominatorCategory15_Indicator_7_And_9_And_11");
+    definition.addParameter(
+        new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "Data Fim Revisão", Date.class));
+    definition.addParameter(new Parameter("location", "location", Date.class));
+    final String mappings =
+        "startInclusionDate=${startInclusionDate},endInclusionDate=${endInclusionDate},endRevisionDate=${endRevisionDate},location=${location}";
+    final String mappingEndRevisionDate = "endRevisionDate=${endRevisionDate},location=${location}";
+
+    definition.addSearch(
+        "A",
+        EptsReportUtils.map(
+            findPatientsFromFichaClinicaForGivenConceptsDenominadorCategoria15ARF6(),
+            mappingEndRevisionDate));
+
+    definition.addSearch(
+        "CVR",
+        EptsReportUtils.map(
+            findPatientsOnDMCWhoHaveTwoVLRequestAndOneVLResultWhoOnDT(), mappingEndRevisionDate));
+
+    definition.addSearch(
+        "G2",
+        EptsReportUtils.map(
+            resumoMensalCohortQueries.findPatientsWhoAreCurrentlyEnrolledOnArtMOHB13(),
+            "endDate=${endRevisionDate},location=${location}"));
+
+    definition.addSearch(
+        "C", EptsReportUtils.map(findPatientsWhoArePregnantSpecificForCategory15(), mappings));
+
+    definition.addSearch(
+        "D", EptsReportUtils.map(findPatientsWhoAreBreastfeedingSpecificForCategory15(), mappings));
+
+    definition.addSearch(
+        "F", EptsReportUtils.map(mQCohortQueries.findPatientsWhoTransferedOutRF07(), mappings));
+
+    definition.addSearch(
+        "CV", EptsReportUtils.map(this.findPatientsWhoHaveCVOverThan10000Category15(), mappings));
+
+    definition.setCompositionString("(A AND G2 AND CVR) NOT (C OR D OR F OR CV)");
 
     return definition;
   }
@@ -590,15 +970,9 @@ public class MQCategory15CohortQueries {
     final String mappingEndRevisionDate = "endRevisionDate=${endRevisionDate},location=${location}";
 
     definition.addSearch(
-        "A2",
+        "A",
         EptsReportUtils.map(
-            findPatientsWithDispensaTrimestralInicarInFichaClinicaDuringTheRevisionPeriodA2(),
-            mappingEndRevisionDate));
-
-    definition.addSearch(
-        "A3",
-        EptsReportUtils.map(
-            findPatientsWithLastTipoDeDispensaTrimestralInFichaClinicaWithinRevisionPeriodA3(),
+            findPatientsFromFichaClinicaForGivenConceptsDenominadorCategoria15ARF6(),
             mappingEndRevisionDate));
 
     definition.addSearch(
@@ -610,7 +984,10 @@ public class MQCategory15CohortQueries {
     definition.addSearch(
         "F", EptsReportUtils.map(mQCohortQueries.findPatientsWhoTransferedOutRF07(), mappings));
 
-    definition.setCompositionString("(A2 OR A3) NOT (C OR D OR F)");
+    definition.addSearch(
+        "E", EptsReportUtils.map(mQCohortQueries.getPatientsWhoDiedEndRevisioDate(), mappings));
+
+    definition.setCompositionString("A NOT (C OR D OR F OR E)");
 
     return definition;
   }
@@ -631,15 +1008,9 @@ public class MQCategory15CohortQueries {
     final String mappingEndRevisionDate = "endRevisionDate=${endRevisionDate},location=${location}";
 
     definition.addSearch(
-        "A2",
+        "A",
         EptsReportUtils.map(
-            findPatientsWithDispensaTrimestralInicarInFichaClinicaDuringTheRevisionPeriodA2(),
-            mappingEndRevisionDate));
-
-    definition.addSearch(
-        "A3",
-        EptsReportUtils.map(
-            findPatientsWithLastTipoDeDispensaTrimestralInFichaClinicaWithinRevisionPeriodA3(),
+            findPatientsFromFichaClinicaForGivenConceptsDenominadorCategoria15ARF6(),
             mappingEndRevisionDate));
 
     definition.addSearch(
@@ -657,7 +1028,113 @@ public class MQCategory15CohortQueries {
     definition.addSearch(
         "F", EptsReportUtils.map(mQCohortQueries.findPatientsWhoTransferedOutRF07(), mappings));
 
-    definition.setCompositionString("((A2 OR A3) AND G2) NOT (C OR D OR F)");
+    definition.addSearch(
+        "CV", EptsReportUtils.map(this.findPatientsWhoHaveCVOverThan10000Category15(), mappings));
+
+    definition.setCompositionString("(A AND G2) NOT (C OR D OR F OR CV)");
+
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "getDenominatorCategory15_Indicator_15_12")
+  public CohortDefinition getDenominatorCategory15_Indicator_15_12() {
+
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+
+    definition.setName("MQ - DenominatorCategory15_Indicator_8_And_10_And_12");
+    definition.addParameter(
+        new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "Data Fim Revisão", Date.class));
+    definition.addParameter(new Parameter("location", "location", Date.class));
+    final String mappings =
+        "startInclusionDate=${startInclusionDate},endInclusionDate=${endInclusionDate},endRevisionDate=${endRevisionDate},location=${location}";
+    final String mappingEndRevisionDate = "endRevisionDate=${endRevisionDate},location=${location}";
+
+    definition.addSearch(
+        "A",
+        EptsReportUtils.map(
+            findPatientsFromFichaClinicaForGivenConceptsDenominadorCategoria15ARF6(),
+            mappingEndRevisionDate));
+
+    definition.addSearch(
+        "G2",
+        EptsReportUtils.map(
+            resumoMensalCohortQueries.findPatientsWhoAreCurrentlyEnrolledOnArtMOHB13(),
+            "endDate=${endRevisionDate},location=${location}"));
+
+    definition.addSearch(
+        "CVP",
+        EptsReportUtils.map(
+            findPatientsOnDMCWhoHaveTwoVLRequestAndOneVLResultWhoOnDT(), mappingEndRevisionDate));
+
+    definition.addSearch(
+        "CVR",
+        EptsReportUtils.map(
+            findPatientsOnDMCWhoOnDTAndHaveTwoRequestVLAndVLOnLabForm(), mappingEndRevisionDate));
+
+    definition.addSearch(
+        "C", EptsReportUtils.map(findPatientsWhoArePregnantSpecificForCategory15(), mappings));
+
+    definition.addSearch(
+        "D", EptsReportUtils.map(findPatientsWhoAreBreastfeedingSpecificForCategory15(), mappings));
+
+    definition.addSearch(
+        "F", EptsReportUtils.map(mQCohortQueries.findPatientsWhoTransferedOutRF07(), mappings));
+
+    definition.addSearch(
+        "CV", EptsReportUtils.map(this.findPatientsWhoHaveCVOverThan10000Category15(), mappings));
+
+    definition.setCompositionString("(A AND G2 OR CVP OR CVR) NOT (C OR D OR F OR CV)");
+
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "getDenominatorCategory15_Indicator_15_10")
+  public CohortDefinition getDenominatorCategory15_Indicator_15_10() {
+
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+
+    definition.setName("MQ - DenominatorCategory15_Indicator_8_And_10_And_12");
+    definition.addParameter(
+        new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "Data Fim Revisão", Date.class));
+    definition.addParameter(new Parameter("location", "location", Date.class));
+    final String mappings =
+        "startInclusionDate=${startInclusionDate},endInclusionDate=${endInclusionDate},endRevisionDate=${endRevisionDate},location=${location}";
+    final String mappingEndRevisionDate = "endRevisionDate=${endRevisionDate},location=${location}";
+
+    definition.addSearch(
+        "A",
+        EptsReportUtils.map(
+            findPatientsFromFichaClinicaForGivenConceptsDenominadorCategoria15ARF6(),
+            mappingEndRevisionDate));
+
+    definition.addSearch(
+        "CVP",
+        EptsReportUtils.map(
+            findPatientsOnDMCWhoHaveTwoVLRequestAndOneVLResultWhoOnDT(), mappingEndRevisionDate));
+
+    definition.addSearch(
+        "G2",
+        EptsReportUtils.map(
+            resumoMensalCohortQueries.findPatientsWhoAreCurrentlyEnrolledOnArtMOHB13(),
+            "endDate=${endRevisionDate},location=${location}"));
+
+    definition.addSearch(
+        "C", EptsReportUtils.map(findPatientsWhoArePregnantSpecificForCategory15(), mappings));
+
+    definition.addSearch(
+        "D", EptsReportUtils.map(findPatientsWhoAreBreastfeedingSpecificForCategory15(), mappings));
+
+    definition.addSearch(
+        "F", EptsReportUtils.map(mQCohortQueries.findPatientsWhoTransferedOutRF07(), mappings));
+
+    definition.addSearch(
+        "CV", EptsReportUtils.map(this.findPatientsWhoHaveCVOverThan10000Category15(), mappings));
+
+    definition.setCompositionString("(A AND G2 OR CVP) NOT (C OR D OR F OR CV)");
 
     return definition;
   }
@@ -668,11 +1145,70 @@ public class MQCategory15CohortQueries {
     final SqlCohortDefinition definition = new SqlCohortDefinition();
 
     definition.setName("MQ - PatientsFromFichaClinicaForGivenConceptsDenominadorCategoria15A");
-    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
-    definition.addParameter(new Parameter("location", "Location", Location.class));
+    definition.addParameter(
+        new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "Data Fim Revisão", Date.class));
+    definition.addParameter(new Parameter("location", "location", Date.class));
     String query =
         MQCategory15QueriesInterface.QUERY
             .findPatientsFromFichaClinicaForGivenConceptsDenominadorCategoria15A;
+    definition.setQuery(String.format(query));
+    return definition;
+  }
+
+  @DocumentedDefinition(
+      value = "findPatientsFromFichaClinicaForGivenConceptsDenominadorCategoria15ARF6")
+  private CohortDefinition
+      findPatientsFromFichaClinicaForGivenConceptsDenominadorCategoria15ARF6() {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName("MQ - PatientsFromFichaClinicaForGivenConceptsDenominadorCategoria15A");
+    definition.addParameter(
+        new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "Data Fim Revisão", Date.class));
+    definition.addParameter(new Parameter("location", "location", Date.class));
+    String query =
+        MQCategory15QueriesInterface.QUERY
+            .findPatientsFromFichaClinicaForGivenConceptsDenominadorCategoria15ARF6;
+    definition.setQuery(String.format(query, CONCEPT_DT_23730));
+    return definition;
+  }
+
+  @DocumentedDefinition(
+      value = "findPatientsFromFichaClinicaForGivenConceptsDenominadorCategoria15ARF5")
+  private CohortDefinition
+      findPatientsFromFichaClinicaForGivenConceptsDenominadorCategoria15ARF5() {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName("MQ - PatientsFromFichaClinicaForGivenConceptsDenominadorCategoria15A");
+    definition.addParameter(
+        new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "Data Fim Revisão", Date.class));
+    definition.addParameter(new Parameter("location", "location", Date.class));
+    String query =
+        MQCategory15QueriesInterface.QUERY
+            .findPatientsFromFichaClinicaForGivenConceptsDenominadorCategoria15ARF5;
+    definition.setQuery(query);
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "findPatientsWhoHaveCVOverThan10000Category15")
+  private CohortDefinition findPatientsWhoHaveCVOverThan10000Category15() {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName("MQ - CV Over Than 1000");
+    definition.addParameter(
+        new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "Data Fim Revisão", Date.class));
+    definition.addParameter(new Parameter("location", "location", Date.class));
+    String query = MQCategory15QueriesInterface.QUERY.findPatientsWhoHaveCVOverThan10000Category15;
     definition.setQuery(query);
     return definition;
   }
@@ -687,8 +1223,11 @@ public class MQCategory15CohortQueries {
 
     definition.setName(
         "MQ - PatientsWithLastGaacOrDispensaTrimestralInClinicaForGivenConceptsDenominadorCategoria15B1");
-    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
-    definition.addParameter(new Parameter("location", "Location", Location.class));
+    definition.addParameter(
+        new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "Data Fim Revisão", Date.class));
+    definition.addParameter(new Parameter("location", "location", Date.class));
     String query =
         MQCategory15QueriesInterface.QUERY
             .findPatientsWithLastGaacOrLastDispensaTrimestralRegisteredInFichaClinicaWithinRevisionPeriodB1;
@@ -698,6 +1237,23 @@ public class MQCategory15CohortQueries {
 
   @DocumentedDefinition(value = "findPatientsWhoArePregnantSpecificForCategory15")
   private CohortDefinition findPatientsWhoArePregnantSpecificForCategory15() {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName("findPatientsWhoArePregnantSpecificForCategory15");
+    definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
+
+    String query =
+        MQCategory15QueriesInterface.QUERY.findPatientsWhoArePregnantSpecificForCategory15;
+    definition.setQuery(query);
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "findPatientsWhoArePregnantSpecificForCategory15")
+  private CohortDefinition getPatientsWhoDiedCategory15RF17() {
 
     final SqlCohortDefinition definition = new SqlCohortDefinition();
 
@@ -766,42 +1322,6 @@ public class MQCategory15CohortQueries {
     return definition;
   }
 
-  @DocumentedDefinition(
-      value = "PatientsWithDispensaTrimestralInicarInFichaClinicaDuringTheRevisionPeriodA2")
-  private CohortDefinition
-      findPatientsWithDispensaTrimestralInicarInFichaClinicaDuringTheRevisionPeriodA2() {
-
-    final SqlCohortDefinition definition = new SqlCohortDefinition();
-
-    definition.setName(
-        "MQ - PatientsWithDispensaTrimestralInicarInFichaClinicaDuringTheRevisionPeriodA2");
-    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
-    definition.addParameter(new Parameter("location", "Location", Location.class));
-    String query =
-        MQCategory15QueriesInterface.QUERY
-            .findPatientsWithDispensaTrimestralInicarInFichaClinicaDuringTheRevisionPeriodA2;
-    definition.setQuery(query);
-    return definition;
-  }
-
-  @DocumentedDefinition(
-      value = "PatientsWithLastTipoDeDispensaTrimestralInFichaClinicaWithinRevisionPeriodA3")
-  private CohortDefinition
-      findPatientsWithLastTipoDeDispensaTrimestralInFichaClinicaWithinRevisionPeriodA3() {
-
-    final SqlCohortDefinition definition = new SqlCohortDefinition();
-
-    definition.setName(
-        "MQ - PatientsWithLastTipoDeDispensaTrimestralInFichaClinicaWithinRevisionPeriodA3");
-    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
-    definition.addParameter(new Parameter("location", "Location", Location.class));
-    String query =
-        MQCategory15QueriesInterface.QUERY
-            .findPatientsWithLastTipoDeDispensaTrimestralInFichaClinicaWithinRevisionPeriodA3;
-    definition.setQuery(query);
-    return definition;
-  }
-
   @DocumentedDefinition(value = "PatientsWhoAreNewlyEnrolledOnARTByAgeUsingAgeRange")
   private CohortDefinition findPatientsWhoAreNewlyEnrolledOnARTByAgeUsingAgeRange(
       int startAge, int endAge) {
@@ -865,6 +1385,126 @@ public class MQCategory15CohortQueries {
     return definition;
   }
 
+  @DocumentedDefinition(value = "findPatientsWhoHaveCD4OverThan1000")
+  private CohortDefinition findPatientsWhoHaveCD4OverThan1000() {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName(String.format("MQ - findPatientsWhoHasRegisteredAsIniciarInAtLeastOneMDS "));
+    definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
+
+    String query = MQCategory15QueriesInterface.QUERY.findPatientsWhoHaveCD4OverThan1000;
+
+    definition.setQuery(query);
+
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "findPatientsWhoHaveCVBiggerThan1000")
+  private CohortDefinition findPatientsWhoHaveCVBiggerThan1000() {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName(String.format("MQ - findPatientsWhoHasRegisteredAsIniciarInAtLeastOneMDS "));
+    definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
+
+    String query = MQCategory15QueriesInterface.QUERY.findPatientsWhoHaveCVBiggerThan1000;
+
+    definition.setQuery(query);
+
+    return definition;
+  }
+
+  private CohortDefinition findPatientsWhoHaveLastConsultationOnFichaClinicaAndWhoOnMDCARF44() {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName(
+        String.format("MQ - findPatientsWhoHaveLastConsultationOnFichaClinicaAndWhoOnMDCARF44 "));
+    definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
+
+    String query =
+        MQCategory15QueriesInterface.QUERY
+            .findPatientsWhoHaveLastConsultationOnFichaClinicaAndWhoOnMDCARF44;
+
+    definition.setQuery(query);
+
+    return definition;
+  }
+
+  private CohortDefinition findPatientsWhoHaveLastConsultationOnFichaClinicaAndWhoOnMDCRF36() {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName(
+        String.format("MQ - findPatientsWhoHaveLastConsultationOnFichaClinicaAndWhoOnMDCARF44 "));
+    definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
+
+    String query =
+        MQCategory15QueriesInterface.QUERY
+            .findPatientsWhoHaveLastConsultationOnFichaClinicaAndWhoOnMDCRF36;
+
+    definition.setQuery(query);
+
+    return definition;
+  }
+
+  private CohortDefinition findPatientsWhoOnARTAndHaveCVBiggerThan1000AndWhoSuspendTratment() {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName(
+        String.format("MQ - findPatientsWhoOnARTAndHaveCVBiggerThan1000AndWhoSuspendTratment "));
+    definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
+
+    String query =
+        MQCategory15QueriesInterface.QUERY
+            .findPatientsWhoOnARTAndHaveCVBiggerThan1000AndWhoSuspendTratment;
+
+    definition.setQuery(query);
+
+    return definition;
+  }
+
+  @DocumentedDefinition(
+      value =
+          "findPatientsRegisteredInOneMDSForStablePatientsAndHadCVBetween18And24nMonthsAfterCVLessThan1000")
+  public CohortDefinition
+      findPatientsRegisteredInOneMDSForStablePatientsAndHadCVBetween18And24nMonthsAfterCVLessThan1000() {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName(
+        "MI Category 15 - Get patients registered in one MDS stable patients and had CV between 11 and 24 after CV<1000");
+    definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
+
+    String query =
+        MQCategory15QueriesInterface.QUERY
+            .findPatientsRegisteredInOneMDSForStablePatientsAndHadCVBetween18And24nMonthsAfterCVLessThan1000;
+
+    definition.setQuery(query);
+
+    return definition;
+  }
+
   @DocumentedDefinition(
       value =
           "findPatientsElegibleForMDSForStablePatientsWithClinicalConsultationInTheRevisionPeriod_Denominator_15_13")
@@ -915,23 +1555,15 @@ public class MQCategory15CohortQueries {
             this.findPatientsWhoAreBreastfeeding14MonthsSpecificForCategory15(), mappings));
 
     definition.addSearch(
-        "F",
-        EptsReportUtils.map(
-            mICategory15CohortQueries
-                .findPatientsWithTheLastCD4LessThan200OrEqualInClinicalConsultation(),
-            mappings));
+        "F", EptsReportUtils.map(this.findPatientsWhoHaveCD4OverThan1000(), mappings));
 
     definition.addSearch(
-        "G",
-        EptsReportUtils.map(
-            mICategory15CohortQueries
-                .findPatientsWithTheLastCargaViralGreaterOrEqualThan1000InClinicalConsultation(),
-            mappings));
+        "G", EptsReportUtils.map(this.findPatientsWhoHaveCVBiggerThan1000(), mappings));
 
     definition.addSearch(
         "J",
         EptsReportUtils.map(
-            mICategory15CohortQueries.findPatientsWhoAreActiveOnArtAndInAtleastOneDSD(), mappings));
+            this.findPatientsWhoHaveLastConsultationOnFichaClinicaAndWhoOnMDCARF44(), mappings));
 
     definition.setCompositionString("(A AND B1 AND E) NOT (C OR D OR F OR G OR J)");
 
@@ -969,7 +1601,8 @@ public class MQCategory15CohortQueries {
 
     definition.addSearch(
         "K",
-        EptsReportUtils.map(this.findPatientsWhoHasRegisteredAsIniciarInAtLeastOneMDS(), mappings));
+        EptsReportUtils.map(
+            this.findPatientsWhoHaveLastConsultationOnFichaClinicaAndWhoOnMDCRF36(), mappings));
 
     definition.setCompositionString("(DENOMINATOR-15-13 AND K)");
 
@@ -995,6 +1628,8 @@ public class MQCategory15CohortQueries {
     final String mappings =
         "startInclusionDate=${endRevisionDate-12m+1d},endInclusionDate=${endRevisionDate},endRevisionDate=${endRevisionDate},location=${location}";
 
+    final String mappingsMQ = "endRevisionDate=${endRevisionDate},location=${location}";
+
     definition.addSearch(
         "A",
         EptsReportUtils.map(
@@ -1005,7 +1640,7 @@ public class MQCategory15CohortQueries {
     definition.addSearch(
         "J",
         EptsReportUtils.map(
-            mICategory15CohortQueries.findPatientsWhoAreActiveOnArtAndInAtleastOneDSD(), mappings));
+            this.findPatientsWhoHaveLastConsultationOnFichaClinicaAndWhoOnMDCARF44(), mappingsMQ));
 
     definition.addSearch(
         "H",
@@ -1051,7 +1686,8 @@ public class MQCategory15CohortQueries {
 
     definition.addSearch(
         "L",
-        EptsReportUtils.map(this.findPatientsWhoHasRegisteredAsFimInAtLeastOneMDS(), mappings));
+        EptsReportUtils.map(
+            this.findPatientsWhoOnARTAndHaveCVBiggerThan1000AndWhoSuspendTratment(), mappings));
 
     definition.setCompositionString("(DENOMINATOR-15-14 AND L)");
 
@@ -1076,6 +1712,8 @@ public class MQCategory15CohortQueries {
     final String mappings =
         "startInclusionDate=${endRevisionDate-12m+1d},endInclusionDate=${endRevisionDate},endRevisionDate=${endRevisionDate},location=${location}";
 
+    final String mappingsMQ = "endRevisionDate=${endRevisionDate},location=${location}";
+
     definition.addSearch(
         "A",
         EptsReportUtils.map(
@@ -1086,7 +1724,7 @@ public class MQCategory15CohortQueries {
     definition.addSearch(
         "J",
         EptsReportUtils.map(
-            mICategory15CohortQueries.findPatientsWhoAreActiveOnArtAndInAtleastOneDSD(), mappings));
+            this.findPatientsWhoHaveLastConsultationOnFichaClinicaAndWhoOnMDCARF44(), mappingsMQ));
 
     definition.addSearch(
         "B2",
@@ -1139,7 +1777,7 @@ public class MQCategory15CohortQueries {
     definition.addSearch(
         "I",
         EptsReportUtils.map(
-            mICategory15CohortQueries
+            this
                 .findPatientsRegisteredInOneMDSForStablePatientsAndHadCVBetween18And24nMonthsAfterCVLessThan1000(),
             mappings));
 

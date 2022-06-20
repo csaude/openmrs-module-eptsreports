@@ -299,7 +299,7 @@ public interface TxTbPrevQueriesInterface {
               + "      			and o.concept_id=23866 and o.value_datetime is not null and  o.value_datetime<=:endDate and e.location_id=:location and o.value_datetime > '0000-00-00 00:00' group by p.patient_id "
               + "      	) inicio_real group by patient_id 																															"
               + "    ) inicioTarv on inicioTarv.patient_id = inicio_TPT.patient_id 																									"
-              + "																																									    ";
+              + "																																										";
 
       switch (disaggregationType) {
         case NEWLY_ENROLLED:

@@ -36,17 +36,32 @@ public class TXTBMontlyCascadeReporCohortQueries {
 
   @DocumentedDefinition(value = "patientsWhoAreCurrentyEnrolledOnArtInTheLastSixMonths")
   public CohortDefinition getPatientsEnrollendOnARTForTheLastSixMonths() {
-    final SqlCohortDefinition definition = new SqlCohortDefinition();
+    final SqlCohortDefinition newlyOnArt = new SqlCohortDefinition();
 
-    definition.setName("Patient On ART In The Last 6 Months");
-    definition.addParameter(new Parameter("endDate", "End Date", Date.class));
-    definition.addParameter(new Parameter("location", "location", Location.class));
+    final String mappings = "endDate=${endDate},location=${location}";
+    newlyOnArt.setName("Patient On ART In The Last 6 Months");
+    newlyOnArt.addParameter(new Parameter("endDate", "End Date", Date.class));
+    newlyOnArt.addParameter(new Parameter("location", "location", Location.class));
 
-    definition.setQuery(
+    newlyOnArt.setQuery(
         TXTBMontlyCascadeReportQueries.QUERY.findPatientsWhoAreCurrentlyEnrolledOnARTByPeriod(
             EnrollmentPeriod.NEWLY));
 
-    return definition;
+    final CompositionCohortDefinition composiiton = new CompositionCohortDefinition();
+
+    composiiton.setName("Patient On ART In The Last 6 Months");
+    composiiton.addParameter(new Parameter("endDate", "End Date", Date.class));
+    composiiton.addParameter(new Parameter("location", "location", Location.class));
+
+    composiiton.addSearch("newly-or-art", EptsReportUtils.map(newlyOnArt, mappings));
+
+    composiiton.addSearch(
+        "tx-curr",
+        EptsReportUtils.map(this.txCurrCohortQueries.findPatientsWhoAreActiveOnART(), mappings));
+
+    composiiton.setCompositionString("consultationsLast6Months and tx-curr");
+
+    return newlyOnArt;
   }
 
   @DocumentedDefinition(value = "patientsWhoAreCurrentlyEnrolledOnARTInForMoreThanSixMonths")
@@ -69,10 +84,14 @@ public class TXTBMontlyCascadeReporCohortQueries {
             mappings));
 
     composiiton.addSearch(
+        "tx-curr",
+        EptsReportUtils.map(this.txCurrCohortQueries.findPatientsWhoAreActiveOnART(), mappings));
+
+    composiiton.addSearch(
         "newlyOnArt",
         EptsReportUtils.map(this.getPatientsEnrollendOnARTForTheLastSixMonths(), mappings));
 
-    composiiton.setCompositionString("previouslyOnAT NOT newlyOnArt");
+    composiiton.setCompositionString("(previouslyOnAT AND tx-curr) NOT newlyOnArt");
 
     return composiiton;
   }

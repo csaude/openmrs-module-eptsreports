@@ -77,14 +77,28 @@ public class TxMLPatientsWhoMissedNextApointmentCalculation extends TxMLPatientC
 
     EvaluationContext newContext = this.getNewEvaluationContext(parameters);
 
-    this.excludeTransferredOutFromPreviousReportingPeriod(newContext, resultMap);
-    this.excludeDeadFromPreviousReportingPeriod(newContext, resultMap);
+    this.excludeTransferredOutFromPreviousReportingPeriod(
+        newContext,
+        resultMap,
+        lastFilaCalculationResult,
+        lastSeguimentoCalculationResult,
+        lastRecepcaoLevantamentoResult);
+    this.excludeDeadFromPreviousReportingPeriod(
+        newContext,
+        resultMap,
+        lastFilaCalculationResult,
+        lastSeguimentoCalculationResult,
+        lastRecepcaoLevantamentoResult);
 
     return resultMap;
   }
 
   private void excludeTransferredOutFromPreviousReportingPeriod(
-      EvaluationContext context, CalculationResultMap numerator) {
+      EvaluationContext context,
+      CalculationResultMap numerator,
+      CalculationResultMap lastFilaCalculationResult,
+      CalculationResultMap lastSeguimentoCalculationResult,
+      CalculationResultMap lastRecepcaoLevantamentoResult) {
 
     Map<Integer, Date> transferedOutByProgram =
         this.disaggregationProcessor
@@ -113,26 +127,29 @@ public class TxMLPatientsWhoMissedNextApointmentCalculation extends TxMLPatientC
                     this.hivMetadata.getStateOfStayPriorArtPatient().getConceptId(),
                     this.hivMetadata.getStateOfStayOfArtPatient().getConceptId()),
                 this.hivMetadata.getTransferOutToAnotherFacilityConcept());
-    //
-    // Map<Integer, Date> transferredOutInHomeVisitForm =
-    //
-    // this.disaggregationProcessor.findMapMaxObsDatetimeByEncounterAndQuestionsAndAnswersInPeriod(
-    // context,
-    // this.hivMetadata.getBuscaActivaEncounterType(),
-    // Arrays.asList(this.hivMetadata.getDefaultingMotiveConcept().getConceptId()),
-    // Arrays.asList(
-    // this.hivMetadata.getTransferOutToAnotherFacilityConcept().getConceptId(),
-    // this.hivMetadata.getAutoTransfer().getConceptId()));
-    //
-    // transferredOutInHomeVisitForm =
-    // TxMLPatientCalculation.excludeEarlyHomeVisitDatesFromNextExpectedDateNumerator(
-    // numerator, transferredOutInHomeVisitForm);
+
+    Map<Integer, Date> transferredOutInHomeVisitForm =
+        this.disaggregationProcessor.findMapMaxObsDatetimeByEncounterAndQuestionsAndAnswersInPeriod(
+            context,
+            this.hivMetadata.getBuscaActivaEncounterType(),
+            Arrays.asList(this.hivMetadata.getDefaultingMotiveConcept().getConceptId()),
+            Arrays.asList(
+                this.hivMetadata.getTransferOutToAnotherFacilityConcept().getConceptId(),
+                this.hivMetadata.getAutoTransfer().getConceptId()));
+
+    transferredOutInHomeVisitForm =
+        TxMLPatientCalculation.excludeEarlyHomeVisitDatesFromNextExpectedDateNumerator(
+            numerator,
+            transferredOutInHomeVisitForm,
+            lastFilaCalculationResult,
+            lastSeguimentoCalculationResult,
+            lastRecepcaoLevantamentoResult);
 
     @SuppressWarnings("unchecked")
     Map<Integer, Date> maxResultFromAllSources =
         CalculationProcessorUtils.getMaxMapDateByPatient(
             transferedOutByProgram,
-            // transferredOutInHomeVisitForm,
+            transferredOutInHomeVisitForm,
             transferrdOutInFichaClinica,
             transferredOutInFichaResumo);
 
@@ -158,7 +175,11 @@ public class TxMLPatientsWhoMissedNextApointmentCalculation extends TxMLPatientC
   }
 
   private void excludeDeadFromPreviousReportingPeriod(
-      EvaluationContext context, CalculationResultMap numerator) {
+      EvaluationContext context,
+      CalculationResultMap numerator,
+      CalculationResultMap lastFilaCalculationResult,
+      CalculationResultMap lastSeguimentoCalculationResult,
+      CalculationResultMap lastRecepcaoLevantamentoResult) {
 
     Map<Integer, Date> patientsDeadInArtProgram =
         this.disaggregationProcessor
@@ -200,9 +221,13 @@ public class TxMLPatientsWhoMissedNextApointmentCalculation extends TxMLPatientC
                     this.hivMetadata.getStateOfStayOfArtPatient().getConceptId()),
                 this.hivMetadata.getPatientHasDiedConcept());
 
-    //    deadInHomeVisitForm =
-    //        TxMLPatientCalculation.excludeEarlyHomeVisitDatesFromNextExpectedDateNumerator(
-    //            numerator, deadInHomeVisitForm);
+    deadInHomeVisitForm =
+        TxMLPatientCalculation.excludeEarlyHomeVisitDatesFromNextExpectedDateNumerator(
+            numerator,
+            deadInHomeVisitForm,
+            lastFilaCalculationResult,
+            lastSeguimentoCalculationResult,
+            lastRecepcaoLevantamentoResult);
 
     @SuppressWarnings("unchecked")
     Map<Integer, Date> maxResultFromAllSources =

@@ -13,12 +13,15 @@
  */
 package org.openmrs.module.eptsreports.reporting.library.datasets.data.quality.duplicate;
 
+import java.util.Date;
+import org.openmrs.Location;
 import org.openmrs.module.eptsreports.reporting.library.datasets.BaseDataSet;
 import org.openmrs.module.eptsreports.reporting.library.queries.data.quality.duplicate.EC1DuplicateQueries;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
 import org.openmrs.module.reporting.dataset.definition.DataSetDefinition;
 import org.openmrs.module.reporting.dataset.definition.SqlDataSetDefinition;
+import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -36,6 +39,9 @@ public class EC1PatientListDuplicateDataset extends BaseDataSet {
 
     final SqlCohortDefinition definition = new SqlCohortDefinition();
     definition.setName("EC1");
+    definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
     definition.setQuery(EC1DuplicateQueries.QUERY.getEc1Total);
 
     return definition;

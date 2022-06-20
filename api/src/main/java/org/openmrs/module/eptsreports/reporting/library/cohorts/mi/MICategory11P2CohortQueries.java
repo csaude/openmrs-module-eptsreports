@@ -184,13 +184,13 @@ public class MICategory11P2CohortQueries {
 
   @DocumentedDefinition(
       value =
-          "findPregnantOnARTStartedExcludingBreastfeedingAndTransferredInTRANSFEREDOUTWITH1000CVCategory11DenominatorVersion2")
+          "findPregnantOnARTStartedExcludingBreastfeedingAndTRANSFEREDOUTWITH1000CVCategory11DenominatorP2")
   public CohortDefinition
-      findPregnantOnARTStartedExcludingBreastfeedingAndTransferredInTRANSFEREDOUTWITH1000CVCategory11DenominatorP2() {
+      findPregnantOnARTStartedExcludingBreastfeedingAndTRANSFEREDOUTWITH1000CVCategory11DenominatorP2() {
     final CompositionCohortDefinition definition = new CompositionCohortDefinition();
 
     definition.setName(
-        "findPregnantOnARTStartedExcludingBreastfeedingAndTransferredInTRANSFEREDOUTWITH1000CVCategory11DenominatorVersion2");
+        "findPregnantOnARTStartedExcludingBreastfeedingAndTRANSFEREDOUTWITH1000CVCategory11DenominatorP2");
 
     definition.addParameter(
         new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
@@ -221,18 +221,11 @@ public class MICategory11P2CohortQueries {
             mappingsMIB1));
 
     definition.addSearch(
-        "TRANSFERED-IN",
-        EptsReportUtils.map(
-            this.mQCohortQueries
-                .findPatientsWhoWhereMarkedAsTransferedInAndOnARTOnInAPeriodOnMasterCardRF06(),
-            mappings));
-
-    definition.addSearch(
         "TRANSFERED-OUT",
         EptsReportUtils.map(this.mQCohortQueries.findPatientsWhoTransferedOutRF07(), mappings));
 
     definition.setCompositionString(
-        "(B1 AND PREGNANT-B4) NOT (BREASTFEEDING-B5 OR TRANSFERED-IN OR TRANSFERED-OUT)");
+        "(B1 AND PREGNANT-B4) NOT (BREASTFEEDING-B5 OR TRANSFERED-OUT)");
 
     return definition;
   }
@@ -257,6 +250,9 @@ public class MICategory11P2CohortQueries {
     final String mappings =
         "startInclusionDate=${endRevisionDate},endInclusionDate=${endRevisionDate},endRevisionDate=${endRevisionDate},location=${location}";
 
+    final String mappingsMI =
+        "startInclusionDate=${endRevisionDate-5m+1d},endInclusionDate=${endRevisionDate-4m},endRevisionDate=${endRevisionDate},location=${location}";
+
     definition.addSearch(
         "DENOMINADOR",
         EptsReportUtils.map(
@@ -269,7 +265,7 @@ public class MICategory11P2CohortQueries {
         EptsReportUtils.map(
             this
                 .findPatientsOnARTWithMinimum3APSSFollowupConsultationsIntheFirst3MonthsAfterStartingARTCategory11Numerator(),
-            mappings));
+            mappingsMI));
 
     definition.setCompositionString("(DENOMINADOR AND G-APSS-PP)");
 
@@ -278,14 +274,14 @@ public class MICategory11P2CohortQueries {
 
   @DocumentedDefinition(
       value =
-          "findPregnantOnARTStartedExcludingPregantAndBreastfeedingAndTransferredInTRANSFEREDOUTWITH1000CVCategory11NUMERATOR")
+          "findPregnantOnARTStartedExcludingPregantAndBreastfeedingAndTRANSFEREDOUTWITH1000CVCategory11NUMERATOR")
   public CohortDefinition
-      findPregnantOnARTStartedExcludingPregantAndBreastfeedingAndTransferredInTRANSFEREDOUTWITH1000CVCategory11NUMERATOR() {
+      findPregnantOnARTStartedExcludingPregantAndBreastfeedingAndTRANSFEREDOUTWITH1000CVCategory11NUMERATOR() {
 
     final CompositionCohortDefinition definition = new CompositionCohortDefinition();
 
     definition.setName(
-        "findAdultsOnARTStartedExcludingPregantAndBreastfeedingAndTransferredInTRANSFEREDOUTWITH1000CVCategory11NUMERATOR");
+        "findPregnantOnARTStartedExcludingPregantAndBreastfeedingAndTRANSFEREDOUTWITH1000CVCategory11NUMERATOR");
     definition.addParameter(
         new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
     definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
@@ -301,7 +297,7 @@ public class MICategory11P2CohortQueries {
         "DENOMINADOR",
         EptsReportUtils.map(
             this
-                .findPregnantOnARTStartedExcludingBreastfeedingAndTransferredInTRANSFEREDOUTWITH1000CVCategory11DenominatorP2(),
+                .findPregnantOnARTStartedExcludingBreastfeedingAndTRANSFEREDOUTWITH1000CVCategory11DenominatorP2(),
             mappings));
 
     definition.addSearch(

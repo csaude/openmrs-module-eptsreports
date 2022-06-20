@@ -43,9 +43,14 @@ public class MICategory7CohortQueries {
             this.mQCohortQueries.findPatientsWhoAreNewlyEnrolledOnARTRF05(), mappingsMI));
 
     definition.addSearch(
-        "START-TPI-B4",
+        "START-TPI-INH-B4",
         EptsReportUtils.map(
-            this.mQCohortQueries.findPatientWhoStartTPIDuringPeriodCategory7(), mappingsMI));
+            this.mQCohortQueries.findPatientWhoStartTPINHDuringPeriodCategory7(), mappingsMI));
+
+    definition.addSearch(
+        "START-TPI-3HP-B4",
+        EptsReportUtils.map(
+            this.mQCohortQueries.findPatientWhoStartTPINHDuringPeriodCategory7(), mappingsMI));
 
     definition.addSearch(
         "TB-ACTIVE-CAT7-B1",
@@ -65,21 +70,21 @@ public class MICategory7CohortQueries {
             this.mQCohortQueries.finPatientHaveTBTreatmentDuringPeriodCategory7(), mappingsMI));
 
     definition.addSearch(
-        "TB-ACTIVE-TPI-CAT7-H",
+        "A",
         EptsReportUtils.map(
-            this.mQCohortQueries.findPatientHaveTBACTIVEAndTPIDuringPeriodCategory7AsH(),
+            this.mQCohortQueries.findPatientWhoAreTBActiveASixMonthfterLastConsultationRF13_1(),
             mappingsMI));
 
     definition.addSearch(
-        "TB-TBSCREENING-TPI-CAT7-I",
+        "B",
         EptsReportUtils.map(
-            this.mQCohortQueries.findPatientHaveTBSCREENINGAndTPIDuringPeriodCategory7AsI(),
+            this.mQCohortQueries.findPatientWhoAreTBScreeningSixMonthfterLastConsultationRF13_1(),
             mappingsMI));
 
     definition.addSearch(
-        "TB-TREATMENT-TPI-CAT7-J",
+        "C",
         EptsReportUtils.map(
-            this.mQCohortQueries.findPatientHaveTBTREATMENTAndTPIDuringPeriodCategory7AsJ(),
+            this.mQCohortQueries.findPatientWhoAreTBTretmantSixMonthfterLastConsultationRF13_1(),
             mappingsMI));
 
     definition.addSearch(
@@ -104,7 +109,15 @@ public class MICategory7CohortQueries {
             this.mQCohortQueries.findPatientsWhoAreBreastfeedingInclusionDateRF09(), mappings));
 
     definition.setCompositionString(
-        "(START-ART-A AND START-TPI-B4) NOT (TB-ACTIVE-CAT7-B1 OR TB-SCREENING-CAT7-B2 OR TB-TREATMENT-CAT7-B3 OR TRANSFERED-IN OR TRANSFERED-OUT OR PREGNANT OR BREASTFEEDING OR TB-ACTIVE-TPI-CAT7-H OR TB-TBSCREENING-TPI-CAT7-I OR TB-TREATMENT-TPI-CAT7-J)");
+        "(START-ART-A AND (START-TPI-INH-B4 OR START-TPI-3HP-B4)) "
+            + "NOT (TB-ACTIVE-CAT7-B1 "
+            + "OR TB-SCREENING-CAT7-B2 "
+            + "OR TB-TREATMENT-CAT7-B3 "
+            + "OR TRANSFERED-IN "
+            + "OR TRANSFERED-OUT "
+            + "OR PREGNANT "
+            + "OR BREASTFEEDING "
+            + "OR A OR B OR C )");
 
     return definition;
   }
@@ -139,10 +152,16 @@ public class MICategory7CohortQueries {
             mappings));
 
     definition.addSearch(
-        "END-TPI-G",
-        EptsReportUtils.map(this.mQCohortQueries.findPatientWhoCompleteTPICategory7(), mappingsMI));
+        "END-TPI-INH-G",
+        EptsReportUtils.map(
+            this.mQCohortQueries.findPatientWhoCompleteTPIINHCategory7(), mappingsMI));
 
-    definition.setCompositionString("RF25-DENOMINATOR AND END-TPI-G");
+    definition.addSearch(
+        "END-TPI-3HP-G",
+        EptsReportUtils.map(
+            this.mQCohortQueries.findPatientWhoCompleteTPI3HPCategory7(), mappingsMI));
+
+    definition.setCompositionString("RF25-DENOMINATOR AND (END-TPI-INH-G OR END-TPI-3HP-G)");
 
     return definition;
   }
@@ -180,9 +199,9 @@ public class MICategory7CohortQueries {
             this.mQCohortQueries.findPatientsWhoAreNewlyEnrolledOnARTRF05(), mappingsMI));
 
     definition.addSearch(
-        "START-TPI-B4",
+        "START-TPI-INH-B4",
         EptsReportUtils.map(
-            this.mQCohortQueries.findPatientWhoStartTPIDuringPeriodCategory7(), mappingsMI));
+            this.mQCohortQueries.findPatientWhoStartTPINHDuringPeriodCategory7(), mappingsMI));
 
     definition.addSearch(
         "TRANSFERED-IN",
@@ -212,26 +231,8 @@ public class MICategory7CohortQueries {
         EptsReportUtils.map(
             this.mQCohortQueries.finPatientHaveTBTreatmentDuringPeriodCategory7(), mappingsMI));
 
-    definition.addSearch(
-        "TB-ACTIVE-TPI-CAT7-H",
-        EptsReportUtils.map(
-            this.mQCohortQueries.findPatientHaveTBACTIVEAndTPIDuringPeriodCategory7AsH(),
-            mappingsMI));
-
-    definition.addSearch(
-        "TB-TBSCREENING-TPI-CAT7-I",
-        EptsReportUtils.map(
-            this.mQCohortQueries.findPatientHaveTBSCREENINGAndTPIDuringPeriodCategory7AsI(),
-            mappingsMI));
-
-    definition.addSearch(
-        "TB-TREATMENT-TPI-CAT7-J",
-        EptsReportUtils.map(
-            this.mQCohortQueries.findPatientHaveTBTREATMENTAndTPIDuringPeriodCategory7AsJ(),
-            mappingsMI));
-
     definition.setCompositionString(
-        "(PREGNANT AND START-TPI-B4 AND START-ART-A) NOT (TB-ACTIVE-CAT7-B1 OR TB-SCREENING-CAT7-B2 OR TB-TREATMENT-CAT7-B3 OR TRANSFERED-IN OR TRANSFERED-OUT OR TB-ACTIVE-TPI-CAT7-H OR TB-TBSCREENING-TPI-CAT7-I OR TB-TREATMENT-TPI-CAT7-J)");
+        "(PREGNANT AND START-ART-A AND START-TPI-INH-B4) NOT (TB-ACTIVE-CAT7-B1 OR TB-SCREENING-CAT7-B2 OR TB-TREATMENT-CAT7-B3 OR TRANSFERED-IN OR TRANSFERED-OUT)");
 
     return definition;
   }
@@ -267,10 +268,11 @@ public class MICategory7CohortQueries {
             mappings));
 
     definition.addSearch(
-        "END-TPI-G",
-        EptsReportUtils.map(this.mQCohortQueries.findPatientWhoCompleteTPICategory7(), mappingsMI));
+        "END-TPI-INH-G",
+        EptsReportUtils.map(
+            this.mQCohortQueries.findPatientWhoCompleteTPIINHCategory7(), mappingsMI));
 
-    definition.setCompositionString("RF29-DENOMINATOR AND END-TPI-G");
+    definition.setCompositionString("RF29-DENOMINATOR AND END-TPI-INH-G");
 
     return definition;
   }
@@ -377,11 +379,16 @@ public class MICategory7CohortQueries {
             mappings));
 
     definition.addSearch(
-        "START-TPI-B4",
+        "START-TPI-INH-B4",
         EptsReportUtils.map(
-            this.mQCohortQueries.findPatientWhoStartTPIDuringPeriodCategory7(), mappingsMI));
+            this.mQCohortQueries.findPatientWhoStartTPINHDuringPeriodCategory7(), mappingsMI));
 
-    definition.setCompositionString("RF19-DENOMINATOR AND START-TPI-B4");
+    definition.addSearch(
+        "START-TPI-3HP-B4",
+        EptsReportUtils.map(
+            this.mQCohortQueries.findPatientWhoStartTPI3HPDuringPeriodCategory7(), mappingsMI));
+
+    definition.setCompositionString("RF19-DENOMINATOR AND (START-TPI-INH-B4 OR START-TPI-3HP-B4)");
 
     return definition;
   }
@@ -488,11 +495,11 @@ public class MICategory7CohortQueries {
             mappings));
 
     definition.addSearch(
-        "START-TPI-B4",
+        "START-TPI-INH-B4",
         EptsReportUtils.map(
-            this.mQCohortQueries.findPatientWhoStartTPIDuringPeriodCategory7(), mappingsMI));
+            this.mQCohortQueries.findPatientWhoStartTPINHDuringPeriodCategory7(), mappingsMI));
 
-    definition.setCompositionString("RF23-DENOMINATOR AND START-TPI-B4");
+    definition.setCompositionString("RF23-DENOMINATOR AND (START-TPI-INH-B4)");
 
     return definition;
   }

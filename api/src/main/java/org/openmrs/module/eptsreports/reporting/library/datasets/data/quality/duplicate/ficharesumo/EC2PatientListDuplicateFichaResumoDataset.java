@@ -11,11 +11,11 @@
  *
  * Copyright (C) OpenMRS, LLC.  All Rights Reserved.
  */
-package org.openmrs.module.eptsreports.reporting.library.datasets.data.quality.duplicate;
+package org.openmrs.module.eptsreports.reporting.library.datasets.data.quality.duplicate.ficharesumo;
 
 import java.util.List;
 import org.openmrs.module.eptsreports.reporting.library.datasets.BaseDataSet;
-import org.openmrs.module.eptsreports.reporting.library.queries.data.quality.duplicate.EC1DuplicateFichaResumoQueries;
+import org.openmrs.module.eptsreports.reporting.library.queries.data.quality.duplicate.ficharesumo.EC2DuplicateFichaResumoQueries;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
 import org.openmrs.module.reporting.dataset.definition.DataSetDefinition;
@@ -24,24 +24,26 @@ import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.springframework.stereotype.Component;
 
 @Component
-public class EC1PatientListDuplicateFichaResumoDataset extends BaseDataSet {
+public class EC2PatientListDuplicateFichaResumoDataset extends BaseDataSet {
 
-  public DataSetDefinition ec1PatientWithDuplicatedFichaResumoListDataset(
+  public DataSetDefinition ec2PatientWithDuplicatedFichaResumoListDataset(
       List<Parameter> parameterList) {
     SqlDataSetDefinition dsd = new SqlDataSetDefinition();
-    dsd.setName("EC1");
+    dsd.setName("EC2");
     dsd.addParameters(parameterList);
-    dsd.setSqlQuery(EC1DuplicateFichaResumoQueries.QUERY.findPatiendsWithDuplicatedFichaResumo);
+    dsd.setSqlQuery(
+        EC2DuplicateFichaResumoQueries.QUERY
+            .findPatientsWithConsultationOrDrugPickUpWithoutFichaResumo);
 
     return dsd;
   }
 
-  public CohortDefinition getEC1Total(List<Parameter> parameterList) {
+  public CohortDefinition getEC2Total(List<Parameter> parameterList) {
 
     final SqlCohortDefinition definition = new SqlCohortDefinition();
-    definition.setName("EC1");
+    definition.setName("EC2");
     definition.addParameters(parameterList);
-    definition.setQuery(EC1DuplicateFichaResumoQueries.QUERY.getEc1Total);
+    definition.setQuery(EC2DuplicateFichaResumoQueries.QUERY.getEc2Total);
 
     return definition;
   }

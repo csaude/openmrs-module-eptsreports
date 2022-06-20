@@ -13,7 +13,6 @@
 package org.openmrs.module.eptsreports.reporting.library.datasets;
 
 import org.openmrs.module.eptsreports.reporting.library.cohorts.IMR1CohortQueries;
-import org.openmrs.module.eptsreports.reporting.library.dimensions.AgeDimensionCohortInterface;
 import org.openmrs.module.eptsreports.reporting.library.dimensions.EptsCommonDimension;
 import org.openmrs.module.eptsreports.reporting.library.dimensions.IMR1Dimensions;
 import org.openmrs.module.eptsreports.reporting.library.indicators.EptsGeneralIndicator;
@@ -22,7 +21,6 @@ import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
 import org.openmrs.module.reporting.dataset.definition.CohortIndicatorDataSetDefinition;
 import org.openmrs.module.reporting.indicator.CohortIndicator;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -36,10 +34,6 @@ public class IMR1Dataset extends BaseDataSet {
 
   @Autowired private EptsCommonDimension eptsCommonDimension;
 
-  @Autowired
-  @Qualifier("commonAgeDimensionCohort")
-  private AgeDimensionCohortInterface ageDimensionCohort;
-
   public CohortIndicatorDataSetDefinition constructIMR1DataSet() {
 
     final CohortIndicatorDataSetDefinition dataSetDefinition =
@@ -52,8 +46,14 @@ public class IMR1Dataset extends BaseDataSet {
     CohortDefinition denominatorDefinition =
         this.iMR1CohortQueries.getPatientsNewlyEnrolledOnArtCare();
 
-    CohortDefinition numerator1_Definition =
+    CohortDefinition childrenDenominatorDefinition =
+        this.iMR1CohortQueries.getChildrenNewlyEnrolledOnArtCare();
+
+    CohortDefinition numeratorDefinition =
         this.iMR1CohortQueries.getPatientsNewlyEnrolledOnArtCareNumerator();
+
+    CohortDefinition childrenNumeratorDefinition =
+        this.iMR1CohortQueries.getChildrenNewlyEnrolledOnArtCareNumerator();
 
     CohortDefinition denominatorExcludingPregnantAndBreastfeedingDefinition =
         this.iMR1CohortQueries
@@ -66,17 +66,27 @@ public class IMR1Dataset extends BaseDataSet {
         this.eptsGeneralIndicator.getIndicator(
             "PatientsNewlyEnrolledOnArtCare", EptsReportUtils.map(denominatorDefinition, mappings));
 
-    CohortIndicator numerator1_Indicator =
+    CohortIndicator childrenDenominatorIndicator =
+        this.eptsGeneralIndicator.getIndicator(
+            "childrenDenominatorIndicator",
+            EptsReportUtils.map(childrenDenominatorDefinition, mappings));
+
+    CohortIndicator numeratorIndicator =
         this.eptsGeneralIndicator.getIndicator(
             "PatientsNewlyEnrolledOnArtCareNumerator1B",
-            EptsReportUtils.map(numerator1_Definition, mappings));
+            EptsReportUtils.map(numeratorDefinition, mappings));
+
+    CohortIndicator childrenNumeratorIndicator =
+        this.eptsGeneralIndicator.getIndicator(
+            "PatientsNewlyEnrolledOnArtCareNumerator1B",
+            EptsReportUtils.map(childrenNumeratorDefinition, mappings));
 
     CohortIndicator denominatorExcludingPregnantsAndBreastFeedingIndicator =
         this.eptsGeneralIndicator.getIndicator(
             "PatientsNewlyEnrolledOnArtCareNumeratorExcludingPregnantsAndBreastFeedingDenominator",
             EptsReportUtils.map(denominatorExcludingPregnantAndBreastfeedingDefinition, mappings));
 
-    CohortIndicator numerator1_ExcludingPregnantsAndBreastFeedingIndicator =
+    CohortIndicator numeratorExcludingPregnantsAndBreastFeedingIndicator =
         this.eptsGeneralIndicator.getIndicator(
             "PatientsNewlyEnrolledOnArtCareExcludingPregnantsAndBreastFeedingNumerator",
             EptsReportUtils.map(numerator1_ExcludingPregnantsAndBreastFeedingDefinition, mappings));
@@ -84,10 +94,6 @@ public class IMR1Dataset extends BaseDataSet {
     dataSetDefinition.addDimension(
         "state", EptsReportUtils.map(iMR1Dimensions.getDimension(), mappings));
     dataSetDefinition.addDimension("gender", EptsReportUtils.map(eptsCommonDimension.gender(), ""));
-    dataSetDefinition.addDimension(
-        "age",
-        EptsReportUtils.map(
-            eptsCommonDimension.age(ageDimensionCohort), "effectiveDate=${endDate}"));
 
     dataSetDefinition.addColumn(
         "D-All", "Denominator: All", EptsReportUtils.map(denominatorIndicator, mappings), "");
@@ -104,36 +110,36 @@ public class IMR1Dataset extends BaseDataSet {
     dataSetDefinition.addColumn(
         "D-CHILDREN",
         "Denominator children",
-        EptsReportUtils.map(denominatorIndicator, mappings),
-        "age=0-14");
+        EptsReportUtils.map(childrenDenominatorIndicator, mappings),
+        "");
     dataSetDefinition.addColumn(
         "D-NON-PREGNANT",
         "Denominator Non Pregnant and Breastfeeding",
         EptsReportUtils.map(denominatorExcludingPregnantsAndBreastFeedingIndicator, mappings),
-        "age=15+");
+        "");
 
     dataSetDefinition.addColumn(
-        "N-All", "Numerator: All", EptsReportUtils.map(numerator1_Indicator, mappings), "");
+        "N-All", "Numerator: All", EptsReportUtils.map(numeratorIndicator, mappings), "");
     dataSetDefinition.addColumn(
         "N-PREGNANT",
         "Numerator Pregnant",
-        EptsReportUtils.map(numerator1_Indicator, mappings),
+        EptsReportUtils.map(numeratorIndicator, mappings),
         "state=PREGNANT");
     dataSetDefinition.addColumn(
         "N-BREASTFEEDING",
         "Numerator Breastfeendig",
-        EptsReportUtils.map(numerator1_Indicator, mappings),
+        EptsReportUtils.map(numeratorIndicator, mappings),
         "state=BREASTFEEDING");
     dataSetDefinition.addColumn(
         "N-CHILDREN",
         "Numerator children",
-        EptsReportUtils.map(numerator1_Indicator, mappings),
-        "age=0-14");
+        EptsReportUtils.map(childrenNumeratorIndicator, mappings),
+        "");
     dataSetDefinition.addColumn(
         "N-NON-PREGNANT",
         "Numerator Non Pregnant and Breasfeeding",
-        EptsReportUtils.map(numerator1_ExcludingPregnantsAndBreastFeedingIndicator, mappings),
-        "age=15+");
+        EptsReportUtils.map(numeratorExcludingPregnantsAndBreastFeedingIndicator, mappings),
+        "");
 
     return dataSetDefinition;
   }

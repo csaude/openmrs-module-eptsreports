@@ -73,20 +73,8 @@ public class TXTBCohortQueries {
         this.genericCohortQueries.generalSql(
             "pulmonaryTBeWithinReportingDate",
             TXTBQueries.dateObsByObsDateTimeClausule(
+                this.hivMetadata.getOtherDiagnosis().getConceptId(),
                 this.tbMetadata.getPulmonaryTB().getConceptId(),
-                this.hivMetadata.getYesConcept().getConceptId(),
-                this.hivMetadata.getMasterCardEncounterType().getEncounterTypeId()));
-    this.addGeneralParameters(definition);
-    return definition;
-  }
-
-  public CohortDefinition getPulmonaryTBWithinPreviousReportingDate() {
-    final CohortDefinition definition =
-        this.genericCohortQueries.generalSql(
-            "pulmonaryTBWithinPreviousReportingDate",
-            TXTBQueries.dateObsByObsDateTimeClausuleInPreviousReportingPeriod(
-                this.tbMetadata.getPulmonaryTB().getConceptId(),
-                this.hivMetadata.getYesConcept().getConceptId(),
                 this.hivMetadata.getMasterCardEncounterType().getEncounterTypeId()));
     this.addGeneralParameters(definition);
     return definition;
@@ -459,7 +447,10 @@ public class TXTBCohortQueries {
             "startDate=${startDate-6m},endDate=${startDate-1d},location=${location}"));
 
     cd.addSearch(
-        "A-PREVIOUS-PERIOD", this.map(getNumeratorPreviosPeriod(), this.generalParameterMapping));
+        "A-PREVIOUS-PERIOD",
+        this.map(
+            getNumeratorPreviosPeriod(),
+            "startDate=${startDate-6m},endDate=${startDate-1d},location=${location}"));
 
     cd.addSearch(
         "art-started-by-end-previous-reporting-period",
@@ -491,8 +482,7 @@ public class TXTBCohortQueries {
     cd.addSearch("i", this.map(i, this.generalParameterMapping));
     cd.addSearch("ii", this.map(ii, this.generalParameterMapping));
     cd.addSearch(
-        "iii",
-        this.map(this.getPulmonaryTBWithinPreviousReportingDate(), this.generalParameterMapping));
+        "iii", this.map(this.getPulmonaryTBWithinReportingDate(), this.generalParameterMapping));
     cd.addSearch(
         "iv",
         this.map(
@@ -675,6 +665,11 @@ public class TXTBCohortQueries {
         "in-tb-program", EptsReportUtils.map(this.getInTBProgram(), this.generalParameterMapping));
 
     definition.addSearch(
+        "other-diagnosis-fichaResumo",
+        EptsReportUtils.map(
+            this.getPulmonaryTBWithinReportingDate(), this.generalParameterMapping));
+
+    definition.addSearch(
         "started-tb-treatment-previous-period",
         EptsReportUtils.map(
             this.getTbDrugTreatmentStartDateWithinReportingDate(),
@@ -686,27 +681,16 @@ public class TXTBCohortQueries {
             "startDate=${startDate-6m},endDate=${startDate-1d},location=${location}"));
 
     definition.addSearch(
+        "other-diagnosis-FichaResumo-previousPeriod",
+        EptsReportUtils.map(
+            this.getPulmonaryTBWithinReportingDate(),
+            "startDate=${startDate-6m},endDate=${startDate-1d},location=${location}"));
+
+    definition.addSearch(
         "transferred-out",
         EptsReportUtils.map(
             this.getPatientsWhoAreTransferredOut(),
             "startDate=${startDate},endDate=${endDate},location=${location}"));
-
-    definition.addSearch(
-        "A-PREVIOUS-PERIOD", this.map(getNumeratorPreviosPeriod(), this.generalParameterMapping));
-
-    definition.addSearch(
-        "art-started-by-end-previous-reporting-period",
-        EptsReportUtils.map(
-            this.genericCohortQueries.getStartedArtBeforeDate(false),
-            "onOrBefore=${startDate-1d},location=${location}"));
-
-    CohortDefinition fichaResumoMasterCard =
-        this.genericCohortQueries.generalSql(
-            "onFichaResumoMasterCard",
-            TXTBQueries.dateObsByObsDateTimeClausule(
-                this.tbMetadata.getPulmonaryTB().getConceptId(),
-                this.hivMetadata.getYesConcept().getConceptId(),
-                this.hivMetadata.getMasterCardEncounterType().getEncounterTypeId()));
 
     CohortDefinition fichaClinicaMasterCard =
         this.genericCohortQueries.generalSql(
@@ -716,10 +700,14 @@ public class TXTBCohortQueries {
                 this.hivMetadata.getStartDrugsConcept().getConceptId(),
                 this.hivMetadata.getAdultoSeguimentoEncounterType().getId()));
 
-    this.addGeneralParameters(fichaResumoMasterCard);
     this.addGeneralParameters(fichaClinicaMasterCard);
+
     definition.addSearch(
-        "ficha-resumo-master-card", this.map(fichaResumoMasterCard, this.generalParameterMapping));
+        "A-PREVIOUS-PERIOD",
+        EptsReportUtils.map(
+            this.txTbNumerator(),
+            "startDate=${startDate-6m},endDate=${startDate-1d},location=${location}"));
+
     definition.addSearch(
         "ficha-clinica-master-card",
         this.map(fichaClinicaMasterCard, this.generalParameterMapping));
@@ -732,8 +720,8 @@ public class TXTBCohortQueries {
 
     definition.setCompositionString(
         "(art-list AND "
-            + " ( tb-screening OR tb-investigation OR started-tb-treatment OR in-tb-program OR ficha-resumo-master-card OR ficha-clinica-master-card OR all-tb-symptoms OR ficha-laboratorio-results)) "
-            + " NOT ((transferred-out NOT (started-tb-treatment OR in-tb-program)) OR started-tb-treatment-previous-period OR in-tb-program-previous-period OR (A-PREVIOUS-PERIOD AND art-started-by-end-previous-reporting-period ))");
+            + " ( tb-screening OR tb-investigation OR started-tb-treatment OR in-tb-program OR other-diagnosis-fichaResumo OR ficha-clinica-master-card OR all-tb-symptoms OR ficha-laboratorio-results)) "
+            + " NOT ((transferred-out NOT (started-tb-treatment OR in-tb-program)) OR started-tb-treatment-previous-period OR in-tb-program-previous-period OR other-diagnosis-FichaResumo-previousPeriod OR A-PREVIOUS-PERIOD )");
 
     return definition;
   }

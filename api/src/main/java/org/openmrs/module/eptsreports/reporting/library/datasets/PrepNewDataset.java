@@ -183,6 +183,12 @@ public class PrepNewDataset extends BaseDataSet {
         EptsReportUtils.map(clientsNewlyEnrolledInPrepIndicator, mappings),
         "gender=F|sex-worker=sex-worker");
 
+    dataSetDefinition.addColumn(
+        "PREP-N-TG",
+        "Transgender",
+        EptsReportUtils.map(clientsNewlyEnrolledInPrepIndicator, mappings),
+        "transgender=transgender");
+
     return dataSetDefinition;
   }
 

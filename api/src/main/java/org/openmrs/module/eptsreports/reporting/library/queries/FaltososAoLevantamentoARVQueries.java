@@ -265,12 +265,8 @@ public class FaltososAoLevantamentoARVQueries {
     String query =
         "select p.patient_id from patient p "
             + "inner join encounter e on p.patient_id = e.patient_id  "
-            + "inner join obs o on o.encounter_id = e.encounter_id  "
-            + "where  "
-            + "e.voided = 0 "
-            + "and p.voided = 0  "
+            + "where e.voided = 0 and p.voided = 0  "
             + "and e.encounter_datetime between DATE_SUB(:endDate, INTERVAL 3 MONTH) and :endDate "
-            + "and o.voided = 0  "
             + "and e.encounter_type in(35)  "
             + "and e.location_id=:location ";
 

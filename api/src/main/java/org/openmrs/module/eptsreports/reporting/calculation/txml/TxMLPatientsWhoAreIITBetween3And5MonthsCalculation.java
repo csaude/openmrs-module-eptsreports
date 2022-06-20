@@ -93,13 +93,22 @@ public class TxMLPatientsWhoAreIITBetween3And5MonthsCalculation extends TxMLPati
 
     EvaluationContext newContext = this.getNewEvaluationContext(parameters);
 
-    this.excludeDeadFromPreviousReportingPeriod(newContext, resultMap);
+    this.excludeDeadFromPreviousReportingPeriod(
+        newContext,
+        resultMap,
+        lastFilaCalculationResult,
+        lastSeguimentoCalculationResult,
+        lastRecepcaoLevantamentoResult);
 
     return resultMap;
   }
 
   private void excludeDeadFromPreviousReportingPeriod(
-      EvaluationContext context, CalculationResultMap numerator) {
+      EvaluationContext context,
+      CalculationResultMap numerator,
+      CalculationResultMap lastFilaCalculationResult,
+      CalculationResultMap lastSeguimentoCalculationResult,
+      CalculationResultMap lastRecepcaoLevantamentoResult) {
 
     Map<Integer, Date> patientsDeadInArtProgram =
         this.disaggregationProcessor
@@ -143,7 +152,11 @@ public class TxMLPatientsWhoAreIITBetween3And5MonthsCalculation extends TxMLPati
 
     deadInHomeVisitForm =
         TxMLPatientCalculation.excludeEarlyHomeVisitDatesFromNextExpectedDateNumerator(
-            numerator, deadInHomeVisitForm);
+            numerator,
+            deadInHomeVisitForm,
+            lastFilaCalculationResult,
+            lastSeguimentoCalculationResult,
+            lastRecepcaoLevantamentoResult);
 
     @SuppressWarnings("unchecked")
     Map<Integer, Date> maxResultFromAllSources =

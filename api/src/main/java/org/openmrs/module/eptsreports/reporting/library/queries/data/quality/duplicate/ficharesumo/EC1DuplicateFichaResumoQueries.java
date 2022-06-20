@@ -1,4 +1,4 @@
-package org.openmrs.module.eptsreports.reporting.library.queries.data.quality.duplicate;
+package org.openmrs.module.eptsreports.reporting.library.queries.data.quality.duplicate.ficharesumo;
 
 public interface EC1DuplicateFichaResumoQueries {
   class QUERY {

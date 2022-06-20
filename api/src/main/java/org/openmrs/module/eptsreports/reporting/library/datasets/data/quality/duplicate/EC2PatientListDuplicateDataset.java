@@ -13,18 +13,21 @@
  */
 package org.openmrs.module.eptsreports.reporting.library.datasets.data.quality.duplicate;
 
+import java.util.Date;
+import org.openmrs.Location;
 import org.openmrs.module.eptsreports.reporting.library.datasets.BaseDataSet;
 import org.openmrs.module.eptsreports.reporting.library.queries.data.quality.duplicate.EC2DuplicateQueries;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
 import org.openmrs.module.reporting.dataset.definition.DataSetDefinition;
 import org.openmrs.module.reporting.dataset.definition.SqlDataSetDefinition;
+import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.springframework.stereotype.Component;
 
 @Component
 public class EC2PatientListDuplicateDataset extends BaseDataSet {
 
-  public DataSetDefinition ec1PatientDuplicateListDataset() {
+  public DataSetDefinition ec2PatientDuplicateListDataset() {
     SqlDataSetDefinition dsd = new SqlDataSetDefinition();
     dsd.setName("EC2");
     dsd.setSqlQuery(EC2DuplicateQueries.QUERY.findPatiendsWithDuplicatedNID);
@@ -32,10 +35,13 @@ public class EC2PatientListDuplicateDataset extends BaseDataSet {
     return dsd;
   }
 
-  public CohortDefinition getEC1Total() {
+  public CohortDefinition getEC2Total() {
 
     final SqlCohortDefinition definition = new SqlCohortDefinition();
     definition.setName("EC2");
+    definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
     definition.setQuery(EC2DuplicateQueries.QUERY.getEc2Total);
 
     return definition;

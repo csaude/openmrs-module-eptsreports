@@ -75,6 +75,11 @@ public class TXTBDenominatorForTBMontlyCascadeQueries {
         EptsReportUtils.map(txtbCohortQueries.getInTBProgram(), generalParameterMapping));
 
     definition.addSearch(
+        "other-diagnosis-fichaResumo",
+        EptsReportUtils.map(
+            txtbCohortQueries.getPulmonaryTBWithinReportingDate(), this.generalParameterMapping));
+
+    definition.addSearch(
         "started-tb-treatment-previous-period",
         EptsReportUtils.map(
             txtbCohortQueries.getTbDrugTreatmentStartDateWithinReportingDate(),
@@ -87,6 +92,12 @@ public class TXTBDenominatorForTBMontlyCascadeQueries {
             "startDate=${endDate-12m},endDate=${endDate-6m-1d},location=${location}"));
 
     definition.addSearch(
+        "other-diagnosis-FichaResumo-previousPeriod",
+        EptsReportUtils.map(
+            txtbCohortQueries.getPulmonaryTBWithinReportingDate(),
+            "startDate=${endDate-12m},endDate=${endDate-6m-1d},location=${location}"));
+
+    definition.addSearch(
         "transferred-out",
         EptsReportUtils.map(
             txtbCohortQueries.getPatientsWhoAreTransferredOut(),
@@ -94,21 +105,15 @@ public class TXTBDenominatorForTBMontlyCascadeQueries {
 
     definition.addSearch(
         "A-PREVIOUS-PERIOD",
-        EptsReportUtils.map(this.getNumeratorPreviosPeriod(), generalParameterMapping));
+        EptsReportUtils.map(
+            this.txTbNumerator(),
+            "startDate=${endDate-12m},endDate=${endDate-6m-1d},location=${location}"));
 
     definition.addSearch(
         "art-started-by-end-previous-reporting-period",
         EptsReportUtils.map(
             this.genericCohortQueries.getStartedArtBeforeDate(false),
             "onOrBefore=${endDate-6m-1d},location=${location}"));
-
-    CohortDefinition fichaResumoMasterCard =
-        this.genericCohortQueries.generalSql(
-            "onFichaResumoMasterCard",
-            TXTBQueries.dateObsByObsDateTimeClausule(
-                this.tbMetadata.getPulmonaryTB().getConceptId(),
-                this.hivMetadata.getYesConcept().getConceptId(),
-                this.hivMetadata.getMasterCardEncounterType().getEncounterTypeId()));
 
     CohortDefinition fichaClinicaMasterCard =
         this.genericCohortQueries.generalSql(
@@ -119,11 +124,6 @@ public class TXTBDenominatorForTBMontlyCascadeQueries {
                 this.hivMetadata.getAdultoSeguimentoEncounterType().getId()));
 
     this.addGeneralParameters(fichaClinicaMasterCard);
-    this.addGeneralParameters(fichaResumoMasterCard);
-
-    definition.addSearch(
-        "ficha-resumo-master-card",
-        EptsReportUtils.map(fichaResumoMasterCard, generalParameterMapping));
 
     definition.addSearch(
         "ficha-clinica-master-card",
@@ -139,8 +139,8 @@ public class TXTBDenominatorForTBMontlyCascadeQueries {
 
     definition.setCompositionString(
         "(art-list AND "
-            + " ( tb-screening OR tb-investigation OR started-tb-treatment OR in-tb-program OR ficha-resumo-master-card OR ficha-clinica-master-card OR all-tb-symptoms OR ficha-laboratorio-results)) "
-            + " NOT ((transferred-out NOT (started-tb-treatment OR in-tb-program)) OR started-tb-treatment-previous-period OR in-tb-program-previous-period OR (A-PREVIOUS-PERIOD AND art-started-by-end-previous-reporting-period ))");
+            + " ( tb-screening OR tb-investigation OR started-tb-treatment OR in-tb-program OR other-diagnosis-fichaResumo OR ficha-clinica-master-card OR all-tb-symptoms OR ficha-laboratorio-results)) "
+            + " NOT ((transferred-out NOT (started-tb-treatment OR in-tb-program)) OR started-tb-treatment-previous-period OR in-tb-program-previous-period OR other-diagnosis-FichaResumo-previousPeriod OR A-PREVIOUS-PERIOD )");
 
     return definition;
   }
@@ -300,8 +300,7 @@ public class TXTBDenominatorForTBMontlyCascadeQueries {
     cd.addSearch(
         "iii",
         EptsReportUtils.map(
-            txtbCohortQueries.getPulmonaryTBWithinPreviousReportingDate(),
-            this.generalParameterMapping));
+            txtbCohortQueries.getPulmonaryTBWithinReportingDate(), this.generalParameterMapping));
 
     cd.addSearch(
         "iv",
