@@ -281,7 +281,7 @@ public interface MQCategory15QueriesInterface {
                 + "Select p.patient_id,max(encounter_datetime) data_levantamento  from  patient p  "
                 + "inner join encounter e on e.patient_id=p.patient_id   "
                 + "where  p.voided=0 and e.voided=0 and e.encounter_type=18 and e.location_id=:location "
-                + "and e.encounter_datetime  between (:endRevisionDate - INTERVAL 26 MONTH + INTERVAL  1 DAY) and ('2021-01-20' - INTERVAL 24 MONTH)   "
+                + "and e.encounter_datetime  between (:endRevisionDate - INTERVAL 26 MONTH + INTERVAL  1 DAY) and (:endRevisionDate - INTERVAL 24 MONTH)   "
                 + "group by p.patient_id  "
                 + ")fila   "
                 + "inner join  obs obs_fila on obs_fila.person_id=fila.patient_id  "

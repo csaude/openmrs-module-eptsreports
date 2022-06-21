@@ -45,7 +45,7 @@ public class SetupListPatientsCurrentlyARTNoTBScreening extends EptsDataExportMa
 
   @Override
   public String getDescription() {
-    return "TB5: Lista Pacientes Activos em TARV sem Rastreio de TB";
+    return "Este relatório gera os números agregados e lista todos os pacientes atualmente em TARV que não têm uma Triagem de TB documentada nos últimos 6 meses a partir da data final do relatório";
   }
 
   @Override
@@ -90,7 +90,7 @@ public class SetupListPatientsCurrentlyARTNoTBScreening extends EptsDataExportMa
           createXlsReportDesign(
               reportDefinition,
               "Template_List_Patients_Currently_ART_No_TB_Screening.xls",
-              "TB5_Lista_Pacientes_Activos_em_TARV_sem_Rastreio_de_TB",
+              "TB5: Lista Pacientes Activos em TARV sem Rastreio de TB",
               getExcelDesignUuid(),
               null);
       Properties props = new Properties();
