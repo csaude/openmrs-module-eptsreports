@@ -518,6 +518,9 @@ public class MQAgeDimensions {
         "15+", EptsReportUtils.map(this.calculateDefaulteAgeBiggerThan(15), mappings));
 
     dimension.addCohortDefinition(
+        "2+", EptsReportUtils.map(this.calculateDefaulteAgeBiggerThan(2), mappings));
+
+    dimension.addCohortDefinition(
         "0-14", EptsReportUtils.map(this.calculateDefaulteAgeByAgeRenge(0, 14), mappings));
 
     dimension.addCohortDefinition(

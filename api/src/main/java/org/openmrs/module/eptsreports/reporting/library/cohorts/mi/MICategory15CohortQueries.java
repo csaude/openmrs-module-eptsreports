@@ -511,10 +511,19 @@ public class MICategory15CohortQueries {
             mappings));
 
     definition.addSearch(
-        "L",
-        EptsReportUtils.map(this.findPatientsWhoHasRegisteredAsFimInAtLeastOneMDS(), mappingsMI));
+        "MDC",
+        EptsReportUtils.map(
+            this
+                .findPatientsWhoHasRegisteredAsFimInAtLeastOneMDCOnTheLastClinicalConsultationInInclusionPeriod(),
+            mappingsMI));
 
-    definition.setCompositionString("(DENOMINATOR-15-2 AND L)");
+    definition.addSearch(
+        "FILA",
+        EptsReportUtils.map(
+            this.findPatientsWhoHasCVBiggerThan1000InLastClinicalConsultationAndHaveARTPickUp(),
+            mappingsMI));
+
+    definition.setCompositionString("(DENOMINATOR-15-2 AND MDC) OR (DENOMINATOR-15-2 AND FILA)");
 
     return definition;
   }
@@ -567,9 +576,9 @@ public class MICategory15CohortQueries {
 
   @DocumentedDefinition(
       value =
-          "findAllPatientsWhoHaveLaboratoryInvestigationsRequestsAndViralChargeInLastConsultationDuringLastThreeMonths")
+          "findAllPatientsWhoHaveLaboratoryInvestigationsRequestsAndViralChargeInLastConsultationDuringLast12Months")
   public CohortDefinition
-      findAllPatientsWhoHaveLaboratoryInvestigationsRequestsAndViralChargeInLastConsultationDuringLastThreeMonths() {
+      findAllPatientsWhoHaveLaboratoryInvestigationsRequestsAndViralChargeInLastConsultationDuringLast12Months() {
 
     final SqlCohortDefinition definition = new SqlCohortDefinition();
 
@@ -582,7 +591,7 @@ public class MICategory15CohortQueries {
 
     String query =
         MICategory15QueriesInterface.QUERY
-            .findAllPatientsWhoHaveLaboratoryInvestigationsRequestsAndViralChargeInLastConsultationDuringLastThreeMonths;
+            .findAllPatientsWhoHaveLaboratoryInvestigationsRequestsAndViralChargeInLastConsultationDuringLast12Months;
 
     definition.setQuery(query);
 
@@ -627,7 +636,7 @@ public class MICategory15CohortQueries {
         "P",
         EptsReportUtils.map(
             this
-                .findAllPatientsWhoHaveLaboratoryInvestigationsRequestsAndViralChargeInLastConsultationDuringLastThreeMonths(),
+                .findAllPatientsWhoHaveLaboratoryInvestigationsRequestsAndViralChargeInLastConsultationDuringLast12Months(),
             mappings));
 
     definition.setCompositionString("(A AND J AND B2) NOT P");
@@ -637,14 +646,14 @@ public class MICategory15CohortQueries {
 
   @DocumentedDefinition(
       value =
-          "findPatientsRegisteredInOneMDSForStablePatientsAndHadCVBetweenTwelveAndEigtheenMonthsAfterCVLessThan1000")
+          "findPatientsRegisteredInOneMDSForStablePatientsAndHadCVBeforeTwentyMonthsOfLastClinicalConsultationThan1000")
   public CohortDefinition
-      findPatientsRegisteredInOneMDSForStablePatientsAndHadCVBetweenTwelveAndEigtheenMonthsAfterCVLessThan1000() {
+      findPatientsRegisteredInOneMDSForStablePatientsAndHadCVBeforeTwentyMonthsOfLastClinicalConsultationThan1000() {
 
     final SqlCohortDefinition definition = new SqlCohortDefinition();
 
     definition.setName(
-        "MI Category 15 - Get patients registered in one MDS for stable patients and had CV between 11 and 18 months after CV<1000");
+        "MI Category 15 - Get patients registered in one MDS for stable patients and had CV before 20 Months of last clinical consultation after CV<1000");
     definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
     definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
     definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
@@ -652,7 +661,7 @@ public class MICategory15CohortQueries {
 
     String query =
         MICategory15QueriesInterface.QUERY
-            .findPatientsRegisteredInOneMDSForStablePatientsAndHadCVBetweenTwelveAndEigtheenMonthsAfterCVLessThan1000;
+            .findPatientsRegisteredInOneMDSForStablePatientsAndHadCVBeforeTwentyMonthsOfLastClinicalConsultationThan1000;
 
     definition.setQuery(query);
 
@@ -715,10 +724,55 @@ public class MICategory15CohortQueries {
         "I",
         EptsReportUtils.map(
             this
-                .findPatientsRegisteredInOneMDSForStablePatientsAndHadCVBetweenTwelveAndEigtheenMonthsAfterCVLessThan1000(),
+                .findPatientsRegisteredInOneMDSForStablePatientsAndHadCVBeforeTwentyMonthsOfLastClinicalConsultationThan1000(),
             mappingsMI));
 
     definition.setCompositionString("(DENOMINATOR-15-3 AND I)");
+
+    return definition;
+  }
+
+  @DocumentedDefinition(
+      value =
+          "findPatientsWhoHasRegisteredAsFimInAtLeastOneMDCOnTheLastClinicalConsultationInInclusionPeriod")
+  public CohortDefinition
+      findPatientsWhoHasRegisteredAsFimInAtLeastOneMDCOnTheLastClinicalConsultationInInclusionPeriod() {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName("MI Category 15 - Get patients registered as fim in at least one MDS");
+    definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
+
+    String query =
+        MICategory15QueriesInterface.QUERY
+            .findPatientsWhoHasRegisteredAsFimInAtLeastOneMDCOnTheLastClinicalConsultationInInclusionPeriod;
+
+    definition.setQuery(query);
+
+    return definition;
+  }
+
+  @DocumentedDefinition(
+      value = "findPatientsWhoHasCVBiggerThan1000InLastClinicalConsultationAndHaveARTPickUp")
+  public CohortDefinition
+      findPatientsWhoHasCVBiggerThan1000InLastClinicalConsultationAndHaveARTPickUp() {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName("MI Category 15 - Get patients registered as fim in at least one MDS");
+    definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
+
+    String query =
+        MICategory15QueriesInterface.QUERY
+            .findPatientsWhoHasCVBiggerThan1000InLastClinicalConsultationAndHaveARTPickUp;
+
+    definition.setQuery(query);
 
     return definition;
   }
