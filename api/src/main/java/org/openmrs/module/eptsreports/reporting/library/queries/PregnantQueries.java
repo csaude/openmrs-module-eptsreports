@@ -161,7 +161,7 @@ public class PregnantQueries {
             + "select pg.patient_id,ps.start_date data_parto from patient p "
             + "inner join patient_program pg on p.patient_id=pg.patient_id "
             + "inner join patient_state ps on pg.patient_program_id=ps.patient_program_id "
-            + "where pg.voided=0 and ps.voided=0 and p.voided=0 and pg.program_id=8 and ps.state=27 and ps.end_date is null and ps.start_date between :startDate and :endDate and location_id=:location "
+            + "where pg.voided=0 and ps.voided=0 and p.voided=0 and pg.program_id=8 and ps.state=27  and ps.start_date between :startDate and :endDate and location_id=:location "
             + ") lactante_real on lactante_real.patient_id=inicio_real.patient_id "
             + "where lactante_real.data_parto is not null or gravida_real.data_gravida is not null "
             + "group by inicio_real.patient_id ) gravidaLactante "

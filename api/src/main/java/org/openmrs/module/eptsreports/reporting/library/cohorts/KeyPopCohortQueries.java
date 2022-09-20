@@ -386,22 +386,13 @@ public class KeyPopCohortQueries {
         "VL",
         EptsReportUtils.map(
             this.genericCohortQueries.generalSql(
-                "VL",
-                ResumoMensalQueries.findPatientWithVlResult(
-                    hivMetadata.getHivViralLoadConcept().getConceptId(),
-                    hivMetadata.getAdultoSeguimentoEncounterType().getEncounterTypeId(),
-                    hivMetadata.getHivViralLoadQualitative().getConceptId())),
+                "VL", ResumoMensalQueries.findPatientWithVlResult()),
             mappingsToVL));
 
     definition.addSearch(
         "Ex2",
         map(
-            genericCohortQueries.generalSql(
-                "Ex2",
-                ResumoMensalQueries.getE2ExclusionCriteria(
-                    hivMetadata.getHivViralLoadConcept().getConceptId(),
-                    hivMetadata.getAdultoSeguimentoEncounterType().getEncounterTypeId(),
-                    hivMetadata.getHivViralLoadQualitative().getConceptId())),
+            genericCohortQueries.generalSql("Ex2", ResumoMensalQueries.getE2ExclusionCriteria()),
             mappingsToVL));
 
     definition.setCompositionString("(TX-CURR-COORTE-6-MONTHS AND VL) NOT Ex2");
@@ -429,22 +420,13 @@ public class KeyPopCohortQueries {
         "VL",
         EptsReportUtils.map(
             this.genericCohortQueries.generalSql(
-                "VL",
-                ResumoMensalQueries.findPatientWithVlResulLessThan1000(
-                    hivMetadata.getHivViralLoadConcept().getConceptId(),
-                    hivMetadata.getAdultoSeguimentoEncounterType().getEncounterTypeId(),
-                    hivMetadata.getHivViralLoadQualitative().getConceptId())),
+                "VL", ResumoMensalQueries.findPatientWithVlResulLessThan1000()),
             mappingsToVL));
 
     definition.addSearch(
         "Ex3",
         map(
-            genericCohortQueries.generalSql(
-                "Ex3",
-                ResumoMensalQueries.getE3ExclusionCriteria(
-                    hivMetadata.getHivViralLoadConcept().getConceptId(),
-                    hivMetadata.getAdultoSeguimentoEncounterType().getEncounterTypeId(),
-                    hivMetadata.getHivViralLoadQualitative().getConceptId())),
+            genericCohortQueries.generalSql("Ex3", ResumoMensalQueries.getE3ExclusionCriteria()),
             mappingsToVL));
 
     definition.setCompositionString("(TX-CURR-COORTE-6-MONTHS AND VL) NOT Ex3");
@@ -470,11 +452,7 @@ public class KeyPopCohortQueries {
         "VL",
         EptsReportUtils.map(
             this.genericCohortQueries.generalSql(
-                "VL",
-                ResumoMensalQueries.findPatientWithVlResult(
-                    hivMetadata.getHivViralLoadConcept().getConceptId(),
-                    hivMetadata.getAdultoSeguimentoEncounterType().getEncounterTypeId(),
-                    hivMetadata.getHivViralLoadQualitative().getConceptId())),
+                "VL", ResumoMensalQueries.findPatientWithVlResult()),
             mappings));
 
     definition.addSearch(

@@ -7,6 +7,7 @@ import java.util.Properties;
 import org.openmrs.module.eptsreports.reporting.library.cohorts.GenericCohortQueries;
 import org.openmrs.module.eptsreports.reporting.library.datasets.DatimCodeDataSet;
 import org.openmrs.module.eptsreports.reporting.library.datasets.ListPatientsInitiatedTPTDataSet;
+import org.openmrs.module.eptsreports.reporting.library.datasets.SismaCodeDataSet;
 import org.openmrs.module.eptsreports.reporting.library.datasets.TxRttDataset;
 import org.openmrs.module.eptsreports.reporting.library.queries.BaseQueries;
 import org.openmrs.module.eptsreports.reporting.reports.manager.EptsDataExportManager;
@@ -28,6 +29,7 @@ public class SetupListPatientsInitiatedTPTReport extends EptsDataExportManager {
   @Autowired private TxRttDataset txRttDataset;
 
   @Autowired private DatimCodeDataSet datimCodeDataset;
+  @Autowired private SismaCodeDataSet sismaCodeDataset;
 
   @Override
   public String getExcelDesignUuid() {
@@ -69,6 +71,10 @@ public class SetupListPatientsInitiatedTPTReport extends EptsDataExportManager {
         "D",
         Mapped.mapStraightThrough(this.datimCodeDataset.constructDataset(this.getParameters())));
 
+    rd.addDataSetDefinition(
+        "SC",
+        Mapped.mapStraightThrough(this.sismaCodeDataset.constructDataset(this.getParameters())));
+
     rd.setBaseCohortDefinition(
         EptsReportUtils.map(
             this.genericCohortQueries.generalSql(
@@ -95,7 +101,7 @@ public class SetupListPatientsInitiatedTPTReport extends EptsDataExportManager {
               getExcelDesignUuid(),
               null);
       Properties props = new Properties();
-      props.put("repeatingSections", "sheet:1,row:5,dataset:INICIOTPI");
+      props.put("repeatingSections", "sheet:1,row:9,dataset:INICIOTPI");
 
       props.put("sortWeight", "5000");
       props.put("sortWeight", "5000");

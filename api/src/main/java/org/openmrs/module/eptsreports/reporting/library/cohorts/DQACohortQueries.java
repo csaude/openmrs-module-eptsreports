@@ -100,22 +100,13 @@ public class DQACohortQueries {
         "VL",
         EptsReportUtils.map(
             this.genericCohortQueries.generalSql(
-                "VL",
-                ResumoMensalQueries.findPatientWithVlResult(
-                    hivMetadata.getHivViralLoadConcept().getConceptId(),
-                    hivMetadata.getAdultoSeguimentoEncounterType().getEncounterTypeId(),
-                    hivMetadata.getHivViralLoadQualitative().getConceptId())),
+                "VL", ResumoMensalQueries.findPatientWithVlResult()),
             mappingsB1M3));
 
     definition.addSearch(
         "Ex2",
         map(
-            genericCohortQueries.generalSql(
-                "Ex2",
-                ResumoMensalQueries.getE2ExclusionCriteria(
-                    hivMetadata.getHivViralLoadConcept().getConceptId(),
-                    hivMetadata.getAdultoSeguimentoEncounterType().getEncounterTypeId(),
-                    hivMetadata.getHivViralLoadQualitative().getConceptId())),
+            genericCohortQueries.generalSql("Ex2", ResumoMensalQueries.getE2ExclusionCriteria()),
             mappingsB1M3));
 
     definition.setCompositionString("(B13 AND VL) NOT Ex2");
@@ -143,22 +134,13 @@ public class DQACohortQueries {
         "VL",
         EptsReportUtils.map(
             this.genericCohortQueries.generalSql(
-                "VL",
-                ResumoMensalQueries.findPatientWithVlResult(
-                    hivMetadata.getHivViralLoadConcept().getConceptId(),
-                    hivMetadata.getAdultoSeguimentoEncounterType().getEncounterTypeId(),
-                    hivMetadata.getHivViralLoadQualitative().getConceptId())),
+                "VL", ResumoMensalQueries.findPatientWithVlResult()),
             mappingsB1M2));
 
     definition.addSearch(
         "Ex2",
         map(
-            genericCohortQueries.generalSql(
-                "Ex2",
-                ResumoMensalQueries.getE2ExclusionCriteria(
-                    hivMetadata.getHivViralLoadConcept().getConceptId(),
-                    hivMetadata.getAdultoSeguimentoEncounterType().getEncounterTypeId(),
-                    hivMetadata.getHivViralLoadQualitative().getConceptId())),
+            genericCohortQueries.generalSql("Ex2", ResumoMensalQueries.getE2ExclusionCriteria()),
             mappingsB1M2));
 
     definition.setCompositionString("(B13 AND VL) NOT Ex2");
@@ -186,22 +168,13 @@ public class DQACohortQueries {
         "VL",
         EptsReportUtils.map(
             this.genericCohortQueries.generalSql(
-                "VL",
-                ResumoMensalQueries.findPatientWithVlResult(
-                    hivMetadata.getHivViralLoadConcept().getConceptId(),
-                    hivMetadata.getAdultoSeguimentoEncounterType().getEncounterTypeId(),
-                    hivMetadata.getHivViralLoadQualitative().getConceptId())),
+                "VL", ResumoMensalQueries.findPatientWithVlResult()),
             mappingsB1M1));
 
     definition.addSearch(
         "Ex2",
         map(
-            genericCohortQueries.generalSql(
-                "Ex2",
-                ResumoMensalQueries.getE2ExclusionCriteria(
-                    hivMetadata.getHivViralLoadConcept().getConceptId(),
-                    hivMetadata.getAdultoSeguimentoEncounterType().getEncounterTypeId(),
-                    hivMetadata.getHivViralLoadQualitative().getConceptId())),
+            genericCohortQueries.generalSql("Ex2", ResumoMensalQueries.getE2ExclusionCriteria()),
             mappingsB1M1));
 
     definition.setCompositionString("(B13 AND VL) NOT Ex2");

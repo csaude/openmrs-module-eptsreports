@@ -8,7 +8,6 @@ import org.openmrs.module.eptsreports.reporting.library.cohorts.GenericCohortQue
 import org.openmrs.module.eptsreports.reporting.library.datasets.DatimCodeDataSet;
 import org.openmrs.module.eptsreports.reporting.library.datasets.Eri2MonthsDataset;
 import org.openmrs.module.eptsreports.reporting.library.datasets.Eri4MonthsDataset;
-import org.openmrs.module.eptsreports.reporting.library.datasets.EriDSDDataset;
 import org.openmrs.module.eptsreports.reporting.library.datasets.IMR1BDataset;
 import org.openmrs.module.eptsreports.reporting.library.datasets.IMR1Dataset;
 import org.openmrs.module.eptsreports.reporting.library.datasets.TxCurrDataset;
@@ -24,7 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SetupCombinedImErReport extends EptsDataExportManager {
+public class SetupImErReport extends EptsDataExportManager {
 
   @Autowired private GenericCohortQueries genericCohortQueries;
 
@@ -35,8 +34,6 @@ public class SetupCombinedImErReport extends EptsDataExportManager {
   @Autowired private TxNewDataset txNewDataset;
 
   @Autowired private TxCurrDataset txCurrDataset;
-
-  @Autowired private EriDSDDataset eriDSDDataset;
 
   @Autowired private IMR1Dataset imr1Dataset;
 
@@ -90,9 +87,6 @@ public class SetupCombinedImErReport extends EptsDataExportManager {
 
     rd.addDataSetDefinition(
         "ERI4", Mapped.mapStraightThrough(this.eri4MonthsDataset.constructEri4MonthsDataset()));
-
-    rd.addDataSetDefinition(
-        "ERIDSD", Mapped.mapStraightThrough(this.eriDSDDataset.constructEriDSDDataset()));
 
     rd.addDataSetDefinition(
         "D",

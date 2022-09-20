@@ -8,6 +8,7 @@ import java.util.Properties;
 import org.openmrs.module.eptsreports.reporting.library.cohorts.GenericCohortQueries;
 import org.openmrs.module.eptsreports.reporting.library.datasets.DatimCodeDataSet;
 import org.openmrs.module.eptsreports.reporting.library.datasets.ListOfPatientsEligileToTPTDataSet;
+import org.openmrs.module.eptsreports.reporting.library.datasets.SismaCodeDataSet;
 import org.openmrs.module.eptsreports.reporting.library.queries.BaseQueries;
 import org.openmrs.module.eptsreports.reporting.reports.manager.EptsDataExportManager;
 import org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils;
@@ -28,6 +29,7 @@ public class SetupListPatientsEligibleTPT extends EptsDataExportManager {
   @Autowired private ListOfPatientsEligileToTPTDataSet listOfPatientsEligileToTPTDataSet;
 
   @Autowired private DatimCodeDataSet datimCodeDataset;
+  @Autowired private SismaCodeDataSet sismaCodeDataset;
 
   @Override
   public String getExcelDesignUuid() {
@@ -73,6 +75,9 @@ public class SetupListPatientsEligibleTPT extends EptsDataExportManager {
     rd.addDataSetDefinition(
         "D",
         Mapped.mapStraightThrough(this.datimCodeDataset.constructDataset(this.getParameters())));
+    rd.addDataSetDefinition(
+        "SC",
+        Mapped.mapStraightThrough(this.sismaCodeDataset.constructDataset(this.getParameters())));
 
     rd.setBaseCohortDefinition(
         EptsReportUtils.map(
@@ -95,7 +100,7 @@ public class SetupListPatientsEligibleTPT extends EptsDataExportManager {
               null);
 
       Properties props = new Properties();
-      props.put("repeatingSections", "sheet:1,row:5,dataset:TPTELIG");
+      props.put("repeatingSections", "sheet:1,row:8,dataset:TPTELIG");
       props.put("sortWeight", "5000");
       reportDesign.setProperties(props);
     } catch (IOException e) {

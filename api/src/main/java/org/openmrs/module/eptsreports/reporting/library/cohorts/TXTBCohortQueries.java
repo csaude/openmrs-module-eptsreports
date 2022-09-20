@@ -438,64 +438,28 @@ public class TXTBCohortQueries {
     final CompositionCohortDefinition cd = new CompositionCohortDefinition();
     cd.setName("TxTB - txTbNumerator");
     final CohortDefinition A = this.txTbNumeratorA();
-    cd.addSearch("A", this.map(A, this.generalParameterMapping));
-
-    cd.addSearch(
-        "started-tb-treatment-previous-period",
-        EptsReportUtils.map(
-            this.getTbDrugTreatmentStartDateWithinReportingDate(),
-            "startDate=${startDate-6m},endDate=${startDate-1d},location=${location}"));
+    cd.addSearch("A", EptsReportUtils.map(A, this.generalParameterMapping));
 
     cd.addSearch(
         "A-PREVIOUS-PERIOD",
-        this.map(
-            getNumeratorPreviosPeriod(),
-            "startDate=${startDate-6m},endDate=${startDate-1d},location=${location}"));
-
-    cd.addSearch(
-        "art-started-by-end-previous-reporting-period",
         EptsReportUtils.map(
-            this.genericCohortQueries.getStartedArtBeforeDate(false),
-            "onOrBefore=${startDate-1d},location=${location}"));
+            A, "startDate=${startDate-6m},endDate=${startDate-1d},location=${location}"));
 
-    cd.setCompositionString(
-        "A NOT (started-tb-treatment-previous-period OR (A-PREVIOUS-PERIOD AND art-started-by-end-previous-reporting-period ))");
+    cd.setCompositionString("A NOT A-PREVIOUS-PERIOD");
 
     this.addGeneralParameters(cd);
     return cd;
   }
 
-  public CohortDefinition getNumeratorPreviosPeriod() {
+  @DocumentedDefinition(value = "txTbNumerator")
+  public CohortDefinition getNumeratorForPreviousPeriod() {
     final CompositionCohortDefinition cd = new CompositionCohortDefinition();
-    cd.setName("TxTB - txTbNumerator Previous Period");
-    final CohortDefinition i =
-        this.genericCohortQueries.generalSql(
-            "onTbTreatment-Previous Reporting Period",
-            TXTBQueries.dateObsForPreviousReportingPeriod(
-                this.tbMetadata.getTBDrugTreatmentStartDate().getConceptId(),
-                Arrays.asList(
-                    this.hivMetadata.getAdultoSeguimentoEncounterType().getId(),
-                    this.hivMetadata.getARVPediatriaSeguimentoEncounterType().getId()),
-                true));
-    final CohortDefinition ii = this.getInTBProgramPreviousPeriod();
-    this.addGeneralParameters(i);
-    cd.addSearch("i", this.map(i, this.generalParameterMapping));
-    cd.addSearch("ii", this.map(ii, this.generalParameterMapping));
-    cd.addSearch(
-        "iii", this.map(this.getPulmonaryTBWithinReportingDate(), this.generalParameterMapping));
-    cd.addSearch(
-        "iv",
-        this.map(
-            this.getTuberculosisTreatmentPlanWithinPreviousReportingDate(),
-            this.generalParameterMapping));
+    cd.setName("TxTB - Numerator for Previous Period");
+    final CohortDefinition A = this.txTbNumeratorA();
+    cd.addSearch("A", EptsReportUtils.map(A, this.generalParameterMapping));
 
-    cd.addSearch(
-        "started-tb-treatment-previous-period",
-        EptsReportUtils.map(
-            this.getTbDrugTreatmentStartDateWithinReportingDate(),
-            "startDate=${startDate-12m},endDate=${startDate-6m-1d},location=${location}"));
+    cd.setCompositionString("A");
 
-    cd.setCompositionString("(i OR ii OR iii OR iv) NOT started-tb-treatment-previous-period");
     this.addGeneralParameters(cd);
     return cd;
   }
@@ -705,7 +669,7 @@ public class TXTBCohortQueries {
     definition.addSearch(
         "A-PREVIOUS-PERIOD",
         EptsReportUtils.map(
-            this.txTbNumerator(),
+            this.getNumeratorForPreviousPeriod(),
             "startDate=${startDate-6m},endDate=${startDate-1d},location=${location}"));
 
     definition.addSearch(
@@ -1112,8 +1076,7 @@ public class TXTBCohortQueries {
                 Arrays.asList(
                     this.tbMetadata.getTbGenexpertTest().getConceptId(),
                     this.tbMetadata.getCultureTest().getConceptId(),
-                    this.tbMetadata.getTbLam().getConceptId(),
-                    this.tbMetadata.getSputumForAcidFastBacilli().getConceptId()),
+                    this.tbMetadata.getTbLam().getConceptId()),
                 Arrays.asList(this.tbMetadata.getPositiveConcept().getConceptId())));
 
     final CohortDefinition tbPositiveResultsInFichaLaboratorio =
@@ -1122,7 +1085,6 @@ public class TXTBCohortQueries {
             TXTBQueries.dateObsForEncounterAndQuestionAndAnswers(
                 this.hivMetadata.getMisauLaboratorioEncounterType().getEncounterTypeId(),
                 Arrays.asList(
-                    this.tbMetadata.getSputumForAcidFastBacilli().getConceptId(),
                     this.tbMetadata.getTbGenexpertTest().getConceptId(),
                     this.tbMetadata.getCultureTest().getConceptId(),
                     this.tbMetadata.getTbLam().getConceptId()),

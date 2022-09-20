@@ -42,6 +42,7 @@ import org.openmrs.module.eptsreports.reporting.library.datasets.data.quality.Ec
 import org.openmrs.module.eptsreports.reporting.library.datasets.data.quality.Ec23PatientListDataset;
 import org.openmrs.module.eptsreports.reporting.library.datasets.data.quality.Ec24PatientListDataset;
 import org.openmrs.module.eptsreports.reporting.library.datasets.data.quality.Ec25PatientListDataset;
+import org.openmrs.module.eptsreports.reporting.library.datasets.data.quality.Ec26PatientListDataset;
 import org.openmrs.module.eptsreports.reporting.library.datasets.data.quality.Ec2PatientListDataset;
 import org.openmrs.module.eptsreports.reporting.library.datasets.data.quality.Ec3PatientListDataset;
 import org.openmrs.module.eptsreports.reporting.library.datasets.data.quality.Ec4PatientListDataset;
@@ -119,6 +120,8 @@ public class SetupDataQualityReport extends EptsDataExportManager {
 
   private Ec25PatientListDataset ec25PatientListDataset;
 
+  private Ec26PatientListDataset ec26PatientListDataset;
+
   @Autowired private DatimCodeDataSet datimCodeDataset;
 
   @Autowired private SismaCodeDataSet sismaCodeDataset;
@@ -151,6 +154,7 @@ public class SetupDataQualityReport extends EptsDataExportManager {
       Ec22PatientListDataset ec22PatientListDataset,
       Ec24PatientListDataset ec24PatientListDataset,
       Ec25PatientListDataset ec25PatientListDataset,
+      Ec26PatientListDataset ec26PatientListDataset,
       SummaryEc20DataQualityDataset summaryEc20DataQualityDataset,
       SummaryEc20DataQualityCohorts summaryEc20DataQualityCohorts,
       GetCustomConfigurationDataset getCustomConfigurationDataset,
@@ -182,6 +186,8 @@ public class SetupDataQualityReport extends EptsDataExportManager {
     this.ec22PatientListDataset = ec22PatientListDataset;
     this.ec24PatientListDataset = ec24PatientListDataset;
     this.ec25PatientListDataset = ec25PatientListDataset;
+    this.ec25PatientListDataset = ec25PatientListDataset;
+    this.ec26PatientListDataset = ec26PatientListDataset;
     this.summaryEc20DataQualityDataset = summaryEc20DataQualityDataset;
   }
 
@@ -336,6 +342,11 @@ public class SetupDataQualityReport extends EptsDataExportManager {
         Mapped.mapStraightThrough(
             ec25PatientListDataset.ec25PatientListDatset(getDataParameters())));
 
+    rd.addDataSetDefinition(
+        "EC26",
+        Mapped.mapStraightThrough(
+            ec26PatientListDataset.ec26PatientListDatset(getDataParameters())));
+
     return rd;
   }
 
@@ -358,7 +369,7 @@ public class SetupDataQualityReport extends EptsDataExportManager {
       Properties props = new Properties();
       props.put(
           "repeatingSections",
-          "sheet:2,row:7,dataset:EC1 | sheet:3,row:7,dataset:EC2 | sheet:4,row:7,dataset:EC3 | sheet:5,row:7,dataset:EC4 | sheet:6,row:7,dataset:EC5 | sheet:7,row:7,dataset:EC6 | sheet:8,row:7,dataset:EC7 | sheet:9,row:7,dataset:EC8 | sheet:10,row:7,dataset:EC9 | sheet:11,row:7,dataset:EC10 | sheet:12,row:7,dataset:EC11 | sheet:13,row:7,dataset:EC12 | sheet:14,row:7,dataset:EC13 | sheet:15,row:7,dataset:EC14 | sheet:16,row:7,dataset:EC15 | sheet:17,row:7,dataset:EC16 | sheet:18,row:7,dataset:EC17 | sheet:19,row:7,dataset:EC18 | sheet:20,row:7,dataset:EC19 |sheet:21,row:7,dataset:EC20 |sheet:22,row:7,dataset:EC21 |sheet:23,row:7,dataset:EC22 | sheet:24,row:7,dataset:EC23 | sheet:25,row:7,dataset:EC24 | sheet:26,row:7,dataset:EC25");
+          "sheet:2,row:7,dataset:EC1 | sheet:3,row:7,dataset:EC2 | sheet:4,row:7,dataset:EC3 | sheet:5,row:7,dataset:EC4 | sheet:6,row:7,dataset:EC5 | sheet:7,row:7,dataset:EC6 | sheet:8,row:7,dataset:EC7 | sheet:9,row:7,dataset:EC8 | sheet:10,row:7,dataset:EC9 | sheet:11,row:7,dataset:EC10 | sheet:12,row:7,dataset:EC11 | sheet:13,row:7,dataset:EC12 | sheet:14,row:7,dataset:EC13 | sheet:15,row:7,dataset:EC14 | sheet:16,row:7,dataset:EC15 | sheet:17,row:7,dataset:EC16 | sheet:18,row:7,dataset:EC17 | sheet:19,row:7,dataset:EC18 | sheet:20,row:7,dataset:EC19 |sheet:21,row:7,dataset:EC20 |sheet:22,row:7,dataset:EC21 |sheet:23,row:7,dataset:EC22 | sheet:24,row:7,dataset:EC23 | sheet:25,row:7,dataset:EC24 | sheet:26,row:7,dataset:EC25 | sheet:27,row:7,dataset:EC26");
       props.put("sortWeight", "5000");
       props.put("sortWeight", "5000");
       reportDesign.setProperties(props);

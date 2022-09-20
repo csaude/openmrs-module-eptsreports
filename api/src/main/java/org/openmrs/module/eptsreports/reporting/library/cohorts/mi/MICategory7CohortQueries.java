@@ -50,24 +50,28 @@ public class MICategory7CohortQueries {
     definition.addSearch(
         "START-TPI-3HP-B4",
         EptsReportUtils.map(
-            this.mQCohortQueries.findPatientWhoStartTPINHDuringPeriodCategory7(), mappingsMI));
+            this.mQCohortQueries.findPatientWhoStartTPI3HPDuringPeriodCategory7(), mappingsMI));
 
     definition.addSearch(
         "TB-ACTIVE-CAT7-B1",
         EptsReportUtils.map(
-            this.mQCohortQueries.findPatientsDiagnosedWithActiveTBDuringDuringPeriodCategory7(),
+            this.mQCohortQueries
+                .findPatientsDiagnosedWithActiveTBDuring9MonthsAfterInitiatedTPICategory7(),
             mappingsMI));
 
     definition.addSearch(
         "TB-SCREENING-CAT7-B2",
         EptsReportUtils.map(
-            this.mQCohortQueries.findPatientsWithPositiveTBScreeningInDurindPeriodCategory7(),
+            this.mQCohortQueries
+                .findPatientsWithPositiveTBScreeningDuring9MonthsAfterInitiatedINHCategory7(),
             mappingsMI));
 
     definition.addSearch(
         "TB-TREATMENT-CAT7-B3",
         EptsReportUtils.map(
-            this.mQCohortQueries.finPatientHaveTBTreatmentDuringPeriodCategory7(), mappingsMI));
+            this.mQCohortQueries
+                .finPatientsWhoHadTBTreatmentDuring9MonthsAfterInitiatedINHCategory7(),
+            mappingsMI));
 
     definition.addSearch(
         "A",
@@ -154,12 +158,16 @@ public class MICategory7CohortQueries {
     definition.addSearch(
         "END-TPI-INH-G",
         EptsReportUtils.map(
-            this.mQCohortQueries.findPatientWhoCompleteTPIINHCategory7(), mappingsMI));
+            this.mQCohortQueries
+                .finPatientsWhoCompletedINHBetween170And297DaysAfterInitiatedTreatment(),
+            mappingsMI));
 
     definition.addSearch(
         "END-TPI-3HP-G",
         EptsReportUtils.map(
-            this.mQCohortQueries.findPatientWhoCompleteTPI3HPCategory7(), mappingsMI));
+            this.mQCohortQueries
+                .finPatientsWhoCompleted3HPBetween80And190DaysAfterInitiatedTreatment(),
+            mappingsMI));
 
     definition.setCompositionString("RF25-DENOMINATOR AND (END-TPI-INH-G OR END-TPI-3HP-G)");
 
@@ -217,22 +225,44 @@ public class MICategory7CohortQueries {
     definition.addSearch(
         "TB-ACTIVE-CAT7-B1",
         EptsReportUtils.map(
-            this.mQCohortQueries.findPatientsDiagnosedWithActiveTBDuringDuringPeriodCategory7(),
+            this.mQCohortQueries
+                .findPatientsDiagnosedWithActiveTBDuring9MonthsAfterInitiatedTPICategory7(),
             mappingsMI));
 
     definition.addSearch(
         "TB-SCREENING-CAT7-B2",
         EptsReportUtils.map(
-            this.mQCohortQueries.findPatientsWithPositiveTBScreeningInDurindPeriodCategory7(),
+            this.mQCohortQueries
+                .findPatientsWithPositiveTBScreeningDuring9MonthsAfterInitiatedINHCategory7(),
             mappingsMI));
 
     definition.addSearch(
         "TB-TREATMENT-CAT7-B3",
         EptsReportUtils.map(
-            this.mQCohortQueries.finPatientHaveTBTreatmentDuringPeriodCategory7(), mappingsMI));
+            this.mQCohortQueries
+                .finPatientsWhoHadTBTreatmentDuring9MonthsAfterInitiatedINHCategory7(),
+            mappingsMI));
+
+    definition.addSearch(
+        "A",
+        EptsReportUtils.map(
+            this.mQCohortQueries.findPatientWhoAreTBActiveASixMonthfterLastConsultationRF13_1(),
+            mappingsMI));
+
+    definition.addSearch(
+        "B",
+        EptsReportUtils.map(
+            this.mQCohortQueries.findPatientWhoAreTBScreeningSixMonthfterLastConsultationRF13_1(),
+            mappingsMI));
+
+    definition.addSearch(
+        "C",
+        EptsReportUtils.map(
+            this.mQCohortQueries.findPatientWhoAreTBTretmantSixMonthfterLastConsultationRF13_1(),
+            mappingsMI));
 
     definition.setCompositionString(
-        "(PREGNANT AND START-ART-A AND START-TPI-INH-B4) NOT (TB-ACTIVE-CAT7-B1 OR TB-SCREENING-CAT7-B2 OR TB-TREATMENT-CAT7-B3 OR TRANSFERED-IN OR TRANSFERED-OUT)");
+        "(PREGNANT AND START-ART-A AND START-TPI-INH-B4) NOT (TB-ACTIVE-CAT7-B1 OR TB-SCREENING-CAT7-B2 OR TB-TREATMENT-CAT7-B3 OR TRANSFERED-IN OR TRANSFERED-OUT OR A OR B OR C)");
 
     return definition;
   }

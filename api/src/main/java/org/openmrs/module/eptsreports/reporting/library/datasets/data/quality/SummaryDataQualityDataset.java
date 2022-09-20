@@ -58,6 +58,7 @@ public class SummaryDataQualityDataset extends BaseDataSet {
     final CohortDefinition summaryCohortQueryEC23 = summaryCohortQuery.getEC23Total();
     final CohortDefinition summaryCohortQueryEC24 = summaryCohortQuery.getEC24Total();
     final CohortDefinition summaryCohortQueryEC25 = summaryCohortQuery.getEC25Total();
+    final CohortDefinition summaryCohortQueryEC26 = summaryCohortQuery.getEC26Total();
 
     dsd.addColumn(
         "EC1",
@@ -357,6 +358,16 @@ public class SummaryDataQualityDataset extends BaseDataSet {
             this.eptsGeneralIndicator.getIndicator(
                 "summaryCohortQueryEC25Indicator",
                 EptsReportUtils.map(summaryCohortQueryEC25, mappings)),
+            mappings),
+        "");
+
+    dsd.addColumn(
+        "EC26",
+        "EC26:The patient has a clinical consultation with proflaxia TPT withou Estado",
+        EptsReportUtils.map(
+            this.eptsGeneralIndicator.getIndicator(
+                "summaryCohortQueryEC26Indicator",
+                EptsReportUtils.map(summaryCohortQueryEC26, mappings)),
             mappings),
         "");
 

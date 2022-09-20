@@ -19,7 +19,7 @@ import org.openmrs.module.eptsreports.reporting.library.cohorts.TbPrevCohortQuer
 import org.openmrs.module.eptsreports.reporting.library.cohorts.TxNewCohortQueries;
 import org.openmrs.module.eptsreports.reporting.library.cohorts.TxTbPrevCohortQueries;
 import org.openmrs.module.eptsreports.reporting.library.queries.BreastfeedingQueries;
-import org.openmrs.module.eptsreports.reporting.library.queries.DsdQueriesInterface;
+import org.openmrs.module.eptsreports.reporting.library.queries.DSDQueriesInterface;
 import org.openmrs.module.eptsreports.reporting.library.queries.Eri2MonthsQueriesInterface;
 import org.openmrs.module.eptsreports.reporting.library.queries.ErimType;
 import org.openmrs.module.eptsreports.reporting.library.queries.PrepNewQueries;
@@ -544,20 +544,32 @@ public class EptsCommonDimension {
     dimension.setName(name);
     dimension.addParameter(new Parameter("endDate", "End Date", Date.class));
 
-    String query = DsdQueriesInterface.QUERY.findPatientsAgeRange;
-    query = String.format(query, range.getMin(), range.getMax());
+    String query = DSDQueriesInterface.QUERY.findPatientsByAgeRange();
 
     switch (range) {
       case UNDER_TWO:
-        query =
-            query.replace(
-                "BETWEEN " + range.getMin() + " AND " + range.getMax(), " < " + range.getMax());
+        query +=
+            " >= "
+                + range.getMin()
+                + " and floor(datediff(:endDate,person.birthdate)/365) < "
+                + range.getMax();
+        break;
+
+      case TWO_TO_FOUR:
+        query += "between " + range.getMin() + " and " + range.getMax();
+        break;
+
+      case FIVE_TO_NINE:
+        query += "between " + range.getMin() + " and " + range.getMax();
+        break;
+
+      case TEN_TO_FOURTEEN:
+        query += "between " + range.getMin() + " and " + range.getMax();
         break;
 
       case ADULT:
-        query =
-            query.replace(
-                "BETWEEN " + range.getMin() + " AND " + range.getMax(), " >= " + range.getMax());
+        query += " >= 15 ";
+        break;
 
       default:
         break;

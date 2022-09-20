@@ -75,7 +75,8 @@ public class TxMLPatientsWhoMissedNextApointmentCalculation extends TxMLPatientC
     parameters.put("endDate", DateUtil.adjustDate(endDate, -3, DurationUnit.MONTHS));
     parameters.put("location", location);
 
-    EvaluationContext newContext = this.getNewEvaluationContext(parameters);
+    EvaluationContext newContext =
+        TxMLPatientsWhoMissedNextApointmentCalculation.getNewEvaluationContext(parameters);
 
     this.excludeTransferredOutFromPreviousReportingPeriod(
         newContext,
@@ -262,7 +263,7 @@ public class TxMLPatientsWhoMissedNextApointmentCalculation extends TxMLPatientC
     }
   }
 
-  private EvaluationContext getNewEvaluationContext(Map<String, Object> parameters) {
+  public static EvaluationContext getNewEvaluationContext(Map<String, Object> parameters) {
     EvaluationContext context = new EvaluationContext();
     for (Entry<String, Object> entry : parameters.entrySet()) {
       context.addParameterValue(entry.getKey(), entry.getValue());

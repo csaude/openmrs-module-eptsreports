@@ -5,6 +5,7 @@ import org.openmrs.Location;
 import org.openmrs.module.eptsreports.reporting.library.queries.data.quality.EC23Queries;
 import org.openmrs.module.eptsreports.reporting.library.queries.data.quality.EC24Queries;
 import org.openmrs.module.eptsreports.reporting.library.queries.data.quality.EC25Queries;
+import org.openmrs.module.eptsreports.reporting.library.queries.data.quality.EC26Queries;
 import org.openmrs.module.eptsreports.reporting.library.queries.data.quality.Ec15Queries;
 import org.openmrs.module.eptsreports.reporting.library.queries.data.quality.Ec1Queries;
 import org.openmrs.module.eptsreports.reporting.library.queries.data.quality.Ec20Queries;
@@ -196,6 +197,21 @@ public class SummaryCohortQuery {
     definition.addParameter(new Parameter("location", "Location", Location.class));
 
     String query = EC25Queries.getEc25Total();
+
+    definition.setQuery(query);
+
+    return definition;
+  }
+
+  public CohortDefinition getEC26Total() {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+    definition.setName("EC26");
+    definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
+
+    String query = EC26Queries.getEc26Total();
 
     definition.setQuery(query);
 

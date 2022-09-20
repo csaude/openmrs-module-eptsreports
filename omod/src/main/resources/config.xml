@@ -1672,95 +1672,10 @@
 
 	<!--Reports to be Deleted -->
 	<globalProperty>
-		<property>eptsoldreports.ad418753-8a1c-4f5f-8c61-5599369bd5d2</property>
-		<defaultValue>ad418753-8a1c-4f5f-8c61-5599369bd5d2</defaultValue>
-		<description>Report to be Deleted:Number of All Transfers Report</description>
+		<property>eptsoldreports.4d214046-4543-4ee7-8dc5-576024cb32dc</property>
+		<defaultValue>4d214046-4543-4ee7-8dc5-576024cb32dc</defaultValue>
+		<description>Report to be Deleted:LISTA DE PACIENTES QUE LEVANTARAM ARV NUM PERIODO</description>
 	</globalProperty>
-	
-	<globalProperty>
-		<property>eptsoldreports.9667a78e-4881-11e7-a919-92ebcb67fe33</property>
-		<defaultValue>9667a78e-4881-11e7-a919-92ebcb67fe33</defaultValue>
-		<description>Report to be Deleted:Number of Visits Report</description>
-	</globalProperty>
-	
-	<globalProperty>
-		<property>eptsoldreports.d39509bc-4881-11e7-a919-92ebcb67fe33</property>
-		<defaultValue>d39509bc-4881-11e7-a919-92ebcb67fe33</defaultValue>
-		<description>Report to be Deleted:Number of Admissions Report</description>
-	</globalProperty>
-	
-	<globalProperty>
-		<property>eptsoldreports.d3950ea8-4881-11e7-a919-92ebcb67fe33</property>
-		<defaultValue>d3950ea8-4881-11e7-a919-92ebcb67fe33</defaultValue>
-		<description>Report to be Deleted:List of Providers Report</description>
-	</globalProperty>
-	
-	<globalProperty>
-		<property>eptsoldreports.e451ae04-4881-11e7-a919-92ebcb67fe45</property>
-		<defaultValue>e451ae04-4881-11e7-a919-92ebcb67fe45</defaultValue>
-		<description>Report to be Deleted:List of Patients for this Provider Report</description>
-	</globalProperty>
-	
-	<globalProperty>
-		<property>eptsoldreports.e451a9d6-4881-11e7-a919-92ebcb67fe33</property>
-		<defaultValue>e451a9d6-4881-11e7-a919-92ebcb67fe33</defaultValue>
-		<description>Report to be Deleted:List of New Patient Registrations Report</description>
-	</globalProperty>
-	
-	<globalProperty>
-		<property>eptsoldreports.d1a00e10-cecb-4775-8c4f-2ed0b059d7b9</property>
-		<defaultValue>d1a00e10-cecb-4775-8c4f-2ed0b059d7b9</defaultValue>
-		<description>Report to be Deleted:Number of All Discharges Report</description>
-	</globalProperty>
-	
-	<globalProperty>
-		<property>eptsoldreports.e451ae04-4881-11e7-a919-92ebcb67fe24</property>
-		<defaultValue>e451ae04-4881-11e7-a919-92ebcb67fe24</defaultValue>
-		<description>Report to be Deleted:List of Patients affected by this Diagnosis Report</description>
-	</globalProperty>
-	
-	<globalProperty>
-		<property>eptsoldreports.d3950d7c-4881-11e7-a919-92ebcb67fe33</property>
-		<defaultValue>d3950d7c-4881-11e7-a919-92ebcb67fe33</defaultValue>
-		<description>Report to be Deleted:List of Users Report</description>
-	</globalProperty>
-	
-	<globalProperty>
-		<property>eptsoldreports.9667ac52-4881-11e7-a919-92ebcb67fe33</property>
-		<defaultValue>9667ac52-4881-11e7-a919-92ebcb67fe33</defaultValue>
-		<description>Report to be Deleted:Number of Visit Notes Report</description>
-	</globalProperty>
-	
-	<globalProperty>
-		<property>eptsoldreports.923b9664-84c3-4988-a888-458c42405605</property>
-		<defaultValue>923b9664-84c3-4988-a888-458c42405605</defaultValue>
-		<description>Report to be Deleted:Number of All Admissions Report</description>
-	</globalProperty>
-	
-	<globalProperty>
-		<property>eptsoldreports.b39c5070-4881-11e7-a919-92ebcb67fe33</property>
-		<defaultValue>b39c5070-4881-11e7-a919-92ebcb67fe33</defaultValue>
-		<description>Report to be Deleted:Number of Discharges Report</description>
-	</globalProperty>
-	
-	<globalProperty>
-		<property>eptsoldreports.b39c4c4c-4881-11e7-a919-92ebcb67fe33</property>
-		<defaultValue>b39c4c4c-4881-11e7-a919-92ebcb67fe33</defaultValue>
-		<description>Report to be Deleted:Number of Transfers Report</description>
-	</globalProperty>
-	
-	<globalProperty>
-		<property>eptsoldreports.d71b5170-5283-11e7-b114-b2f933d5fe66</property>
-		<defaultValue>d71b5170-5283-11e7-b114-b2f933d5fe66</defaultValue>
-		<description>Report to be Deleted:Number of Patient Registrations Report</description>
-	</globalProperty>
-	
-	<globalProperty>
-		<property>eptsoldreports.e451ae04-4881-11e7-a919-92ebcb67fe33</property>
-		<defaultValue>e451ae04-4881-11e7-a919-92ebcb67fe33</defaultValue>
-		<description>Report to be Deleted:List of Diagnosis Report</description>
-	</globalProperty>
-	
 	
 	<!-- <dwr> <allow> <create creator="new" javascript="DWRFormEntryService"> 
 		<param name="class" value="org.openmrs.module.@MODULE_ID@.web.DWRFormEntryService"/> 
