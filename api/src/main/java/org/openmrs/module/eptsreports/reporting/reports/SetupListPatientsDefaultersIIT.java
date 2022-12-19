@@ -6,7 +6,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import org.openmrs.module.eptsreports.reporting.library.cohorts.GenericCohortQueries;
+import org.openmrs.module.eptsreports.reporting.library.datasets.DatimCodeDataSet;
 import org.openmrs.module.eptsreports.reporting.library.datasets.ListPatientsDefaultersIITDataSet;
+import org.openmrs.module.eptsreports.reporting.library.datasets.SismaCodeDataSet;
 import org.openmrs.module.eptsreports.reporting.library.queries.BaseQueries;
 import org.openmrs.module.eptsreports.reporting.reports.manager.EptsDataExportManager;
 import org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils;
@@ -25,6 +27,10 @@ public class SetupListPatientsDefaultersIIT extends EptsDataExportManager {
   @Autowired private GenericCohortQueries genericCohortQueries;
 
   @Autowired private ListPatientsDefaultersIITDataSet listPatientsDefaultersIITDataSet;
+
+  @Autowired private DatimCodeDataSet datimCodeDataset;
+
+  @Autowired private SismaCodeDataSet sismaCodeDataset;
 
   @Override
   public String getExcelDesignUuid() {
@@ -70,6 +76,14 @@ public class SetupListPatientsDefaultersIIT extends EptsDataExportManager {
         Mapped.mapStraightThrough(
             listPatientsDefaultersIITDataSet.constructDataset(this.getParameters())));
 
+    rd.addDataSetDefinition(
+        "D",
+        Mapped.mapStraightThrough(this.datimCodeDataset.constructDataset(this.getParameters())));
+
+    rd.addDataSetDefinition(
+        "SC",
+        Mapped.mapStraightThrough(this.sismaCodeDataset.constructDataset(this.getParameters())));
+
     rd.setBaseCohortDefinition(
         EptsReportUtils.map(
             this.genericCohortQueries.generalSql(
@@ -91,7 +105,7 @@ public class SetupListPatientsDefaultersIIT extends EptsDataExportManager {
               null);
 
       Properties props = new Properties();
-      props.put("repeatingSections", "sheet:1,row:8,dataset:DEFAULTERIIT");
+      props.put("repeatingSections", "sheet:1,row:10,dataset:DEFAULTERIIT");
       props.put("sortWeight", "5000");
       reportDesign.setProperties(props);
     } catch (IOException e) {

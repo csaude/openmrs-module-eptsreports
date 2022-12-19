@@ -4,8 +4,8 @@ package org.openmrs.module.eptsreports.reporting.library.dimensions;
 import java.util.Date;
 import org.openmrs.Location;
 import org.openmrs.module.eptsreports.reporting.library.cohorts.GenericCohortQueries;
+import org.openmrs.module.eptsreports.reporting.library.queries.KeyPopQuery;
 import org.openmrs.module.eptsreports.reporting.library.queries.KeyPopType;
-import org.openmrs.module.eptsreports.reporting.library.queries.MisauKeyPopQuery;
 import org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.indicator.dimension.CohortDefinitionDimension;
@@ -33,7 +33,7 @@ public class KeyPopulationDimension {
         "homosexual",
         EptsReportUtils.map(
             this.genericCohortQueries.generalSql(
-                "homosexual", MisauKeyPopQuery.findPatientsWhoAreKeyPop(KeyPopType.HOMOSEXUAL)),
+                "homosexual", KeyPopQuery.findPatientsWhoAreKeyPop(KeyPopType.HOMOSEXUAL)),
             mappings));
 
     return dimension;
@@ -53,7 +53,7 @@ public class KeyPopulationDimension {
         "drug-user",
         EptsReportUtils.map(
             this.genericCohortQueries.generalSql(
-                "drug-user", MisauKeyPopQuery.findPatientsWhoAreKeyPop(KeyPopType.DRUGUSER)),
+                "drug-user", KeyPopQuery.findPatientsWhoAreKeyPop(KeyPopType.DRUGUSER)),
             mappings));
 
     return dimension;
@@ -73,7 +73,7 @@ public class KeyPopulationDimension {
         "prisioner",
         EptsReportUtils.map(
             this.genericCohortQueries.generalSql(
-                "prisioner", MisauKeyPopQuery.findPatientsWhoAreKeyPop(KeyPopType.PRISIONER)),
+                "prisioner", KeyPopQuery.findPatientsWhoAreKeyPop(KeyPopType.PRISIONER)),
             mappings));
 
     return dimension;
@@ -93,7 +93,7 @@ public class KeyPopulationDimension {
         "sex-worker",
         EptsReportUtils.map(
             this.genericCohortQueries.generalSql(
-                "sex-worker", MisauKeyPopQuery.findPatientsWhoAreKeyPop(KeyPopType.SEXWORKER)),
+                "sex-worker", KeyPopQuery.findPatientsWhoAreKeyPop(KeyPopType.SEXWORKER)),
             mappings));
 
     return dimension;

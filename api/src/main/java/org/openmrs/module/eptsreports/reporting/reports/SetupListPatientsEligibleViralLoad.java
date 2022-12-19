@@ -49,7 +49,7 @@ public class SetupListPatientsEligibleViralLoad extends EptsDataExportManager {
 
   @Override
   public String getDescription() {
-    return "This report generates the aggregate numbers and lists all patients on ART who are eligible for a Viral Load sample collection by informed end date";
+    return "This report generates the aggregate numbers and lists all patients on ART who are eligible for a Viral Load sample collection and who have a visit scheduled within the informed reporting period.";
   }
 
   @Override

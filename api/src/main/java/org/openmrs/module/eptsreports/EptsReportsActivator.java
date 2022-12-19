@@ -14,8 +14,11 @@
 
 package org.openmrs.module.eptsreports;
 
+import java.io.InputStream;
+import java.util.Properties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openmrs.GlobalProperty;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.BaseModuleActivator;
 import org.openmrs.module.eptsreports.metadata.ConfigurableMetadataLookupException;
@@ -51,6 +54,8 @@ public class EptsReportsActivator extends BaseModuleActivator {
     try {
       reportsInitializer.purgeReports();
       log.debug("EPTS Reports purged");
+      Context.getAdministrationService()
+          .purgeGlobalProperty(new GlobalProperty(EptsReportsConfig.SESP_VERSION));
     } catch (Exception e) {
       log.error("An error occured trying to purge EPTS reports", e);
     }
@@ -58,6 +63,7 @@ public class EptsReportsActivator extends BaseModuleActivator {
 
   /** @see #started() */
   public void started() {
+
     try {
       reportsInitializer.initializeReports();
       log.info("Started EPTS Reports Module");
@@ -75,11 +81,49 @@ public class EptsReportsActivator extends BaseModuleActivator {
     } catch (Exception e) {
       throw e;
     }
+
+    log.debug("updating SESP version...");
+    Context.getAdministrationService()
+        .setGlobalProperty(EptsReportsConfig.SESP_VERSION, getSESPVersion());
     log.debug("Finished Deleting old reports...");
   }
 
   /** @see #stopped() */
   public void stopped() {
     log.info("Stopped EPTS Reports Module");
+  }
+
+  private synchronized String getSESPVersion() {
+    String version = null;
+
+    try {
+      Properties p = new Properties();
+      InputStream is =
+          getClass()
+              .getResourceAsStream(
+                  "/META-INF/maven/org.openmrs.module/eptsreports-omod/pom.properties");
+
+      if (is != null) {
+        p.load(is);
+        version = p.getProperty("version", "");
+      }
+    } catch (Exception e) {
+    }
+
+    if (version == null) {
+      Package aPackage = getClass().getPackage();
+      if (aPackage != null) {
+        version = aPackage.getImplementationVersion();
+        if (version == null) {
+          version = aPackage.getSpecificationVersion();
+        }
+      }
+    }
+
+    if (version == null) {
+      version = "";
+    }
+
+    return version;
   }
 }

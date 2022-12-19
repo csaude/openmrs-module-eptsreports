@@ -22,6 +22,29 @@ import org.springframework.stereotype.Component;
 @Component
 public class TxMlCohortQueries {
 
+  public CohortDefinition getPatientstotalIIT() {
+    String mapping = "startDate=${startDate},endDate=${endDate},location=${location}";
+    CompositionCohortDefinition cd = new CompositionCohortDefinition();
+    cd.setName("Get patients who are IIT (Totals)");
+    cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+    cd.addParameter(new Parameter("endDate", "End Date", Date.class));
+    cd.addParameter(new Parameter("location", "Location", Location.class));
+
+    cd.addSearch(
+        "IITLess3Months", EptsReportUtils.map(this.getPatientsWhoAreIITLessThan3Months(), mapping));
+
+    cd.addSearch(
+        "IIT3-5Months",
+        EptsReportUtils.map(this.getPatientsWhoAreIITBetween3And5Months(), mapping));
+
+    cd.addSearch(
+        "IIT-6OrGreaterMonths",
+        EptsReportUtils.map(this.getPatientsWhoAreIITGreaterOrEqual6Months(), mapping));
+
+    cd.setCompositionString("(IITLess3Months OR IIT3-5Months OR IIT-6OrGreaterMonths");
+    return cd;
+  }
+
   public CohortDefinition getPatientsWhoAreIITLessThan3Months() {
     String mapping = "startDate=${startDate},endDate=${endDate},location=${location}";
     CompositionCohortDefinition cd = new CompositionCohortDefinition();

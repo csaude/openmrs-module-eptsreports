@@ -76,12 +76,12 @@ public class SetupMERQuarterly extends EptsDataExportManager {
 
   @Override
   public String getName() {
-    return "PEPFAR MER 2.6 Quarterly";
+    return "PEPFAR MER 2.6.1 Quarterly";
   }
 
   @Override
   public String getDescription() {
-    return "MER Quarterly Report";
+    return "PEPFAR MER 2.6.1 Quarterly";
   }
 
   @Override
@@ -136,8 +136,8 @@ public class SetupMERQuarterly extends EptsDataExportManager {
       reportDesign =
           this.createXlsReportDesign(
               reportDefinition,
-              "PEPFAR_MER_2.6_QUARTERLY.xls",
-              "PEPFAR MER 2.6 Quarterly Report",
+              "PEPFAR_MER_2.6.1_Quarterly.xls",
+              "PEPFAR MER 2.6.1 Quarterly",
               this.getExcelDesignUuid(),
               null);
       final Properties props = new Properties();

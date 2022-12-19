@@ -3,10 +3,10 @@ select coorte12meses_final.patient_id as patient_id,
                     concat(ifnull(pn.given_name,''),' ',ifnull(pn.middle_name,''),' ',ifnull(pn.family_name,'')) as NomeCompleto, 
                     pid.identifier as NID, 
                     p.gender as gender, 
-                    round(datediff(:endDate,p.birthdate)/365) as idade_actual, 
+                    floor(datediff(:endDate,p.birthdate)/365) as idade_actual, 
                     TPT_ELIG_FR16.decisao as gravidaLactante, 
                     TPT_ELIG_FR19.data_seguimento as data_seguimento, 
-                    TPT_ELIG_FR19.value_datetime as data_proximo_seguimento,
+                    TPT_ELIG_FR19.data_proximo_seguimento as data_proximo_seguimento,
                     DATE_FORMAT(DATE(coorte12meses_final.data_fila), '%d-%m-%Y') as LAST_FILA, 
                     DATE_FORMAT(DATE(coorte12meses_final.data_proximo_lev), '%d-%m-%Y') as NEXT_FILA
              from 
@@ -115,7 +115,7 @@ select coorte12meses_final.patient_id as patient_id,
                 group by patient_id          
             ) saida on inicio.patient_id=saida.patient_id 
             left join 
-            (   Select  p.patient_id,max(encounter_datetime) data_fila 
+            (   Select  p.patient_id,max(encounter_datetime) data_fila
                 from    patient p  
                         inner join encounter e on e.patient_id=p.patient_id 
                 where   p.voided=0 and e.voided=0 and e.encounter_type=18 and  
@@ -132,7 +132,7 @@ select coorte12meses_final.patient_id as patient_id,
             ) max_consulta on inicio.patient_id=max_consulta.patient_id 
             left join 
             ( 
-                Select  p.patient_id,max(value_datetime) data_recepcao_levantou 
+                Select  p.patient_id,max(value_datetime) data_recepcao_levantou
                 from    patient p 
                         inner join encounter e on p.patient_id=e.patient_id 
                         inner join obs o on e.encounter_id=o.encounter_id 
@@ -143,10 +143,9 @@ select coorte12meses_final.patient_id as patient_id,
             ) max_recepcao on inicio.patient_id=max_recepcao.patient_id 
             group by inicio.patient_id 
             ) inicio_fila_seg 
-            left join 
-                obs obs_fila on obs_fila.person_id=inicio_fila_seg.patient_id 
+            left join encounter e on (e.patient_id = inicio_fila_seg.patient_id and e.encounter_datetime = inicio_fila_seg.data_fila and e.encounter_type = 18)
+            left join obs obs_fila on obs_fila.encounter_id=e.encounter_id 
                 and obs_fila.voided=0 
-                and obs_fila.obs_datetime=inicio_fila_seg.data_fila 
                 and obs_fila.concept_id=5096 
                 and obs_fila.location_id=:location
             left join 
@@ -191,7 +190,7 @@ select coorte12meses_final.patient_id as patient_id,
                 ( 
                     select patient_id,min(patient_identifier_id) id 
                     from patient_identifier 
-                    where voided=0 
+                    where voided=0 and identifier_type = 2
                     group by patient_id 
                 ) pid2 
                 where pid1.patient_id=pid2.patient_id and pid1.patient_identifier_id=pid2.id 
@@ -206,7 +205,7 @@ select coorte12meses_final.patient_id as patient_id,
                         inner join obs obsEstado on obsEstado.encounter_id = e.encounter_id
                       where   e.encounter_type in(6,9,53) and  ultimaProfilaxiaIsoniazia.concept_id=23985 and ultimaProfilaxiaIsoniazia.value_coded=656 
                       and obsEstado.concept_id=165308 and obsEstado.value_coded=1256 
-                      and p.voided=0 and e.voided=0 and ultimaProfilaxiaIsoniazia.voided=0 and obsEstado.voided=0 and   e.location_id =:location
+                      and p.voided=0 and e.voided=0 and ultimaProfilaxiaIsoniazia.voided=0 and obsEstado.voided=0 and e.location_id =:location
                       and obsEstado.obs_datetime between (:endDate - INTERVAL 7 MONTH) and :endDate
                       group by p.patient_id  
                      
@@ -214,11 +213,11 @@ select coorte12meses_final.patient_id as patient_id,
 
                      select p.patient_id,min(e.encounter_datetime) data_inicio_INH 
                      from patient p 
-                      	inner join encounter e on p.patient_id=e.patient_id 
+                        inner join encounter e on p.patient_id=e.patient_id 
                          inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id=e.encounter_id 
                          inner join obs seguimentoTPT on seguimentoTPT.encounter_id=e.encounter_id
                        where p.voided=0 and e.voided=0 and regimeIsoniazida.voided=0 and seguimentoTPT.voided =0
-                       	and e.encounter_type=60 and regimeIsoniazida.concept_id=23985 and regimeIsoniazida.value_coded in (656,23982) and seguimentoTPT.concept_id =23987 and seguimentoTPT.value_coded in (1256,1705) --  (1257) --inicio or reinicio
+                        and e.encounter_type=60 and regimeIsoniazida.concept_id=23985 and regimeIsoniazida.value_coded in (656,23982) and seguimentoTPT.concept_id =23987 and seguimentoTPT.value_coded in (1256,1705) --  (1257) --inicio or reinicio
                          and e.encounter_datetime between (:endDate - INTERVAL 7 MONTH) and :endDate and  e.location_id =:location
                          group by p.patient_id 
                      
@@ -226,45 +225,45 @@ select coorte12meses_final.patient_id as patient_id,
                      
                      select inicio.patient_id,inicio.data_inicio_INH 
                      from (  
-                        		select p.patient_id,min(e.encounter_datetime) data_inicio_INH from patient p                                                             
-                        			inner join encounter e on p.patient_id=e.patient_id                                                                                          
-                        			inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id=e.encounter_id                                                                                            
-                        			left join obs seguimentoTPT on ( seguimentoTPT.encounter_id=e.encounter_id and seguimentoTPT.voided =0 and seguimentoTPT.concept_id =23987 )                                                                   
-                    		where p.voided=0 and e.voided=0 and regimeIsoniazida.voided=0  
-                        			and e.encounter_type=60 and regimeIsoniazida.concept_id=23985 and regimeIsoniazida.value_coded in (656,23982)     
-                        			and e.encounter_datetime between (:endDate - INTERVAL 7 MONTH) and :endDate and  e.location_id =:location                 
-                        			and ( seguimentoTPT.value_coded = 1257 or  seguimentoTPT.value_coded is null )
-                        			group by p.patient_id 
-                    		) 
-                    	inicio
-	                    left join
-	                    (   
-		                    select p.patient_id,e.encounter_datetime data_inicio_INH 
-		                   	from patient p 
-		                    	inner join encounter e on p.patient_id=e.patient_id 
-		                    	inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id=e.encounter_id 
-		                    where p.voided=0 and e.voided=0 and regimeIsoniazida.voided=0 
-		                    	and e.encounter_type=60 and regimeIsoniazida.concept_id=23985 and regimeIsoniazida.value_coded in (656,23982)
-		                    	and e.encounter_datetime between (:endDate - INTERVAL 15 MONTH) and :endDate and  e.location_id =:location
-		                   
-		                    union
-		                    
-		                    select p.patient_id, obsEstado.obs_datetime data_inicio_INH 
-		                    from patient p 
-		                    	inner join encounter e on p.patient_id = e.patient_id 
-		                         inner join obs ultimaProfilaxiaIsoniazia on ultimaProfilaxiaIsoniazia.encounter_id = e.encounter_id 
-		                         inner join obs obsEstado on obsEstado.encounter_id = e.encounter_id
-		                    where e.encounter_type in(6,9,53) and  ultimaProfilaxiaIsoniazia.concept_id=23985 and ultimaProfilaxiaIsoniazia.value_coded=656 
-		                    	and obsEstado.concept_id=165308 and obsEstado.value_coded=1256 
-		                         and p.voided=0 and e.voided=0 and ultimaProfilaxiaIsoniazia.voided=0 and obsEstado.voided=0 and   e.location_id =:location
-		                         and obsEstado.obs_datetime between (:endDate - INTERVAL 15 MONTH) and :endDate
-		                     )inicioAnterior on inicioAnterior.patient_id=inicio.patient_id and  inicioAnterior.data_inicio_INH between (inicio.data_inicio_INH - INTERVAL 7 MONTH) and (inicio.data_inicio_INH - INTERVAL 1 day) 
+                                select p.patient_id,min(e.encounter_datetime) data_inicio_INH from patient p                                                             
+                                    inner join encounter e on p.patient_id=e.patient_id                                                                                          
+                                    inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id=e.encounter_id                                                                                            
+                                    left join obs seguimentoTPT on ( seguimentoTPT.encounter_id=e.encounter_id and seguimentoTPT.voided =0 and seguimentoTPT.concept_id =23987 )                                                                   
+                            where p.voided=0 and e.voided=0 and regimeIsoniazida.voided=0  
+                                    and e.encounter_type=60 and regimeIsoniazida.concept_id=23985 and regimeIsoniazida.value_coded in (656,23982)     
+                                    and e.encounter_datetime between (:endDate - INTERVAL 7 MONTH) and :endDate and  e.location_id =:location                 
+                                    and ( seguimentoTPT.value_coded = 1257 or  seguimentoTPT.value_coded is null )
+                                    group by p.patient_id 
+                            ) 
+                        inicio
+                        left join
+                        (   
+                            select p.patient_id,e.encounter_datetime data_inicio_INH 
+                            from patient p 
+                                inner join encounter e on p.patient_id=e.patient_id 
+                                inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id=e.encounter_id 
+                            where p.voided=0 and e.voided=0 and regimeIsoniazida.voided=0 
+                                and e.encounter_type=60 and regimeIsoniazida.concept_id=23985 and regimeIsoniazida.value_coded in (656,23982)
+                                and e.encounter_datetime between (:endDate - INTERVAL 15 MONTH) and :endDate and  e.location_id =:location
+                           
+                            union
+                            
+                            select p.patient_id, obsEstado.obs_datetime data_inicio_INH 
+                            from patient p 
+                                inner join encounter e on p.patient_id = e.patient_id 
+                                 inner join obs ultimaProfilaxiaIsoniazia on ultimaProfilaxiaIsoniazia.encounter_id = e.encounter_id 
+                                 inner join obs obsEstado on obsEstado.encounter_id = e.encounter_id
+                            where e.encounter_type in(6,9,53) and  ultimaProfilaxiaIsoniazia.concept_id=23985 and ultimaProfilaxiaIsoniazia.value_coded=656 
+                                and obsEstado.concept_id=165308 and obsEstado.value_coded=1256 
+                                 and p.voided=0 and e.voided=0 and ultimaProfilaxiaIsoniazia.voided=0 and obsEstado.voided=0 and   e.location_id =:location
+                                 and obsEstado.obs_datetime between (:endDate - INTERVAL 15 MONTH) and :endDate
+                             )inicioAnterior on inicioAnterior.patient_id=inicio.patient_id and  inicioAnterior.data_inicio_INH between (inicio.data_inicio_INH - INTERVAL 7 MONTH) and (inicio.data_inicio_INH - INTERVAL 1 day) 
                        where inicioAnterior.patient_id is null 
                  union
                  
                  select p.patient_id, min(obsEstado.obs_datetime) data_inicio_3HP 
                  from patient p 
-                 	inner join encounter e on p.patient_id = e.patient_id 
+                    inner join encounter e on p.patient_id = e.patient_id 
                     inner join obs ultimaProfilaxiaIsoniazia on ultimaProfilaxiaIsoniazia.encounter_id = e.encounter_id 
                     inner join obs obsEstado on obsEstado.encounter_id = e.encounter_id
                   where e.encounter_type in(6,9,53) and  ultimaProfilaxiaIsoniazia.concept_id=23985 and ultimaProfilaxiaIsoniazia.value_coded=23954 
@@ -275,20 +274,20 @@ select coorte12meses_final.patient_id as patient_id,
                 union
                 select p.patient_id, min(e.encounter_datetime) data_inicio_3HP 
                 from patient p 
-                	inner join encounter e on p.patient_id = e.patient_id 
+                    inner join encounter e on p.patient_id = e.patient_id 
                     inner join obs o on o.encounter_id = e.encounter_id
                 where e.encounter_type in (6,9) and o.concept_id=1719 and o.value_coded=165307 
-                	and p.voided=0 and e.voided=0 and o.voided=0
+                    and p.voided=0 and e.voided=0 and o.voided=0
                     and e.encounter_datetime between (:endDate -  INTERVAL 120 DAY) and :endDate
                     group by p.patient_id
                 union         
                 
                 select p.patient_id,min(e.encounter_datetime) data_inicio_3HP from patient p                                                             
-                	inner join encounter e on p.patient_id=e.patient_id                                                                                          
+                    inner join encounter e on p.patient_id=e.patient_id                                                                                          
                     inner join obs regime3HP on regime3HP.encounter_id=e.encounter_id                                                                                            
                     inner join obs seguimentoTPT on seguimentoTPT.encounter_id=e.encounter_id                                                                    
                 where p.voided=0 and e.voided=0 and regime3HP.voided=0 and seguimentoTPT.voided =0 
-                	and e.encounter_type=60  and regime3HP.concept_id=23985 and regime3HP.value_coded in (23954,23984) and seguimentoTPT.concept_id =23987 and seguimentoTPT.value_coded in (1256,1705)
+                    and e.encounter_type=60  and regime3HP.concept_id=23985 and regime3HP.value_coded in (23954,23984) and seguimentoTPT.concept_id =23987 and seguimentoTPT.value_coded in (1256,1705)
                     and e.encounter_datetime between (:endDate - INTERVAL 120 DAY) and :endDate and  e.location_id =:location                   
                     group by p.patient_id  
                 
@@ -296,48 +295,48 @@ select coorte12meses_final.patient_id as patient_id,
                 
                 select inicio.patient_id,inicio.data_inicio_3HP 
                 from (
-	           		select p.patient_id,min(e.encounter_datetime) data_inicio_3HP 
-	                  	from patient p 
-	                  		inner join encounter e on p.patient_id=e.patient_id 
-	                       	inner join obs regime3HP on regime3HP.encounter_id=e.encounter_id 
-	                        	left join obs seguimentoTPT on (seguimentoTPT.encounter_id=e.encounter_id and seguimentoTPT.voided = 0 and seguimentoTPT.concept_id =23987 )       
-	                    where p.voided=0 and e.voided=0 and regime3HP.voided=0 
-	                    	and e.encounter_type=60 and regime3HP.concept_id=23985 and regime3HP.value_coded in (23954,23984)      
-	                       	and e.encounter_datetime between (:endDate - INTERVAL 120 DAY) and :endDate and  e.location_id =:location
-	                         and ( seguimentoTPT.value_coded in (1257,1267) or seguimentoTPT.value_coded is null) 
-	                         group by p.patient_id 
+                    select p.patient_id,min(e.encounter_datetime) data_inicio_3HP 
+                        from patient p 
+                            inner join encounter e on p.patient_id=e.patient_id 
+                            inner join obs regime3HP on regime3HP.encounter_id=e.encounter_id 
+                                left join obs seguimentoTPT on (seguimentoTPT.encounter_id=e.encounter_id and seguimentoTPT.voided = 0 and seguimentoTPT.concept_id =23987 )       
+                        where p.voided=0 and e.voided=0 and regime3HP.voided=0 
+                            and e.encounter_type=60 and regime3HP.concept_id=23985 and regime3HP.value_coded in (23954,23984)      
+                            and e.encounter_datetime between (:endDate - INTERVAL 120 DAY) and :endDate and  e.location_id =:location
+                             and ( seguimentoTPT.value_coded in (1257,1267) or seguimentoTPT.value_coded is null) 
+                             group by p.patient_id 
                         ) 
                     inicio  
                     left join  
                     (   
-                    	select p.patient_id,e.encounter_datetime data_inicio_3HP 
+                        select p.patient_id,e.encounter_datetime data_inicio_3HP 
                          from patient p 
-                         	inner join encounter e on p.patient_id=e.patient_id 
+                            inner join encounter e on p.patient_id=e.patient_id 
                               inner join obs regime3HP on regime3HP.encounter_id=e.encounter_id 
-                        	where p.voided=0 and e.voided=0 and regime3HP.voided=0  
-                          	and e.encounter_type=60 and regime3HP.concept_id=23985 and regime3HP.value_coded in (23954,23984)
+                            where p.voided=0 and e.voided=0 and regime3HP.voided=0  
+                            and e.encounter_type=60 and regime3HP.concept_id=23985 and regime3HP.value_coded in (23954,23984)
                               and e.encounter_datetime between (:endDate - INTERVAL 9 MONTH) and :endDate and e.location_id =:location
-                    	
-                    	union
-                    	
-                    	select p.patient_id, obsEstado.obs_datetime data_inicio_3HP 
-                        	from patient p 
-                         	inner join encounter e on p.patient_id = e.patient_id 
-                            	inner join obs ultimaProfilaxiaIsoniazia on ultimaProfilaxiaIsoniazia.encounter_id = e.encounter_id 
-                            	inner join obs obsEstado on obsEstado.encounter_id = e.encounter_id
+                        
+                        union
+                        
+                        select p.patient_id, obsEstado.obs_datetime data_inicio_3HP 
+                            from patient p 
+                            inner join encounter e on p.patient_id = e.patient_id 
+                                inner join obs ultimaProfilaxiaIsoniazia on ultimaProfilaxiaIsoniazia.encounter_id = e.encounter_id 
+                                inner join obs obsEstado on obsEstado.encounter_id = e.encounter_id
                           where e.encounter_type in(6,9,53) and  ultimaProfilaxiaIsoniazia.concept_id=23985 and ultimaProfilaxiaIsoniazia.value_coded=23954 
-                          	and obsEstado.concept_id=165308 and obsEstado.value_coded=1256 
-                          	and p.voided=0 and e.voided=0 and ultimaProfilaxiaIsoniazia.voided=0 and obsEstado.voided=0 and   e.location_id =:location
-                          	and obsEstado.obs_datetime between (:endDate - INTERVAL 9 MONTH) and :endDate
-                    	
-                    	union
+                            and obsEstado.concept_id=165308 and obsEstado.value_coded=1256 
+                            and p.voided=0 and e.voided=0 and ultimaProfilaxiaIsoniazia.voided=0 and obsEstado.voided=0 and   e.location_id =:location
+                            and obsEstado.obs_datetime between (:endDate - INTERVAL 9 MONTH) and :endDate
+                        
+                        union
 
                          select p.patient_id, outrasPrescricoes3HP.obs_datetime data_inicio_3HP 
                          from patient p 
-                         	inner join encounter e on p.patient_id=e.patient_id 
-                            	inner join obs outrasPrescricoes3HP on outrasPrescricoes3HP.encounter_id = e.encounter_id 
+                            inner join encounter e on p.patient_id=e.patient_id 
+                                inner join obs outrasPrescricoes3HP on outrasPrescricoes3HP.encounter_id = e.encounter_id 
                           where p.voided=0 and e.voided=0 and outrasPrescricoes3HP.voided=0 
-                          	and e.encounter_type in (6,9) and outrasPrescricoes3HP.concept_id=1719 and outrasPrescricoes3HP.value_coded in (23954,165307)
+                            and e.encounter_type in (6,9) and outrasPrescricoes3HP.concept_id=1719 and outrasPrescricoes3HP.value_coded in (23954,165307)
                               and e.encounter_datetime between (:endDate - INTERVAL 9 MONTH) and :endDate and  e.location_id =:location  
                     ) inicioAnterior on inicioAnterior.patient_id=inicio.patient_id and  inicioAnterior.data_inicio_3HP between (inicio.data_inicio_3HP - INTERVAL 120 day) and (inicio.data_inicio_3HP - INTERVAL 1 day) 
                     where inicioAnterior.patient_id is null      
@@ -349,78 +348,78 @@ select coorte12meses_final.patient_id as patient_id,
 
                     select p.patient_id, obsEstado.obs_datetime data_inicio_INH 
                     from patient p 
-                    	inner join encounter e on p.patient_id = e.patient_id 
-                        	inner join obs ultimaProfilaxiaIsoniazia on ultimaProfilaxiaIsoniazia.encounter_id = e.encounter_id 
-                        	inner join obs obsEstado on obsEstado.encounter_id = e.encounter_id
+                        inner join encounter e on p.patient_id = e.patient_id 
+                            inner join obs ultimaProfilaxiaIsoniazia on ultimaProfilaxiaIsoniazia.encounter_id = e.encounter_id 
+                            inner join obs obsEstado on obsEstado.encounter_id = e.encounter_id
                      where e.encounter_type in(6,9,53) and  ultimaProfilaxiaIsoniazia.concept_id=23985 and ultimaProfilaxiaIsoniazia.value_coded=656 
-                    	and obsEstado.concept_id=165308 and obsEstado.value_coded=1256 
-                      	and p.voided=0 and e.voided=0 and ultimaProfilaxiaIsoniazia.voided=0 and obsEstado.voided=0 and   e.location_id =:location
-                      	and obsEstado.obs_datetime <= :endDate
+                        and obsEstado.concept_id=165308 and obsEstado.value_coded=1256 
+                        and p.voided=0 and e.voided=0 and ultimaProfilaxiaIsoniazia.voided=0 and obsEstado.voided=0 and   e.location_id =:location
+                        and obsEstado.obs_datetime <= :endDate
                      
                      union
                      
                      select p.patient_id,e.encounter_datetime data_inicio_INH 
                      from patient p                                                             
-                    	inner join encounter e on p.patient_id=e.patient_id                                                                                          
-                     	inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id=e.encounter_id                                                                                            
+                        inner join encounter e on p.patient_id=e.patient_id                                                                                          
+                        inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id=e.encounter_id                                                                                            
                          inner join obs seguimentoTPT on seguimentoTPT.encounter_id=e.encounter_id                                                                    
                      where p.voided=0 and e.voided=0 and regimeIsoniazida.voided=0 and seguimentoTPT.voided =0 
-                     	and e.encounter_type=60 and regimeIsoniazida.concept_id=23985 and regimeIsoniazida.value_coded in (656,23982)  and seguimentoTPT.concept_id =23987 and seguimentoTPT.value_coded in (1256,1705)  
+                        and e.encounter_type=60 and regimeIsoniazida.concept_id=23985 and regimeIsoniazida.value_coded in (656,23982)  and seguimentoTPT.concept_id =23987 and seguimentoTPT.value_coded in (1256,1705)  
                          and e.encounter_datetime <= :endDate and  e.location_id=:location                
                      
                      union
                      
                      select inicio.patient_id,inicio.data_inicio_INH 
                      from (  
-                     		select p.patient_id, e.encounter_datetime data_inicio_INH 
-                         	from patient p 
-                         		inner join encounter e on p.patient_id=e.patient_id 
-                              	inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id=e.encounter_id 
-                              	left join obs seguimentoTPT on ( seguimentoTPT.encounter_id=e.encounter_id and seguimentoTPT.voided =0 and seguimentoTPT.concept_id =23987)
-                         	where p.voided=0 and e.voided=0 and regimeIsoniazida.voided=0 
-                            		and e.encounter_type=60 and regimeIsoniazida.concept_id=23985 and regimeIsoniazida.value_coded in (656,23982)
-                            		and ( seguimentoTPT.value_coded = 1257 or seguimentoTPT.value_coded  is null)
-                           	 	and e.encounter_datetime <= :endDate and  e.location_id=:location
-                         	)
+                            select p.patient_id, e.encounter_datetime data_inicio_INH 
+                            from patient p 
+                                inner join encounter e on p.patient_id=e.patient_id 
+                                inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id=e.encounter_id 
+                                left join obs seguimentoTPT on ( seguimentoTPT.encounter_id=e.encounter_id and seguimentoTPT.voided =0 and seguimentoTPT.concept_id =23987)
+                            where p.voided=0 and e.voided=0 and regimeIsoniazida.voided=0 
+                                    and e.encounter_type=60 and regimeIsoniazida.concept_id=23985 and regimeIsoniazida.value_coded in (656,23982)
+                                    and ( seguimentoTPT.value_coded = 1257 or seguimentoTPT.value_coded  is null)
+                                and e.encounter_datetime <= :endDate and  e.location_id=:location
+                            )
                          inicio
-                   		left join
-                     	(   
-                        		select p.patient_id,e.encounter_datetime data_inicio_INH 
-                          	from patient p 
-                            		inner join encounter e on p.patient_id=e.patient_id 
-                               	inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id=e.encounter_id 
-                            	where p.voided=0 and e.voided=0 and regimeIsoniazida.voided=0 
-                            		and e.encounter_type=60 and regimeIsoniazida.concept_id=23985 and regimeIsoniazida.value_coded in (656,23982)
-                               	and e.encounter_datetime <= :endDate and  e.location_id=:location
-                        		
-                        		union
-                    		
-                    		select p.patient_id, obsEstado.obs_datetime data_inicio_INH 
-                    		from patient p 
-                        			inner join encounter e on p.patient_id = e.patient_id 
-                        			inner join obs ultimaProfilaxiaIsoniazia on ultimaProfilaxiaIsoniazia.encounter_id = e.encounter_id 
-                        			inner join obs obsEstado on obsEstado.encounter_id = e.encounter_id
-                      		where e.encounter_type in(6,9,53) and  ultimaProfilaxiaIsoniazia.concept_id=23985 and ultimaProfilaxiaIsoniazia.value_coded=656 
-                      			and obsEstado.concept_id=165308 and obsEstado.value_coded=1256 
-                      			and p.voided=0 and e.voided=0 and ultimaProfilaxiaIsoniazia.voided=0 and obsEstado.voided=0 and   e.location_id =:location
-                      			and obsEstado.obs_datetime <= :endDate
-                      			--group by p.patient_id,obsEstado.obs_datetime
-                        		)inicioAnterior on inicioAnterior.patient_id=inicio.patient_id and  inicioAnterior.data_inicio_INH between (inicio.data_inicio_INH - INTERVAL 7 MONTH) and (inicio.data_inicio_INH - INTERVAL 1 day) 
+                        left join
+                        (   
+                                select p.patient_id,e.encounter_datetime data_inicio_INH 
+                            from patient p 
+                                    inner join encounter e on p.patient_id=e.patient_id 
+                                inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id=e.encounter_id 
+                                where p.voided=0 and e.voided=0 and regimeIsoniazida.voided=0 
+                                    and e.encounter_type=60 and regimeIsoniazida.concept_id=23985 and regimeIsoniazida.value_coded in (656,23982)
+                                and e.encounter_datetime <= :endDate and  e.location_id=:location
+                                
+                                union
+                            
+                            select p.patient_id, obsEstado.obs_datetime data_inicio_INH 
+                            from patient p 
+                                    inner join encounter e on p.patient_id = e.patient_id 
+                                    inner join obs ultimaProfilaxiaIsoniazia on ultimaProfilaxiaIsoniazia.encounter_id = e.encounter_id 
+                                    inner join obs obsEstado on obsEstado.encounter_id = e.encounter_id
+                            where e.encounter_type in(6,9,53) and  ultimaProfilaxiaIsoniazia.concept_id=23985 and ultimaProfilaxiaIsoniazia.value_coded=656 
+                                and obsEstado.concept_id=165308 and obsEstado.value_coded=1256 
+                                and p.voided=0 and e.voided=0 and ultimaProfilaxiaIsoniazia.voided=0 and obsEstado.voided=0 and   e.location_id =:location
+                                and obsEstado.obs_datetime <= :endDate
+                                --group by p.patient_id,obsEstado.obs_datetime
+                                )inicioAnterior on inicioAnterior.patient_id=inicio.patient_id and  inicioAnterior.data_inicio_INH between (inicio.data_inicio_INH - INTERVAL 7 MONTH) and (inicio.data_inicio_INH - INTERVAL 1 day) 
                      where inicioAnterior.patient_id is null 
                   ) inicio_inh
-                 	inner join                   
+                    inner join                   
                      (   
                         select patient_id, data_final_INH               
                         from(  
-                            	select p.patient_id, obsEstado.obs_datetime data_final_INH 
+                                select p.patient_id, obsEstado.obs_datetime data_final_INH 
                               from patient p 
-                              	inner join encounter e on p.patient_id = e.patient_id 
-                                	inner join obs ultimaProfilaxiaIsoniazia on ultimaProfilaxiaIsoniazia.encounter_id = e.encounter_id 
-                                	inner join obs obsEstado on obsEstado.encounter_id = e.encounter_id
+                                inner join encounter e on p.patient_id = e.patient_id 
+                                    inner join obs ultimaProfilaxiaIsoniazia on ultimaProfilaxiaIsoniazia.encounter_id = e.encounter_id 
+                                    inner join obs obsEstado on obsEstado.encounter_id = e.encounter_id
                                where   e.encounter_type in(6,9,53) and  ultimaProfilaxiaIsoniazia.concept_id=23985 and ultimaProfilaxiaIsoniazia.value_coded=656 
-                               	and obsEstado.concept_id=165308 and obsEstado.value_coded=1267 
-                                	and p.voided=0 and e.voided=0 and ultimaProfilaxiaIsoniazia.voided=0 and obsEstado.voided=0 and   e.location_id =:location
-                                	and obsEstado.obs_datetime <= :endDate
+                                and obsEstado.concept_id=165308 and obsEstado.value_coded=1267 
+                                    and p.voided=0 and e.voided=0 and ultimaProfilaxiaIsoniazia.voided=0 and obsEstado.voided=0 and   e.location_id =:location
+                                    and obsEstado.obs_datetime <= :endDate
                             ) endINH                 
                       ) termino_inh on inicio_inh.patient_id = termino_inh.patient_id
                       where termino_inh.data_final_INH between inicio_inh.data_inicio_INH + interval 173 day and inicio_inh.data_inicio_INH + interval 365 day
@@ -445,13 +444,13 @@ select coorte12meses_final.patient_id as patient_id,
                   ( 
                     select p.patient_id, obsEstado.obs_datetime encounter_datetime, e.encounter_id  
                         from patient p 
-                         	inner join encounter e on p.patient_id = e.patient_id 
-                            	inner join obs ultimaProfilaxiaIsoniazia on ultimaProfilaxiaIsoniazia.encounter_id = e.encounter_id 
-                            	inner join obs obsEstado on obsEstado.encounter_id = e.encounter_id
+                            inner join encounter e on p.patient_id = e.patient_id 
+                                inner join obs ultimaProfilaxiaIsoniazia on ultimaProfilaxiaIsoniazia.encounter_id = e.encounter_id 
+                                inner join obs obsEstado on obsEstado.encounter_id = e.encounter_id
                           where e.encounter_type in(6,9) and  ultimaProfilaxiaIsoniazia.concept_id=23985 and ultimaProfilaxiaIsoniazia.value_coded=656 
-                          	and obsEstado.concept_id=165308 and obsEstado.value_coded in(1256,1257) 
-                          	and p.voided=0 and e.voided=0 and ultimaProfilaxiaIsoniazia.voided=0 and obsEstado.voided=0 and   e.location_id =:location
-                          	and obsEstado.obs_datetime <= :endDate
+                            and obsEstado.concept_id=165308 and obsEstado.value_coded in(1256,1257) 
+                            and p.voided=0 and e.voided=0 and ultimaProfilaxiaIsoniazia.voided=0 and obsEstado.voided=0 and   e.location_id =:location
+                            and obsEstado.obs_datetime <= :endDate
 
                     )consultasINH on inicio_inh.patient_id = consultasINH.patient_id
                     where consultasINH.encounter_datetime between (inicio_inh.data_inicio_INH + INTERVAL 1 day) and (inicio_inh.data_inicio_INH + INTERVAL 7 MONTH)
@@ -462,7 +461,7 @@ select coorte12meses_final.patient_id as patient_id,
                 select inicio_inh.patient_id 
                 from
                 (   
-                	 select p.patient_id, obsEstado.obs_datetime data_inicio_INH 
+                     select p.patient_id, obsEstado.obs_datetime data_inicio_INH 
                         from patient p 
                             inner join encounter e on p.patient_id = e.patient_id 
                             inner join obs ultimaProfilaxiaIsoniazia on ultimaProfilaxiaIsoniazia.encounter_id = e.encounter_id 
@@ -494,37 +493,37 @@ select coorte12meses_final.patient_id as patient_id,
                 
                 select consultasSemDTINH.patient_id
                 from(
-                    	select inicio_inh.patient_id 
-                    	from(   
-                 			select p.patient_id, obsEstado.obs_datetime data_inicio_INH 
-                        		from patient p 
-                            		inner join encounter e on p.patient_id = e.patient_id 
-                            		inner join obs ultimaProfilaxiaIsoniazia on ultimaProfilaxiaIsoniazia.encounter_id = e.encounter_id 
-                            		inner join obs obsEstado on obsEstado.encounter_id = e.encounter_id
-                          	where e.encounter_type in(6,9,53) and  ultimaProfilaxiaIsoniazia.concept_id=23985 and ultimaProfilaxiaIsoniazia.value_coded=656 
-                          		and obsEstado.concept_id=165308 and obsEstado.value_coded=1256  
-                          		and p.voided=0 and e.voided=0 and ultimaProfilaxiaIsoniazia.voided=0 and obsEstado.voided=0 and  e.location_id =:location
-                          		and obsEstado.obs_datetime <= :endDate
-                        	) 
-                		inicio_inh
-                 		inner join
-                    	(
-                        		select consultasSemDTINH.patient_id, consultasSemDTINH.encounter_datetime, outraPrescricaoDTINH.obs_datetime, e.encounter_id 
-                        		from(  
-                        			select p.patient_id,obsEstado.obs_datetime encounter_datetime 
-                        			from patient p 
-                            			inner join encounter e on p.patient_id = e.patient_id 
-                            			inner join obs ultimaProfilaxiaIsoniazia on ultimaProfilaxiaIsoniazia.encounter_id = e.encounter_id 
-                            			inner join obs obsEstado on obsEstado.encounter_id = e.encounter_id
-                          		where e.encounter_type = 6 and  ultimaProfilaxiaIsoniazia.concept_id=23985 and ultimaProfilaxiaIsoniazia.value_coded=656 
-                          			and obsEstado.concept_id=165308 and  obsEstado.value_coded in(1256,1257)   
-                          			and p.voided=0 and e.voided=0 and ultimaProfilaxiaIsoniazia.voided=0 and obsEstado.voided=0 and  e.location_id =:location
-                          			and obsEstado.obs_datetime <= :endDate
-                         		)
-                         	consultasSemDTINH
-                        			inner join encounter e on e.patient_id = consultasSemDTINH.patient_id
-                        			left join obs outraPrescricaoDTINH on e.encounter_id=outraPrescricaoDTINH.encounter_id
-                        		where e.encounter_type  = 6 and e.voided = 0 and outraPrescricaoDTINH.encounter_id is null 
+                        select inicio_inh.patient_id 
+                        from(   
+                            select p.patient_id, obsEstado.obs_datetime data_inicio_INH 
+                                from patient p 
+                                    inner join encounter e on p.patient_id = e.patient_id 
+                                    inner join obs ultimaProfilaxiaIsoniazia on ultimaProfilaxiaIsoniazia.encounter_id = e.encounter_id 
+                                    inner join obs obsEstado on obsEstado.encounter_id = e.encounter_id
+                            where e.encounter_type in(6,9,53) and  ultimaProfilaxiaIsoniazia.concept_id=23985 and ultimaProfilaxiaIsoniazia.value_coded=656 
+                                and obsEstado.concept_id=165308 and obsEstado.value_coded=1256  
+                                and p.voided=0 and e.voided=0 and ultimaProfilaxiaIsoniazia.voided=0 and obsEstado.voided=0 and  e.location_id =:location
+                                and obsEstado.obs_datetime <= :endDate
+                            ) 
+                        inicio_inh
+                        inner join
+                        (
+                                select consultasSemDTINH.patient_id, consultasSemDTINH.encounter_datetime, outraPrescricaoDTINH.obs_datetime, e.encounter_id 
+                                from(  
+                                    select p.patient_id,obsEstado.obs_datetime encounter_datetime 
+                                    from patient p 
+                                        inner join encounter e on p.patient_id = e.patient_id 
+                                        inner join obs ultimaProfilaxiaIsoniazia on ultimaProfilaxiaIsoniazia.encounter_id = e.encounter_id 
+                                        inner join obs obsEstado on obsEstado.encounter_id = e.encounter_id
+                                where e.encounter_type = 6 and  ultimaProfilaxiaIsoniazia.concept_id=23985 and ultimaProfilaxiaIsoniazia.value_coded=656 
+                                    and obsEstado.concept_id=165308 and  obsEstado.value_coded in(1256,1257)   
+                                    and p.voided=0 and e.voided=0 and ultimaProfilaxiaIsoniazia.voided=0 and obsEstado.voided=0 and  e.location_id =:location
+                                    and obsEstado.obs_datetime <= :endDate
+                                )
+                            consultasSemDTINH
+                                    inner join encounter e on e.patient_id = consultasSemDTINH.patient_id
+                                    left join obs outraPrescricaoDTINH on e.encounter_id=outraPrescricaoDTINH.encounter_id
+                                where e.encounter_type  = 6 and e.voided = 0 and outraPrescricaoDTINH.encounter_id is null 
                         
                         )consultasSemDTINH on inicio_inh.patient_id = consultasSemDTINH.patient_id
                     where consultasSemDTINH.encounter_datetime between inicio_inh.data_inicio_inh and (inicio_inh.data_inicio_inh + INTERVAL 7 MONTH)
@@ -570,53 +569,53 @@ select coorte12meses_final.patient_id as patient_id,
                 
                 select inicio_inh.patient_id 
                 from(   
-				select p.patient_id,e.encounter_datetime data_inicio_INH 
+                select p.patient_id,e.encounter_datetime data_inicio_INH 
                      from patient p                                                             
-                    	inner join encounter e on p.patient_id=e.patient_id                                                                                          
-                     	inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id=e.encounter_id                                                                                            
+                        inner join encounter e on p.patient_id=e.patient_id                                                                                          
+                        inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id=e.encounter_id                                                                                            
                          inner join obs seguimentoTPT on seguimentoTPT.encounter_id=e.encounter_id                                                                    
                      where p.voided=0 and e.voided=0 and regimeIsoniazida.voided=0 and seguimentoTPT.voided =0 
-                     	and e.encounter_type=60 and regimeIsoniazida.concept_id=23985 and regimeIsoniazida.value_coded in (656,23982)  and seguimentoTPT.concept_id =23987 and seguimentoTPT.value_coded in (1256,1705)  
+                        and e.encounter_type=60 and regimeIsoniazida.concept_id=23985 and regimeIsoniazida.value_coded in (656,23982)  and seguimentoTPT.concept_id =23987 and seguimentoTPT.value_coded in (1256,1705)  
                          and e.encounter_datetime <= :endDate and  e.location_id=:location                
                      
                      union
                      
                      select inicio.patient_id,inicio.data_inicio_INH 
                      from (  
-                     		select p.patient_id, e.encounter_datetime data_inicio_INH 
-                         	from patient p 
-                         		inner join encounter e on p.patient_id=e.patient_id 
-                              	inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id=e.encounter_id 
-                              	left join obs seguimentoTPT on ( seguimentoTPT.encounter_id=e.encounter_id and seguimentoTPT.voided =0 and seguimentoTPT.concept_id =23987)
-                         	where p.voided=0 and e.voided=0 and regimeIsoniazida.voided=0 
-                            		and e.encounter_type=60 and regimeIsoniazida.concept_id=23985 and regimeIsoniazida.value_coded in (656,23982)
-                            		and ( seguimentoTPT.value_coded = 1257 or seguimentoTPT.value_coded  is null)
-                           	 	and e.encounter_datetime <= :endDate and  e.location_id=:location
-                         	)
+                            select p.patient_id, e.encounter_datetime data_inicio_INH 
+                            from patient p 
+                                inner join encounter e on p.patient_id=e.patient_id 
+                                inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id=e.encounter_id 
+                                left join obs seguimentoTPT on ( seguimentoTPT.encounter_id=e.encounter_id and seguimentoTPT.voided =0 and seguimentoTPT.concept_id =23987)
+                            where p.voided=0 and e.voided=0 and regimeIsoniazida.voided=0 
+                                    and e.encounter_type=60 and regimeIsoniazida.concept_id=23985 and regimeIsoniazida.value_coded in (656,23982)
+                                    and ( seguimentoTPT.value_coded = 1257 or seguimentoTPT.value_coded  is null)
+                                and e.encounter_datetime <= :endDate and  e.location_id=:location
+                            )
                          inicio
-                   		left join
-                     	(   
-                        		select p.patient_id,e.encounter_datetime data_inicio_INH 
-                          	from patient p 
-                            		inner join encounter e on p.patient_id=e.patient_id 
-                               	inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id=e.encounter_id 
-                            	where p.voided=0 and e.voided=0 and regimeIsoniazida.voided=0 
-                            		and e.encounter_type=60 and regimeIsoniazida.concept_id=23985 and regimeIsoniazida.value_coded in (656,23982)
-                               	and e.encounter_datetime <= :endDate and  e.location_id=:location
-                        		
-                        		union
-                    		
-                    		select p.patient_id, obsEstado.obs_datetime data_inicio_INH 
-                    		from patient p 
-                        			inner join encounter e on p.patient_id = e.patient_id 
-                        			inner join obs ultimaProfilaxiaIsoniazia on ultimaProfilaxiaIsoniazia.encounter_id = e.encounter_id 
-                        			inner join obs obsEstado on obsEstado.encounter_id = e.encounter_id
-                      		where e.encounter_type in(6,9,53) and  ultimaProfilaxiaIsoniazia.concept_id=23985 and ultimaProfilaxiaIsoniazia.value_coded=656 
-                      			and obsEstado.concept_id=165308 and obsEstado.value_coded=1256 
-                      			and p.voided=0 and e.voided=0 and ultimaProfilaxiaIsoniazia.voided=0 and obsEstado.voided=0 and   e.location_id =:location
-                      			and obsEstado.obs_datetime <= :endDate
-                      			group by  p.patient_id, obsEstado.obs_datetime
-                        		)inicioAnterior on inicioAnterior.patient_id=inicio.patient_id and  inicioAnterior.data_inicio_INH between (inicio.data_inicio_INH - INTERVAL 7 MONTH) and (inicio.data_inicio_INH - INTERVAL 1 day) 
+                        left join
+                        (   
+                                select p.patient_id,e.encounter_datetime data_inicio_INH 
+                            from patient p 
+                                    inner join encounter e on p.patient_id=e.patient_id 
+                                inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id=e.encounter_id 
+                                where p.voided=0 and e.voided=0 and regimeIsoniazida.voided=0 
+                                    and e.encounter_type=60 and regimeIsoniazida.concept_id=23985 and regimeIsoniazida.value_coded in (656,23982)
+                                and e.encounter_datetime <= :endDate and  e.location_id=:location
+                                
+                                union
+                            
+                            select p.patient_id, obsEstado.obs_datetime data_inicio_INH 
+                            from patient p 
+                                    inner join encounter e on p.patient_id = e.patient_id 
+                                    inner join obs ultimaProfilaxiaIsoniazia on ultimaProfilaxiaIsoniazia.encounter_id = e.encounter_id 
+                                    inner join obs obsEstado on obsEstado.encounter_id = e.encounter_id
+                            where e.encounter_type in(6,9,53) and  ultimaProfilaxiaIsoniazia.concept_id=23985 and ultimaProfilaxiaIsoniazia.value_coded=656 
+                                and obsEstado.concept_id=165308 and obsEstado.value_coded=1256 
+                                and p.voided=0 and e.voided=0 and ultimaProfilaxiaIsoniazia.voided=0 and obsEstado.voided=0 and   e.location_id =:location
+                                and obsEstado.obs_datetime <= :endDate
+                                group by  p.patient_id, obsEstado.obs_datetime
+                                )inicioAnterior on inicioAnterior.patient_id=inicio.patient_id and  inicioAnterior.data_inicio_INH between (inicio.data_inicio_INH - INTERVAL 7 MONTH) and (inicio.data_inicio_INH - INTERVAL 1 day) 
                      where inicioAnterior.patient_id is null 
                    
                   ) inicio_inh
@@ -636,51 +635,51 @@ select coorte12meses_final.patient_id as patient_id,
                   
                      select p.patient_id,e.encounter_datetime data_inicio_INH 
                      from patient p                                                             
-                    	inner join encounter e on p.patient_id=e.patient_id                                                                                          
-                     	inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id=e.encounter_id                                                                                            
+                        inner join encounter e on p.patient_id=e.patient_id                                                                                          
+                        inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id=e.encounter_id                                                                                            
                          inner join obs seguimentoTPT on seguimentoTPT.encounter_id=e.encounter_id                                                                    
                      where p.voided=0 and e.voided=0 and regimeIsoniazida.voided=0 and seguimentoTPT.voided =0 
-                     	and e.encounter_type=60 and regimeIsoniazida.concept_id=23985 and regimeIsoniazida.value_coded in (656,23982)  and seguimentoTPT.concept_id =23987 and seguimentoTPT.value_coded in (1256,1705)  
+                        and e.encounter_type=60 and regimeIsoniazida.concept_id=23985 and regimeIsoniazida.value_coded in (656,23982)  and seguimentoTPT.concept_id =23987 and seguimentoTPT.value_coded in (1256,1705)  
                          and e.encounter_datetime <= :endDate and  e.location_id=:location                
                      
                      union
                      
                      select inicio.patient_id,inicio.data_inicio_INH 
                      from (  
-                     		select p.patient_id, e.encounter_datetime data_inicio_INH 
-                         	from patient p 
-                         		inner join encounter e on p.patient_id=e.patient_id 
-                              	inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id=e.encounter_id 
-                              	left join obs seguimentoTPT on ( seguimentoTPT.encounter_id=e.encounter_id and seguimentoTPT.voided =0 and seguimentoTPT.concept_id =23987)
-                         	where p.voided=0 and e.voided=0 and regimeIsoniazida.voided=0 
-                            		and e.encounter_type=60 and regimeIsoniazida.concept_id=23985 and regimeIsoniazida.value_coded in (656,23982)
-                            		and ( seguimentoTPT.value_coded = 1257 or seguimentoTPT.value_coded  is null)
-                           	 	and e.encounter_datetime <= :endDate and  e.location_id=:location
-                         	)
+                            select p.patient_id, e.encounter_datetime data_inicio_INH 
+                            from patient p 
+                                inner join encounter e on p.patient_id=e.patient_id 
+                                inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id=e.encounter_id 
+                                left join obs seguimentoTPT on ( seguimentoTPT.encounter_id=e.encounter_id and seguimentoTPT.voided =0 and seguimentoTPT.concept_id =23987)
+                            where p.voided=0 and e.voided=0 and regimeIsoniazida.voided=0 
+                                    and e.encounter_type=60 and regimeIsoniazida.concept_id=23985 and regimeIsoniazida.value_coded in (656,23982)
+                                    and ( seguimentoTPT.value_coded = 1257 or seguimentoTPT.value_coded  is null)
+                                and e.encounter_datetime <= :endDate and  e.location_id=:location
+                            )
                          inicio
-                   		left join
-                     	(   
-                        		select p.patient_id,e.encounter_datetime data_inicio_INH 
-                          	from patient p 
-                            		inner join encounter e on p.patient_id=e.patient_id 
-                               	inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id=e.encounter_id 
-                            	where p.voided=0 and e.voided=0 and regimeIsoniazida.voided=0 
-                            		and e.encounter_type=60 and regimeIsoniazida.concept_id=23985 and regimeIsoniazida.value_coded in (656,23982)
-                               	and e.encounter_datetime <= :endDate and  e.location_id=:location
-                        		
-                        		union
-                    		
-                    		select p.patient_id, obsEstado.obs_datetime data_inicio_INH 
-                    		from patient p 
-                        			inner join encounter e on p.patient_id = e.patient_id 
-                        			inner join obs ultimaProfilaxiaIsoniazia on ultimaProfilaxiaIsoniazia.encounter_id = e.encounter_id 
-                        			inner join obs obsEstado on obsEstado.encounter_id = e.encounter_id
-                      		where e.encounter_type in(6,9,53) and  ultimaProfilaxiaIsoniazia.concept_id=23985 and ultimaProfilaxiaIsoniazia.value_coded=656 
-                      			and obsEstado.concept_id=165308 and obsEstado.value_coded=1256 
-                      			and p.voided=0 and e.voided=0 and ultimaProfilaxiaIsoniazia.voided=0 and obsEstado.voided=0 and   e.location_id =:location
-                      			and obsEstado.obs_datetime <= :endDate
-                      			group by p.patient_id, obsEstado.obs_datetime
-                        		)inicioAnterior on inicioAnterior.patient_id=inicio.patient_id and  inicioAnterior.data_inicio_INH between (inicio.data_inicio_INH - INTERVAL 7 MONTH) and (inicio.data_inicio_INH - INTERVAL 1 day) 
+                        left join
+                        (   
+                                select p.patient_id,e.encounter_datetime data_inicio_INH 
+                            from patient p 
+                                    inner join encounter e on p.patient_id=e.patient_id 
+                                inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id=e.encounter_id 
+                                where p.voided=0 and e.voided=0 and regimeIsoniazida.voided=0 
+                                    and e.encounter_type=60 and regimeIsoniazida.concept_id=23985 and regimeIsoniazida.value_coded in (656,23982)
+                                and e.encounter_datetime <= :endDate and  e.location_id=:location
+                                
+                                union
+                            
+                            select p.patient_id, obsEstado.obs_datetime data_inicio_INH 
+                            from patient p 
+                                    inner join encounter e on p.patient_id = e.patient_id 
+                                    inner join obs ultimaProfilaxiaIsoniazia on ultimaProfilaxiaIsoniazia.encounter_id = e.encounter_id 
+                                    inner join obs obsEstado on obsEstado.encounter_id = e.encounter_id
+                            where e.encounter_type in(6,9,53) and  ultimaProfilaxiaIsoniazia.concept_id=23985 and ultimaProfilaxiaIsoniazia.value_coded=656 
+                                and obsEstado.concept_id=165308 and obsEstado.value_coded=1256 
+                                and p.voided=0 and e.voided=0 and ultimaProfilaxiaIsoniazia.voided=0 and obsEstado.voided=0 and   e.location_id =:location
+                                and obsEstado.obs_datetime <= :endDate
+                                group by p.patient_id, obsEstado.obs_datetime
+                                )inicioAnterior on inicioAnterior.patient_id=inicio.patient_id and  inicioAnterior.data_inicio_INH between (inicio.data_inicio_INH - INTERVAL 7 MONTH) and (inicio.data_inicio_INH - INTERVAL 1 day) 
                      where inicioAnterior.patient_id is null 
                   ) 
                 inicio_inh
@@ -703,51 +702,51 @@ select coorte12meses_final.patient_id as patient_id,
                     from(
                      select p.patient_id,e.encounter_datetime data_inicio_INH 
                      from patient p                                                             
-                    	inner join encounter e on p.patient_id=e.patient_id                                                                                          
-                     	inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id=e.encounter_id                                                                                            
+                        inner join encounter e on p.patient_id=e.patient_id                                                                                          
+                        inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id=e.encounter_id                                                                                            
                          inner join obs seguimentoTPT on seguimentoTPT.encounter_id=e.encounter_id                                                                    
                      where p.voided=0 and e.voided=0 and regimeIsoniazida.voided=0 and seguimentoTPT.voided =0 
-                     	and e.encounter_type=60 and regimeIsoniazida.concept_id=23985 and regimeIsoniazida.value_coded in (656,23982)  and seguimentoTPT.concept_id =23987 and seguimentoTPT.value_coded in (1256,1705)  
+                        and e.encounter_type=60 and regimeIsoniazida.concept_id=23985 and regimeIsoniazida.value_coded in (656,23982)  and seguimentoTPT.concept_id =23987 and seguimentoTPT.value_coded in (1256,1705)  
                          and e.encounter_datetime <= :endDate and  e.location_id=:location                
                      
                      union
                      
                      select inicio.patient_id,inicio.data_inicio_INH 
                      from (  
-                     		select p.patient_id, e.encounter_datetime data_inicio_INH 
-                         	from patient p 
-                         		inner join encounter e on p.patient_id=e.patient_id 
-                              	inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id=e.encounter_id 
-                              	left join obs seguimentoTPT on ( seguimentoTPT.encounter_id=e.encounter_id and seguimentoTPT.voided =0 and seguimentoTPT.concept_id =23987)
-                         	where p.voided=0 and e.voided=0 and regimeIsoniazida.voided=0 
-                            		and e.encounter_type=60 and regimeIsoniazida.concept_id=23985 and regimeIsoniazida.value_coded in (656,23982)
-                            		and ( seguimentoTPT.value_coded = 1257 or seguimentoTPT.value_coded  is null)
-                           	 	and e.encounter_datetime <= :endDate and  e.location_id=:location
-                         	)
+                            select p.patient_id, e.encounter_datetime data_inicio_INH 
+                            from patient p 
+                                inner join encounter e on p.patient_id=e.patient_id 
+                                inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id=e.encounter_id 
+                                left join obs seguimentoTPT on ( seguimentoTPT.encounter_id=e.encounter_id and seguimentoTPT.voided =0 and seguimentoTPT.concept_id =23987)
+                            where p.voided=0 and e.voided=0 and regimeIsoniazida.voided=0 
+                                    and e.encounter_type=60 and regimeIsoniazida.concept_id=23985 and regimeIsoniazida.value_coded in (656,23982)
+                                    and ( seguimentoTPT.value_coded = 1257 or seguimentoTPT.value_coded  is null)
+                                and e.encounter_datetime <= :endDate and  e.location_id=:location
+                            )
                          inicio
-                   		left join
-                     	(   
-                        		select p.patient_id,e.encounter_datetime data_inicio_INH 
-                          	from patient p 
-                            		inner join encounter e on p.patient_id=e.patient_id 
-                               	inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id=e.encounter_id 
-                            	where p.voided=0 and e.voided=0 and regimeIsoniazida.voided=0 
-                            		and e.encounter_type=60 and regimeIsoniazida.concept_id=23985 and regimeIsoniazida.value_coded in (656,23982)
-                               	and e.encounter_datetime <= :endDate and  e.location_id=:location
-                        		
-                        		union
-                    		
-                    		select p.patient_id, obsEstado.obs_datetime data_inicio_INH 
-                    		from patient p 
-                        			inner join encounter e on p.patient_id = e.patient_id 
-                        			inner join obs ultimaProfilaxiaIsoniazia on ultimaProfilaxiaIsoniazia.encounter_id = e.encounter_id 
-                        			inner join obs obsEstado on obsEstado.encounter_id = e.encounter_id
-                      		where e.encounter_type in(6,9,53) and  ultimaProfilaxiaIsoniazia.concept_id=23985 and ultimaProfilaxiaIsoniazia.value_coded=656 
-                      			and obsEstado.concept_id=165308 and obsEstado.value_coded=1256 
-                      			and p.voided=0 and e.voided=0 and ultimaProfilaxiaIsoniazia.voided=0 and obsEstado.voided=0 and   e.location_id =:location
-                      			and obsEstado.obs_datetime <= :endDate
-                      			group by p.patient_id,obsEstado.obs_datetime
-                        		)inicioAnterior on inicioAnterior.patient_id=inicio.patient_id and  inicioAnterior.data_inicio_INH between (inicio.data_inicio_INH - INTERVAL 7 MONTH) and (inicio.data_inicio_INH - INTERVAL 1 day) 
+                        left join
+                        (   
+                                select p.patient_id,e.encounter_datetime data_inicio_INH 
+                            from patient p 
+                                    inner join encounter e on p.patient_id=e.patient_id 
+                                inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id=e.encounter_id 
+                                where p.voided=0 and e.voided=0 and regimeIsoniazida.voided=0 
+                                    and e.encounter_type=60 and regimeIsoniazida.concept_id=23985 and regimeIsoniazida.value_coded in (656,23982)
+                                and e.encounter_datetime <= :endDate and  e.location_id=:location
+                                
+                                union
+                            
+                            select p.patient_id, obsEstado.obs_datetime data_inicio_INH 
+                            from patient p 
+                                    inner join encounter e on p.patient_id = e.patient_id 
+                                    inner join obs ultimaProfilaxiaIsoniazia on ultimaProfilaxiaIsoniazia.encounter_id = e.encounter_id 
+                                    inner join obs obsEstado on obsEstado.encounter_id = e.encounter_id
+                            where e.encounter_type in(6,9,53) and  ultimaProfilaxiaIsoniazia.concept_id=23985 and ultimaProfilaxiaIsoniazia.value_coded=656 
+                                and obsEstado.concept_id=165308 and obsEstado.value_coded=1256 
+                                and p.voided=0 and e.voided=0 and ultimaProfilaxiaIsoniazia.voided=0 and obsEstado.voided=0 and   e.location_id =:location
+                                and obsEstado.obs_datetime <= :endDate
+                                group by p.patient_id,obsEstado.obs_datetime
+                                )inicioAnterior on inicioAnterior.patient_id=inicio.patient_id and  inicioAnterior.data_inicio_INH between (inicio.data_inicio_INH - INTERVAL 7 MONTH) and (inicio.data_inicio_INH - INTERVAL 1 day) 
                      where inicioAnterior.patient_id is null 
                       ) 
                     inicio_inh
@@ -767,52 +766,52 @@ select coorte12meses_final.patient_id as patient_id,
                        
                      select p.patient_id,e.encounter_datetime data_inicio_INH 
                      from patient p                                                             
-                    	inner join encounter e on p.patient_id=e.patient_id                                                                                          
-                     	inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id=e.encounter_id                                                                                            
+                        inner join encounter e on p.patient_id=e.patient_id                                                                                          
+                        inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id=e.encounter_id                                                                                            
                          inner join obs seguimentoTPT on seguimentoTPT.encounter_id=e.encounter_id                                                                    
                      where p.voided=0 and e.voided=0 and regimeIsoniazida.voided=0 and seguimentoTPT.voided =0 
-                     	and e.encounter_type=60 and regimeIsoniazida.concept_id=23985 and regimeIsoniazida.value_coded in (656,23982)  and seguimentoTPT.concept_id =23987 and seguimentoTPT.value_coded in (1256,1705)  
+                        and e.encounter_type=60 and regimeIsoniazida.concept_id=23985 and regimeIsoniazida.value_coded in (656,23982)  and seguimentoTPT.concept_id =23987 and seguimentoTPT.value_coded in (1256,1705)  
                          and e.encounter_datetime <= :endDate and  e.location_id=:location                
                      
                      union
                      
                      select inicio.patient_id,inicio.data_inicio_INH 
                      from (  
-                     		select p.patient_id, e.encounter_datetime data_inicio_INH 
-                         	from patient p 
-                         		inner join encounter e on p.patient_id=e.patient_id 
-                              	inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id=e.encounter_id 
-                              	left join obs seguimentoTPT on ( seguimentoTPT.encounter_id=e.encounter_id and seguimentoTPT.voided =0 and seguimentoTPT.concept_id =23987)
-                         	where p.voided=0 and e.voided=0 and regimeIsoniazida.voided=0 
-                            		and e.encounter_type=60 and regimeIsoniazida.concept_id=23985 and regimeIsoniazida.value_coded in (656,23982)
-                            		and ( seguimentoTPT.value_coded = 1257 or seguimentoTPT.value_coded  is null)
-                           	 	and e.encounter_datetime <= :endDate and  e.location_id=:location
-                         	)
+                            select p.patient_id, e.encounter_datetime data_inicio_INH 
+                            from patient p 
+                                inner join encounter e on p.patient_id=e.patient_id 
+                                inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id=e.encounter_id 
+                                left join obs seguimentoTPT on ( seguimentoTPT.encounter_id=e.encounter_id and seguimentoTPT.voided =0 and seguimentoTPT.concept_id =23987)
+                            where p.voided=0 and e.voided=0 and regimeIsoniazida.voided=0 
+                                    and e.encounter_type=60 and regimeIsoniazida.concept_id=23985 and regimeIsoniazida.value_coded in (656,23982)
+                                    and ( seguimentoTPT.value_coded = 1257 or seguimentoTPT.value_coded  is null)
+                                and e.encounter_datetime <= :endDate and  e.location_id=:location
+                            )
                          inicio
-                   		left join
-                     	(   
-                        		select p.patient_id,e.encounter_datetime data_inicio_INH 
-                          	from patient p 
-                            		inner join encounter e on p.patient_id=e.patient_id 
-                               	inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id=e.encounter_id 
-                            	where p.voided=0 and e.voided=0 and regimeIsoniazida.voided=0 
-                            		and e.encounter_type=60 and regimeIsoniazida.concept_id=23985 and regimeIsoniazida.value_coded in (656,23982)
-                               	and e.encounter_datetime <= :endDate and  e.location_id=:location
-                        		
-                        		union
-                    		
-                    		select p.patient_id, obsEstado.obs_datetime data_inicio_INH 
-                    		from patient p 
-                        			inner join encounter e on p.patient_id = e.patient_id 
-                        			inner join obs ultimaProfilaxiaIsoniazia on ultimaProfilaxiaIsoniazia.encounter_id = e.encounter_id 
-                        			inner join obs obsEstado on obsEstado.encounter_id = e.encounter_id
-                      		where e.encounter_type in(6,9,53) and  ultimaProfilaxiaIsoniazia.concept_id=23985 and ultimaProfilaxiaIsoniazia.value_coded=656 
-                      			and obsEstado.concept_id=165308 and obsEstado.value_coded=1256 
-                      			and p.voided=0 and e.voided=0 and ultimaProfilaxiaIsoniazia.voided=0 and obsEstado.voided=0 and   e.location_id =:location
-                      			and obsEstado.obs_datetime <= :endDate
-                      			--group by p.patient_id, obsEstado.obs_datetime
-                      			
-                        		)inicioAnterior on inicioAnterior.patient_id=inicio.patient_id and  inicioAnterior.data_inicio_INH between (inicio.data_inicio_INH - INTERVAL 7 MONTH) and (inicio.data_inicio_INH - INTERVAL 1 day) 
+                        left join
+                        (   
+                                select p.patient_id,e.encounter_datetime data_inicio_INH 
+                            from patient p 
+                                    inner join encounter e on p.patient_id=e.patient_id 
+                                inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id=e.encounter_id 
+                                where p.voided=0 and e.voided=0 and regimeIsoniazida.voided=0 
+                                    and e.encounter_type=60 and regimeIsoniazida.concept_id=23985 and regimeIsoniazida.value_coded in (656,23982)
+                                and e.encounter_datetime <= :endDate and  e.location_id=:location
+                                
+                                union
+                            
+                            select p.patient_id, obsEstado.obs_datetime data_inicio_INH 
+                            from patient p 
+                                    inner join encounter e on p.patient_id = e.patient_id 
+                                    inner join obs ultimaProfilaxiaIsoniazia on ultimaProfilaxiaIsoniazia.encounter_id = e.encounter_id 
+                                    inner join obs obsEstado on obsEstado.encounter_id = e.encounter_id
+                            where e.encounter_type in(6,9,53) and  ultimaProfilaxiaIsoniazia.concept_id=23985 and ultimaProfilaxiaIsoniazia.value_coded=656 
+                                and obsEstado.concept_id=165308 and obsEstado.value_coded=1256 
+                                and p.voided=0 and e.voided=0 and ultimaProfilaxiaIsoniazia.voided=0 and obsEstado.voided=0 and   e.location_id =:location
+                                and obsEstado.obs_datetime <= :endDate
+                                --group by p.patient_id, obsEstado.obs_datetime
+                                
+                                )inicioAnterior on inicioAnterior.patient_id=inicio.patient_id and  inicioAnterior.data_inicio_INH between (inicio.data_inicio_INH - INTERVAL 7 MONTH) and (inicio.data_inicio_INH - INTERVAL 1 day) 
                      where inicioAnterior.patient_id is null 
                       ) 
                     inicio_inh
@@ -832,7 +831,7 @@ select coorte12meses_final.patient_id as patient_id,
 select inicio_3HP.patient_id  
 from 
 (                                                                                                                                                     
-	select p.patient_id, obsEstado.obs_datetime data_inicio_3HP 
+    select p.patient_id, obsEstado.obs_datetime data_inicio_3HP 
          from patient p 
         inner join encounter e on p.patient_id = e.patient_id 
         inner join obs ultimaProfilaxiaIsoniazia on ultimaProfilaxiaIsoniazia.encounter_id = e.encounter_id 
@@ -889,7 +888,7 @@ from
           
           select p.patient_id, obsEstado.obs_datetime data_inicio_3HP 
           from patient p 
-          	inner join encounter e on p.patient_id = e.patient_id 
+            inner join encounter e on p.patient_id = e.patient_id 
             inner join obs ultimaProfilaxiaIsoniazia on ultimaProfilaxiaIsoniazia.encounter_id = e.encounter_id 
             inner join obs obsEstado on obsEstado.encounter_id = e.encounter_id
             where   e.encounter_type in(6,53) and  ultimaProfilaxiaIsoniazia.concept_id=23985 and ultimaProfilaxiaIsoniazia.value_coded=23954 
@@ -974,24 +973,24 @@ union
 select inicio_3HP.patient_id  
 from (
                                                                                                                                                      
-	select p.patient_id, obsEstado.obs_datetime data_inicio_3HP 
-	         from patient p 
-	        inner join encounter e on p.patient_id = e.patient_id 
-	        inner join obs ultimaProfilaxiaIsoniazia on ultimaProfilaxiaIsoniazia.encounter_id = e.encounter_id 
-	        inner join obs obsEstado on obsEstado.encounter_id = e.encounter_id
-	        where   e.encounter_type in(6,9,53) and  ultimaProfilaxiaIsoniazia.concept_id=23985 and ultimaProfilaxiaIsoniazia.value_coded=23954 
-	         and obsEstado.concept_id=165308 and obsEstado.value_coded=1256 
-	         and p.voided=0 and e.voided=0 and ultimaProfilaxiaIsoniazia.voided=0 and obsEstado.voided=0 and   e.location_id=:location
-	         and obsEstado.obs_datetime <=:endDate
-	    
-	    union
-	    select p.patient_id, e.encounter_datetime data_inicio_3HP                                                                                         
-	        from patient p                                                                                                                             
-	        inner join encounter e on p.patient_id = e.patient_id                                                                                         
-	        inner join obs outrasPrescricoesDT3HP on outrasPrescricoesDT3HP.encounter_id = e.encounter_id                                                                                         
-	        where p.voided = 0 and e.voided = 0 and outrasPrescricoesDT3HP.voided = 0 
-	            and e.encounter_type = 6 and outrasPrescricoesDT3HP.concept_id=1719 and outrasPrescricoesDT3HP.value_coded = 165307                      
-	        and e.encounter_datetime <=:endDate and e.location_id =:location
+    select p.patient_id, obsEstado.obs_datetime data_inicio_3HP 
+             from patient p 
+            inner join encounter e on p.patient_id = e.patient_id 
+            inner join obs ultimaProfilaxiaIsoniazia on ultimaProfilaxiaIsoniazia.encounter_id = e.encounter_id 
+            inner join obs obsEstado on obsEstado.encounter_id = e.encounter_id
+            where   e.encounter_type in(6,9,53) and  ultimaProfilaxiaIsoniazia.concept_id=23985 and ultimaProfilaxiaIsoniazia.value_coded=23954 
+             and obsEstado.concept_id=165308 and obsEstado.value_coded=1256 
+             and p.voided=0 and e.voided=0 and ultimaProfilaxiaIsoniazia.voided=0 and obsEstado.voided=0 and   e.location_id=:location
+             and obsEstado.obs_datetime <=:endDate
+        
+        union
+        select p.patient_id, e.encounter_datetime data_inicio_3HP                                                                                         
+            from patient p                                                                                                                             
+            inner join encounter e on p.patient_id = e.patient_id                                                                                         
+            inner join obs outrasPrescricoesDT3HP on outrasPrescricoesDT3HP.encounter_id = e.encounter_id                                                                                         
+            where p.voided = 0 and e.voided = 0 and outrasPrescricoesDT3HP.voided = 0 
+                and e.encounter_type = 6 and outrasPrescricoesDT3HP.concept_id=1719 and outrasPrescricoesDT3HP.value_coded = 165307                      
+            and e.encounter_datetime <=:endDate and e.location_id =:location
    ) inicio_3HP 
 inner join                   
 (   
@@ -1050,7 +1049,7 @@ from (
           
           select p.patient_id, obsEstado.obs_datetime data_inicio_3HP 
           from patient p 
-          	inner join encounter e on p.patient_id = e.patient_id 
+            inner join encounter e on p.patient_id = e.patient_id 
             inner join obs ultimaProfilaxiaIsoniazia on ultimaProfilaxiaIsoniazia.encounter_id = e.encounter_id 
             inner join obs obsEstado on obsEstado.encounter_id = e.encounter_id
             where   e.encounter_type in(6,53) and  ultimaProfilaxiaIsoniazia.concept_id=23985 and ultimaProfilaxiaIsoniazia.value_coded=23954 
@@ -1123,7 +1122,7 @@ from (
           
           select p.patient_id, obsEstado.obs_datetime data_inicio_3HP 
           from patient p 
-          	inner join encounter e on p.patient_id = e.patient_id 
+            inner join encounter e on p.patient_id = e.patient_id 
             inner join obs ultimaProfilaxiaIsoniazia on ultimaProfilaxiaIsoniazia.encounter_id = e.encounter_id 
             inner join obs obsEstado on obsEstado.encounter_id = e.encounter_id
             where   e.encounter_type in(6,53) and  ultimaProfilaxiaIsoniazia.concept_id=23985 and ultimaProfilaxiaIsoniazia.value_coded=23954 
@@ -1385,25 +1384,37 @@ where e.voided=0 and obs3hp.voided=0 and obsTipo.voided=0
                 where pe.voided=0 and pe.gender='F' 
             ) TPT_ELIG_FR16 on TPT_ELIG_FR16.patient_id=coorte12meses_final.patient_id 
             left join  
-            (select max_consulta.patient_id,max_consulta.data_seguimento,obs_seguimento.value_datetime 
+            (
+            select max_consulta.patient_id,max_consulta.data_seguimento,proximaConsulta.data_proximo_seguimento 
                 from  
-                (   Select  p.patient_id,max(encounter_datetime) data_seguimento 
+                (   Select  p.patient_id,max(encounter_datetime) data_seguimento, e.encounter_id
                     from    patient p  
                             inner join encounter e on e.patient_id=p.patient_id 
                     where   p.voided=0 and e.voided=0 and e.encounter_type in (6,9) and  
                             e.location_id=:location and e.encounter_datetime<=curdate() 
                     group by p.patient_id 
                 ) max_consulta  
-                left join 
-                    obs obs_seguimento on obs_seguimento.person_id=max_consulta.patient_id 
-                    and obs_seguimento.voided=0 
-                    and obs_seguimento.obs_datetime=max_consulta.data_seguimento 
-                    and obs_seguimento.concept_id=1410 
-                    and obs_seguimento.location_id=:location
-            ) TPT_ELIG_FR19 on TPT_ELIG_FR19.patient_id=coorte12meses_final.patient_id 
+                   left join 
+                   ( 
+                   select fr.patient_id,fr.encounter_datetime data_seguimento,obs_seguimento.value_datetime data_proximo_seguimento,fr.encounter_id from
+                    (
+                 Select  p.patient_id,max(encounter_datetime) encounter_datetime, e.encounter_id
+                    from    patient p  
+                            inner join encounter e on e.patient_id=p.patient_id 
+                    where   p.voided=0 and e.voided=0 and e.encounter_type in (6,9) and  
+                            e.location_id=:location and e.encounter_datetime<=curdate() 
+                    group by p.patient_id 
+                    ) fr 
+                    inner join encounter e on e.patient_id=fr.patient_id
+		            inner join obs obs_seguimento on obs_seguimento.encounter_id=e.encounter_id  
+                    and  obs_seguimento.concept_id=1410 
+                    and obs_seguimento.voided=0 and  e.encounter_type in (6,9) and e.encounter_datetime=fr.encounter_datetime
+                    ) proximaConsulta on proximaConsulta.patient_id=max_consulta.patient_id
+           
+                    ) TPT_ELIG_FR19 on TPT_ELIG_FR19.patient_id=coorte12meses_final.patient_id 
             where (data_estado is null or (data_estado is not null and  data_usar_c>data_estado)) and date_add(data_usar, interval 28 day) >=:endDate  
                     and  TPT_ELIG_FR4.patient_id is null  
                     and  TPT_ELIG_FR8.patient_id is null  
                     and  TPT_ELIG_FR9.patient_id is null  
                     and  TPT_ELIG_FR10.patient_id is null  
-                    and  TPT_ELIG_FR12.patient_id is null group by patient_id  
+                    and  TPT_ELIG_FR12.patient_id is null group by patient_id
