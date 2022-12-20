@@ -560,7 +560,13 @@ public class MQAgeDimensions {
         "<1", EptsReportUtils.map(this.calculateDefaulteAgeLessThanEndRevisionDate(1), mappings));
 
     dimension.addCohortDefinition(
+        "0-4", EptsReportUtils.map(this.findPatientsAgeRangeEndRevisionDate(0, 4), mappings));
+
+    dimension.addCohortDefinition(
         "1-4", EptsReportUtils.map(this.findPatientsAgeRangeEndRevisionDate(1, 4), mappings));
+
+    dimension.addCohortDefinition(
+        "2-14", EptsReportUtils.map(this.findPatientsAgeRangeEndRevisionDate(2, 14), mappings));
 
     dimension.addCohortDefinition(
         "5-9", EptsReportUtils.map(this.findPatientsAgeRangeEndRevisionDate(5, 9), mappings));
@@ -569,6 +575,10 @@ public class MQAgeDimensions {
 
     dimension.addCohortDefinition(
         "15-19", EptsReportUtils.map(this.findPatientsAgeRangeEndRevisionDate(15, 19), mappings));
+
+    dimension.addCohortDefinition(
+        "15+",
+        EptsReportUtils.map(this.calculateDefaulteAgeBiggerThanEndRevisionDate(15), mappings));
 
     dimension.addCohortDefinition(
         "20+",

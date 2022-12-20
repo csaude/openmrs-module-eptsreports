@@ -44,7 +44,7 @@ public interface TxPvlsQueriesInterface {
                 + "inner join encounter e on p.patient_id=e.patient_id "
                 + "inner join obs o on e.encounter_id=o.encounter_id "
                 + "where p.voided=0 and e.voided=0 and o.voided=0 and "
-                + "e.encounter_type in (13,6,9,53,51) and  o.concept_id in (856,1305) and o.obs_datetime > '0000-00-00 00:00' and  o.obs_datetime between date_add(date_add(:endDate, interval -12 MONTH), interval 1 day) and :endDate and e.location_id=:location group by p.patient_id) carga_viral on inicio_real.patient_id=carga_viral.patient_id "
+                + "e.encounter_type in (13,6,9,53,51) and  o.concept_id in (856,1305) and o.obs_datetime > '0000-00-00 00:00' and  date(o.obs_datetime) between date_add(date_add(:endDate, interval -12 MONTH), interval 1 day) and :endDate and e.location_id=:location group by p.patient_id) carga_viral on inicio_real.patient_id=carga_viral.patient_id "
                 + "where carga_viral.data_carga>=date_add(inicio_real.data_inicio, interval 90 DAY)  ";
 
     public static final String
@@ -76,9 +76,9 @@ public interface TxPvlsQueriesInterface {
                 + "Select p.patient_id,max(o.obs_datetime) data_carga from patient p "
                 + "inner join encounter e on p.patient_id=e.patient_id "
                 + "inner join obs o on e.encounter_id=o.encounter_id "
-                + "where p.voided=0 and e.voided=0 and o.voided=0 and e.encounter_type in (13,6,9,53,51) and  o.concept_id in (856,1305) and o.obs_datetime > '0000-00-00 00:00' and  o.obs_datetime between date_add(date_add(:endDate, interval -12 MONTH), interval 1 day) and :endDate and e.location_id=:location group by p.patient_id) carga_viral on inicio_real.patient_id=carga_viral.patient_id "
+                + "where p.voided=0 and e.voided=0 and o.voided=0 and e.encounter_type in (13,6,9,53,51) and  o.concept_id in (856,1305) and o.obs_datetime > '0000-00-00 00:00' and  date(o.obs_datetime) between date_add(date_add(:endDate, interval -12 MONTH), interval 1 day) and :endDate and e.location_id=:location group by p.patient_id) carga_viral on inicio_real.patient_id=carga_viral.patient_id "
                 + "inner join obs obsRazao on obsRazao.person_id=carga_viral.patient_id "
-                + "where carga_viral.data_carga>=date_add(inicio_real.data_inicio, interval 90 DAY) and  obsRazao.obs_datetime=carga_viral.data_carga and  obsRazao.concept_id=23818 and obsRazao.value_coded in (843,23864,23881,23882) and obsRazao.voided=0 ";
+                + "where carga_viral.data_carga>=date_add(inicio_real.data_inicio, interval 90 DAY) and  date(obsRazao.obs_datetime)=date(carga_viral.data_carga) and  obsRazao.concept_id=23818 and obsRazao.value_coded in (843,23864,23881,23882) and obsRazao.voided=0 ";
 
     public static final String
         findPatientsWhoHaveMoreThan3MonthsOnArtWithViralLoadResultLessthan1000RegisteredInTheLast12Months =
@@ -111,9 +111,9 @@ public interface TxPvlsQueriesInterface {
                 + "Select p.patient_id,max(o.obs_datetime) data_carga from patient p "
                 + "inner join encounter e on p.patient_id=e.patient_id "
                 + "inner join obs o on e.encounter_id=o.encounter_id "
-                + "where p.voided=0 and e.voided=0 and o.voided=0 and e.encounter_type in (13,6,9,53,51) and  o.concept_id in (856,1305) and o.obs_datetime > '0000-00-00 00:00' and  o.obs_datetime between date_add(date_add(:endDate, interval -12 MONTH), interval 1 day) and :endDate and e.location_id=:location group by p.patient_id) ultima_carga "
+                + "where p.voided=0 and e.voided=0 and o.voided=0 and e.encounter_type in (13,6,9,53,51) and  o.concept_id in (856,1305) and o.obs_datetime > '0000-00-00 00:00' and  date(o.obs_datetime) between date_add(date_add(:endDate, interval -12 MONTH), interval 1 day) and :endDate and e.location_id=:location group by p.patient_id) ultima_carga "
                 + "inner join obs on obs.person_id=ultima_carga.patient_id and obs.obs_datetime=ultima_carga.data_carga "
-                + "where obs.voided=0 and ((obs.concept_id=856 and obs.value_numeric<1000) or (obs.concept_id=1305 and obs.value_coded in (1306,23814,23905,23906,23907,23908,23904)))  and obs.location_id=:location) carga_viral on inicio_real.patient_id=carga_viral.patient_id "
+                + "where obs.voided=0 and ((obs.concept_id=856 and obs.value_numeric<1000) or (obs.concept_id=1305 and obs.value_coded in (1306,23814,23905,23906,23907,23908,23904,165331)))  and obs.location_id=:location) carga_viral on inicio_real.patient_id=carga_viral.patient_id "
                 + "where carga_viral.data_carga>=date_add(inicio_real.data_inicio, interval 90 DAY) ";
 
     public static final String
@@ -143,10 +143,10 @@ public interface TxPvlsQueriesInterface {
                 + "Select p.patient_id,max(o.obs_datetime) data_carga from patient p "
                 + "inner join encounter e on p.patient_id=e.patient_id "
                 + "inner join obs o on e.encounter_id=o.encounter_id "
-                + "where p.voided=0 and e.voided=0 and o.voided=0 and e.encounter_type in (13,6,9,53,51) and  o.concept_id in (856,1305) and o.obs_datetime > '0000-00-00 00:00' and  o.obs_datetime between date_add(date_add(:endDate, interval -12 MONTH), interval 1 day) and :endDate and e.location_id=:location group by p.patient_id) carga_viral on inicio_real.patient_id=carga_viral.patient_id "
-                + "inner join obs obsRazao on obsRazao.person_id=carga_viral.patient_id and obsRazao.obs_datetime=carga_viral.data_carga "
+                + "where p.voided=0 and e.voided=0 and o.voided=0 and e.encounter_type in (13,6,9,53,51) and  o.concept_id in (856,1305) and o.obs_datetime > '0000-00-00 00:00' and  date(o.obs_datetime) between date_add(date_add(:endDate, interval -12 MONTH), interval 1 day) and :endDate and e.location_id=:location group by p.patient_id) carga_viral on inicio_real.patient_id=carga_viral.patient_id "
+                + "inner join obs obsRazao on obsRazao.person_id=carga_viral.patient_id and date(obsRazao.obs_datetime)=date(carga_viral.data_carga) "
                 + "inner join obs obscv on obscv.person_id=carga_viral.patient_id and obscv.obs_datetime=carga_viral.data_carga "
-                + "where carga_viral.data_carga>=date_add(inicio_real.data_inicio, interval 90 DAY)  and  obsRazao.concept_id=23818 and obsRazao.value_coded in (843,23864,23881,23882) and obsRazao.voided=0 and ((obscv.concept_id=856 and obscv.value_numeric<1000) or (obscv.concept_id=1305 and obscv.value_coded in (1306,23814,23905,23906,23907,23908,23904))) and obscv.voided=0";
+                + "where carga_viral.data_carga>=date_add(inicio_real.data_inicio, interval 90 DAY)  and  obsRazao.concept_id=23818 and obsRazao.value_coded in (843,23864,23881,23882) and obsRazao.voided=0 and ((obscv.concept_id=856 and obscv.value_numeric<1000) or (obscv.concept_id=1305 and obscv.value_coded in (1306,23814,23905,23906,23907,23908,23904,165331))) and obscv.voided=0";
 
     public static final String
         findWomanStateWhoHaveMoreThan3MonthsOnArtWithViralLoadRegisteredInTheLast12Months(

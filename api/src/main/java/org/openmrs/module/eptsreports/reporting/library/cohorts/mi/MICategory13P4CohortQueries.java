@@ -195,19 +195,12 @@ public class MICategory13P4CohortQueries {
             mappings));
 
     definition.addSearch(
-        "H-CAT11-2",
-        EptsReportUtils.map(
-            this.mqCohortQueries
-                .findPatientsOnThe1stLineOfRTWithCVOver1000CopiesWhoHad3ConsecutiveMonthlyAPSSConsultationsCategory11Numerator(),
-            mappings));
-
-    definition.addSearch(
         "H-CAT-13-3",
         EptsReportUtils.map(
             this.mqCohortQueries.findPatientsWhoHaveRequestedCV120DaysAfterCVResultByQueryH(),
             mappings));
 
-    definition.setCompositionString("(DENOMINADOR-CAT11-2 AND H-CAT11-2 AND H-CAT-13-3)");
+    definition.setCompositionString("(DENOMINADOR-CAT11-2 AND H-CAT-13-3)");
 
     return definition;
   }
@@ -238,19 +231,12 @@ public class MICategory13P4CohortQueries {
             this.findPregnantWhoHaveRequestedCVCategory13P4Denumerator(), mappings));
 
     definition.addSearch(
-        "H-CAT11-2",
-        EptsReportUtils.map(
-            this.mqCohortQueries
-                .findPatientsOnThe1stLineOfRTWithCVOver1000CopiesWhoHad3ConsecutiveMonthlyAPSSConsultationsCategory11Numerator(),
-            mappingsMI));
-
-    definition.addSearch(
         "H",
         EptsReportUtils.map(
             this.mqCohortQueries.findPatientsWhoHaveRequestedCV120DaysAfterCVResultByQueryH(),
             mappingsMI));
 
-    definition.setCompositionString("(DENOMINADOR AND H-CAT11-2 AND H)");
+    definition.setCompositionString("(DENOMINADOR AND H)");
 
     return definition;
   }

@@ -89,7 +89,7 @@ public class TxPvlsDataset extends BaseDataSet {
     addRow(
         dataSetDefinition,
         "DT",
-        "Adults & Children Denominator Routine",
+        "Adults & Children Denominator Target",
         EptsReportUtils.map(
             eptsGeneralIndicator.getIndicator(
                 "viral load results on routine adults and children",

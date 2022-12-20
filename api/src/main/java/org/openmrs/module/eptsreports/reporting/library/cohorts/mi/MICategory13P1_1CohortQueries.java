@@ -67,11 +67,6 @@ public class MICategory13P1_1CohortQueries {
             mappingsMI));
 
     definition.addSearch(
-        "B4E",
-        EptsReportUtils.map(
-            MQCategory13Section1CohortQueries.findPatientsWithCVDenominatorB4E(), mappingsMI));
-
-    definition.addSearch(
         "B5E",
         EptsReportUtils.map(
             MQCategory13Section1CohortQueries
@@ -118,7 +113,7 @@ public class MICategory13P1_1CohortQueries {
             mappingsMI));
 
     definition.setCompositionString(
-        "(B1 AND ((B2NEW NOT DROPPEDOUT-FIRSTLINE) OR (REINITIATED-ART NOT REINITIATED-ART-AND-DROPPED-OUT) OR (B3 NOT (B3E OR CHANGE-REGIMEN-IN-FIRST-LINE)))) NOT B4E NOT B5E NOT C NOT D");
+        "(B1 AND ((B2NEW NOT DROPPEDOUT-FIRSTLINE) OR (REINITIATED-ART NOT REINITIATED-ART-AND-DROPPED-OUT) OR (B3 NOT (B3E OR CHANGE-REGIMEN-IN-FIRST-LINE)))) NOT B5E NOT C NOT D");
 
     return definition;
   }

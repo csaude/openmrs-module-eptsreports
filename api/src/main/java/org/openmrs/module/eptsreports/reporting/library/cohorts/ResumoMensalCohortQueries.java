@@ -32,6 +32,7 @@ import org.openmrs.module.reporting.cohort.definition.CompositionCohortDefinitio
 import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
 import org.openmrs.module.reporting.definition.library.DocumentedDefinition;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
+import org.openmrs.module.reporting.query.encounter.definition.SqlEncounterQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -172,7 +173,8 @@ public class ResumoMensalCohortQueries {
     cd.addSearch(
         "B1",
         map(
-            txNewCohortQueries.getTxNewCompositionCohort("Number of patientes who initiated TARV"),
+            txNewCohortQueries.getTxNewCompositionCohortMISAU(
+                "Number of patientes who initiated TARV"),
             mappings));
     cd.setCompositionString("B1");
     return cd;
@@ -204,42 +206,23 @@ public class ResumoMensalCohortQueries {
             mappings));
 
     definition.addSearch(
-        "TRANSFERED-IN-AND-IN-ART-MASTER-CARD-1",
+        "TRANSFERED-IN-2",
         EptsReportUtils.map(
             this.genericCohortQueries.generalSql(
-                "findPatientsWhoWhereMarkedAsTransferedInAndOnARTOnInAPeriodOnMasterCard",
+                "findPatientsWithAProgramStateMarkedAsTransferedInInAPeriod",
                 ResumoMensalQueries
                     .findPatientsWhoWhereMarkedAsTransferedInAndOnARTOnInAPeriodOnMasterCardB2),
             mappings));
 
     definition.addSearch(
-        "TRANSFERED-IN-2",
+        "B12",
         EptsReportUtils.map(
             this.genericCohortQueries.generalSql(
-                "findPatientsWithAProgramStateMarkedAsTransferedInInAPeriodStartDateB2",
-                ResumoMensalQueries
-                    .findPatientsWithAProgramStateMarkedAsTransferedInInAPeriodStartDateB2),
+                "B12",
+                ResumoMensalQueries.findPatientsWhoAreCurrentlyEnrolledOnArtMOHLastMonthB12()),
             mappings));
 
-    definition.addSearch(
-        "TRANSFERED-IN-AND-IN-ART-MASTER-CARD-2",
-        EptsReportUtils.map(
-            this.genericCohortQueries.generalSql(
-                "findPatientsWhoWhereMarkedAsTransferedInAndOnARTOnInAPeriodOnMasterCardStartDateB2",
-                ResumoMensalQueries
-                    .findPatientsWhoWhereMarkedAsTransferedInAndOnARTOnInAPeriodOnMasterCardStartDateB2),
-            mappings));
-
-    definition.addSearch(
-        "TRANSFERED-OUT",
-        EptsReportUtils.map(
-            this.genericCohortQueries.generalSql(
-                "findPatientsWhoWhereMarkedAsTransferedInAndOnARnOutAPeriodOnMasterCardStartDateB2",
-                ResumoMensalQueries.findPatientsWhoWhereMarkedAsTransferedOutAPeriodB2),
-            mappings));
-
-    definition.setCompositionString(
-        "(TRANSFERED-IN-1 OR TRANSFERED-IN-AND-IN-ART-MASTER-CARD-1) NOT((TRANSFERED-IN-2 OR TRANSFERED-IN-AND-IN-ART-MASTER-CARD-2) NOT(TRANSFERED-OUT))");
+    definition.setCompositionString("(TRANSFERED-IN-1 OR TRANSFERED-IN-2) NOT(B12)");
 
     return definition;
   }
@@ -254,31 +237,67 @@ public class ResumoMensalCohortQueries {
 
     final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
 
+    definition.addSearch("ABANDONED", EptsReportUtils.map(this.getAbandonedPatient(), mappings));
+
     definition.addSearch(
-        "B13",
+        "SUSPEND",
         EptsReportUtils.map(
             this.genericCohortQueries.generalSql(
-                "B13", ResumoMensalQueries.findPatientsWhoAreCurrentlyEnrolledOnArtMOHB13()),
+                "SUSPEND", ResumoMensalQueries.getPatientsWhoSuspendTratmentLastMonth()),
             mappings));
 
-    definition.addSearch("B9", EptsReportUtils.map(getSumPatientsB9(), mappings));
-
     definition.addSearch(
-        "B12",
-        EptsReportUtils.map(findPatientsWhoAreCurrentlyEnrolledOnArtMOHLastMonthB12(), mappings));
-
-    definition.addSearch(
-        "B1",
+        "PICKUP",
         EptsReportUtils.map(
-            getPatientsWhoInitiatedTarvAtThisFacilityDuringCurrentMonthB1(), mappings));
-
-    definition.addSearch(
-        "B2",
-        EptsReportUtils.map(
-            getNumberOfPatientsTransferredInFromOtherHealthFacilitiesDuringCurrentMonthB2(),
+            this.genericCohortQueries.generalSql(
+                "PICKUP", ResumoMensalQueries.getPatientsWhoHaveDrugPickup()),
             mappings));
 
-    definition.setCompositionString("(B13 OR B9) NOT (B12 OR B1 OR B2)");
+    definition.setCompositionString("(ABANDONED OR SUSPEND) AND PICKUP ");
+
+    return definition;
+  }
+
+  public CohortDefinition getAbandonedPatient() {
+
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+    definition.setName("Number Of Patients Transferred In From Other Health Facilities");
+    definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("location", "location", Location.class));
+
+    final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
+
+    definition.addSearch(
+        "ABANDONED",
+        EptsReportUtils.map(
+            this.genericCohortQueries.generalSql(
+                "ABANDONED", ResumoMensalQueries.getPatientsWhoAbandonedTratmentToBeExclude()),
+            mappings));
+
+    definition.addSearch(
+        "SUSPEND",
+        EptsReportUtils.map(
+            this.genericCohortQueries.generalSql(
+                "SUSPEND", ResumoMensalQueries.getPatientsWhoSuspendTratmentLastMonth()),
+            mappings));
+
+    definition.addSearch(
+        "DIED",
+        EptsReportUtils.map(
+            this.genericCohortQueries.generalSql(
+                "DIED", ResumoMensalQueries.getPatientsWhoDiedTratmentLastMonth()),
+            mappings));
+
+    definition.addSearch(
+        "TRFOUT",
+        EptsReportUtils.map(
+            this.genericCohortQueries.generalSql(
+                "TRFOUT",
+                ResumoMensalQueries.getPatientsTransferredFromAnotherHealthFacilityLastMonth()),
+            mappings));
+
+    definition.setCompositionString("ABANDONED NOT (SUSPEND OR DIED OR TRFOUT)");
 
     return definition;
   }
@@ -294,13 +313,55 @@ public class ResumoMensalCohortQueries {
       getNumberOfPatientsTransferredOutFromOtherHealthFacilitiesDuringCurrentMonthB5() {
 
     final SqlCohortDefinition definition = new SqlCohortDefinition();
-    definition.setName("patientsPregnantEnrolledOnART");
+    definition.setName("B5");
     definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
     definition.addParameter(new Parameter("endDate", "End Date", Date.class));
     definition.addParameter(new Parameter("location", "Location", Location.class));
 
     String query = ResumoMensalQueries.getPatientsTransferredFromAnotherHealthFacilityB5();
     definition.setQuery(query);
+
+    return definition;
+  }
+
+  public CohortDefinition getTrfOutB5() {
+
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+    definition.setName("Number Of Patients Transferred In From Other Health Facilities");
+    definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("location", "location", Location.class));
+
+    final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
+
+    definition.addSearch(
+        "B12",
+        EptsReportUtils.map(
+            this.genericCohortQueries.generalSql(
+                "B12",
+                ResumoMensalQueries.findPatientsWhoAreCurrentlyEnrolledOnArtMOHLastMonthB12()),
+            mappings));
+
+    definition.addSearch(
+        "B1",
+        EptsReportUtils.map(
+            this.txNewCohortQueries.getTxNewCompositionCohortMISAU("TX_NEW_MISAU"), mappings));
+
+    definition.addSearch(
+        "B2",
+        EptsReportUtils.map(
+            this.getNumberOfPatientsTransferredInFromOtherHealthFacilitiesDuringCurrentMonthB2(),
+            mappings));
+
+    definition.addSearch("B3", EptsReportUtils.map(this.getSumB3(), mappings));
+
+    definition.addSearch(
+        "TRFOUT",
+        EptsReportUtils.map(
+            this.getNumberOfPatientsTransferredOutFromOtherHealthFacilitiesDuringCurrentMonthB5(),
+            mappings));
+
+    definition.setCompositionString("(B12 OR B1 OR B2 OR B3) AND TRFOUT ");
 
     return definition;
   }
@@ -326,8 +387,47 @@ public class ResumoMensalCohortQueries {
     return definition;
   }
 
-  @DocumentedDefinition(value = "B7")
-  public CohortDefinition getPatientsWhoAbandonedTratmentUpB7() {
+  public CohortDefinition getSuspendB6() {
+
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+    definition.setName("Number Of Patients Transferred In From Other Health Facilities");
+    definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("location", "location", Location.class));
+
+    final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
+
+    definition.addSearch(
+        "B12",
+        EptsReportUtils.map(
+            this.genericCohortQueries.generalSql(
+                "B12",
+                ResumoMensalQueries.findPatientsWhoAreCurrentlyEnrolledOnArtMOHLastMonthB12()),
+            mappings));
+
+    definition.addSearch(
+        "B1",
+        EptsReportUtils.map(
+            this.txNewCohortQueries.getTxNewCompositionCohortMISAU("TX_NEW_MISAU"), mappings));
+
+    definition.addSearch(
+        "B2",
+        EptsReportUtils.map(
+            this.getNumberOfPatientsTransferredInFromOtherHealthFacilitiesDuringCurrentMonthB2(),
+            mappings));
+
+    definition.addSearch("B3", EptsReportUtils.map(this.getSumB3(), mappings));
+
+    definition.addSearch(
+        "SUSPEND", EptsReportUtils.map(this.getPatientsWhoSuspendTratmentB6(), mappings));
+
+    definition.setCompositionString("(B12 OR B1 OR B2 OR B3) AND SUSPEND ");
+
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "getPatientsWhoAreAbandoned")
+  public CohortDefinition getPatientsWhoAreAbandoned() {
 
     final CompositionCohortDefinition definition = new CompositionCohortDefinition();
     definition.setName("patients who abandoned tratment B7");
@@ -344,23 +444,44 @@ public class ResumoMensalCohortQueries {
                 "ABANDONED", ResumoMensalQueries.getPatientsWhoAbandonedTratmentB7()),
             mappings));
 
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "B7")
+  public CohortDefinition getPatientsWhoAbandonedTratmentUpB7() {
+
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+    definition.setName("patients who abandoned tratment B7");
+    definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("location", "location", Location.class));
+
+    final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
+
     definition.addSearch(
-        "EXCLUSION1",
+        "B12",
         EptsReportUtils.map(
             this.genericCohortQueries.generalSql(
-                "EXCLUSION1", ResumoMensalQueries.getPatientsWhoAbandonedTratmentB7Exclusion()),
+                "B12",
+                ResumoMensalQueries.findPatientsWhoAreCurrentlyEnrolledOnArtMOHLastMonthB12()),
             mappings));
 
     definition.addSearch(
-        "EXCLUSION2",
+        "ABANDONED",
         EptsReportUtils.map(
             this.genericCohortQueries.generalSql(
-                "EXCLUSION2",
-                ResumoMensalQueries
-                    .getPatientsWhoSuspendAndDiedAndTransferedOutTratmentB7ExclusionEndDate()),
+                "ABANDONED", ResumoMensalQueries.getPatientsWhoAbandonedTratmentB7()),
             mappings));
 
-    definition.setCompositionString("ABANDONED NOT (EXCLUSION1 OR EXCLUSION2)");
+    definition.addSearch(
+        "EXCLUSION",
+        EptsReportUtils.map(
+            this.genericCohortQueries.generalSql(
+                "EXCLUSION",
+                ResumoMensalQueries.getPatientsWhoSuspendAndDiedAndTransferedOutTratment()),
+            mappings));
+
+    definition.setCompositionString("(B12 AND ABANDONED) NOT (EXCLUSION)");
 
     return definition;
   }
@@ -376,6 +497,45 @@ public class ResumoMensalCohortQueries {
 
     String query = ResumoMensalQueries.getPatientsWhoDiedTratmentB8();
     definition.setQuery(query);
+
+    return definition;
+  }
+
+  public CohortDefinition getDiedB8() {
+
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+    definition.setName("Number Of Patients Transferred In From Other Health Facilities");
+    definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("location", "location", Location.class));
+
+    final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
+
+    definition.addSearch(
+        "B12",
+        EptsReportUtils.map(
+            this.genericCohortQueries.generalSql(
+                "B12",
+                ResumoMensalQueries.findPatientsWhoAreCurrentlyEnrolledOnArtMOHLastMonthB12()),
+            mappings));
+
+    definition.addSearch(
+        "B1",
+        EptsReportUtils.map(
+            this.txNewCohortQueries.getTxNewCompositionCohortMISAU("TX_NEW_MISAU"), mappings));
+
+    definition.addSearch(
+        "B2",
+        EptsReportUtils.map(
+            this.getNumberOfPatientsTransferredInFromOtherHealthFacilitiesDuringCurrentMonthB2(),
+            mappings));
+
+    definition.addSearch("B3", EptsReportUtils.map(this.getSumB3(), mappings));
+
+    definition.addSearch(
+        "DIED", EptsReportUtils.map(this.getPatientsWhoDiedTratmentB8(), mappings));
+
+    definition.setCompositionString("(B12 OR B1 OR B2 OR B3) AND DIED ");
 
     return definition;
   }
@@ -577,7 +737,14 @@ public class ResumoMensalCohortQueries {
 
     cd.addSearch("C2", EptsReportUtils.map(this.getPatientsWhoMarkedINHC2(), mappingTPI));
 
-    cd.setCompositionString("A2 AND C2");
+    cd.addSearch(
+        "TOBEEXCLUDE",
+        map(
+            genericCohortQueries.generalSql(
+                "TOBEEXCLUDE", ResumoMensalQueries.getPatientsWhoMarkedINHC2ToBeExclude()),
+            mappingTPI));
+
+    cd.setCompositionString("(A2 AND C2) NOT (TOBEEXCLUDE)");
     return cd;
   }
 
@@ -600,7 +767,14 @@ public class ResumoMensalCohortQueries {
 
     cd.addSearch("C3", EptsReportUtils.map(this.getPatientsWhoMarkedTbActiveC3(), mappingTB));
 
-    cd.setCompositionString("A2 AND C3");
+    cd.addSearch(
+        "TOBEEXCLUDE",
+        map(
+            genericCohortQueries.generalSql(
+                "TOBEEXCLUDE", ResumoMensalQueries.getPatientsWhoMarkedTbActiveC3ToBeExclude()),
+            mappingTB));
+
+    cd.setCompositionString("(A2 AND C3)  NOT(TOBEEXCLUDE)");
     return cd;
   }
 
@@ -717,39 +891,29 @@ public class ResumoMensalCohortQueries {
   }
 
   @DocumentedDefinition(value = "F1")
-  public CohortDefinition getNumberOfPatientsWhoHadClinicalAppointmentDuringTheReportingMonthF1() {
-    SqlCohortDefinition cd = new SqlCohortDefinition();
+  public SqlEncounterQuery getNumberOfPatientsWhoHadClinicalAppointmentDuringTheReportingMonthF1() {
+
+    SqlEncounterQuery cd = new SqlEncounterQuery();
     cd.setName("F1: Number of patients who had clinical appointment during the reporting month");
     cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
     cd.addParameter(new Parameter("endDate", "End Date", Date.class));
     cd.addParameter(new Parameter("location", "Location", Location.class));
     cd.setQuery(
-        ResumoMensalQueries.getNumberOfPatientsWhoHadClinicalAppointmentDuringTheReportingMonthF1(
-            hivMetadata.getAdultoSeguimentoEncounterType().getEncounterTypeId()));
+        ResumoMensalQueries
+            .getNumberOfPatientsWhoHadClinicalAppointmentDuringTheReportingMonthF1());
     return cd;
   }
 
   @DocumentedDefinition(value = "F2")
-  public CohortDefinition
+  public SqlEncounterQuery
       getNumberOfPatientsWhoHadClinicalAppointmentDuringTheReportingMonthTbF2() {
-    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
-
-    definition.setName("Tx Curr Vl");
-    definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
-    definition.addParameter(new Parameter("endDate", "End Date", Date.class));
-    definition.addParameter(new Parameter("location", "location", Location.class));
-
-    final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
-    definition.addSearch(
-        "F2",
-        EptsReportUtils.map(
-            getNumberOfPatientsWhoHadClinicalAppointmentDuringTheReportingMonthF1(), mappings));
-
-    definition.addSearch("TB1", map(findPatientWhoHaveTbSymthomsAndTbActive(), mappings));
-
-    definition.setCompositionString("F2 AND TB1");
-
-    return definition;
+    SqlEncounterQuery cd = new SqlEncounterQuery();
+    cd.setName("F1: Number of patients who had clinical appointment during the reporting month");
+    cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
+    cd.addParameter(new Parameter("endDate", "End Date", Date.class));
+    cd.addParameter(new Parameter("location", "Location", Location.class));
+    cd.setQuery(ResumoMensalQueries.findPatientWhoHaveTbSymthomsF2());
+    return cd;
   }
 
   /**
@@ -768,7 +932,10 @@ public class ResumoMensalCohortQueries {
 
     cd.addSearch(
         "F3",
-        map(getNumberOfPatientsWhoHadClinicalAppointmentDuringTheReportingMonthF1(), mappings));
+        map(
+            genericCohortQueries.generalSql(
+                "F3", ResumoMensalQueries.getNumberOfPatientsWhoHadClinicalAppointmentF1()),
+            mappings));
 
     cd.addSearch(
         "Fx3",

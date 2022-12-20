@@ -126,6 +126,9 @@ public class DSDPatientsWhoExperiencedIITCalculation extends BaseFghCalculation 
         && nextFilaResult == null
         && lastRecepcaoResult == null) {
       resultMap.put(patientId, new BooleanResult(true, this));
+
+    } else if (lastFilaResult == null && lastRecepcaoResult == null) {
+      resultMap.put(patientId, new BooleanResult(true, this));
     }
   }
 }

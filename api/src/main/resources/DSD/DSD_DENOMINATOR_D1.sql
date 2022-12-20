@@ -165,13 +165,14 @@ select patient_id from ( select inicio.patient_id, inicio.data_inicio, timestamp
             left join  
             ( 
             select distinct max_cv.patient_id,o.person_id  from (  
-            Select p.patient_id,max(o.obs_datetime) max_data_cv  From patient p  
+            Select p.patient_id,max(date(o.obs_datetime)) max_data_cv  From patient p  
             inner join encounter e on p.patient_id=e.patient_id  
             inner join obs o on e.encounter_id=o.encounter_id  
-            where  p.voided=0 and e.voided=0 and o.voided=0 and concept_id in (856,1305) and  e.encounter_type in (6,9,13,51,53) and o.obs_datetime between (:endDate - INTERVAL 12 MONTH) AND :endDate and e.location_id=:location  
+            where  p.voided=0 and e.voided=0 and o.voided=0 and concept_id in (856,1305) and  e.encounter_type in (6,9,13,51,53) 
+            and date(o.obs_datetime) between (:endDate - INTERVAL 12 MONTH) AND :endDate and e.location_id=:location  
             group by p.patient_id 
             )max_cv  
-            left join obs o on o.person_id=max_cv.patient_id and max_cv.max_data_cv=o.obs_datetime and o.voided=0 and  
+            left join obs o on o.person_id=max_cv.patient_id and date(max_cv.max_data_cv)=date(o.obs_datetime) and o.voided=0 and  
             ((o.concept_id=856 and o.value_numeric<1000) or (o.concept_id=1305 )) and o.location_id=:location ) cvmenor1000 on inicio.patient_id=cvmenor1000.patient_id  
             left join ( 
             select distinct max_cd4.patient_id,o.value_numeric  from (  
@@ -188,11 +189,11 @@ select patient_id from ( select inicio.patient_id, inicio.data_inicio, timestamp
             Select p.patient_id,max(o.obs_datetime) max_data_cd4  From patient p  
             inner join encounter e on p.patient_id=e.patient_id  
             inner join obs o on e.encounter_id=o.encounter_id  
-            where 	p.voided=0 and e.voided=0 and o.voided=0 and concept_id=730 and  e.encounter_type in (6,9,13) and o.obs_datetime between (:endDate - INTERVAL 12 MONTH) AND :endDate and e.location_id=:location  
+            where   p.voided=0 and e.voided=0 and o.voided=0 and concept_id=730 and  e.encounter_type in (6,9,13) and o.obs_datetime between (:endDate - INTERVAL 12 MONTH) AND :endDate and e.location_id=:location  
             group by p.patient_id 
             ) max_cd4  
             left join obs o on o.person_id=max_cd4.patient_id and max_cd4.max_data_cd4=o.obs_datetime and o.voided=0 and  
             o.concept_id=730 and o.value_numeric>15 and o.location_id=:location 
             ) cd4Percentual on inicio.patient_id=cd4Percentual.patient_id 
             ) elegivel  
-            where idade>=2 and ((idade<=9 and idadeEmTarv>=12) or (idade>=10 and idadeEmTarv>=6)) and ((pidcvmenor100 is not null ) or (pidcv12meses is null and idade>=5 and cd4Abs>200) or (pidcv12meses is null and idade<=4 and (cd4Abs>750 or cd4Per>15))) ;
+            where (idade>=2 and idadeEmTarv>=3) and ((pidcvmenor100 is not null ) or (pidcv12meses is null and idade>=5 and cd4Abs>200) or (pidcv12meses is null and idade<=4 and (cd4Abs>750 or cd4Per>15)))

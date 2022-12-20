@@ -17,8 +17,7 @@ public class MICategory13P4Dataset extends MQAbstractDataSet {
 
     dataSetDefinition.addColumn(
         "CAT13P4AdultDENUMINATOR",
-        "13.3: Adultos (15/+anos) na 1ª linha de TARV com registo de pedido de CV entre o 3º e o 4º "
-            + "mês após terem recebido  o último resultado de CV acima de 1000 e terem  3 sessões consecutivas de APSS/PP (AMA) Denominador ",
+        "13.3: Adultos (15/+anos) na 1ª linha de TARV com registo resultado de CV acima de 1000 ",
         EptsReportUtils.map(
             this.setIndicatorWithAllParameters(
                 this.miCategory13P4CohortQueries
@@ -26,12 +25,12 @@ public class MICategory13P4Dataset extends MQAbstractDataSet {
                 "CAT13P4AdultDENUMINATOR",
                 mappings),
             mappings),
-        "ageOnEndInclusionDate=15+5MONTHS");
+        "ageMiEndRevisionDate=15+");
 
     dataSetDefinition.addColumn(
         "CAT13P4AdultNUMINATOR",
         "13.3: Adultos (15/+anos) na 1ª linha de TARV com registo de pedido de CV entre o 3º e o 4º mês "
-            + "após terem recebido  o último resultado de CV acima de 1000 e terem  3 sessões consecutivas de APSS/PP (AMA) Numerador",
+            + "após terem recebido o último resultado de CV ≥1000 cps/ml",
         EptsReportUtils.map(
             this.setIndicatorWithAllParameters(
                 this.miCategory13P4CohortQueries
@@ -39,12 +38,11 @@ public class MICategory13P4Dataset extends MQAbstractDataSet {
                 "CAT13P4AdultNUMINATOR",
                 mappings),
             mappings),
-        "ageOnEndInclusionDate=15+5MONTHS");
+        "ageMiEndRevisionDate=15+");
 
     dataSetDefinition.addColumn(
         "CAT13P4ChildrenDENUMINATOR",
-        "13.12: Crianças (>2 anos de idade) na 1ª linha de TARV com registo de pedido de CV entre o 3º e o 4º mês "
-            + "após terem recebido  o último resultado de CV acima de 1000 cópia e terem  3 sessões consecutivas de APSS/PP (AMA) Denominador",
+        "13.12: Crianças (>2 anos de idade) na 1ª linha de TARV com registo de resultado de CV ≥1000 ",
         EptsReportUtils.map(
             this.setIndicatorWithAllParameters(
                 this.miCategory13P4CohortQueries
@@ -52,12 +50,12 @@ public class MICategory13P4Dataset extends MQAbstractDataSet {
                 "CAT13P4ChildrenDENUMINATOR",
                 mappings),
             mappings),
-        "ageOnEndInclusionDate=2-14-5MONTHS");
+        "ageMiEndRevisionDate=2-14");
 
     dataSetDefinition.addColumn(
         "CAT13P4ChildrenNUMINATOR",
         "13.12: Crianças (>2 anos de idade) na 1ª linha de TARV com registo de pedido de CV entre o 3º e o 4º mês "
-            + "após terem recebido  o último resultado de CV acima de 1000 cópia e terem  3 sessões consecutivas de APSS/PP (AMA) Numerador",
+            + "após terem recebido  o último resultado de CV ≥1000 Numerador",
         EptsReportUtils.map(
             this.setIndicatorWithAllParameters(
                 this.miCategory13P4CohortQueries
@@ -65,12 +63,12 @@ public class MICategory13P4Dataset extends MQAbstractDataSet {
                 "CAT13P4ChildrenNUMINATOR",
                 mappings),
             mappings),
-        "ageOnEndInclusionDate=2-14-5MONTHS");
+        "ageMiEndRevisionDate=2-14");
 
     dataSetDefinition.addColumn(
         "CAT13P4PregnantDENUMINATOR",
         "13.18: Mulheres Gravidas na 1ª linha de TARV com registo de pedido de CV entre o 3º e o 4º "
-            + "mês após terem recebido  o último resultado de CV acima de 1000 cópia e terem  3 sessões consecutivas de APSS/PP (AMA) Denominador",
+            + "mês após terem recebido  o último resultado de CV ≥ 1000 Denominador",
         EptsReportUtils.map(
             this.setIndicatorWithAllParameters(
                 this.miCategory13P4CohortQueries
@@ -83,7 +81,7 @@ public class MICategory13P4Dataset extends MQAbstractDataSet {
     dataSetDefinition.addColumn(
         "CAT13P4PregnantNUMINATOR",
         "13.18: Mulheres gravidas na 1ª linha de TARV com registo de pedido de CV entre o 3º e o 4º "
-            + "mês após terem recebido  o último resultado de CV acima de 1000 cópia e terem  3 sessões consecutivas de APSS/PP (AMA)",
+            + "mês após terem recebido  o último resultado de CVCV ≥1000",
         EptsReportUtils.map(
             this.setIndicatorWithAllParameters(
                 this.miCategory13P4CohortQueries

@@ -4,18 +4,21 @@ public interface MQQueriesInterface {
 
   class QUERY {
     public static final String findPatientsWhoAreNewlyEnrolledOnARTRF05 =
-        " SELECT patient_id FROM ( "
-            + " SELECT patient_id, MIN(art_start_date) art_start_date FROM ( "
-            + " SELECT p.patient_id, MIN(value_datetime) art_start_date FROM patient p "
-            + " INNER JOIN encounter e ON p.patient_id = e.patient_id "
-            + " INNER JOIN obs o ON e.encounter_id = o.encounter_id "
-            + " WHERE p.voided = 0 AND e.voided = 0 AND o.voided = 0 AND e.encounter_type = 53 "
-            + " AND o.concept_id = 1190 AND o.value_datetime is NOT NULL AND o.value_datetime <= :endInclusionDate AND e.location_id = :location "
-            + " GROUP BY p.patient_id "
-            + " ) art_start "
-            + " GROUP BY patient_id "
-            + " ) tx_new WHERE art_start_date BETWEEN :startInclusionDate AND :endInclusionDate ";
-
+        "SELECT tx_new.patient_id FROM (   "
+            + "SELECT patient_id, MIN(art_start_date) art_start_date FROM  "
+            + "( SELECT p.patient_id, o.value_datetime art_start_date FROM patient p   "
+            + "INNER JOIN encounter e ON p.patient_id = e.patient_id   "
+            + "INNER JOIN obs o ON e.encounter_id = o.encounter_id   "
+            + "WHERE p.voided = 0   "
+            + "AND e.voided = 0   "
+            + "AND o.voided = 0   "
+            + "AND e.encounter_type = 53   "
+            + "AND o.concept_id = 1190   "
+            + "AND e.location_id=:location "
+            + "AND date(o.value_datetime) <= :endRevisionDate   "
+            + ") art_start   "
+            + "GROUP BY patient_id   "
+            + ") tx_new WHERE art_start_date BETWEEN :startInclusionDate AND :endInclusionDate ";
     public static final String
         findPatientsWhoWhereMarkedAsTransferedInAndOnARTOnInAPeriodOnMasterCardRF06 =
             "SELECT p.patient_id from patient p "
@@ -117,7 +120,7 @@ public interface MQQueriesInterface {
             + "inner join encounter e on p.patient_id=e.patient_id "
             + "inner join obs o on e.encounter_id=o.encounter_id "
             + "inner join obs obsLactante on e.encounter_id=obsLactante.encounter_id "
-            + "where 	pe.voided=0 and p.voided=0 and e.voided=0 and o.voided=0 and obsLactante.voided=0 and e.encounter_type=53 and e.location_id=:location and "
+            + "where pe.voided=0 and p.voided=0 and e.voided=0 and o.voided=0 and obsLactante.voided=0 and e.encounter_type=53 and e.location_id=:location and "
             + "o.concept_id=1190 and o.value_datetime is not null and "
             + "obsLactante.concept_id=6332 and obsLactante.value_coded=1065 and pe.gender='F' ";
 
@@ -763,13 +766,15 @@ public interface MQQueriesInterface {
                 + "group by p.patient_id "
                 + ") B4_1_2 "
                 + "inner join  ( "
-                + "select p.patient_id, obsEstado.obs_datetime  from patient p "
+                + "select p.patient_id, max(obsEstado.obs_datetime) obs_datetime  from patient p "
                 + "inner join encounter e on p.patient_id = e.patient_id "
                 + "inner join obs ultimaProfilaxiaIsoniazia on ultimaProfilaxiaIsoniazia.encounter_id = e.encounter_id "
                 + "inner join obs obsEstado on obsEstado.encounter_id = e.encounter_id "
                 + "where   e.encounter_type in(6,53) and  ultimaProfilaxiaIsoniazia.concept_id=23985 and ultimaProfilaxiaIsoniazia.value_coded=656 "
                 + "and obsEstado.concept_id=165308 and obsEstado.value_coded=1267 "
                 + "and p.voided=0 and e.voided=0 and ultimaProfilaxiaIsoniazia.voided=0 and obsEstado.voided=0 and e.location_id=:location "
+                + "and date(obsEstado.obs_datetime) BETWEEN :startInclusionDate and :endRevisionDate "
+                + "group by p.patient_id  "
                 + ") obsFimTPI on obsFimTPI.patient_id = B4_1_2.patient_id "
                 + "WHERE obsFimTPI.obs_datetime between (B4_1_2.dataInicioTPI + INTERVAL 170 DAY) and (B4_1_2.dataInicioTPI + INTERVAL 297 DAY) "
                 + "group by B4_1_2.patient_id "
@@ -791,13 +796,15 @@ public interface MQQueriesInterface {
                 + ")maxdatainicio GROUP BY patient_id "
                 + ") B4_1_2 "
                 + "inner join  ( "
-                + "select p.patient_id,obsEstado.obs_datetime obs_datetime from patient p "
+                + "select p.patient_id,max(obsEstado.obs_datetime) obs_datetime from patient p "
                 + "inner join encounter e on p.patient_id = e.patient_id "
                 + "inner join obs ultimaProfilaxiaIsoniazia on ultimaProfilaxiaIsoniazia.encounter_id = e.encounter_id "
                 + "inner join obs obsEstado on obsEstado.encounter_id = e.encounter_id "
                 + "where e.encounter_type in(6,9,53) and  ultimaProfilaxiaIsoniazia.concept_id=23985 and ultimaProfilaxiaIsoniazia.value_coded=23954 "
                 + "and obsEstado.concept_id=165308 and obsEstado.value_coded=1267 "
                 + "and p.voided=0 and e.voided=0 and ultimaProfilaxiaIsoniazia.voided=0 and obsEstado.voided=0 and e.location_id =:location "
+                + "and date(obsEstado.obs_datetime) BETWEEN :startInclusionDate and :endRevisionDate "
+                + "group by p.patient_id "
                 + ") obsFimTPI on obsFimTPI.patient_id = B4_1_2.patient_id "
                 + "WHERE obsFimTPI.obs_datetime between (B4_1_2.dataInicioTPI + INTERVAL 80 DAY) and (B4_1_2.dataInicioTPI + INTERVAL 190 DAY) "
                 + "group by B4_1_2.patient_id ";
