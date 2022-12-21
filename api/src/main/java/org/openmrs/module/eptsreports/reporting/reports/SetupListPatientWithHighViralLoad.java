@@ -109,7 +109,7 @@ public class SetupListPatientWithHighViralLoad extends EptsDataExportManager {
 
       Properties props = new Properties();
       props.put(
-          "repeatingSections", "sheet:1,row:13,dataset:PHVL | sheet:2,row:10,dataset:PHVLCURRWEEK");
+          "repeatingSections", "sheet:1,row:12,dataset:PHVL | sheet:2,row:10,dataset:PHVLCURRWEEK");
       props.put("sortWeight", "5000");
       reportDesign.setProperties(props);
     } catch (IOException e) {
