@@ -85,10 +85,10 @@ public class MICategory13P1_1CohortQueries {
             mappingsMI));
 
     definition.addSearch(
-        "DROPPEDOUT-FIRSTLINE",
+        "DROPPEDOUT",
         EptsReportUtils.map(
             mQCohortQueries
-                .findAllPatientsWhoDroppedOutARTDuringTheLastSixMonthsAfterInitiatedARTFirstLine(),
+                .findAllPatientsWhoDroppedOutARTDuringTheLastSixMonthsBeforeLastClinicalConsultation(),
             mappings));
 
     definition.addSearch(
@@ -98,22 +98,8 @@ public class MICategory13P1_1CohortQueries {
                 .findPatientsMarkedAsReinitiatedARTForAtLeastSixMonthsBeforeLastClinicalConsultation(),
             mappingsReinitiated));
 
-    definition.addSearch(
-        "REINITIATED-ART-AND-DROPPED-OUT",
-        EptsReportUtils.map(
-            MQCategory13Section1CohortQueries
-                .findPatientsMarkedAsReinitiatedARTAndDroppedOutARTInSixMonthsAfterReinitiated(),
-            mappingsReinitiated));
-
-    definition.addSearch(
-        "CHANGE-REGIMEN-IN-FIRST-LINE",
-        EptsReportUtils.map(
-            MQCategory13Section1CohortQueries
-                .findPatientsWhoAbandonedARTInTheFirstSixMonthsAfterChangeFirstLineRegimenART(),
-            mappingsMI));
-
     definition.setCompositionString(
-        "(B1 AND ((B2NEW NOT DROPPEDOUT-FIRSTLINE) OR (REINITIATED-ART NOT REINITIATED-ART-AND-DROPPED-OUT) OR (B3 NOT (B3E OR CHANGE-REGIMEN-IN-FIRST-LINE)))) NOT B5E NOT C NOT D");
+        "(B1 AND ((B2NEW NOT DROPPEDOUT) OR (REINITIATED-ART NOT DROPPEDOUT) OR (B3 NOT (B3E OR DROPPEDOUT)))) NOT B5E NOT C NOT D");
 
     return definition;
   }

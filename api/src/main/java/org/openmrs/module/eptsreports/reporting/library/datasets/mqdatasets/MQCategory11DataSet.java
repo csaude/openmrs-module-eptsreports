@@ -81,7 +81,7 @@ public class MQCategory11DataSet extends MQAbstractDataSet {
                 "CAT11ChildrenBiggerThen2eLess14APSSPPDENOMINATOR",
                 mappings),
             mappings),
-        "ageMqNewART=3-14");
+        "ageMqNewART=2-14");
 
     dataSetDefinition.addColumn(
         "CAT11ChildrenBiggerThen2eLess14APSSPPNUMERATOR",
@@ -94,7 +94,7 @@ public class MQCategory11DataSet extends MQAbstractDataSet {
                 "CAT11ChildrenBiggerThen2eLess14APSSPPNUMERATOR",
                 mappings),
             mappings),
-        "ageMqNewART=3-14");
+        "ageMqNewART=2-14");
 
     dataSetDefinition.addColumn(
         "CAT11Least9APSSConsultationDENOMINATOR",
@@ -176,7 +176,7 @@ public class MQCategory11DataSet extends MQAbstractDataSet {
 
     dataSetDefinition.addColumn(
         "CAT11PREGNANT1000CVDENOMINATOR",
-        "11.4: Mulheres Gravidas na 1a linha de TARV com CV acima de 1000 cópias que tiveram "
+        "11.4: Mulheres Gravidas na 1a linha de TARV com CV acima de 50 cópias que tiveram "
             + "3 consultas de APSS/PP mensais consecutivas para reforço de adesão Denominador",
         EptsReportUtils.map(
             this.setIndicatorWithAllParameters(
@@ -189,12 +189,12 @@ public class MQCategory11DataSet extends MQAbstractDataSet {
 
     dataSetDefinition.addColumn(
         "CAT11PREGNANT1000CVNUMINATOR",
-        "11.4: Mulheres Gravidas na 1a linha de TARV com CV acima de 1000 cópias que tiveram "
+        "11.4: Mulheres Gravidas na 1a linha de TARV com CV acima de 50 cópias que tiveram "
             + "3 consultas de APSS/PP mensais consecutivas para reforço de adesão Numerador",
         EptsReportUtils.map(
             this.setIndicatorWithAllParameters(
                 this.mQCategory11P2CohortQueries
-                    .findPregnantOnARTStartedExcludingPregantAndBreastfeedingAndTransferredInTRANSFEREDOUTWITH1000CVCategory11NUMERATOR(),
+                    .findPregnantOnARTStartedExcludingPregantAndBreastfeedingAndTransferredInTRANSFEREDOUTWITH50CVCategory11NUMERATOR(),
                 "CAT11PREGNANT1000CVNUMINATOR",
                 mappings),
             mappings),

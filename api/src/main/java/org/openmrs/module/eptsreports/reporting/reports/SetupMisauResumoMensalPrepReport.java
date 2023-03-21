@@ -23,6 +23,7 @@ import org.openmrs.module.eptsreports.reporting.library.cohorts.GenericCohortQue
 import org.openmrs.module.eptsreports.reporting.library.datasets.DatimCodeDataSet;
 import org.openmrs.module.eptsreports.reporting.library.datasets.LocationDataSetDefinition;
 import org.openmrs.module.eptsreports.reporting.library.datasets.MisauResumoMensalPrepDataset;
+import org.openmrs.module.eptsreports.reporting.library.datasets.SismaCodeDataSet;
 import org.openmrs.module.eptsreports.reporting.library.datasets.TxRttDataset;
 import org.openmrs.module.eptsreports.reporting.library.queries.BaseQueries;
 import org.openmrs.module.eptsreports.reporting.reports.manager.EptsDataExportManager;
@@ -43,6 +44,7 @@ public class SetupMisauResumoMensalPrepReport extends EptsDataExportManager {
 
   @Autowired protected GenericCohortQueries genericCohortQueries;
   @Autowired private DatimCodeDataSet datimCodeDataset;
+  @Autowired private SismaCodeDataSet sismaCodeDataSet;
 
   @Override
   public String getVersion() {
@@ -84,6 +86,10 @@ public class SetupMisauResumoMensalPrepReport extends EptsDataExportManager {
     reportDefinition.addDataSetDefinition(
         "D",
         Mapped.mapStraightThrough(this.datimCodeDataset.constructDataset(this.getParameters())));
+
+    reportDefinition.addDataSetDefinition(
+        "SC",
+        Mapped.mapStraightThrough(this.sismaCodeDataSet.constructDataset(this.getParameters())));
 
     reportDefinition.addDataSetDefinition(
         "HF", mapStraightThrough(new LocationDataSetDefinition()));

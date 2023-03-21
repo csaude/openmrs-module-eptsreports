@@ -4,13 +4,11 @@ import static org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils.map
 
 import java.util.Date;
 import org.openmrs.Location;
-import org.openmrs.module.eptsreports.metadata.HivMetadata;
-import org.openmrs.module.eptsreports.reporting.library.queries.DQAQueries;
 import org.openmrs.module.eptsreports.reporting.library.queries.ResumoMensalQueries;
+import org.openmrs.module.eptsreports.reporting.utils.EptsQuerysUtils;
 import org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.CompositionCohortDefinition;
-import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
 import org.openmrs.module.reporting.definition.library.DocumentedDefinition;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,10 +17,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class DQACohortQueries {
 
+  private static final String FIND_PATIENTS_WHO_ARE_CURRENTLY_ENROLLED_ON_ART =
+      "TX_CURR/PATIENTS_WHO_ARE_CURRENTLY_ENROLLED_ON_ART.sql";
+
   @Autowired private GenericCohortQueries genericCohortQueries;
   @Autowired private TxNewCohortQueries txNewCohortQueries;
   @Autowired private ResumoMensalCohortQueries resumoMensalCohortQueries;
-  @Autowired private HivMetadata hivMetadata;
+  @Autowired private GenericCohortQueries genericCohorts;
 
   public CohortDefinition getPatientsWhoInitiatedTarvAtThisFacilityDuringCurrentMonthB1M3() {
     CompositionCohortDefinition cd = new CompositionCohortDefinition();
@@ -36,7 +37,8 @@ public class DQACohortQueries {
     cd.addSearch(
         "B1",
         map(
-            txNewCohortQueries.getTxNewCompositionCohort("Number of patientes who initiated TARV"),
+            txNewCohortQueries.getTxNewCompositionCohortMISAU(
+                "Number of patientes who initiated TARV"),
             mappingsB1M3));
     cd.setCompositionString("B1");
     return cd;
@@ -56,7 +58,8 @@ public class DQACohortQueries {
     cd.addSearch(
         "B1",
         map(
-            txNewCohortQueries.getTxNewCompositionCohort("Number of patientes who initiated TARV"),
+            txNewCohortQueries.getTxNewCompositionCohortMISAU(
+                "Number of patientes who initiated TARV"),
             mappingsB1M2));
     cd.setCompositionString("B1");
     return cd;
@@ -75,7 +78,8 @@ public class DQACohortQueries {
     cd.addSearch(
         "B1",
         map(
-            txNewCohortQueries.getTxNewCompositionCohort("Number of patientes who initiated TARV"),
+            txNewCohortQueries.getTxNewCompositionCohortMISAU(
+                "Number of patientes who initiated TARV"),
             mappingsB1M1));
     cd.setCompositionString("B1");
     return cd;
@@ -184,13 +188,23 @@ public class DQACohortQueries {
 
   @DocumentedDefinition(value = "patientsWhoAreActiveOnART")
   public CohortDefinition findPatientsWhoAreActiveOnART() {
-    final SqlCohortDefinition definition = new SqlCohortDefinition();
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
 
     definition.setName("patientsWhoAreActiveOnART");
     definition.addParameter(new Parameter("endDate", "End Date", Date.class));
     definition.addParameter(new Parameter("location", "location", Location.class));
 
-    definition.setQuery(DQAQueries.QUERY.findPatientsWhoAreCurrentlyEnrolledOnART);
+    final String mappings = "endDate=${endDate},location=${location}";
+
+    definition.addSearch(
+        "TXCURR",
+        EptsReportUtils.map(
+            this.genericCohorts.generalSql(
+                "Finding patients who are currently enrolled on ART",
+                EptsQuerysUtils.loadQuery(FIND_PATIENTS_WHO_ARE_CURRENTLY_ENROLLED_ON_ART)),
+            mappings));
+
+    definition.setCompositionString("TXCURR");
 
     return definition;
   }

@@ -14,6 +14,7 @@
 package org.openmrs.module.eptsreports.reporting.library.datasets.dsd;
 
 import static org.openmrs.module.eptsreports.reporting.utils.AgeRange.ADULT;
+import static org.openmrs.module.eptsreports.reporting.utils.AgeRange.CHILDREN;
 import static org.openmrs.module.eptsreports.reporting.utils.AgeRange.FIVE_TO_NINE;
 import static org.openmrs.module.eptsreports.reporting.utils.AgeRange.TEN_TO_FOURTEEN;
 import static org.openmrs.module.eptsreports.reporting.utils.AgeRange.TWO_TO_FOUR;
@@ -70,7 +71,8 @@ public class DSDDataSetDefinition extends BaseDataSet {
 
     boolean addWonaState = true;
 
-    this.addAgeDimensions(dsd, UNDER_TWO, TWO_TO_FOUR, FIVE_TO_NINE, TEN_TO_FOURTEEN, ADULT);
+    this.addAgeDimensions(
+        dsd, UNDER_TWO, TWO_TO_FOUR, FIVE_TO_NINE, TEN_TO_FOURTEEN, CHILDREN, ADULT);
 
     dsd.addDimension(
         "state", EptsReportUtils.map(this.dsdCommonDimensions.getDimensions(), mappings));
@@ -113,17 +115,50 @@ public class DSDDataSetDefinition extends BaseDataSet {
         TEN_TO_FOURTEEN,
         ADULT);
 
-    this.addColumns(
-        "N1",
-        "N1: N1: Número de Pacientes Não Grávidas, Não Lactantes e Não em Tratamento TB e Elegíveis a MDS que encontram-se em pelo menos um MDS para Pacietnes Estáveis (GA, DT, DS, DA, FR, DCA, DD)",
+    this.addBreastfeedingColumns(
+        "D4",
+        "D4: Número de Mulheres Activas em TARV, Lactantes durante pelo menos 11 meses que são elegíveis para Dispensa Bimestral ",
         dsd,
-        dsdCohortQueries.getNumerator1(),
+        dsdCohortQueries.getDSDDenominator4(),
+        !addWonaState,
+        mappings,
+        CHILDREN,
+        ADULT);
+
+    this.addColumns(
+        "N1-E",
+        "N1: Número de Pacientes Activos em TARV que se encontram inscritos em pelo menos um DSD para pacientes estáveis  (GA, DT, DS, DA, FR, DCA, DD) - Elegíveis ",
+        dsd,
+        dsdCohortQueries.getDSDEligibleNumerator1(),
         !addWonaState,
         mappings,
         TWO_TO_FOUR,
         FIVE_TO_NINE,
         TEN_TO_FOURTEEN,
         ADULT);
+
+    this.addColumns(
+        "N1-NE",
+        "N1: Número de Pacientes Activos em TARV que se encontram inscritos em pelo menos um DSD para pacientes estáveis  (GA, DT, DS, DA, FR, DCA, DD) - Não Elegíveis ",
+        dsd,
+        dsdCohortQueries.getDSDNotEligibleNumerator1(),
+        addWonaState,
+        mappings,
+        UNDER_TWO,
+        TWO_TO_FOUR,
+        FIVE_TO_NINE,
+        TEN_TO_FOURTEEN,
+        ADULT);
+
+    dsd.addColumn(
+        "N1-TOTAL",
+        "Total patients Numerator 1",
+        EptsReportUtils.map(
+            this.eptsGeneralIndicator.getIndicator(
+                "findTotalPatientsForNumerator1",
+                EptsReportUtils.map(dsdCohortQueries.getDSDTotalNumerator1(), mappings)),
+            mappings),
+        "");
 
     this.addColumns(
         "N2-E",
@@ -150,6 +185,16 @@ public class DSDDataSetDefinition extends BaseDataSet {
         TEN_TO_FOURTEEN,
         ADULT);
 
+    dsd.addColumn(
+        "N2-TOTAL",
+        "Total patients Numerator 2",
+        EptsReportUtils.map(
+            this.eptsGeneralIndicator.getIndicator(
+                "findTotalPatientsForNumerator2",
+                EptsReportUtils.map(dsdCohortQueries.getDSDTotalNumerator2(), mappings)),
+            mappings),
+        "");
+
     this.addColumns(
         "N3-E",
         "N3:  Número de Pacientes activos em TARV que encontram-se inscritos no MDS: Dispensa Semestral (DS) - Elegíveis para MDS Estáveis",
@@ -174,6 +219,16 @@ public class DSDDataSetDefinition extends BaseDataSet {
         FIVE_TO_NINE,
         TEN_TO_FOURTEEN,
         ADULT);
+
+    dsd.addColumn(
+        "N3-TOTAL",
+        "Total patients Numerator 3",
+        EptsReportUtils.map(
+            this.eptsGeneralIndicator.getIndicator(
+                "findTotalPatientsForNumerator3",
+                EptsReportUtils.map(dsdCohortQueries.getDSDTotalNumerator3(), mappings)),
+            mappings),
+        "");
 
     this.addColumns(
         "N4-E",
@@ -200,6 +255,16 @@ public class DSDDataSetDefinition extends BaseDataSet {
         TEN_TO_FOURTEEN,
         ADULT);
 
+    dsd.addColumn(
+        "N4-TOTAL",
+        "Total patients Numerator 4",
+        EptsReportUtils.map(
+            this.eptsGeneralIndicator.getIndicator(
+                "findTotalPatientsForNumerator4",
+                EptsReportUtils.map(dsdCohortQueries.getDSDTotalNumerator4(), mappings)),
+            mappings),
+        "");
+
     this.addColumns(
         "N5-E",
         "N5: Número de Pacientes activos em TARV que encontram-se inscritos no MDS: Dispensa Descentralizada (DD) - Elegíveis para MDS Estáveis",
@@ -224,6 +289,16 @@ public class DSDDataSetDefinition extends BaseDataSet {
         FIVE_TO_NINE,
         TEN_TO_FOURTEEN,
         ADULT);
+
+    dsd.addColumn(
+        "N5-TOTAL",
+        "Total patients Numerator 5",
+        EptsReportUtils.map(
+            this.eptsGeneralIndicator.getIndicator(
+                "findTotalPatientsForNumerator5",
+                EptsReportUtils.map(dsdCohortQueries.getDSDTotalNumerator5(), mappings)),
+            mappings),
+        "");
 
     this.addColumns(
         "N6-E",
@@ -250,6 +325,16 @@ public class DSDDataSetDefinition extends BaseDataSet {
         TEN_TO_FOURTEEN,
         ADULT);
 
+    dsd.addColumn(
+        "N6-TOTAL",
+        "Total patients Numerator 6",
+        EptsReportUtils.map(
+            this.eptsGeneralIndicator.getIndicator(
+                "findTotalPatientsForNumerator6",
+                EptsReportUtils.map(dsdCohortQueries.getDSDTotalNumerator6(), mappings)),
+            mappings),
+        "");
+
     this.addColumns(
         "N7-E",
         "N7:  Número de Pacientes activos em TARV qu encontram-se inscritos no MDS: Fluxo Rapido (FR) - Elegíveis para MDS Estáveis",
@@ -275,9 +360,19 @@ public class DSDDataSetDefinition extends BaseDataSet {
         TEN_TO_FOURTEEN,
         ADULT);
 
+    dsd.addColumn(
+        "N7-TOTAL",
+        "Total patients Numerator 7",
+        EptsReportUtils.map(
+            this.eptsGeneralIndicator.getIndicator(
+                "findTotalPatientsForNumerator7",
+                EptsReportUtils.map(dsdCohortQueries.getDSDTotalNumerator7(), mappings)),
+            mappings),
+        "");
+
     this.addColumns(
         "N8-E",
-        "N8:  Número de Pacientes activos em TARV que encontram-se inscritos no MDS: GAAC  (GA) - Elegíveis para MDS Estáveis",
+        "N8:  Número de Pacientes activos em TARV que encontram-se inscritos no MDS: GAAC (GA) - Elegíveis para MDS Estáveis",
         dsd,
         dsdCohortQueries.getDSDEligibleNumerator8(),
         !addWonaState,
@@ -289,7 +384,7 @@ public class DSDDataSetDefinition extends BaseDataSet {
 
     this.addColumns(
         "N8-NE",
-        "N8:  Número de Pacientes activos em TARV que encontram-se inscritos no MDS: GAAC  (GA) - Não-Elegíveis para MDS Estáveis",
+        "N8:  Número de Pacientes activos em TARV que encontram-se inscritos no MDS: GAAC (GA) - Não-Elegíveis para MDS Estáveis",
         dsd,
         dsdCohortQueries.getDSDNotEligibleNumerator8(),
         addWonaState,
@@ -299,6 +394,16 @@ public class DSDDataSetDefinition extends BaseDataSet {
         FIVE_TO_NINE,
         TEN_TO_FOURTEEN,
         ADULT);
+
+    dsd.addColumn(
+        "N8-TOTAL",
+        "Total patients Numerator 8",
+        EptsReportUtils.map(
+            this.eptsGeneralIndicator.getIndicator(
+                "findTotalPatientsForNumerator8",
+                EptsReportUtils.map(dsdCohortQueries.getDSDTotalNumerator8(), mappings)),
+            mappings),
+        "");
 
     this.addColumns(
         "N9",
@@ -459,6 +564,39 @@ public class DSDDataSetDefinition extends BaseDataSet {
         TEN_TO_FOURTEEN,
         ADULT);
 
+    this.addBreastfeedingColumns(
+        "N20-E",
+        "N20: Número de pacientes activos em TARV que encontram-se inscritos no MDS: Dispensa Bimestral (DB) - Elegíveis",
+        dsd,
+        this.dsdCohortQueries.getDSDEligibleNumerator20(),
+        !addWonaState,
+        mappings,
+        CHILDREN,
+        ADULT);
+
+    this.addColumns(
+        "N20-NE",
+        "N20: Número de pacientes activos em TARV que encontram-se inscritos no MDS: Dispensa Bimestral (DB) - Não Elegíveis",
+        dsd,
+        dsdCohortQueries.getDSDNotEligibleNumerator20(),
+        addWonaState,
+        mappings,
+        UNDER_TWO,
+        TWO_TO_FOUR,
+        FIVE_TO_NINE,
+        TEN_TO_FOURTEEN,
+        ADULT);
+
+    dsd.addColumn(
+        "N20-TOTAL",
+        "Total patients Numerator 20",
+        EptsReportUtils.map(
+            this.eptsGeneralIndicator.getIndicator(
+                "findTotalPatientsForNumerator20",
+                EptsReportUtils.map(dsdCohortQueries.getDSDTotalNumerator20(), mappings)),
+            mappings),
+        "");
+
     return dsd;
   }
 
@@ -522,6 +660,48 @@ public class DSDDataSetDefinition extends BaseDataSet {
           columnName,
           name + " - (" + range.getName() + ")",
           indicatorExcludingPregnantsAndBreestfeeding,
+          range.getName() + "=" + range.getName());
+    }
+  }
+
+  private void addBreastfeedingColumns(
+      final String name,
+      String label,
+      final CohortIndicatorDataSetDefinition definition,
+      final CohortDefinition cohortDefinition,
+      Boolean addWomanState,
+      String mappings,
+      final AgeRange... ranges) {
+
+    Mapped<CohortIndicator> totalIndicator =
+        EptsReportUtils.map(
+            this.eptsGeneralIndicator.getIndicator(
+                "patientsActiveOnArtEligibleForDsd",
+                EptsReportUtils.map(cohortDefinition, mappings)),
+            mappings);
+
+    definition.addColumn(name, label, totalIndicator, "");
+
+    if (addWomanState) {
+      definition.addColumn(
+          name + "-pregnant", label + "- Pergnant", totalIndicator, "state=PREGNANT");
+      definition.addColumn(
+          name + "-breastfeeding",
+          label + "- breastfeeding",
+          totalIndicator,
+          "state=BREASTFEEDING");
+    }
+
+    label += " (Adicionando mulheres lactantes) ";
+
+    for (final AgeRange range : ranges) {
+
+      String columnName = getColumnNameByRange(name, range);
+
+      definition.addColumn(
+          columnName,
+          name + " - (" + range.getName() + ")",
+          totalIndicator,
           range.getName() + "=" + range.getName());
     }
   }

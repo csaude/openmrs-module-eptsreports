@@ -99,7 +99,7 @@ public class SetupListOfChildrenAndAdolescentsOAartWithoutFullDisclosure
               getExcelDesignUuid(),
               null);
       Properties props = new Properties();
-      props.put("repeatingSections", "sheet:1,row:9,dataset:DR");
+      props.put("repeatingSections", "sheet:1,row:10,dataset:DR");
       props.put("sortWeight", "5000");
       props.put("sortWeight", "5000");
       reportDesign.setProperties(props);
