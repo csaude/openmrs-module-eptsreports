@@ -2,11 +2,11 @@ package org.openmrs.module.eptsreports.reporting.calculation.txml;
 
 import java.util.Date;
 import java.util.Map;
-import java.util.Set;
+import java.util.Map.Entry;
+import org.openmrs.calculation.result.CalculationResult;
 import org.openmrs.calculation.result.CalculationResultMap;
 import org.openmrs.calculation.result.SimpleResult;
-import org.openmrs.module.eptsreports.reporting.calculation.generic.LastRecepcaoLevantamentoCalculation;
-import org.openmrs.module.eptsreports.reporting.calculation.util.processor.CalculationProcessorUtils;
+import org.openmrs.module.eptsreports.reporting.calculation.util.processor.TxmlLostFollowUpProcessor;
 import org.openmrs.module.eptsreports.reporting.utils.EptsDateUtil;
 import org.openmrs.module.reporting.evaluation.EvaluationContext;
 import org.springframework.stereotype.Component;
@@ -15,52 +15,24 @@ import org.springframework.stereotype.Component;
 public class TxMLPatientsWhoAreIITLessThan3MonthsCalculation extends TxMLPatientCalculation {
 
   private static int LESS_THAN_3_MONTHS = 90;
-  private static int DAYS_TO_LTFU = 28;
 
   @Override
   protected CalculationResultMap evaluateUsingCalculationRules(
-      Map<String, Object> parameterValues,
-      EvaluationContext context,
-      Set<Integer> cohort,
-      Date startDate,
-      Date endDate,
-      CalculationResultMap resultMap,
-      CalculationResultMap inicioRealResult,
-      CalculationResultMap lastFilaCalculationResult,
-      CalculationResultMap lastSeguimentoCalculationResult,
-      CalculationResultMap nextFilaResult,
-      CalculationResultMap nextSeguimentoResult,
-      CalculationResultMap lastRecepcaoLevantamentoResult,
-      LastRecepcaoLevantamentoCalculation lastRecepcaoLevantamentoCalculation) {
+      EvaluationContext context, CalculationResultMap txmlResults) {
 
-    for (Integer patientId : cohort) {
-      Date inicioRealDate = (Date) inicioRealResult.get(patientId).getValue();
-      Date maxNextDate =
-          CalculationProcessorUtils.getMaxDate(
-              patientId,
-              nextFilaResult,
-              nextSeguimentoResult,
-              TxMLPatientCalculation.getLastRecepcaoLevantamentoPlus30(
-                  patientId, lastRecepcaoLevantamentoResult, lastRecepcaoLevantamentoCalculation));
+    CalculationResultMap resultMap = new CalculationResultMap();
 
-      if (maxNextDate != null) {
+    for (Entry<Integer, CalculationResult> pair : txmlResults.entrySet()) {
 
-        Date nextDatePlus28 = CalculationProcessorUtils.adjustDaysInDate(maxNextDate, DAYS_TO_LTFU);
+      Integer patientID = pair.getKey();
+      @SuppressWarnings("unchecked")
+      Map<String, Date> value = (Map<String, Date>) pair.getValue().getValue();
 
-        // verificar se o paciente eh TX_ML
-        if (nextDatePlus28.compareTo(CalculationProcessorUtils.adjustDaysInDate(startDate, -1)) >= 0
-            && nextDatePlus28.compareTo(endDate) < 0) {
+      Date dataInicio = value.get(TxmlLostFollowUpProcessor.DATA_INICIO);
+      Date dataProximoAgendamento = value.get(TxmlLostFollowUpProcessor.DATA_PROXIMO_AGENDAMENTO);
 
-          // verificar se pertence a desagregacao
-          if (EptsDateUtil.getDaysBetween(inicioRealDate, maxNextDate) < LESS_THAN_3_MONTHS) {
-            resultMap.put(patientId, new SimpleResult(maxNextDate, this));
-          }
-        }
-      } else {
-        super.checkConsultationsOrFilaWithoutNextConsultationDate(
-            patientId, resultMap, endDate, lastFilaCalculationResult, nextFilaResult);
-        super.checkConsultationsOrFilaWithoutNextConsultationDate(
-            patientId, resultMap, endDate, lastSeguimentoCalculationResult, nextSeguimentoResult);
+      if (EptsDateUtil.getDaysBetween(dataInicio, dataProximoAgendamento) < LESS_THAN_3_MONTHS) {
+        resultMap.put(patientID, new SimpleResult(dataProximoAgendamento, this));
       }
     }
     return resultMap;

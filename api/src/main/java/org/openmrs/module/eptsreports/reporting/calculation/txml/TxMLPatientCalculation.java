@@ -4,75 +4,29 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import org.openmrs.api.context.Context;
 import org.openmrs.calculation.result.CalculationResult;
 import org.openmrs.calculation.result.CalculationResultMap;
 import org.openmrs.calculation.result.SimpleResult;
 import org.openmrs.module.eptsreports.reporting.calculation.BaseFghCalculation;
-import org.openmrs.module.eptsreports.reporting.calculation.generic.LastFilaCalculation;
 import org.openmrs.module.eptsreports.reporting.calculation.generic.LastRecepcaoLevantamentoCalculation;
-import org.openmrs.module.eptsreports.reporting.calculation.generic.LastSeguimentoCalculation;
-import org.openmrs.module.eptsreports.reporting.calculation.generic.NextFilaDateCalculation;
-import org.openmrs.module.eptsreports.reporting.calculation.generic.NextSeguimentoDateCalculation;
-import org.openmrs.module.eptsreports.reporting.calculation.generic.OnArtInitiatedArvDrugsCalculation;
+import org.openmrs.module.eptsreports.reporting.calculation.generic.TXMLLostFollowupCalculation;
 import org.openmrs.module.eptsreports.reporting.calculation.util.processor.CalculationProcessorUtils;
 import org.openmrs.module.eptsreports.reporting.utils.EptsDateUtil;
 import org.openmrs.module.reporting.evaluation.EvaluationContext;
 
 public abstract class TxMLPatientCalculation extends BaseFghCalculation {
 
-  public static int DAYS_TO_LTFU = 28;
-
   @Override
   public CalculationResultMap evaluate(
       Map<String, Object> parameterValues, EvaluationContext context) {
-    CalculationResultMap resultMap = new CalculationResultMap();
 
-    Date startDate = (Date) context.getParameterValues().get("startDate");
-    Date endDate = (Date) context.getParameterValues().get("endDate");
+    CalculationResultMap txmlResults =
+        Context.getRegisteredComponents(TXMLLostFollowupCalculation.class)
+            .get(0)
+            .evaluate(null, parameterValues, context);
 
-    CalculationResultMap inicioRealResult =
-        Context.getRegisteredComponents(OnArtInitiatedArvDrugsCalculation.class)
-            .get(0)
-            .evaluate(parameterValues, context);
-    Set<Integer> cohort = inicioRealResult.keySet();
-    CalculationResultMap lastFilaCalculationResult =
-        Context.getRegisteredComponents(LastFilaCalculation.class)
-            .get(0)
-            .evaluate(cohort, parameterValues, context);
-    CalculationResultMap lastSeguimentoCalculationResult =
-        Context.getRegisteredComponents(LastSeguimentoCalculation.class)
-            .get(0)
-            .evaluate(cohort, parameterValues, context);
-    LastRecepcaoLevantamentoCalculation lastRecepcaoLevantamentoCalculation =
-        Context.getRegisteredComponents(LastRecepcaoLevantamentoCalculation.class).get(0);
-    CalculationResultMap lastRecepcaoLevantamentoResult =
-        lastRecepcaoLevantamentoCalculation.evaluate(cohort, parameterValues, context);
-
-    CalculationResultMap nextFilaResult =
-        Context.getRegisteredComponents(NextFilaDateCalculation.class)
-            .get(0)
-            .evaluate(lastFilaCalculationResult.keySet(), parameterValues, context);
-    CalculationResultMap nextSeguimentoResult =
-        Context.getRegisteredComponents(NextSeguimentoDateCalculation.class)
-            .get(0)
-            .evaluate(lastSeguimentoCalculationResult.keySet(), parameterValues, context);
-
-    return this.evaluateUsingCalculationRules(
-        parameterValues,
-        context,
-        cohort,
-        startDate,
-        endDate,
-        resultMap,
-        inicioRealResult,
-        lastFilaCalculationResult,
-        lastSeguimentoCalculationResult,
-        nextFilaResult,
-        nextSeguimentoResult,
-        lastRecepcaoLevantamentoResult,
-        lastRecepcaoLevantamentoCalculation);
+    return this.evaluateUsingCalculationRules(context, txmlResults);
   }
 
   @Override
@@ -82,19 +36,7 @@ public abstract class TxMLPatientCalculation extends BaseFghCalculation {
   }
 
   protected abstract CalculationResultMap evaluateUsingCalculationRules(
-      Map<String, Object> parameterValues,
-      EvaluationContext context,
-      Set<Integer> cohort,
-      Date startDate,
-      Date endDate,
-      CalculationResultMap resultMap,
-      CalculationResultMap inicioRealResult,
-      CalculationResultMap lastFilaCalculationResult,
-      CalculationResultMap lastSeguimentoCalculationResult,
-      CalculationResultMap nextFilaResult,
-      CalculationResultMap nextSeguimentoResult,
-      CalculationResultMap lastRecepcaoLevantamentoResult,
-      LastRecepcaoLevantamentoCalculation lastRecepcaoLevantamentoCalculation);
+      EvaluationContext context, CalculationResultMap txmlResults);
 
   protected void checkConsultationsOrFilaWithoutNextConsultationDate(
       Integer patientId,

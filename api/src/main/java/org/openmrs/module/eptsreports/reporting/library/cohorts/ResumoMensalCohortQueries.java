@@ -69,12 +69,8 @@ public class ResumoMensalCohortQueries {
         EptsReportUtils.map(
             this.genericCohortQueries.generalSql(
                 "getNumberOfPatientsWhoInitiatedPreTarvByEndOfPreviousMonthA1",
-                ResumoMensalQueries.getAllPatientsWithPreArtStartDateLessThanReportingStartDateA1(
-                    hivMetadata.getMasterCardEncounterType().getEncounterTypeId(),
-                    hivMetadata.getPreArtStartDate().getConceptId(),
-                    hivMetadata.getARVAdultInitialEncounterType().getEncounterTypeId(),
-                    hivMetadata.getARVPediatriaInitialEncounterType().getEncounterTypeId(),
-                    hivMetadata.getHIVCareProgram().getId())),
+                ResumoMensalQueries
+                    .getAllPatientsWithPreArtStartDateLessThanReportingStartDateA1()),
             mappings));
 
     definition.addSearch(
@@ -112,12 +108,7 @@ public class ResumoMensalCohortQueries {
         EptsReportUtils.map(
             this.genericCohortQueries.generalSql(
                 "patientsWhoInitiatedPreTarvAtAfacilityDuringCurrentMonthA2",
-                ResumoMensalQueries.getAllPatientsWithPreArtStartDateWithBoundariesA2(
-                    hivMetadata.getMasterCardEncounterType().getEncounterTypeId(),
-                    hivMetadata.getPreArtStartDate().getConceptId(),
-                    hivMetadata.getARVAdultInitialEncounterType().getEncounterTypeId(),
-                    hivMetadata.getARVPediatriaInitialEncounterType().getEncounterTypeId(),
-                    hivMetadata.getHIVCareProgram().getId())),
+                ResumoMensalQueries.getAllPatientsWithPreArtStartDateWithBoundariesA2()),
             mappings));
 
     definition.addSearch(

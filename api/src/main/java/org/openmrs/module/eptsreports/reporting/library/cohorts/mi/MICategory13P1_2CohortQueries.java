@@ -3,6 +3,7 @@ package org.openmrs.module.eptsreports.reporting.library.cohorts.mi;
 import java.util.Date;
 import org.openmrs.Location;
 import org.openmrs.module.eptsreports.reporting.library.cohorts.mq.MQCategory13Section1CohortQueries;
+import org.openmrs.module.eptsreports.reporting.library.cohorts.mq.MQCohortQueries;
 import org.openmrs.module.eptsreports.reporting.library.queries.mq.MQCategory13Section2QueriesInterface;
 import org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
@@ -17,6 +18,8 @@ import org.springframework.stereotype.Component;
 public class MICategory13P1_2CohortQueries {
 
   @Autowired private MQCategory13Section1CohortQueries mQCategory13Section1CohortQueries;
+
+  @Autowired private MQCohortQueries mQCohortQueries;
 
   @DocumentedDefinition(
       value = "findPatientsWithLastClinicalConsultationwhoAreInSecondLineDenominatorB2")
@@ -117,14 +120,14 @@ public class MICategory13P1_2CohortQueries {
             mappings));
 
     definition.addSearch(
-        "SECOND-LINE-ART",
+        "DROPPEDOUT",
         EptsReportUtils.map(
-            mQCategory13Section1CohortQueries
-                .findPatientsWhoAbandonedARTInTheFirstSixMonthsAfterInitiatedSecondLineRegimenART(),
+            mQCohortQueries
+                .findAllPatientsWhoDroppedOutARTDuringTheLastSixMonthsBeforeLastClinicalConsultation(),
             mappings));
 
     definition.setCompositionString(
-        "(B1 AND (B2NEWII NOT (B2ENEW OR SECOND-LINE-ART)))  NOT (B5E OR C OR D)");
+        "(B1 AND (B2NEWII NOT (B2ENEW OR DROPPEDOUT))) NOT (B5E OR C OR D)");
 
     return definition;
   }
