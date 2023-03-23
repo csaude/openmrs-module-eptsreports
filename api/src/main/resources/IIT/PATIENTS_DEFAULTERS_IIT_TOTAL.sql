@@ -1,7 +1,10 @@
- select                             coorte12meses_final.patient_id
+ select                             coorte12meses_final.patient_id                              
+                                    
+
+                                    
                          from                              
                          (select    inicio_fila_seg_prox.*,                              
-                                          GREATEST(COALESCE(data_fila,data_recepcao_levantou),COALESCE(data_recepcao_levantou,data_fila))  data_usar_c,                              
+                         GREATEST(COALESCE(data_fila,data_seguimento),COALESCE(data_seguimento,data_fila))  data_usar_c,                              
                          GREATEST(COALESCE(data_proximo_lev,data_recepcao_levantou30),COALESCE(data_recepcao_levantou30,data_proximo_lev)) data_usar                              
                          from                              
                          (select    inicio_fila_seg.*,                              
@@ -10,8 +13,9 @@
                          from                              
                          (select inicio.*,                                          
                                     saida.data_estado,                              
-                                    saida.estado,                              
-                                    max_fila.data_fila,                              
+                                    saida.estado,
+                                    max_fila.data_fila, 
+                                    max_consulta.data_seguimento,                                                           
                                     max_recepcao.data_recepcao_levantou                              
                          from                              
                          (    Select patient_id,min(data_inicio) data_inicio                              
@@ -68,7 +72,7 @@
                                           (                              
                                                       select distinct max_estado.patient_id,                                                                                                                                                          
                                                             max_estado.data_estado,                                                                                                                                                                               
-                                                            if(ps.state=7,'Transferido Para',if(ps.state=8,'Suspenso','Obito')) estado                                                                                              
+                                                            if(ps.state=8,'Suspenso','Obito') estado                                                                                              
                                                       from (                                                                                                                                                                                                                              
                                                             select pg.patient_id,                                                                                                                                                                           
                                                                   max(ps.start_date) data_estado                                                                                                                                                            
@@ -81,23 +85,29 @@
                                                       max_estado                                                                                                                                                                                                  
                                                             inner join patient_program pp on pp.patient_id = max_estado.patient_id                                                                                                                    
                                                             inner join patient_state ps on ps.patient_program_id = pp.patient_program_id and ps.start_date = max_estado.data_estado                                     
-                                                      where pp.program_id = 2 and ps.state in (7,8,10) and pp.voided = 0 and ps.voided = 0 and ps.start_date<= curdate() and pp.location_id =:location          
+                                                      where pp.program_id = 2 and ps.state in (8,10) and pp.voided = 0 and ps.voided = 0 and ps.start_date<= curdate() and pp.location_id =:location          
+                                                
                                                 union                              
+                                                
                                                 select      p.patient_id,                              
                                                             max(o.obs_datetime) data_estado,                              
-                                                            if(o.value_coded=1706,'Transferido para',if(o.value_coded=1366,'Obito','Suspenso')) estado                              
+                                                            if(o.value_coded=1366,'Obito','Suspenso') estado                              
                                                 from  patient p                               
                                                             inner join encounter e on p.patient_id=e.patient_id                              
                                                             inner join obs  o on e.encounter_id=o.encounter_id                              
                                                 where       e.voided=0 and o.voided=0 and p.voided=0 and                               
-                                                            e.encounter_type in (53,6) and o.concept_id in (6272,6273) and o.value_coded in (1706,1366,1709) and                                
+                                                            e.encounter_type in (53,6) and o.concept_id in (6272,6273) and o.value_coded in (1366,1709) and                                
                                                             o.obs_datetime<= curdate() and e.location_id=:location                              
                                                 group by p.patient_id                              
+                                                
                                                 union                              
+                                                
                                                 select person_id as patient_id,death_date as data_estado,'Obito' as estado                              
                                                 from person                               
                                                 where dead=1 and death_date is not null and death_date<= curdate()                              
+                                                
                                                 union                              
+                                                
                                                 select      p.patient_id,                              
                                                             max(obsObito.obs_datetime) data_estado,'Obito' as estado                               
                                                 from  patient p                               
@@ -106,8 +116,99 @@
                                                 where       e.voided=0 and p.voided=0 and obsObito.voided=0 and                               
                                                             e.encounter_type in (21,36,37) and  e.encounter_datetime<= curdate() and  e.location_id=:location and                               
                                                             obsObito.concept_id in (2031,23944,23945) and obsObito.value_coded=1366                               
-                                                group by p.patient_id                              
-                                          ) allSaida                              
+                                                group by p.patient_id 
+
+                                                union
+                                                
+                                                select saidas_por_transferencia.patient_id, data_estado, 'Transferido para' as estado
+                                                 from
+                                                    (
+                                                        select saidas_por_transferencia.patient_id, max(data_estado) data_estado
+                                                        from
+                                                            (
+                                                            select distinct max_estado.patient_id, max_estado.data_estado 
+                                                            from 
+                                                                (                                                                
+                                                                     select pg.patient_id, max(ps.start_date) data_estado                                                                                          
+                                                                     from patient p                                                                                                               
+                                                                            inner join person pe on pe.person_id = p.patient_id                                                                         
+                                                                            inner join patient_program pg on p.patient_id = pg.patient_id                                                               
+                                                                            inner join patient_state ps on pg.patient_program_id = ps.patient_program_id                                                
+                                                                     where pg.voided=0 and ps.voided=0 and p.voided=0 and pe.voided = 0 and pg.program_id = 2                                        
+                                                                            and ps.start_date<= curdate() and pg.location_id =:location group by pg.patient_id                                           
+                                                                    ) max_estado                                                                                                                        
+                                                                        inner join patient_program pp on pp.patient_id = max_estado.patient_id                                                          
+                                                                        inner join patient_state ps on ps.patient_program_id = pp.patient_program_id and ps.start_date = max_estado.data_estado         
+                                                                    where pp.program_id = 2 and ps.state = 7 and pp.voided = 0 and ps.voided = 0 and pp.location_id =:location                 
+                                                             
+                                                                    union                                                                                                                               
+                                                                    
+                                                                    select  p.patient_id,max(o.obs_datetime) data_estado                                                                                             
+                                                                    from patient p                                                                                                                   
+                                                                    inner join person pe on pe.person_id = p.patient_id                                                                         
+                                                                        inner join encounter e on p.patient_id=e.patient_id                                                                         
+                                                                        inner join obs  o on e.encounter_id=o.encounter_id                                                                          
+                                                                    where e.voided=0 and o.voided=0 and p.voided=0 and pe.voided = 0                                                               
+                                                                    and e.encounter_type in (53,6) and o.concept_id in (6272,6273) and o.value_coded = 1706                         
+                                                                        and o.obs_datetime<=curdate() and e.location_id=:location                                                                        
+                                                                        group by p.patient_id                                                                                                               
+                                                                    
+                                                                     union                                                                                                                               
+                                                                 
+                                                                    select ultimaBusca.patient_id, ultimaBusca.data_estado                                                                              
+                                                                    from (                                                                                                                              
+                                                                         select p.patient_id,max(e.encounter_datetime) data_estado                                                                   
+                                                                         from patient p                                                                                                              
+                                                                             inner join person pe on pe.person_id = p.patient_id                                                                     
+                                                                             inner join encounter e on p.patient_id=e.patient_id                                                                     
+                                                                             inner join obs o on o.encounter_id=e.encounter_id                                                                       
+                                                                         where e.voided=0 and p.voided=0 and pe.voided = 0 and e.encounter_datetime<= curdate()                                       
+                                                                             and e.encounter_type = 21 and  e.location_id=:location                                                                 
+                                                                             group by p.patient_id                                                                                                   
+                                                                     ) ultimaBusca                                                                                                                   
+                                                                         inner join encounter e on e.patient_id = ultimaBusca.patient_id                                                             
+                                                                         inner join obs o on o.encounter_id = e.encounter_id                                                                         
+                                                                    where e.encounter_type = 21 and o.voided=0 and o.concept_id=2016 and o.value_coded in (1706,23863) and ultimaBusca.data_estado = e.encounter_datetime and e.location_id =:location 
+                                                            ) saidas_por_transferencia 
+                                                            group by patient_id 
+                                                    ) saidas_por_transferencia
+                                                    left join
+                                                    (  
+                                                        select patient_id, max(data_ultimo_levantamento)  data_ultimo_levantamento    
+                                                        from
+                                                        (
+                                                                    select ultimo_fila.patient_id, date_add(obs_fila.value_datetime, interval 1 day) data_ultimo_levantamento
+                                                            from
+                                                            (
+                                                                select p.patient_id, max(encounter_datetime) data_fila                                                                                               
+                                                                        from patient p                                                                                                                                   
+                                                                        inner join person pe on pe.person_id = p.patient_id                                                                                         
+                                                                        inner join encounter e on e.patient_id=p.patient_id                                                                                         
+                                                                        where p.voided=0 and pe.voided = 0 and e.voided=0 and e.encounter_type=18                                                                      
+                                                                        and e.location_id=:location                                                                                   
+                                                                            group by p.patient_id 
+                                                                    ) ultimo_fila  
+                                                            left join                                                                                                                                          
+                                                                obs obs_fila on obs_fila.person_id=ultimo_fila.patient_id                                                                                      
+                                                                and obs_fila.voided=0                                                                                                                             
+                                                                and obs_fila.obs_datetime=ultimo_fila.data_fila                                                                                                
+                                                                and obs_fila.concept_id=5096                                                                                                                       
+                                                                and obs_fila.location_id=:location  
+                                                            
+                                                                    union
+                                                            
+                                                                    select p.patient_id, date_add(max(value_datetime), interval 31 day) data_ultimo_levantamento                                                                                     
+                                                                    from patient p                                                                                                                                   
+                                                                    inner join person pe on pe.person_id = p.patient_id                                                                                         
+                                                                      inner join encounter e on p.patient_id=e.patient_id                                                                                         
+                                                                      inner join obs o on e.encounter_id=o.encounter_id                                                                                           
+                                                                    where p.voided=0 and pe.voided = 0 and e.voided=0 and o.voided=0 and e.encounter_type=52                                                       
+                                                                      and o.concept_id=23866 and o.value_datetime is not null and e.location_id=:location                                                                                      
+                                                                    group by p.patient_id
+                                                            ) ultimo_levantamento group by patient_id
+                                                        ) ultimo_levantamento on saidas_por_transferencia.patient_id = ultimo_levantamento.patient_id 
+                                                    where ultimo_levantamento.data_ultimo_levantamento <= curdate() 
+                                        ) allSaida                              
                                     group by patient_id                            
                                     ) allSaida                              
                                inner join                                                                                                                                                                                                                       
@@ -135,7 +236,19 @@
                               where       p.voided=0 and e.voided=0 and e.encounter_type=18 and                               
                                           e.location_id=:location and e.encounter_datetime<=:endDate                              
                               group by p.patient_id                              
-                         ) max_fila on inicio.patient_id=max_fila.patient_id                                
+                         ) max_fila on inicio.patient_id=max_fila.patient_id 
+
+
+                        left join                                                                                                                                          
+                        (  
+                        select  p.patient_id,max(encounter_datetime) data_seguimento                                                                                    
+                         from    patient p                                                                                                                                   
+                                 inner join person pe on pe.person_id = p.patient_id                                                                                         
+                                 inner join encounter e on e.patient_id=p.patient_id                                                                                         
+                         where   p.voided=0 and pe.voided = 0 and e.voided=0 and e.encounter_type in (6,9) and                                                               
+                                 e.location_id=:location and e.encounter_datetime<=:endDate                                                                                  
+                         group by p.patient_id                                                                                                                               
+                         ) max_consulta on inicio.patient_id=max_consulta.patient_id   
                          left join                              
                          (                              
                               Select      p.patient_id,max(value_datetime) data_recepcao_levantou                              
@@ -148,6 +261,8 @@
                               group by p.patient_id                              
                          ) max_recepcao on inicio.patient_id=max_recepcao.patient_id                              
                          group by inicio.patient_id                              
+                         
+
                          ) inicio_fila_seg                              
                          left join                              
                               obs obs_fila on obs_fila.person_id=inicio_fila_seg.patient_id                              
@@ -156,6 +271,9 @@
                               and obs_fila.concept_id=5096                              
                               and obs_fila.location_id=:location                              
                          group by inicio_fila_seg.patient_id                              
+                         
+
+
                          ) inicio_fila_seg_prox                              
                          group by patient_id                              
                         
@@ -322,7 +440,7 @@
                                                       obsColheita.concept_id=23821 and obsColheita.voided=0   and                     
                                                       e.encounter_type=51 and obsColheita.value_datetime between (curdate() - interval 9 month) and curdate() and e.location_id=:location                                       
                                                                               
-                                    ) lactante_real on lactante_real.patient_id=p.person_id                              
+                                    ) lactante_real on lactante_real.patient_id=p.person_id  and p.gender='F'                          
                               where lactante_real.data_parto is not null or gravida_real.data_gravida is not null  and p.voided=0 and p.gender='F'                         
                                             group by p.person_id                                                      
                         ) gravidaLactante                                     
@@ -413,7 +531,7 @@
                                inner join encounter e on p.patient_id=e.patient_id                                                                                                                                                                                                  
                                inner join obs o on o.encounter_id=e.encounter_id                                                                                                                                                                                                          
                            where   p.voided=0 and e.voided=0 and o.voided=0 and                                                                                                                                                                                                           
-                               e.encounter_datetime<=curdate() and e.encounter_type=35 and e.location_id=:location                                                                                                                                                
+                               e.encounter_datetime<=curdate() and e.encounter_type=35 and e.location_id=:location and o.concept_id=6177                                                                                                                                                
                            group by p.patient_id                                                                                                                                                                                                                                                            
                          )maxConsent                                                                                                                                                                                                                                                                              
                          inner join encounter e on e.patient_id=maxConsent.patient_id                                                                                                                                                                                                     
@@ -426,13 +544,14 @@
                                                        
                          left join                               
                          (                              
-                                       
-                              select finalDispensa.patient_id, finalDispensa.data_clinica,                                                    
+                          
+                                                        select finalDispensa.patient_id, finalDispensa.data_clinica,                                                    
                                             case finalDispensa.tipoDispensa                                                  
-                                                  when 1 then 'DM'                                                  
-                                                  when 2 then 'DT'                                                   
-                                                  when 3 then 'DS'  
-                                                  when 4 then 'DA'                                              
+                                                  when 1 then 'DM'
+                                                  when 2 then 'DB'                                                  
+                                                  when 3 then 'DT'                                                   
+                                                  when 4 then 'DS'  
+                                                  when 5 then 'DA'                                              
                                             else null end as tipoDispensa                                                                                                                                                                             
                                 from                                                                                                                                                                                                      
                                 (                                                                                                                                                                                                         
@@ -442,11 +561,15 @@
                                                 select *                                                                                                                                                                                        
                                                 from                                                                                                                                                                                                  
                                                 (                                                                                                                                                                                                     
-                                                                                                                                                                                                                                                                                                                                                        
+                                                                                                                                                                                                                                                                                                                                                       
                                                         select      maxFila.patient_id,                                                                                                                                                     
-                                                                          maxFila.last_levantamento data_clinica,                                                                                                                     
-                                                                          if(datediff(max(obsNext.value_datetime),maxFila.last_levantamento)<83,1,                                                                        
-                                                                                    if(datediff(max(obsNext.value_datetime),maxFila.last_levantamento) BETWEEN 83 and 173,2,3)) tipoDispensa,               
+                                                                          max(obsNext.value_datetime) data_clinica,                                                                                                                     
+                                                                          if(datediff(max(obsNext.value_datetime),maxFila.last_levantamento)<53,1,
+                                                                          if(datediff(max(obsNext.value_datetime),maxFila.last_levantamento) BETWEEN 53 and 82,2,
+                                                                          if(datediff(max(obsNext.value_datetime),maxFila.last_levantamento) BETWEEN 83 and 173,3,
+                                                                          if(datediff(max(obsNext.value_datetime),maxFila.last_levantamento) BETWEEN 174 and 334,4,
+                                                                           if(datediff(max(obsNext.value_datetime),maxFila.last_levantamento)> 334,5,null
+                                                                            ))))) tipoDispensa,              
                                                                           1 as fonte,                                                                                                                                                                   
                                                                           1 as ordemMDS                                                                                                                                                                 
                                                         from                                                                                                                                                                                            
@@ -463,16 +586,16 @@
                                                         where       date(e.encounter_datetime)=date(maxFila.last_levantamento) and                                                                                  
                                                                           e.encounter_type=18 and e.location_id=:location and e.voided=0 and obsNext.voided=0 and                                             
                                                                           obsNext.concept_id=5096                                                                                                                                                 
-                                                        group  by maxFila.patient_id                                                                                                                                                        
+                                                        group  by maxFila.patient_id                                                                                                                                              
                                                                                                                                                                                                                                                                                                                                                         
                                                         UNION                                                                                                                                                                                           
                                                                                                                                                                                                                                                                                                                                                         
-                                                        select      lastTipo.patient_id,                                                                                                                                                    
+                                                        select    lastTipo.patient_id,                                                                                                                                                    
                                                                   lastTipo.data_clinica,                                                                                                                                                        
                                                                   case obsTipo.value_coded                                                                                                                                                      
                                                                                     when 1098 then 1                                                                                                                                                  
-                                                                                    when 23720 then 2                                                                                                                                                       
-                                                                                    when 23888 then 3                                                                                                                                                 
+                                                                                    when 23720 then 3                                                                                                                                                       
+                                                                                    when 23888 then 4                                                                                                                                                 
                                                                   else null end as tipoDispensa,                                                                                                                                                
                                                                   2 as fonte,                                                                                                                                                                         
                                                                   1 as ordemMDS                                                                                                                                                                       
@@ -483,7 +606,7 @@
                                                                                     inner join encounter e on p.patient_id=e.patient_id                                                                                             
                                                                                     inner join obs o on o.encounter_id=e.encounter_id                                                                                                     
                                                                   where       e.voided=0 and o.voided=0 and p.voided=0 and                                                                                                          
-                                                                                    e.encounter_type =6 and o.concept_id=23739 and                                                                                                        
+                                                                                    e.encounter_type =6 and                                                                                                        
                                                                                     e.encounter_datetime<=:endDate and e.location_id=:location                                                                                  
                                                                   group by p.patient_id                                                                                                                                                         
                                                         ) lastTipo                                                                                                                                                                                
@@ -498,15 +621,17 @@
                                                         select      lastMDS.patient_id,                                                                                                                                                     
                                                                           lastMDS.data_clinica,                                                                                                                                                   
                                                                           case o.value_coded                                                                                                                                                            
-                                                                                    when 23730 then if(obsEstado.value_coded=1267,4,2)                                                                                                    
-                                                                                    when 23888 then if(obsEstado.value_coded=1267,4,3)                                                                                                    
-                                                                                    when 165314 then if(obsEstado.value_coded=1267,4,4)                                                                                             
-                                                                          else 5 end as tipoDispensa,                                                                                                                                       
+                                                                                    when 23730  then 2                                                                                                    
+                                                                                    when 23888  then 3                                                                                                    
+                                                                                    when 165314 then 4
+                                                                                    when 165340 then 5                                                                                             
+                                                                          else null end as tipoDispensa,                                                                                                                                       
                                                                           3 as fonte,                                                                                                                                                                   
                                                                           case o.value_coded                                                                                                                                                            
                                                                                     when 23730 then 1                                                                                                                                                       
                                                                                     when 23888 then 1                                                                                                                                                       
-                                                                                    when 165314 then 1                                                                                                                                                      
+                                                                                    when 165314 then 1 
+                                                                                    when 165340 then 1                                                                                                                                                    
                                                                           else 2 end as ordemMDS                                                                                                                                                  
                                                         from                                                                                                                                                                                            
                                                         (                                                                                                                                                                                               
@@ -515,7 +640,7 @@
                                                                                     inner join encounter e on p.patient_id=e.patient_id                                                                                             
                                                                                     inner join obs o on o.encounter_id=e.encounter_id                                                                                                     
                                                                   where       e.voided=0 and o.voided=0 and p.voided=0 and                                                                                                          
-                                                                                    e.encounter_type =6 and o.concept_id=165174 and                                                                                                       
+                                                                                    e.encounter_type =6 and                                                                                                       
                                                                                     e.encounter_datetime<=:endDate and e.location_id=:location                                                                                  
                                                                   group by p.patient_id                                                                                                                                                         
                                                         ) lastMDS                                                                                                                                                                                 
@@ -526,7 +651,7 @@
                                                         where       e.encounter_type=6 and e.location_id=:location and                                                                                                    
                                                                           o.concept_id=165174 and o.voided=0                                                                                                                                
                                                                           and grupo.concept_id=165323  and grupo.voided=0                                                                                                             
-                                                                          and obsEstado.concept_id=165322  and obsEstado.value_coded in(1256,1257,1267)                                                                   
+                                                                          and obsEstado.concept_id=165322  and obsEstado.value_coded in(1256,1257)                                                                   
                                                                           and obsEstado.voided=0  and grupo.voided=0                                                                                                                  
                                                                           and grupo.obs_id=o.obs_group_id and grupo.obs_id=obsEstado.obs_group_id                                                                         
                                                                           and e.encounter_datetime=lastMDS.data_clinica                                                                                                               
@@ -535,8 +660,9 @@
                                                 order by patient_id,data_clinica desc,fonte,ordemMDS                                                                                                                    
                                       ) allTipoSourcefirst                                                                                                                                                                            
                                       group by patient_id                                                                                                                                                                             
-                                )finalDispensa                                                                                                                                                                                            
-                              ) dispensaTipo on dispensaTipo.patient_id=coorte12meses_final.patient_id                              
+                                )finalDispensa  
+                                                                                                                                                                                                             
+                         ) dispensaTipo on dispensaTipo.patient_id=coorte12meses_final.patient_id                              
                          left join                               
                          (                              
                      select max_consulta.patient_id,max_consulta.data_seguimento,obs_seguimento.value_datetime 
