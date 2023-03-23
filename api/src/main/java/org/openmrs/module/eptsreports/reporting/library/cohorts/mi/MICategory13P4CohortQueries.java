@@ -1,7 +1,7 @@
 package org.openmrs.module.eptsreports.reporting.library.cohorts.mi;
 
 import java.util.Date;
-import org.openmrs.module.eptsreports.reporting.library.cohorts.mq.MQCategory11CohortQueries;
+import org.openmrs.module.eptsreports.reporting.library.cohorts.mq.MQCategory13P4CohortQueries;
 import org.openmrs.module.eptsreports.reporting.library.cohorts.mq.MQCohortQueries;
 import org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class MICategory13P4CohortQueries {
   @Autowired private MQCohortQueries mqCohortQueries;
-  @Autowired private MQCategory11CohortQueries mqCategory11CohortQueries;
+  @Autowired private MQCategory13P4CohortQueries mQCategory13P4CohortQueries;
   @Autowired private MQCohortQueries mQCohortQueries;
 
   @DocumentedDefinition(
@@ -188,10 +188,10 @@ public class MICategory13P4CohortQueries {
         "startInclusionDate=${endRevisionDate-5m+1d},endInclusionDate=${endRevisionDate-4m},endRevisionDate=${endRevisionDate},location=${location}";
 
     definition.addSearch(
-        "DENOMINADOR-CAT11-2",
+        "DENOMINADOR-CAT13-3",
         EptsReportUtils.map(
-            this.mqCategory11CohortQueries
-                .findPatietsOnARTStartedExcludingPregantAndBreastfeedingAndTransferredInTRANSFEREDOUTWITH1000CVCategory11Denominator(),
+            this.mQCategory13P4CohortQueries
+                .findPatietsOnARTStartedExcludingPregantAndBreastfeedingAndTransferredInTRANSFEREDOUTWITH1000CVCategory13Denominator(),
             mappings));
 
     definition.addSearch(
@@ -200,7 +200,7 @@ public class MICategory13P4CohortQueries {
             this.mqCohortQueries.findPatientsWhoHaveRequestedCV120DaysAfterCVResultByQueryH(),
             mappings));
 
-    definition.setCompositionString("(DENOMINADOR-CAT11-2 AND H-CAT-13-3)");
+    definition.setCompositionString("(DENOMINADOR-CAT13-3 AND H-CAT-13-3)");
 
     return definition;
   }

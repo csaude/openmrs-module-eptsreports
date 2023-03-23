@@ -75,27 +75,6 @@ public class MQCategory13Section1CohortQueries {
   }
 
   @DocumentedDefinition(
-      value = "findPatientsWithLastClinicalConsultationwhoAreInFistLineDenominatorB2")
-  public CohortDefinition findPatientsWithLastClinicalConsultationwhoAreInFistLineDenominatorB2() {
-
-    final SqlCohortDefinition definition = new SqlCohortDefinition();
-
-    definition.setName("patientsPregnantEnrolledOnART");
-    definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
-    definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
-    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
-    definition.addParameter(new Parameter("location", "Location", Location.class));
-
-    String query =
-        MQCategory13Section1QueriesInterface.QUERY
-            .findPatientsWithLastClinicalConsultationwhoAreInFistLineDenominatorB2;
-
-    definition.setQuery(query);
-
-    return definition;
-  }
-
-  @DocumentedDefinition(
       value = "findPatientsWithLastClinicalConsultationwhoAreNotInFistLineDenominatorB2NEW")
   public CohortDefinition
       findPatientsWithLastClinicalConsultationwhoAreNotInFistLineDenominatorB2NEW() {
@@ -158,28 +137,6 @@ public class MQCategory13Section1CohortQueries {
     String query =
         MQCategory13Section1QueriesInterface.QUERY
             .findPatientsWithLastClinicalConsultationwhoAreNotInFistLineDenominatorB2NEWPartII;
-
-    definition.setQuery(query);
-
-    return definition;
-  }
-
-  @DocumentedDefinition(
-      value = "findPatientsWithLastClinicalConsultationwhoAreNotInFistLineDenominatorB2E")
-  public CohortDefinition
-      findPatientsWithLastClinicalConsultationwhoAreNotInFistLineDenominatorB2E() {
-
-    final SqlCohortDefinition definition = new SqlCohortDefinition();
-
-    definition.setName("patientsPregnantEnrolledOnART");
-    definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
-    definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
-    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
-    definition.addParameter(new Parameter("location", "Location", Location.class));
-
-    String query =
-        MQCategory13Section1QueriesInterface.QUERY
-            .findPatientsWithLastClinicalConsultationwhoAreNotInFistLineDenominatorB2E;
 
     definition.setQuery(query);
 
@@ -346,9 +303,6 @@ public class MQCategory13Section1CohortQueries {
             mappings));
 
     definition.addSearch(
-        "B4E", EptsReportUtils.map(this.findPatientsWithCVDenominatorB4E(), mappings));
-
-    definition.addSearch(
         "B5E", EptsReportUtils.map(this.findPatientsWithRequestCVDenominatorB5E(), mappings));
 
     definition.addSearch(
@@ -358,10 +312,10 @@ public class MQCategory13Section1CohortQueries {
         "D", EptsReportUtils.map(this.findPatientsWhoAreBreastfeedingCAT13Part1(), mappings));
 
     definition.addSearch(
-        "DROPPEDOUT-FIRSTLINE",
+        "DROPPEDOUT",
         EptsReportUtils.map(
             mQCohortQueries
-                .findAllPatientsWhoDroppedOutARTDuringTheLastSixMonthsAfterInitiatedARTFirstLine(),
+                .findAllPatientsWhoDroppedOutARTDuringTheLastSixMonthsBeforeLastClinicalConsultation(),
             mappings));
 
     definition.addSearch(
@@ -371,20 +325,8 @@ public class MQCategory13Section1CohortQueries {
                 .findPatientsMarkedAsReinitiatedARTForAtLeastSixMonthsBeforeLastClinicalConsultation(),
             mappings));
 
-    definition.addSearch(
-        "REINITIATED-ART-AND-DROPPED-OUT",
-        EptsReportUtils.map(
-            this.findPatientsMarkedAsReinitiatedARTAndDroppedOutARTInSixMonthsAfterReinitiated(),
-            mappings));
-
-    definition.addSearch(
-        "CHANGE-REGIMEN-IN-FIRST-LINE",
-        EptsReportUtils.map(
-            this.findPatientsWhoAbandonedARTInTheFirstSixMonthsAfterChangeFirstLineRegimenART(),
-            mappings));
-
     definition.setCompositionString(
-        "(B1 AND ((B2NEW NOT DROPPEDOUT-FIRSTLINE) OR (REINITIATED-ART NOT REINITIATED-ART-AND-DROPPED-OUT) OR (B3 NOT (B3E OR CHANGE-REGIMEN-IN-FIRST-LINE)))) NOT B4E NOT B5E NOT C NOT D");
+        "(B1 AND ((B2NEW NOT DROPPEDOUT) OR (REINITIATED-ART NOT DROPPEDOUT) OR (B3 NOT (B3E OR DROPPEDOUT)))) NOT B5E NOT C NOT D");
 
     return definition;
   }
@@ -452,28 +394,6 @@ public class MQCategory13Section1CohortQueries {
     String query =
         MQCategory13Section1QueriesInterface.QUERY
             .findPatientsMarkedAsReinitiatedARTForAtLeastSixMonthsBeforeLastClinicalConsultation;
-
-    definition.setQuery(query);
-
-    return definition;
-  }
-
-  @DocumentedDefinition(
-      value = "findPatientsMarkedAsReinitiatedARTAndDroppedOutARTInSixMonthsAfterReinitiated")
-  public CohortDefinition
-      findPatientsMarkedAsReinitiatedARTAndDroppedOutARTInSixMonthsAfterReinitiated() {
-
-    final SqlCohortDefinition definition = new SqlCohortDefinition();
-
-    definition.setName("Patients who dropped out ART in the first six months after ART start");
-    definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
-    definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
-    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
-    definition.addParameter(new Parameter("location", "Location", Location.class));
-
-    String query =
-        MQCategory13Section1QueriesInterface.QUERY
-            .findPatientsMarkedAsReinitiatedARTAndDroppedOutARTInSixMonthsAfterReinitiated;
 
     definition.setQuery(query);
 

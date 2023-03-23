@@ -183,7 +183,7 @@ public interface MQCategory13Section1QueriesInterface {
             + "inner join obs o on o.encounter_id=e.encounter_id	 "
             + "where  e.voided=0 and o.concept_id = 23722 and o.value_coded=856 and e.encounter_type=6 and o.voided=0 and e.location_id=:location "
             + ") cvPedido on cvPedido.patient_id=enc.patient_id "
-            + "where cvPedido.dataPedidoCV >= date_add(enc.encounter_datetime, interval -6 MONTH) and cvPedido.dataPedidoCV < enc.encounter_datetime "
+            + "where cvPedido.dataPedidoCV >= date_add(enc.encounter_datetime, interval -12 MONTH) and cvPedido.dataPedidoCV < enc.encounter_datetime "
             + "group by patient_id "
             + ") final";
 
@@ -344,34 +344,6 @@ public interface MQCategory13Section1QueriesInterface {
                 + "group by enc.patient_id "
                 + ") reinicio_tarv "
                 + "where (TIMESTAMPDIFF(MONTH,reinicio_tarv.data_reinicio_tarv,reinicio_tarv.ultimaConsulta)) >= 6 ";
-
-    public static final String
-        findPatientsMarkedAsReinitiatedARTAndDroppedOutARTInSixMonthsAfterReinitiated =
-            " Select reinicio_tarv.patient_id "
-                + " from ( "
-                + "Select enc.patient_id,enc.encounter_datetime ultimaConsulta,max(o.obs_datetime) data_reinicio_tarv from ( "
-                + "Select p.patient_id,max(e.encounter_datetime) encounter_datetime from patient p "
-                + "inner join encounter e on p.patient_id=e.patient_id "
-                + "where p.voided=0 and e.voided=0 and e.encounter_type=6 and "
-                + "e.encounter_datetime >=:startInclusionDate and e.encounter_datetime<=:endRevisionDate  and e.location_id=:location "
-                + "group by p.patient_id "
-                + ") enc "
-                + "inner join encounter e on e.patient_id=enc.patient_id "
-                + "inner join obs  o on e.encounter_id=o.encounter_id "
-                + "where e.voided=0 and o.voided=0 and  e.encounter_type = 6 and o.concept_id = 6273 and o.value_coded = 1705 and o.obs_datetime>=:startInclusionDate and o.obs_datetime<=:endInclusionDate and e.location_id=:location "
-                + "group by enc.patient_id "
-                + ") reinicio_tarv "
-                + "inner join "
-                + " ( "
-                + "select p.patient_id, max(o.obs_datetime) data_estado from patient p "
-                + "inner join encounter e on p.patient_id=e.patient_id "
-                + "inner join obs  o on e.encounter_id=o.encounter_id "
-                + "where e.voided=0 and o.voided=0 and p.voided=0 and  e.encounter_type in (53,6) and o.concept_id in (6272,6273) and o.value_coded in (1707) and e.location_id=:location "
-                + "group by p.patient_id "
-                + " ) abandono on abandono.patient_id = reinicio_tarv.patient_id "
-                + "where (TIMESTAMPDIFF(MONTH,reinicio_tarv.data_reinicio_tarv,reinicio_tarv.ultimaConsulta)) >= 6 and "
-                + "abandono.data_estado between reinicio_tarv.data_reinicio_tarv and date_add(reinicio_tarv.data_reinicio_tarv, interval 6 MONTH) "
-                + "group by reinicio_tarv.patient_id ";
 
     public static final String
         findPatientsWhoAbandonedARTInTheFirstSixMonthsAfterChangeFirstLineRegimenART =

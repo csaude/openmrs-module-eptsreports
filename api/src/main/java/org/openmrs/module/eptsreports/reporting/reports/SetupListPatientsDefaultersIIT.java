@@ -49,7 +49,7 @@ public class SetupListPatientsDefaultersIIT extends EptsDataExportManager {
 
   @Override
   public String getName() {
-    return "LISTA DE PACIENTES FALTOSOS OU ABANDONOS AO TARV";
+    return "Lista De Pacientes Faltosos Ou Abandonos Ao Tarv";
   }
 
   @Override
@@ -105,7 +105,7 @@ public class SetupListPatientsDefaultersIIT extends EptsDataExportManager {
               null);
 
       Properties props = new Properties();
-      props.put("repeatingSections", "sheet:1,row:10,dataset:DEFAULTERIIT");
+      props.put("repeatingSections", "sheet:1,row:11,dataset:DEFAULTERIIT");
       props.put("sortWeight", "5000");
       reportDesign.setProperties(props);
     } catch (IOException e) {

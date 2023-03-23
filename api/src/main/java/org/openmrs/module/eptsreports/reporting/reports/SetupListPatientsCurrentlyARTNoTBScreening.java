@@ -94,7 +94,7 @@ public class SetupListPatientsCurrentlyARTNoTBScreening extends EptsDataExportMa
               getExcelDesignUuid(),
               null);
       Properties props = new Properties();
-      props.put("repeatingSections", "sheet:1,row:8,dataset:TB5");
+      props.put("repeatingSections", "sheet:1,row:9,dataset:TB5");
       props.put("sortWeight", "8000");
       reportDesign.setProperties(props);
     } catch (IOException e) {

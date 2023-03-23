@@ -28,7 +28,8 @@ public interface MQQueriesInterface {
                 + "WHERE p.voided=0 AND e.voided=0 AND e.encounter_type=53 AND  e.location_id=:location ";
 
     public static final String findPatientsWhoTransferedOutRF07 =
-        "select saida.patient_id from ( "
+        "select saida.patient_id from "
+            + "( "
             + "select p.patient_id, max(o.obs_datetime) data_estado from patient p "
             + "inner join encounter e on p.patient_id=e.patient_id "
             + "inner join obs  o on e.encounter_id=o.encounter_id "
@@ -36,7 +37,8 @@ public interface MQQueriesInterface {
             + "o.concept_id in(6272,6273) and o.value_coded=1706 and o.obs_datetime<=:endRevisionDate and e.location_id=:location "
             + "group by p.patient_id "
             + ") saida "
-            + "inner join ( "
+            + "inner join "
+            + "( "
             + "select patient_id,max(encounter_datetime) encounter_datetime from ( "
             + "select p.patient_id,max(e.encounter_datetime) encounter_datetime from patient p "
             + "inner join encounter e on e.patient_id=p.patient_id "
@@ -44,18 +46,15 @@ public interface MQQueriesInterface {
             + "e.location_id=:location and e.encounter_type=6 "
             + "group by p.patient_id "
             + "union "
-            + "Select p.patient_id,max(o.value_datetime) encounter_datetime from patient p "
-            + "inner join encounter e on p.patient_id=e.patient_id "
-            + "inner join obs o on e.encounter_id=o.encounter_id "
-            + "inner join obs oLevantou on e.encounter_id=oLevantou.encounter_id "
-            + "where  p.voided=0 and e.voided=0 and o.voided=0 and oLevantou.voided=0 and e.encounter_type=52 and o.concept_id=23866 and "
-            + "o.value_datetime is not null and o.value_datetime<=:endRevisionDate and e.location_id=:location and "
-            + "oLevantou.concept_id=23865 and oLevantou.value_coded=1065 "
+            + "select p.patient_id,max(e.encounter_datetime) encounter_datetime from patient p "
+            + "inner join encounter e on e.patient_id=p.patient_id "
+            + "where p.voided=0 and e.voided=0 and e.encounter_datetime<=:endRevisionDate and "
+            + "e.location_id=:location and e.encounter_type=18 "
             + "group by p.patient_id "
             + ") consultaLev "
             + "group by patient_id "
             + ") consultaOuARV on saida.patient_id=consultaOuARV.patient_id "
-            + "where consultaOuARV.encounter_datetime<=saida.data_estado and saida.data_estado<=:endRevisionDate ";
+            + "where consultaOuARV.encounter_datetime <= saida.data_estado and saida.data_estado <= :endRevisionDate ";
 
     public static final String getPatientsWhoDiedEndRevisioDate =
         "select obito.patient_id from ( "
@@ -502,6 +501,23 @@ public interface MQQueriesInterface {
                 + "inner join obs o on e.encounter_id=o.encounter_id "
                 + "where p.voided = 0 and e.voided = 0 and o.voided = 0 and e.encounter_type = 6 and  o.concept_id = 856 and "
                 + "o.obs_datetime between :startInclusionDate and :endInclusionDate and e.location_id = :location and o.value_numeric >= 1000 "
+                + "group by p.patient_id "
+                + ") carga_viral "
+                + "inner join encounter primeira_consulta on carga_viral.patient_id = primeira_consulta.patient_id and primeira_consulta.voided = 0 and primeira_consulta.encounter_type = 35 and "
+                + "primeira_consulta.encounter_datetime=carga_viral.data_carga "
+                + "inner join encounter segunda_consulta on carga_viral.patient_id = segunda_consulta.patient_id and segunda_consulta.voided = 0 and segunda_consulta.encounter_type = 35 "
+                + "and (TIMESTAMPDIFF(DAY, carga_viral.data_carga, segunda_consulta.encounter_datetime)) between 20 and 33 "
+                + "inner join encounter terceira_consulta on carga_viral.patient_id = terceira_consulta.patient_id and terceira_consulta.voided = 0 and terceira_consulta.encounter_type = 35 "
+                + "and (TIMESTAMPDIFF(DAY, segunda_consulta.encounter_datetime, terceira_consulta.encounter_datetime)) between 20 and 33 ";
+
+    public static final String
+        findPatientsOnThe1stLineOfRTWithCVOver50CopiesWhoHad3ConsecutiveMonthlyAPSSConsultationsCategory11Numerator =
+            "select carga_viral.patient_id from ( "
+                + "Select p.patient_id, min(o.obs_datetime) data_carga from patient p "
+                + "inner join encounter e on p.patient_id = e.patient_id "
+                + "inner join obs o on e.encounter_id=o.encounter_id "
+                + "where p.voided = 0 and e.voided = 0 and o.voided = 0 and e.encounter_type = 6 and  o.concept_id = 856 and "
+                + "o.obs_datetime between :startInclusionDate and :endInclusionDate and e.location_id = :location and o.value_numeric > 50 "
                 + "group by p.patient_id "
                 + ") carga_viral "
                 + "inner join encounter primeira_consulta on carga_viral.patient_id = primeira_consulta.patient_id and primeira_consulta.voided = 0 and primeira_consulta.encounter_type = 35 and "

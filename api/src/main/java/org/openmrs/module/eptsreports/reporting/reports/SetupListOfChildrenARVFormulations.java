@@ -37,7 +37,7 @@ public class SetupListOfChildrenARVFormulations extends EptsDataExportManager {
 
   @Override
   public String getName() {
-    return "LISTA DE CRIANÇAS COM FORMULAÇÕES DE ARV";
+    return "Lista De Crianças Com Formulações De Arv";
   }
 
   @Override
@@ -83,7 +83,7 @@ public class SetupListOfChildrenARVFormulations extends EptsDataExportManager {
               getExcelDesignUuid(),
               null);
       Properties props = new Properties();
-      props.put("repeatingSections", "sheet:1,row:7,dataset:FR");
+      props.put("repeatingSections", "sheet:1,row:8,dataset:FR");
 
       props.put("sortWeight", "5000");
       props.put("sortWeight", "5000");

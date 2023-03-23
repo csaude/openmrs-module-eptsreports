@@ -567,6 +567,10 @@ public class EptsCommonDimension {
         query += "between " + range.getMin() + " and " + range.getMax();
         break;
 
+      case CHILDREN:
+        query += " < 15 ";
+        break;
+
       case ADULT:
         query += " >= 15 ";
         break;

@@ -51,12 +51,12 @@ public class SetupListPatientsWhoStartART extends EptsDataExportManager {
 
   @Override
   public String getName() {
-    return "LISTA DE PACIENTES NA COORTE DE TARV";
+    return "Lista De Pacientes Na Coorte De Tarv";
   }
 
   @Override
   public String getDescription() {
-    return "LISTA DE PACIENTES NA COORTE DE TARV";
+    return "Lista De Pacientes Na Coorte De Tarv";
   }
 
   @Override
@@ -97,7 +97,7 @@ public class SetupListPatientsWhoStartART extends EptsDataExportManager {
               getExcelDesignUuid(),
               null);
       Properties props = new Properties();
-      props.put("repeatingSections", "sheet:1,row:7,dataset:NR");
+      props.put("repeatingSections", "sheet:1,row:8,dataset:NR");
       props.put("sortWeight", "5000");
       props.put("sortWeight", "5000");
       reportDesign.setProperties(props);

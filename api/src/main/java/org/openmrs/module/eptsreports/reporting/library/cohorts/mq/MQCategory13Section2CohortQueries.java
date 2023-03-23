@@ -17,6 +17,8 @@ public class MQCategory13Section2CohortQueries {
 
   @Autowired private MQCategory13Section1CohortQueries mQCategory13Section1CohortQueries;
 
+  @Autowired private MQCohortQueries mQCohortQueries;
+
   @DocumentedDefinition(
       value = "findPatientsWithLastClinicalConsultationwhoAreInSecondLineDenominatorB2")
   public CohortDefinition
@@ -98,11 +100,6 @@ public class MQCategory13Section2CohortQueries {
             mappings));
 
     definition.addSearch(
-        "B4E",
-        EptsReportUtils.map(
-            mQCategory13Section1CohortQueries.findPatientsWithCVDenominatorB4E(), mappings));
-
-    definition.addSearch(
         "B5E",
         EptsReportUtils.map(
             mQCategory13Section1CohortQueries.findPatientsWithRequestCVDenominatorB5E(), mappings));
@@ -119,14 +116,14 @@ public class MQCategory13Section2CohortQueries {
             mappings));
 
     definition.addSearch(
-        "SECOND-LINE-ART",
+        "DROPPEDOUT",
         EptsReportUtils.map(
-            mQCategory13Section1CohortQueries
-                .findPatientsWhoAbandonedARTInTheFirstSixMonthsAfterInitiatedSecondLineRegimenART(),
+            mQCohortQueries
+                .findAllPatientsWhoDroppedOutARTDuringTheLastSixMonthsBeforeLastClinicalConsultation(),
             mappings));
 
     definition.setCompositionString(
-        "(B1 AND (B2NEWII NOT (B2ENEW OR SECOND-LINE-ART)))  NOT (B4E OR B5E OR C OR D)");
+        "(B1 AND (B2NEWII NOT (B2ENEW OR DROPPEDOUT)))  NOT (B5E OR C OR D)");
 
     return definition;
   }

@@ -18,7 +18,6 @@ import org.openmrs.module.eptsreports.reporting.library.queries.TXTBMontlyCascad
 import org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.CompositionCohortDefinition;
-import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
 import org.openmrs.module.reporting.definition.library.DocumentedDefinition;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,32 +35,34 @@ public class TXTBMontlyCascadeReporCohortQueries {
 
   @DocumentedDefinition(value = "patientsWhoAreCurrentyEnrolledOnArtInTheLastSixMonths")
   public CohortDefinition getPatientsEnrollendOnARTForTheLastSixMonths() {
-    final SqlCohortDefinition newlyOnArt = new SqlCohortDefinition();
-
-    final String mappings = "endDate=${endDate},location=${location}";
-    newlyOnArt.setName("Patient On ART In The Last 6 Months");
-    newlyOnArt.addParameter(new Parameter("endDate", "End Date", Date.class));
-    newlyOnArt.addParameter(new Parameter("location", "location", Location.class));
-
-    newlyOnArt.setQuery(
-        TXTBMontlyCascadeReportQueries.QUERY.findPatientsWhoAreCurrentlyEnrolledOnARTByPeriod(
-            EnrollmentPeriod.NEWLY));
-
     final CompositionCohortDefinition composiiton = new CompositionCohortDefinition();
 
-    composiiton.setName("Patient On ART In The Last 6 Months");
+    composiiton.setName("Patient On ART For More Than 6 Months");
     composiiton.addParameter(new Parameter("endDate", "End Date", Date.class));
     composiiton.addParameter(new Parameter("location", "location", Location.class));
 
-    composiiton.addSearch("newly-or-art", EptsReportUtils.map(newlyOnArt, mappings));
+    final String mappings = "endDate=${endDate},location=${location}";
 
     composiiton.addSearch(
-        "tx-curr",
-        EptsReportUtils.map(this.txCurrCohortQueries.findPatientsWhoAreActiveOnART(), mappings));
+        "newlyOnArt",
+        EptsReportUtils.map(
+            this.genericCohorts.generalSql(
+                "PatientsWithClinicalConsultationIntheLastSixMonths",
+                TXTBMontlyCascadeReportQueries.QUERY
+                    .findPatientsWhoAreCurrentlyEnrolledOnARTByPeriod(EnrollmentPeriod.NEWLY)),
+            mappings));
 
-    composiiton.setCompositionString("consultationsLast6Months and tx-curr");
+    composiiton.addSearch(
+        "previouslyOnAT",
+        EptsReportUtils.map(
+            this.genericCohorts.generalSql(
+                "PatientsWithClinicalConsultationIntheLastSixMonths",
+                TXTBMontlyCascadeReportQueries.QUERY
+                    .findPatientsWhoAreCurrentlyEnrolledOnARTByPeriod(EnrollmentPeriod.PREVIOUSLY)),
+            mappings));
 
-    return newlyOnArt;
+    composiiton.setCompositionString("newlyOnArt NOT previouslyOnAT");
+    return composiiton;
   }
 
   @DocumentedDefinition(value = "patientsWhoAreCurrentlyEnrolledOnARTInForMoreThanSixMonths")
@@ -84,14 +85,15 @@ public class TXTBMontlyCascadeReporCohortQueries {
             mappings));
 
     composiiton.addSearch(
-        "tx-curr",
-        EptsReportUtils.map(this.txCurrCohortQueries.findPatientsWhoAreActiveOnART(), mappings));
-
-    composiiton.addSearch(
         "newlyOnArt",
-        EptsReportUtils.map(this.getPatientsEnrollendOnARTForTheLastSixMonths(), mappings));
+        EptsReportUtils.map(
+            this.genericCohorts.generalSql(
+                "newlyOnArt",
+                TXTBMontlyCascadeReportQueries.QUERY
+                    .findPatientsWhoAreCurrentlyEnrolledOnARTByPeriod(EnrollmentPeriod.NEWLY)),
+            mappings));
 
-    composiiton.setCompositionString("(previouslyOnAT AND tx-curr) NOT newlyOnArt");
+    composiiton.setCompositionString("previouslyOnAT NOT newlyOnArt");
 
     return composiiton;
   }

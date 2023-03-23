@@ -15,27 +15,44 @@ import java.util.Date;
 import org.openmrs.Location;
 import org.openmrs.module.eptsreports.reporting.library.queries.TxCurrQueries;
 import org.openmrs.module.eptsreports.reporting.library.queries.TxCurrQueries.QUERY.DispensationIntervalType;
+import org.openmrs.module.eptsreports.reporting.utils.EptsQuerysUtils;
 import org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.CompositionCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
 import org.openmrs.module.reporting.definition.library.DocumentedDefinition;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /** Defines all of the TxCurrCohortQueries we want to expose for EPTS */
 @Component
 public class TxCurrCohortQueries {
 
+  private static final String FIND_PATIENTS_WHO_ARE_CURRENTLY_ENROLLED_ON_ART =
+      "TX_CURR/PATIENTS_WHO_ARE_CURRENTLY_ENROLLED_ON_ART.sql";
+
+  @Autowired private GenericCohortQueries genericCohorts;
+
   @DocumentedDefinition(value = "patientsWhoAreActiveOnART")
   public CohortDefinition findPatientsWhoAreActiveOnART() {
-    final SqlCohortDefinition definition = new SqlCohortDefinition();
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
 
     definition.setName("patientsWhoAreActiveOnART");
     definition.addParameter(new Parameter("endDate", "End Date", Date.class));
     definition.addParameter(new Parameter("location", "location", Location.class));
 
-    definition.setQuery(TxCurrQueries.QUERY.findPatientsWhoAreCurrentlyEnrolledOnART);
+    final String mappings = "endDate=${endDate},location=${location}";
+
+    definition.addSearch(
+        "TXCURR",
+        EptsReportUtils.map(
+            this.genericCohorts.generalSql(
+                "Finding patients who are currently enrolled on ART",
+                EptsQuerysUtils.loadQuery(FIND_PATIENTS_WHO_ARE_CURRENTLY_ENROLLED_ON_ART)),
+            mappings));
+
+    definition.setCompositionString("TXCURR");
 
     return definition;
   }

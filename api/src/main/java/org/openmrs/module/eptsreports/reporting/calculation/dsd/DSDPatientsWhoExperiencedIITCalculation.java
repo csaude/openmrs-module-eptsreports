@@ -3,6 +3,7 @@ package org.openmrs.module.eptsreports.reporting.calculation.dsd;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import org.openmrs.Location;
 import org.openmrs.api.context.Context;
@@ -15,7 +16,6 @@ import org.openmrs.module.eptsreports.reporting.calculation.generic.LastFilaCalc
 import org.openmrs.module.eptsreports.reporting.calculation.generic.LastRecepcaoLevantamentoCalculation;
 import org.openmrs.module.eptsreports.reporting.calculation.generic.TxRttNextFilaUntilEndDateCalculation;
 import org.openmrs.module.eptsreports.reporting.calculation.txml.TxMLPatientCalculation;
-import org.openmrs.module.eptsreports.reporting.calculation.txml.TxMLPatientsWhoMissedNextApointmentCalculation;
 import org.openmrs.module.eptsreports.reporting.calculation.util.processor.CalculationProcessorUtils;
 import org.openmrs.module.reporting.common.DateUtil;
 import org.openmrs.module.reporting.common.DurationUnit;
@@ -39,8 +39,7 @@ public class DSDPatientsWhoExperiencedIITCalculation extends BaseFghCalculation 
     parameters.put("endDate", endDateMinus3Months);
     parameters.put("location", location);
 
-    EvaluationContext newContext =
-        TxMLPatientsWhoMissedNextApointmentCalculation.getNewEvaluationContext(parameters);
+    EvaluationContext newContext = getNewEvaluationContext(parameters);
 
     CalculationResultMap inicioRealResult =
         Context.getRegisteredComponents(OnArtInitiatedArvDrugsMisaDefinitionCalculation.class)
@@ -130,5 +129,13 @@ public class DSDPatientsWhoExperiencedIITCalculation extends BaseFghCalculation 
     } else if (lastFilaResult == null && lastRecepcaoResult == null) {
       resultMap.put(patientId, new BooleanResult(true, this));
     }
+  }
+
+  public static EvaluationContext getNewEvaluationContext(Map<String, Object> parameters) {
+    EvaluationContext context = new EvaluationContext();
+    for (Entry<String, Object> entry : parameters.entrySet()) {
+      context.addParameterValue(entry.getKey(), entry.getValue());
+    }
+    return context;
   }
 }

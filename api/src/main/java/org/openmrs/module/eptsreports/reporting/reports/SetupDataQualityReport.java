@@ -359,7 +359,7 @@ public class SetupDataQualityReport extends EptsDataExportManager {
       Properties props = new Properties();
       props.put(
           "repeatingSections",
-          "sheet:2,row:7,dataset:EC1 | sheet:3,row:7,dataset:EC2 | sheet:4,row:7,dataset:EC3 | sheet:5,row:7,dataset:EC4 | sheet:6,row:7,dataset:EC5 | sheet:7,row:7,dataset:EC6 | sheet:8,row:7,dataset:EC7 | sheet:9,row:7,dataset:EC8 | sheet:10,row:7,dataset:EC9 | sheet:11,row:7,dataset:EC10 | sheet:12,row:7,dataset:EC11 | sheet:13,row:7,dataset:EC12 | sheet:14,row:7,dataset:EC13 | sheet:15,row:7,dataset:EC14 | sheet:16,row:7,dataset:EC15 | sheet:17,row:7,dataset:EC16 | sheet:18,row:7,dataset:EC17 | sheet:19,row:7,dataset:EC18 | sheet:20,row:7,dataset:EC19 |sheet:21,row:7,dataset:EC20 |sheet:22,row:7,dataset:EC21 |sheet:23,row:7,dataset:EC22 | sheet:24,row:7,dataset:EC23 | sheet:25,row:7,dataset:EC24 | sheet:26,row:7,dataset:EC25");
+          "sheet:2,row:8,dataset:EC1 | sheet:3,row:8,dataset:EC2 | sheet:4,row:8,dataset:EC3 | sheet:5,row:8,dataset:EC4 | sheet:6,row:8,dataset:EC5 | sheet:7,row:8,dataset:EC6 | sheet:8,row:8,dataset:EC7 | sheet:9,row:8,dataset:EC8 | sheet:10,row:8,dataset:EC9 | sheet:11,row:8,dataset:EC10 | sheet:12,row:8,dataset:EC11 | sheet:13,row:8,dataset:EC12 | sheet:14,row:8,dataset:EC13 | sheet:15,row:8,dataset:EC14 | sheet:16,row:8,dataset:EC15 | sheet:17,row:8,dataset:EC16 | sheet:18,row:8,dataset:EC17 | sheet:19,row:8,dataset:EC18 | sheet:20,row:8,dataset:EC19 |sheet:21,row:8,dataset:EC20 |sheet:22,row:8,dataset:EC21 |sheet:23,row:8,dataset:EC22 | sheet:24,row:8,dataset:EC23 | sheet:25,row:8,dataset:EC24 | sheet:26,row:8,dataset:EC25");
       props.put("sortWeight", "5000");
       props.put("sortWeight", "5000");
       reportDesign.setProperties(props);

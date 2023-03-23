@@ -103,7 +103,7 @@ public class SetupListPatientsWhoPickedUpARV extends EptsDataExportManager {
               null);
 
       Properties props = new Properties();
-      props.put("repeatingSections", "sheet:1,row:9,dataset:PICKEDUP");
+      props.put("repeatingSections", "sheet:1,row:10,dataset:PICKEDUP");
       props.put("sortWeight", "5000");
       reportDesign.setProperties(props);
     } catch (IOException e) {

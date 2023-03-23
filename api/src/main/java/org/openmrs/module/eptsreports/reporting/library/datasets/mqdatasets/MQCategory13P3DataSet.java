@@ -24,7 +24,7 @@ public class MQCategory13P3DataSet extends MQAbstractDataSet {
                 "CAT13_PART_3_13_2_DENOMINATOR",
                 mappings),
             mappings),
-        "ageOnEndInclusionDate=15+");
+        "ageMqEndRevisionDate=15+");
 
     dataSetDefinition.addColumn(
         "CAT13_PART_3_13_2_NUMERATOR",
@@ -36,7 +36,7 @@ public class MQCategory13P3DataSet extends MQAbstractDataSet {
                 "CAT13_PART_3_13_2_NUMERATOR",
                 mappings),
             mappings),
-        "ageOnEndInclusionDate=15+");
+        "ageMqEndRevisionDate=15+");
 
     dataSetDefinition.addColumn(
         "CAT13_PART_3_13_9_DENOMINATOR",
@@ -49,7 +49,7 @@ public class MQCategory13P3DataSet extends MQAbstractDataSet {
                 "CAT13_PART_3_13_9_DENOMINATOR",
                 mappings),
             mappings),
-        "ageOnEndInclusionDate=0-4");
+        "ageMqEndRevisionDate=0-4");
 
     dataSetDefinition.addColumn(
         "CAT13_PART_3_13_9_NUMERATOR",
@@ -62,7 +62,7 @@ public class MQCategory13P3DataSet extends MQAbstractDataSet {
                 "CAT13_PART_3_13_9_NUMERATOR",
                 mappings),
             mappings),
-        "ageOnEndInclusionDate=0-4");
+        "ageMqEndRevisionDate=0-4");
 
     dataSetDefinition.addColumn(
         "CAT13_PART_3_13_10_DENOMINATOR",
@@ -75,7 +75,7 @@ public class MQCategory13P3DataSet extends MQAbstractDataSet {
                 "CAT13_PART_3_13_10_DENOMINATOR",
                 mappings),
             mappings),
-        "ageOnEndInclusionDate=5-9");
+        "ageMqEndRevisionDate=5-9");
 
     dataSetDefinition.addColumn(
         "CAT13_PART_3_13_10_NUMERATOR",
@@ -88,7 +88,7 @@ public class MQCategory13P3DataSet extends MQAbstractDataSet {
                 "CAT13_PART_3_13_10_NUMERATOR",
                 mappings),
             mappings),
-        "ageOnEndInclusionDate=5-9");
+        "ageMqEndRevisionDate=5-9");
 
     dataSetDefinition.addColumn(
         "CAT13_PART_3_13_11_DENOMINATOR",
@@ -101,7 +101,7 @@ public class MQCategory13P3DataSet extends MQAbstractDataSet {
                 "CAT13_PART_3_13_11_DENOMINATOR",
                 mappings),
             mappings),
-        "ageOnEndInclusionDate=10-14");
+        "ageMqEndRevisionDate=10-14");
 
     dataSetDefinition.addColumn(
         "CAT13_PART_3_13_11_NUMERATOR",
@@ -114,7 +114,7 @@ public class MQCategory13P3DataSet extends MQAbstractDataSet {
                 "CAT13_PART_3_13_11_NUMERATOR",
                 mappings),
             mappings),
-        "ageOnEndInclusionDate=10-14");
+        "ageMqEndRevisionDate=10-14");
 
     dataSetDefinition.addColumn(
         "CAT13_PART_3_13_5_DENOMINATOR",

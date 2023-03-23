@@ -44,7 +44,7 @@ public class SetupListPatientsEligibleViralLoad extends EptsDataExportManager {
 
   @Override
   public String getName() {
-    return "LISTA DE PACIENTES ELEGÍVEIS PARA COLHEITA DA AMOSTRA PARA CARGA VIRAL";
+    return "Lista De Pacientes Elegíveis Para Colheita Da Amostra Para Carga Viral";
   }
 
   @Override
@@ -90,7 +90,7 @@ public class SetupListPatientsEligibleViralLoad extends EptsDataExportManager {
               null);
 
       Properties props = new Properties();
-      props.put("repeatingSections", "sheet:1,row:7,dataset:VIRALELIG");
+      props.put("repeatingSections", "sheet:1,row:8,dataset:VIRALELIG");
       props.put("sortWeight", "5000");
       reportDesign.setProperties(props);
     } catch (IOException e) {

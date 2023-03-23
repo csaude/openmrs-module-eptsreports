@@ -107,7 +107,7 @@ public class SetupDataQualityDuplicateReport extends EptsDataExportManager {
               getExcelDesignUuid(),
               null);
       Properties props = new Properties();
-      props.put("repeatingSections", "sheet:2,row:7,dataset:ECD1 | sheet:3,row:7,dataset:ECD2");
+      props.put("repeatingSections", "sheet:2,row:8,dataset:ECD1 | sheet:3,row:8,dataset:ECD2");
       props.put("sortWeight", "5000");
       props.put("sortWeight", "5000");
       reportDesign.setProperties(props);

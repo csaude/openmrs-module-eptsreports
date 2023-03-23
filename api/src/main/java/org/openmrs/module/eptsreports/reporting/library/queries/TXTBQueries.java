@@ -5,8 +5,12 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.openmrs.Concept;
 import org.openmrs.EncounterType;
+import org.openmrs.module.eptsreports.reporting.utils.EptsQuerysUtils;
 
 public class TXTBQueries {
+
+  private static final String FIND_PATIENTS_WHO_ARE_TRANSFERRED_OUT =
+      "TRANSFERRED_OUT/FIND_PATIENTS_WHO_ARE_TRANSFERRED_OUT.sql";
 
   /**
    * Copied straight from INICIO DE TRATAMENTO ARV - NUM PERIODO: INCLUI TRANSFERIDOS DE COM DATA DE
@@ -57,13 +61,11 @@ public class TXTBQueries {
         pharmacyEncounterTypeId);
   }
 
-  public static String inTBProgramWithinReportingPeriodAtLocation(Integer tbProgramId) {
-    return String.format(
-        "select pg.patient_id from patient p inner join patient_program pg on "
-            + " p.patient_id=pg.patient_id where pg.voided=0 and "
-            + " p.voided=0 and program_id=%s "
-            + "and date_enrolled between :startDate and :endDate and location_id=:location",
-        tbProgramId);
+  public static String inTBProgramWithinReportingPeriodAtLocation() {
+    return "select pg.patient_id from patient p inner join patient_program pg on "
+        + " p.patient_id=pg.patient_id where pg.voided=0 and "
+        + " p.voided=0 and program_id=5 "
+        + "and date_enrolled between :startDate and :endDate and location_id=:location ";
   }
 
   public static String inTBProgramWithinPreviousReportingPeriodAtLocation(Integer tbProgramId) {
@@ -143,6 +145,66 @@ public class TXTBQueries {
             conceptQuestionId, conceptAnswerId, encounterId);
 
     return sql;
+  }
+
+  public static String findTBScreeningResultInvestigationBkOrRX() {
+    String query =
+        "SELECT pat.patient_id FROM patient pat  "
+            + "JOIN encounter enc ON pat.patient_id=enc.patient_id  "
+            + "JOIN obs obNegative ON enc.encounter_id=obNegative.encounter_id  "
+            + "JOIN obs obYesNo ON enc.encounter_id=obYesNo.encounter_id "
+            + "WHERE pat.voided=0 AND enc.voided=0 AND obNegative.voided=0 AND obYesNo.voided=0 AND enc.location_id=:location  "
+            + "AND enc.encounter_type in(6,9)  AND obNegative.concept_id=6277 AND obNegative.value_coded=664 "
+            + "AND obYesNo.concept_id=6257 AND obYesNo.value_coded IN(1065,1066) "
+            + "AND enc.encounter_datetime>=:startDate and enc.encounter_datetime<=:endDate ";
+    return query;
+  }
+
+  public static String findPatientWhoStartTB() {
+
+    String query =
+        "Select TB.patient_id from  "
+            + " ( "
+            + "Select p.patient_id, o.value_datetime data_tratamento from  patient p   "
+            + "inner join encounter e on p.patient_id=e.patient_id   "
+            + "inner join obs o on e.encounter_id=o.encounter_id   "
+            + "where p.voided=0 and e.voided=0 and o.voided=0 and e.encounter_type in(6,9) "
+            + "and o.concept_id=1113 and  e.location_id= :location "
+            + "union "
+            + "select  pg.patient_id, pg.date_enrolled  data_tratamento  "
+            + "from  patient p inner join patient_program pg on p.patient_id=pg.patient_id  "
+            + "where   pg.voided=0 and p.voided=0 and program_id=5 and location_id= :location  "
+            + "union "
+            + "Select p.patient_id,o.obs_datetime data_tratamento from  patient p   "
+            + "inner join encounter e on p.patient_id=e.patient_id   "
+            + "inner join obs o on e.encounter_id=o.encounter_id   "
+            + "where p.voided=0 and e.voided=0 and o.voided=0 and e.encounter_type=53 "
+            + "and o.concept_id=1406 and o.value_coded=42 and e.location_id= :location   "
+            + "union "
+            + "Select p.patient_id,o.obs_datetime data_tratamento from  patient p   "
+            + "inner join encounter e on p.patient_id=e.patient_id   "
+            + "inner join obs o on e.encounter_id=o.encounter_id   "
+            + "where p.voided=0 and e.voided=0 and o.voided=0 and e.encounter_type=6 "
+            + "and o.concept_id=1268 and o.value_coded=1256  and e.location_id= :location  "
+            + ") TB  where TB.data_tratamento between date_add(date_sub(:endDate, INTERVAL 12 MONTH),INTERVAL 1 DAY)  and date_sub(:endDate, INTERVAL 6 MONTH) ";
+
+    return query;
+  }
+
+  public static String findTBScreeningFcMasterCard() {
+    String query =
+        "Select  p.patient_id  from  patient p  "
+            + "inner join encounter e on p.patient_id=e.patient_id "
+            + "inner join obs o on o.encounter_id=e.encounter_id "
+            + "where   e.voided=0 and o.voided=0 and p.voided=0 "
+            + "and e.encounter_type in (6) and o.concept_id=23758 and o.value_coded in(1065,1066)  and e.location_id=:location  "
+            + "AND e.encounter_datetime>=:startDate and e.encounter_datetime<=:endDate ";
+    return query;
+  }
+
+  public static String findPatientWhoAreTransferedOut() {
+
+    return EptsQuerysUtils.loadQuery(FIND_PATIENTS_WHO_ARE_TRANSFERRED_OUT);
   }
 
   public static String dateObsForEncounterAndQuestionAndAnswers(
