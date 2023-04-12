@@ -3,13 +3,11 @@ package org.openmrs.module.eptsreports.reporting.library.cohorts;
 import java.util.Arrays;
 import java.util.Date;
 import org.openmrs.Location;
-import org.openmrs.api.context.Context;
 import org.openmrs.module.eptsreports.metadata.CommonMetadata;
 import org.openmrs.module.eptsreports.metadata.HivMetadata;
 import org.openmrs.module.eptsreports.metadata.TbMetadata;
-import org.openmrs.module.eptsreports.reporting.calculation.txtb.TxTBPatientsWhoAreTransferedOutCalculation;
-import org.openmrs.module.eptsreports.reporting.cohort.definition.BaseFghCalculationCohortDefinition;
 import org.openmrs.module.eptsreports.reporting.library.queries.TXTBQueries;
+import org.openmrs.module.eptsreports.reporting.utils.EptsQuerysUtils;
 import org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils;
 import org.openmrs.module.reporting.cohort.definition.BaseObsCohortDefinition.TimeModifier;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
@@ -31,6 +29,10 @@ public class TXTBCohortQueries {
   @Autowired private CommonMetadata commonMetadata;
 
   @Autowired private GenericCohortQueries genericCohortQueries;
+
+  private static final String TX_TB = "TX_TB/TX_TB_DENOMINATOR.sql";
+
+  @Autowired private GenericCohortQueries genericCohorts;
 
   private final String generalParameterMapping =
       "startDate=${startDate},endDate=${endDate},location=${location}";
@@ -607,107 +609,20 @@ public class TXTBCohortQueries {
     final CompositionCohortDefinition definition = new CompositionCohortDefinition();
     this.addGeneralParameters(definition);
     definition.setName("TxTB - Denominator");
+    final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
+
     definition.addSearch(
-        "art-list",
+        "TXTB",
         EptsReportUtils.map(
-            this.genericCohortQueries.getStartedArtBeforeDate(false),
-            "onOrBefore=${endDate},location=${location}"));
-    definition.addSearch(
-        "tb-screening",
-        EptsReportUtils.map(this.yesOrNoInvestigationResult(), this.generalParameterMapping));
+            this.genericCohorts.generalSql("TXTB", EptsQuerysUtils.loadQuery(TX_TB)), mappings));
 
     definition.addSearch(
-        "tb-investigation",
+        "TROUT",
         EptsReportUtils.map(
-            this.positiveInvestigationResultComposition(), this.generalParameterMapping));
-    definition.addSearch(
-        "started-tb-treatment",
-        EptsReportUtils.map(
-            this.getTbDrugTreatmentStartDateWithinReportingDate(), this.generalParameterMapping));
-    definition.addSearch(
-        "in-tb-program", EptsReportUtils.map(this.getInTBProgram(), this.generalParameterMapping));
+            this.genericCohorts.generalSql("TROUT", TXTBQueries.findPatientWhoAreTransferedOut()),
+            mappings));
 
-    definition.addSearch(
-        "other-diagnosis-fichaResumo",
-        EptsReportUtils.map(
-            this.getPulmonaryTBWithinReportingDate(), this.generalParameterMapping));
-
-    definition.addSearch(
-        "started-tb-treatment-previous-period",
-        EptsReportUtils.map(
-            this.getTbDrugTreatmentStartDateWithinReportingDate(),
-            "startDate=${startDate-6m},endDate=${startDate-1d},location=${location}"));
-    definition.addSearch(
-        "in-tb-program-previous-period",
-        EptsReportUtils.map(
-            this.getInTBProgram(),
-            "startDate=${startDate-6m},endDate=${startDate-1d},location=${location}"));
-
-    definition.addSearch(
-        "other-diagnosis-FichaResumo-previousPeriod",
-        EptsReportUtils.map(
-            this.getPulmonaryTBWithinReportingDate(),
-            "startDate=${startDate-6m},endDate=${startDate-1d},location=${location}"));
-
-    CohortDefinition fichaClinicaMasterCard =
-        this.genericCohortQueries.generalSql(
-            "fichaClinicaMasterCard",
-            TXTBQueries.dateObsByObsValueDateTimeClausule(
-                this.tbMetadata.getTBTreatmentPlanConcept().getConceptId(),
-                this.hivMetadata.getStartDrugsConcept().getConceptId(),
-                this.hivMetadata.getAdultoSeguimentoEncounterType().getId()));
-
-    CohortDefinition fichaAdultoSeguimentoAndPediatriaSeguimento =
-        this.genericCohortQueries.generalSql(
-            "adultoandpediatriaseguimento", TXTBQueries.findTBScreeningResultInvestigationBkOrRX());
-
-    CohortDefinition transferredOut =
-        this.genericCohortQueries.generalSql(
-            "transferred-out", TXTBQueries.findPatientWhoAreTransferedOut());
-
-    CohortDefinition tbScreeningFC =
-        this.genericCohortQueries.generalSql(
-            "tbSreeningFC", TXTBQueries.findTBScreeningFcMasterCard());
-
-    this.addGeneralParameters(fichaClinicaMasterCard);
-    this.addGeneralParameters(fichaAdultoSeguimentoAndPediatriaSeguimento);
-    this.addGeneralParameters(transferredOut);
-    this.addGeneralParameters(tbScreeningFC);
-
-    definition.addSearch(
-        "A-PREVIOUS-PERIOD",
-        EptsReportUtils.map(
-            this.getNumeratorForPreviousPeriod(),
-            "startDate=${startDate-6m},endDate=${startDate-1d},location=${location}"));
-
-    definition.addSearch(
-        "ficha-clinica-master-card",
-        this.map(fichaClinicaMasterCard, this.generalParameterMapping));
-
-    definition.addSearch(
-        "ficha-adulto-and-pediatria-seguimento",
-        this.map(fichaAdultoSeguimentoAndPediatriaSeguimento, this.generalParameterMapping));
-
-    definition.addSearch("transferred-out", this.map(transferredOut, this.generalParameterMapping));
-
-    definition.addSearch(
-        "tb-screening-fc-master-card", this.map(tbScreeningFC, this.generalParameterMapping));
-
-    definition.addSearch(
-        "all-tb-symptoms",
-        this.map(this.getAllTBSymptomsForDemoninatorComposition(), this.generalParameterMapping));
-    definition.addSearch(
-        "ficha-laboratorio-results",
-        this.map(this.getResultsOnFichaLaboratorio(), this.generalParameterMapping));
-
-    definition.addSearch(
-        "ficha-laboratorio-results",
-        this.map(this.getResultsOnFichaLaboratorio(), this.generalParameterMapping));
-
-    definition.setCompositionString(
-        "(art-list AND "
-            + " ( tb-screening OR tb-screening-fc-master-card OR tb-investigation OR started-tb-treatment OR in-tb-program OR other-diagnosis-fichaResumo OR ficha-clinica-master-card OR all-tb-symptoms OR ficha-laboratorio-results OR ficha-adulto-and-pediatria-seguimento )) "
-            + " NOT ((transferred-out NOT (started-tb-treatment OR in-tb-program)) OR started-tb-treatment-previous-period OR in-tb-program-previous-period OR other-diagnosis-FichaResumo-previousPeriod OR A-PREVIOUS-PERIOD )");
+    definition.setCompositionString("TXTB NOT (TROUT)");
 
     return definition;
   }
@@ -1125,21 +1040,6 @@ public class TXTBCohortQueries {
 
     cd.setCompositionString(
         "(tb-positive-result-ficha-clinica OR tb-positive-result-laboratorio) AND DENOMINATOR");
-
-    return cd;
-  }
-
-  @DocumentedDefinition(value = "patientsWhoAreTransferredOut")
-  public CohortDefinition getPatientsWhoAreTransferredOut() {
-    BaseFghCalculationCohortDefinition cd =
-        new BaseFghCalculationCohortDefinition(
-            "txTBPatientsWhoAreTransferedOutCalculation",
-            Context.getRegisteredComponents(TxTBPatientsWhoAreTransferedOutCalculation.class)
-                .get(0));
-    cd.setName("TxTB - patientsWhoAreTransferredOut");
-    cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
-    cd.addParameter(new Parameter("endDate", "end Date", Date.class));
-    cd.addParameter(new Parameter("location", "Location", Location.class));
 
     return cd;
   }

@@ -481,7 +481,9 @@ public class TPTCompletationCohortQueries {
     definition.addSearch(
         "transferred-out",
         EptsReportUtils.map(
-            tXTBCohortQueries.getPatientsWhoAreTransferredOut(), generalParameterMapping));
+            this.genericCohorts.generalSql(
+                "transferred-out", TXTBQueries.findPatientWhoAreTransferedOut()),
+            generalParameterMapping));
 
     CohortDefinition fichaResumoMasterCard =
         this.genericCohorts.generalSql(
