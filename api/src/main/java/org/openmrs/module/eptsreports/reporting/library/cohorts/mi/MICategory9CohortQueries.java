@@ -277,10 +277,10 @@ public class MICategory9CohortQueries {
     definition.addParameter(new Parameter("location", "location", Date.class));
 
     final String mappingsFirstConsultation =
-        "endRevisionDate=${endRevisindRevisionDate-2m+1donDate},location=${location}";
+        "endRevisionDate=${endRevisindRevisionDate-2m+1d},location=${location}";
 
     final String mappingsFirstConsultationD =
-        "endRevisionDate=${endRevisindRevisionDate-2m+1donDate},location=${location}";
+        "endRevisionDate=${endRevisindRevisionDate-2m+1d},location=${location}";
 
     definition.addSearch(
         "DENOMINATOR",
