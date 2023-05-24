@@ -2,8 +2,14 @@ package org.openmrs.module.eptsreports.reporting.library.cohorts.mq;
 
 import java.util.Date;
 import org.openmrs.Location;
+import org.openmrs.api.context.Context;
+import org.openmrs.module.eptsreports.reporting.calculation.dsd.DSDPatientsWhoExperiencedIITCalculation;
+import org.openmrs.module.eptsreports.reporting.cohort.definition.BaseFghCalculationCohortDefinition;
+import org.openmrs.module.eptsreports.reporting.library.cohorts.GenericCohortQueries;
 import org.openmrs.module.eptsreports.reporting.library.cohorts.ResumoMensalCohortQueries;
 import org.openmrs.module.eptsreports.reporting.library.cohorts.mi.MICategory15CohortQueries;
+import org.openmrs.module.eptsreports.reporting.library.queries.DSDQueriesInterface;
+import org.openmrs.module.eptsreports.reporting.library.queries.ResumoMensalQueries;
 import org.openmrs.module.eptsreports.reporting.library.queries.mq.MQCategory15QueriesInterface;
 import org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils;
 import org.openmrs.module.eptsreports.reporting.utils.WomanState;
@@ -23,6 +29,8 @@ public class MQCategory15CohortQueries {
   @Autowired private ResumoMensalCohortQueries resumoMensalCohortQueries;
 
   @Autowired private MICategory15CohortQueries mICategory15CohortQueries;
+
+  @Autowired private GenericCohortQueries genericCohorts;
 
   private static final int CONCEPT_DT_23730 = 23730;
 
@@ -1536,13 +1544,6 @@ public class MQCategory15CohortQueries {
             mappings));
 
     definition.addSearch(
-        "E",
-        EptsReportUtils.map(
-            mICategory15CohortQueries
-                .findPatientsWithRegularClinicalConsultationOrRegularArtPickUpInTheLastThreeMonths(),
-            mappings));
-
-    definition.addSearch(
         "C",
         EptsReportUtils.map(
             this.findPatientsWhoArePregnant14MonthsSpecificForCategory15(), mappings));
@@ -1562,7 +1563,36 @@ public class MQCategory15CohortQueries {
         "J",
         EptsReportUtils.map(
             this.findPatientsWhoHaveLastConsultationOnFichaClinicaAndWhoOnMDCARF44(), mappings));
-    definition.setCompositionString("(A AND B1 AND E) NOT (C OR D OR F OR G OR J)");
+
+    definition.addSearch(
+        "TB",
+        EptsReportUtils.map(
+            this.findPatientsWhoAreInTbTreatmentFor7MonthsPriorEndRevisionPeriod(), mappings));
+
+    definition.addSearch(
+        "ADVERSASE-REACTIONS",
+        EptsReportUtils.map(
+            this.genericCohorts.generalSql(
+                "ADVERSASE-REACTIONS",
+                DSDQueriesInterface.QUERY
+                    .findPatientsWithAdverseDrugReactionsRequiringRegularMonitoringNotifiedInLast6Months),
+            "endDate=${endRevisionDate},location=${location}"));
+
+    definition.addSearch(
+        "SARCOMA-KAPOSI",
+        EptsReportUtils.map(
+            this.genericCohorts.generalSql(
+                "SARCOMA-KAPOSI",
+                DSDQueriesInterface.QUERY.findPatientsWhoHaveBeenNotifiedOfKaposiSarcoma),
+            "endDate=${endRevisionDate},location=${location}"));
+
+    definition.addSearch(
+        "IIT",
+        EptsReportUtils.map(
+            this.findPatientsWhoReinitiatedTreatmentInTheLastThreeMonths(), mappings));
+
+    definition.setCompositionString(
+        "(A AND B1) NOT (C OR D OR F OR G OR J OR TB OR ADVERSASE-REACTIONS OR SARCOMA-KAPOSI OR IIT)");
 
     return definition;
   }
@@ -1728,14 +1758,7 @@ public class MQCategory15CohortQueries {
                 .findPatientsWithClinicalConsultationAndARTStartDateGreaterThanTwentyFourMonths(),
             mappings));
 
-    definition.addSearch(
-        "P",
-        EptsReportUtils.map(
-            this
-                .findAllPatientsWhoHaveLaboratoryInvestigationsRequestsAndViralChargeInLastConsultationDuringLastThreeMonths(),
-            mappings));
-
-    definition.setCompositionString("(A AND J AND B2) NOT P");
+    definition.setCompositionString("(A AND J AND B2)");
 
     return definition;
   }
@@ -1824,6 +1847,84 @@ public class MQCategory15CohortQueries {
 
     definition.setQuery(query);
 
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "findPatientsWhoAreInTbTreatmentFor7MonthsPriorEndRevisionPeriod")
+  public CohortDefinition findPatientsWhoAreInTbTreatmentFor7MonthsPriorEndRevisionPeriod() {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName(
+        "MQ Category 15 - Get Patients in TB Treatment 7 Months Prior the End Revision Period");
+    definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
+
+    String query =
+        MQCategory15QueriesInterface.QUERY
+            .findPatientsWhoAreInTbTreatmentFor7MonthsPriorEndRevisionPeriod;
+
+    definition.setQuery(query);
+
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "findPatientsWhoReinitiatedTreatmentInTheLastThreeMonths")
+  public CohortDefinition findPatientsWhoReinitiatedTreatmentInTheLastThreeMonths() {
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+
+    definition.setName("Patients who reinitiated the tratment in the last 3 months");
+    definition.addParameter(
+        new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "Data Fim Revisão", Date.class));
+    definition.addParameter(new Parameter("location", "location", Date.class));
+
+    definition.addSearch(
+        "B13",
+        EptsReportUtils.map(
+            this.genericCohorts.generalSql(
+                "Finding DSD- Denominator 3 by Reporting Period",
+                ResumoMensalQueries.findPatientsWhoAreCurrentlyEnrolledOnArtMOHB13()),
+            "endDate=${endRevisionDate},location=${location}"));
+
+    definition.addSearch(
+        "IIT-PREVIOUS-PERIOD",
+        EptsReportUtils.map(
+            this.getPatientsWhoExperiencedIITCalculation(),
+            "endDate=${endRevisionDate},location=${location}"));
+
+    definition.addSearch(
+        "IIT-PREVIOUS-PERIOD-2",
+        EptsReportUtils.map(
+            this.genericCohorts.generalSql(
+                "IIT-PREVIOUS-PERIOD-2", DSDQueriesInterface.QUERY.findPatientsAreDefaultIIT),
+            "endDate=${endRevisionDate},location=${location}"));
+
+    definition.addSearch(
+        "TRF-IN",
+        EptsReportUtils.map(
+            this.genericCohorts.generalSql(
+                "patientsWhoAreInTbTreatment",
+                DSDQueriesInterface.QUERY.findPatientsWhoWhereTransferredInPriorReportingPeriod),
+            "startDate=${endRevisionDate-3m},endDate=${endRevisionDate},location=${location}"));
+
+    definition.setCompositionString(
+        "(B13 AND (IIT-PREVIOUS-PERIOD OR IIT-PREVIOUS-PERIOD-2)) NOT TRF-IN");
+
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "DSDPatientsWhoExperiencedIITCalculation")
+  private CohortDefinition getPatientsWhoExperiencedIITCalculation() {
+    BaseFghCalculationCohortDefinition definition =
+        new BaseFghCalculationCohortDefinition(
+            "DSDPatientsWhoExperiencedIITCalculation",
+            Context.getRegisteredComponents(DSDPatientsWhoExperiencedIITCalculation.class).get(0));
+    definition.addParameter(new Parameter("endDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
     return definition;
   }
 }
