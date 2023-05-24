@@ -54,7 +54,7 @@ public class MQCategory13P2CohortQueries {
         "DROPPED-OUT",
         EptsReportUtils.map(
             this.mQCohortQueries
-                .findAllPatientsWhoDroppedOutARTInFirstThreeMonthsBeforeInitiatedTreatment(),
+                .findPatientsWhoDroppedOutARTThreeMonthsBeforeLastConsultationPeriod(),
             mappings));
 
     definition.setCompositionString(
@@ -90,7 +90,7 @@ public class MQCategory13P2CohortQueries {
         "DROPPEDOUT",
         EptsReportUtils.map(
             this.mQCohortQueries
-                .findPatientsWhoDroppedOutARTInFirstThreeMonthsPreviousConsultationMarkedAsPregnant(),
+                .findPatientsWhoDroppedOutARTThreeMonthsBeforeLastConsultationPeriod(),
             mappings));
 
     definition.setCompositionString("B2 NOT DROPPEDOUT");

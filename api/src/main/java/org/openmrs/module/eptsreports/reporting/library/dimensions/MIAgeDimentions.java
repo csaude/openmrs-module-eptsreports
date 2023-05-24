@@ -3,6 +3,7 @@ package org.openmrs.module.eptsreports.reporting.library.dimensions;
 import java.util.Date;
 import org.openmrs.Location;
 import org.openmrs.module.eptsreports.reporting.library.queries.mi.GenericMIQueryIntarface;
+import org.openmrs.module.eptsreports.reporting.library.queries.mq.MQCategory13Section1QueriesInterface;
 import org.openmrs.module.eptsreports.reporting.library.queries.mq.MQQueriesInterface;
 import org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
@@ -447,7 +448,40 @@ public class MIAgeDimentions {
                 2, 14),
             mappingsMI));
 
+    dimension.addCohortDefinition(
+        "15PlusOrBreastfeeding",
+        EptsReportUtils.map(
+            this
+                .findPatientsWithLastClinicalConsultationAdultOrPregnantOrBreatfeedingDenominatorB1AgeCalculation15Plus(
+                    15),
+            mappingsMI));
+
     return dimension;
+  }
+
+  @DocumentedDefinition(
+      value =
+          "findPatientsWithLastClinicalConsultationAdultOrPregnantOrBreatfeedingDenominatorB1AgeCalculation15Plus")
+  public CohortDefinition
+      findPatientsWithLastClinicalConsultationAdultOrPregnantOrBreatfeedingDenominatorB1AgeCalculation15Plus(
+          int age) {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName("patientsPregnantEnrolledOnART");
+    definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
+
+    String query =
+        MQCategory13Section1QueriesInterface.QUERY
+            .findPatientsWithLastClinicalConsultationAdultOrPregnantOrBreatfeedingDenominatorB1AgeCalculation15Plus(
+                age);
+
+    definition.setQuery(query);
+
+    return definition;
   }
 
   /*   		Calculate age on the last consultation

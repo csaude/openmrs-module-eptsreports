@@ -55,11 +55,11 @@ public class MICategory13P2CohortQueries {
         "DROPPED-OUT",
         EptsReportUtils.map(
             this.mQCohortQueries
-                .findAllPatientsWhoDroppedOutARTInFirstThreeMonthsAfterInitiatedTreatment(),
+                .findPatientsWhoDroppedOutARTThreeMonthsBeforeLastConsultationPeriod(),
             mappings));
 
     definition.setCompositionString(
-        "((START-ART NOT DROPPED-OUT) AND PREGNANT) NOT (TRANSFERED-OUT OR TRANSFERED-IN)");
+        "((START-ART AND PREGNANT) NOT (TRANSFERED-OUT OR TRANSFERED-IN OR DROPPED-OUT)");
     return definition;
   }
 
@@ -91,7 +91,7 @@ public class MICategory13P2CohortQueries {
         "DROPPED-OUT",
         EptsReportUtils.map(
             this.mQCohortQueries
-                .findPatientsWhoDroppedOutARTInFirstThreeMonthsPreviousConsultationMarkedAsPregnant(),
+                .findPatientsWhoDroppedOutARTThreeMonthsBeforeLastConsultationPeriod(),
             mappings));
 
     definition.setCompositionString("B2 NOT DROPPED-OUT");
@@ -198,7 +198,7 @@ public class MICategory13P2CohortQueries {
         "DROPPED-OUT",
         EptsReportUtils.map(
             this.mQCohortQueries
-                .findPatientsWhoDroppedOutARTInFirstThreeMonthsPreviousConsultationMarkedAsPregnant(),
+                .findPatientsWhoDroppedOutARTThreeMonthsBeforeLastConsultationPeriod(),
             mappings));
 
     definition.setCompositionString("((B2 NOT DROPPED-OUT) AND J)");

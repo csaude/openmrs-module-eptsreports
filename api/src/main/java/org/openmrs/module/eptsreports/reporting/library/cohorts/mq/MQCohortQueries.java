@@ -1553,14 +1553,13 @@ public class MQCohortQueries {
   }
 
   @DocumentedDefinition(
-      value = "findPatientsWhoDroppedOutARTInFirstThreeMonthsPreviousConsultationMarkedAsPregnant")
-  public CohortDefinition
-      findPatientsWhoDroppedOutARTInFirstThreeMonthsPreviousConsultationMarkedAsPregnant() {
+      value = "findPatientsWhoDroppedOutARTThreeMonthsBeforeLastConsultationPeriod")
+  public CohortDefinition findPatientsWhoDroppedOutARTThreeMonthsBeforeLastConsultationPeriod() {
 
     final SqlCohortDefinition definition = new SqlCohortDefinition();
 
     definition.setName(
-        "Patients who abandoned ART three months previous consultation marked as pregnant");
+        "Patients who abandoned ART three months before last clinical consultation of period");
     definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
     definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
     definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
@@ -1568,7 +1567,7 @@ public class MQCohortQueries {
 
     String query =
         MQCategory13P2QueriesInterface.QUERY
-            .findPatientsWhoDroppedOutARTInFirstThreeMonthsPreviousConsultationMarkedAsPregnant;
+            .findPatientsWhoDroppedOutARTThreeMonthsBeforeLastConsultationPeriod;
 
     definition.setQuery(query);
 
