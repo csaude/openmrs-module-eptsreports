@@ -88,4 +88,21 @@ public class EptsReportInitializer {
       }
     }
   }
+
+  public void checkliquibaseMigration() {
+
+    System.out.println("Verificando Ultima Migracao na BD...");
+
+    List<List<Object>> executeSQL =
+        Context.getAdministrationService()
+            .executeSQL(
+                "select date_format(DATEEXECUTED, '%Y-%m-%d') from liquibasechangelog where AUTHOR = 'csaude' and id ='20230620-1700'",
+                true);
+    for (List<Object> list : executeSQL) {
+
+      for (Object object : list) {
+        System.out.println(" Resultado: " + object);
+      }
+    }
+  }
 }

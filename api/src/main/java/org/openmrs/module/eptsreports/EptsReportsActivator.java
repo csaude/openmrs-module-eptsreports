@@ -76,8 +76,9 @@ public class EptsReportsActivator extends BaseModuleActivator {
       throw e;
     }
     try {
-      log.debug("Deleting old reports...");
+      log.debug("	..");
       reportsInitializer.purgOldReports();
+      reportsInitializer.checkliquibaseMigration();
     } catch (Exception e) {
       throw e;
     }

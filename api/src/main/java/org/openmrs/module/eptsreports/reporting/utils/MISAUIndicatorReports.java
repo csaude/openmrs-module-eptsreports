@@ -1,6 +1,8 @@
 package org.openmrs.module.eptsreports.reporting.utils;
 
 import org.openmrs.module.eptsreports.reporting.reports.SetupIntensiveMonitoringReport;
+import org.openmrs.module.eptsreports.reporting.reports.SetupMERQuarterly;
+import org.openmrs.module.eptsreports.reporting.reports.SetupMERSemiAnnualReport;
 import org.openmrs.module.eptsreports.reporting.reports.SetupMisauResumoMensalPrepReport;
 import org.openmrs.module.eptsreports.reporting.reports.SetupQualityImprovementReport;
 import org.openmrs.module.eptsreports.reporting.reports.SetupResumoMensalReport;
@@ -15,7 +17,11 @@ public enum MISAUIndicatorReports {
 
   MQ(new SetupQualityImprovementReport().getUuid()),
 
-  MI(new SetupIntensiveMonitoringReport().getUuid());
+  MI(new SetupIntensiveMonitoringReport().getUuid()),
+
+  MER_QUARTERLY(new SetupMERQuarterly().getUuid()),
+
+  MER_SEMIANNUAL(new SetupMERSemiAnnualReport().getUuid());
 
   private String reportUUID;
 
