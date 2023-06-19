@@ -44,11 +44,6 @@ public class MICategory13P3CohortQueries extends MQAbstractDataSet {
         "startInclusionDate=${endRevisionDate-10m+1d},endInclusionDate=${endRevisionDate-9m},endRevisionDate=${endRevisionDate},location=${location}";
 
     definition.addSearch(
-        "BREASTFEEDING",
-        EptsReportUtils.map(
-            mQCohortQueries.findPatientsWhoAreBreastfeedingInclusionDateRF09(), mappings));
-
-    definition.addSearch(
         "PREGNANT",
         EptsReportUtils.map(
             mQCohortQueries.findPatientsWhoArePregnantInclusionDateRF08(), mappings));
@@ -88,21 +83,14 @@ public class MICategory13P3CohortQueries extends MQAbstractDataSet {
             mQCategory13P3CohortQueries.findAllPatientWhoAreDeadByEndOfRevisonPeriod(), mappings));
 
     definition.addSearch(
-        "DROPPED-OUT-AFTER-ART-INITIATED",
+        "DROPPEDOUT",
         EptsReportUtils.map(
-            mQCohortQueries
-                .findAllPatientsWhoDroppedOutARTDuringTheFirstSixMonthsAfterInitiatedART(),
-            mappings));
-
-    definition.addSearch(
-        "DROPPED-OUT-AFTER-REGIMEN-CHANGE",
-        EptsReportUtils.map(
-            mQCohortQueries
-                .findPatientsWhoDroppedOutARTDuringTheFirstSixMonthsOfRegimenChangeInFirstLine(),
+            this.mQCohortQueries
+                .findAllPatientsWhoDroppedOutARTInFirstSixMonthsBeforeInitiatedTreatment(),
             mappings));
 
     definition.setCompositionString(
-        "((START-ART NOT (PREGNANT OR BREASTFEEDING OR DROPPED-OUT-AFTER-ART-INITIATED)) OR (BI1 NOT (B1E OR DROPPED-OUT-AFTER-REGIMEN-CHANGE))) NOT (TRANSFERED-IN OR TRANSFERED-OUT OR DEAD)");
+        "((START-ART NOT PREGNANT) OR (BI1 NOT B1E)) NOT (TRANSFERED-IN OR TRANSFERED-OUT OR DEAD OR DROPPEDOUT)");
 
     return definition;
   }
@@ -169,21 +157,14 @@ public class MICategory13P3CohortQueries extends MQAbstractDataSet {
             mQCategory13P3CohortQueries.findAllPatientWhoAreDeadByEndOfRevisonPeriod(), mappings));
 
     definition.addSearch(
-        "DROPPED-OUT-AFTER-ART-INITIATED",
+        "DROPPEDOUT",
         EptsReportUtils.map(
-            mQCohortQueries
-                .findAllPatientsWhoDroppedOutARTDuringTheFirstSixMonthsAfterInitiatedART(),
-            mappings));
-
-    definition.addSearch(
-        "DROPPED-OUT-AFTER-REGIMEN-CHANGE",
-        EptsReportUtils.map(
-            mQCohortQueries
-                .findPatientsWhoDroppedOutARTDuringTheFirstSixMonthsOfRegimenChangeInFirstLine(),
+            this.mQCohortQueries
+                .findAllPatientsWhoDroppedOutARTInFirstSixMonthsBeforeInitiatedTreatment(),
             mappings));
 
     definition.setCompositionString(
-        "((START-ART NOT (PREGNANT OR BREASTFEEDING OR DROPPED-OUT-AFTER-ART-INITIATED)) OR (BI1 NOT (B1E OR DROPPED-OUT-AFTER-REGIMEN-CHANGE))) NOT (TRANSFERED-IN OR TRANSFERED-OUT OR DEAD)");
+        "((START-ART NOT (PREGNANT OR BREASTFEEDING)) OR (BI1 NOT B1E)) NOT (TRANSFERED-IN OR TRANSFERED-OUT OR DEAD OR DROPPEDOUT)");
 
     return definition;
   }
@@ -250,21 +231,14 @@ public class MICategory13P3CohortQueries extends MQAbstractDataSet {
             mQCategory13P3CohortQueries.findAllPatientWhoAreDeadByEndOfRevisonPeriod(), mappings));
 
     definition.addSearch(
-        "DROPPED-OUT-AFTER-ART-INITIATED",
+        "DROPPEDOUT",
         EptsReportUtils.map(
-            mQCohortQueries
-                .findAllPatientsWhoDroppedOutARTDuringTheFirstSixMonthsAfterInitiatedART(),
-            mappings));
-
-    definition.addSearch(
-        "DROPPED-OUT-AFTER-REGIMEN-CHANGE",
-        EptsReportUtils.map(
-            mQCohortQueries
-                .findPatientsWhoDroppedOutARTDuringTheFirstSixMonthsOfRegimenChangeInFirstLine(),
+            this.mQCohortQueries
+                .findAllPatientsWhoDroppedOutARTInFirstSixMonthsBeforeInitiatedTreatment(),
             mappings));
 
     definition.setCompositionString(
-        "((START-ART NOT (PREGNANT OR BREASTFEEDING OR DROPPED-OUT-AFTER-ART-INITIATED)) OR (BI1 NOT (B1E OR DROPPED-OUT-AFTER-REGIMEN-CHANGE))) NOT (TRANSFERED-IN OR TRANSFERED-OUT OR DEAD)");
+        "((START-ART NOT (PREGNANT OR BREASTFEEDING)) OR (BI1 NOT B1E)) NOT (TRANSFERED-IN OR TRANSFERED-OUT OR DEAD OR DROPPEDOUT)");
 
     return definition;
   }
@@ -331,21 +305,14 @@ public class MICategory13P3CohortQueries extends MQAbstractDataSet {
             mQCategory13P3CohortQueries.findAllPatientWhoAreDeadByEndOfRevisonPeriod(), mappings));
 
     definition.addSearch(
-        "DROPPED-OUT-AFTER-ART-INITIATED",
+        "DROPPEDOUT",
         EptsReportUtils.map(
-            mQCohortQueries
-                .findAllPatientsWhoDroppedOutARTDuringTheFirstSixMonthsAfterInitiatedART(),
-            mappings));
-
-    definition.addSearch(
-        "DROPPED-OUT-AFTER-REGIMEN-CHANGE",
-        EptsReportUtils.map(
-            mQCohortQueries
-                .findPatientsWhoDroppedOutARTDuringTheFirstSixMonthsOfRegimenChangeInFirstLine(),
+            this.mQCohortQueries
+                .findAllPatientsWhoDroppedOutARTInFirstSixMonthsBeforeInitiatedTreatment(),
             mappings));
 
     definition.setCompositionString(
-        "((START-ART NOT (PREGNANT OR BREASTFEEDING OR DROPPED-OUT-AFTER-ART-INITIATED)) OR (BI1 NOT (B1E OR DROPPED-OUT-AFTER-REGIMEN-CHANGE))) NOT (TRANSFERED-IN OR TRANSFERED-OUT OR DEAD)");
+        "((START-ART NOT (PREGNANT OR BREASTFEEDING)) OR (BI1 NOT B1E)) NOT (TRANSFERED-IN OR TRANSFERED-OUT OR DEAD OR DROPPEDOUT)");
 
     return definition;
   }
@@ -396,14 +363,14 @@ public class MICategory13P3CohortQueries extends MQAbstractDataSet {
             mQCategory13P3CohortQueries.findAllPatientWhoAreDeadByEndOfRevisonPeriod(), mappings));
 
     definition.addSearch(
-        "DROPPED-OUT-AFTER-CHANGE-REGIMEN",
+        "DROPPEDOUT",
         EptsReportUtils.map(
-            mQCohortQueries
-                .findPatientsDroppedOutARTDuringTheFirstSixMonthsAfterInitiatedSecondLineART(),
+            this.mQCohortQueries
+                .findAllPatientsWhoDroppedOutARTInFirstSixMonthsBeforeInitiatedTreatment(),
             mappings));
 
     definition.setCompositionString(
-        "(B2 NOT DROPPED-OUT-AFTER-CHANGE-REGIMEN) NOT (TRANSFERED-IN OR TRANSFERED-OUT OR DEAD)");
+        "B2 NOT (TRANSFERED-IN OR TRANSFERED-OUT OR DEAD OR DROPPEDOUT)");
 
     return definition;
   }
@@ -431,11 +398,6 @@ public class MICategory13P3CohortQueries extends MQAbstractDataSet {
 
     final String mappings =
         "startInclusionDate=${endRevisionDate-10m+1d},endInclusionDate=${endRevisionDate-9m},endRevisionDate=${endRevisionDate},location=${location}";
-
-    definition.addSearch(
-        "BREASTFEEDING",
-        EptsReportUtils.map(
-            mQCohortQueries.findPatientsWhoAreBreastfeedingInclusionDateRF09(), mappings));
 
     definition.addSearch(
         "PREGNANT",
@@ -505,21 +467,14 @@ public class MICategory13P3CohortQueries extends MQAbstractDataSet {
             mappings));
 
     definition.addSearch(
-        "DROPPED-OUT-AFTER-ART-INITIATED",
+        "DROPPEDOUT",
         EptsReportUtils.map(
-            mQCohortQueries
-                .findAllPatientsWhoDroppedOutARTDuringTheFirstSixMonthsAfterInitiatedART(),
-            mappings));
-
-    definition.addSearch(
-        "DROPPED-OUT-AFTER-REGIMEN-CHANGE",
-        EptsReportUtils.map(
-            mQCohortQueries
-                .findPatientsWhoDroppedOutARTDuringTheFirstSixMonthsOfRegimenChangeInFirstLine(),
+            this.mQCohortQueries
+                .findAllPatientsWhoDroppedOutARTInFirstSixMonthsBeforeInitiatedTreatment(),
             mappings));
 
     definition.setCompositionString(
-        "(((START-ART AND (G OR J)) NOT (PREGNANT OR BREASTFEEDING OR DROPPED-OUT-AFTER-ART-INITIATED OR DD)) OR ((BI1 NOT (B1E OR DROPPED-OUT-AFTER-REGIMEN-CHANGE)) AND (H OR K ))) NOT (TRANSFERED-IN OR TRANSFERED-OUT OR DD)");
+        "(((START-ART AND (G OR J)) NOT (PREGNANT OR DD)) OR ((BI1 NOT B1E) AND (H OR K ))) NOT (TRANSFERED-IN OR TRANSFERED-OUT OR DD OR DROPPEDOUT)");
 
     return definition;
   }
@@ -614,21 +569,14 @@ public class MICategory13P3CohortQueries extends MQAbstractDataSet {
             mappings));
 
     definition.addSearch(
-        "DROPPED-OUT-AFTER-ART-INITIATED",
+        "DROPPEDOUT",
         EptsReportUtils.map(
-            mQCohortQueries
-                .findAllPatientsWhoDroppedOutARTDuringTheFirstSixMonthsAfterInitiatedART(),
-            mappings));
-
-    definition.addSearch(
-        "DROPPED-OUT-AFTER-REGIMEN-CHANGE",
-        EptsReportUtils.map(
-            mQCohortQueries
-                .findPatientsWhoDroppedOutARTDuringTheFirstSixMonthsOfRegimenChangeInFirstLine(),
+            this.mQCohortQueries
+                .findAllPatientsWhoDroppedOutARTInFirstSixMonthsBeforeInitiatedTreatment(),
             mappings));
 
     definition.setCompositionString(
-        "(((START-ART AND (G OR J)) NOT (PREGNANT OR BREASTFEEDING OR DROPPED-OUT-AFTER-ART-INITIATED OR DD)) OR ((BI1 NOT (B1E OR DROPPED-OUT-AFTER-REGIMEN-CHANGE)) AND (H OR K ))) NOT (TRANSFERED-IN OR TRANSFERED-OUT OR DD)");
+        "(((START-ART AND (G OR J)) NOT (PREGNANT OR BREASTFEEDING OR DD)) OR ((BI1 NOT B1E) AND (H OR K ))) NOT (TRANSFERED-IN OR TRANSFERED-OUT OR DD OR DROPPEDOUT)");
 
     return definition;
   }
@@ -723,21 +671,14 @@ public class MICategory13P3CohortQueries extends MQAbstractDataSet {
             mappings));
 
     definition.addSearch(
-        "DROPPED-OUT-AFTER-ART-INITIATED",
+        "DROPPEDOUT",
         EptsReportUtils.map(
-            mQCohortQueries
-                .findAllPatientsWhoDroppedOutARTDuringTheFirstSixMonthsAfterInitiatedART(),
-            mappings));
-
-    definition.addSearch(
-        "DROPPED-OUT-AFTER-REGIMEN-CHANGE",
-        EptsReportUtils.map(
-            mQCohortQueries
-                .findPatientsWhoDroppedOutARTDuringTheFirstSixMonthsOfRegimenChangeInFirstLine(),
+            this.mQCohortQueries
+                .findAllPatientsWhoDroppedOutARTInFirstSixMonthsBeforeInitiatedTreatment(),
             mappings));
 
     definition.setCompositionString(
-        "(((START-ART AND (G OR J)) NOT (PREGNANT OR BREASTFEEDING OR DROPPED-OUT-AFTER-ART-INITIATED OR DD)) OR ((BI1 NOT (B1E OR DROPPED-OUT-AFTER-REGIMEN-CHANGE)) AND (H OR K ))) NOT (TRANSFERED-IN OR TRANSFERED-OUT OR DD)");
+        "(((START-ART AND (G OR J)) NOT (PREGNANT OR BREASTFEEDING OR DD)) OR ((BI1 NOT B1E) AND (H OR K ))) NOT (TRANSFERED-IN OR TRANSFERED-OUT OR DD OR DROPPEDOUT)");
 
     return definition;
   }
@@ -832,21 +773,14 @@ public class MICategory13P3CohortQueries extends MQAbstractDataSet {
             mappings));
 
     definition.addSearch(
-        "DROPPED-OUT-AFTER-ART-INITIATED",
+        "DROPPEDOUT",
         EptsReportUtils.map(
-            mQCohortQueries
-                .findAllPatientsWhoDroppedOutARTDuringTheFirstSixMonthsAfterInitiatedART(),
-            mappings));
-
-    definition.addSearch(
-        "DROPPED-OUT-AFTER-REGIMEN-CHANGE",
-        EptsReportUtils.map(
-            mQCohortQueries
-                .findPatientsWhoDroppedOutARTDuringTheFirstSixMonthsOfRegimenChangeInFirstLine(),
+            this.mQCohortQueries
+                .findAllPatientsWhoDroppedOutARTInFirstSixMonthsBeforeInitiatedTreatment(),
             mappings));
 
     definition.setCompositionString(
-        "(((START-ART AND (G OR J)) NOT (PREGNANT OR BREASTFEEDING OR DROPPED-OUT-AFTER-ART-INITIATED OR DD)) OR ((BI1 NOT (B1E OR DROPPED-OUT-AFTER-REGIMEN-CHANGE)) AND (H OR K ))) NOT (TRANSFERED-IN OR TRANSFERED-OUT OR DD)");
+        "(((START-ART AND (G OR J)) NOT (PREGNANT OR BREASTFEEDING OR DD)) OR ((BI1 NOT B1E) AND (H OR K ))) NOT (TRANSFERED-IN OR TRANSFERED-OUT OR DD OR DROPPEDOUT)");
 
     return definition;
   }

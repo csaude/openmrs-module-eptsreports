@@ -2,9 +2,6 @@ package org.openmrs.module.eptsreports.reporting.library.cohorts.mq;
 
 import java.util.Date;
 import org.openmrs.Location;
-import org.openmrs.api.context.Context;
-import org.openmrs.module.eptsreports.reporting.cohort.definition.BaseFghCalculationCohortDefinition;
-import org.openmrs.module.eptsreports.reporting.library.quality.improvment.calculation.QualityImprovmentCategory11SectionICalculation;
 import org.openmrs.module.eptsreports.reporting.library.queries.ResumoMensalQueries;
 import org.openmrs.module.eptsreports.reporting.library.queries.mi.MICategory12QueriesInterface;
 import org.openmrs.module.eptsreports.reporting.library.queries.mq.MQCategory11P2QueriesInterface;
@@ -13,7 +10,7 @@ import org.openmrs.module.eptsreports.reporting.library.queries.mq.MQCategory13P
 import org.openmrs.module.eptsreports.reporting.library.queries.mq.MQCategory13P3QueriesInterface;
 import org.openmrs.module.eptsreports.reporting.library.queries.mq.MQCategory13P4QueriesInterface;
 import org.openmrs.module.eptsreports.reporting.library.queries.mq.MQQueriesInterface;
-import org.openmrs.module.eptsreports.reporting.utils.EptsReportConstants;
+import org.openmrs.module.eptsreports.reporting.utils.TypePTV;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
 import org.openmrs.module.reporting.definition.library.DocumentedDefinition;
@@ -111,7 +108,8 @@ public class MQCohortQueries {
     definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
     definition.addParameter(new Parameter("location", "Location", Location.class));
 
-    String query = MQQueriesInterface.QUERY.findPatientsWhoArePregnantInclusionDateRF08;
+    String query =
+        MQQueriesInterface.QUERY.getPatientsWhoArePregnantOrBreastfeeding(TypePTV.PREGNANT);
 
     definition.setQuery(query);
 
@@ -129,7 +127,8 @@ public class MQCohortQueries {
     definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
     definition.addParameter(new Parameter("location", "Location", Location.class));
 
-    String query = MQQueriesInterface.QUERY.findPatientsWhoAreBreastfeedingInclusionDateRF09;
+    String query =
+        MQQueriesInterface.QUERY.getPatientsWhoArePregnantOrBreastfeeding(TypePTV.BREASTFEEDING);
 
     definition.setQuery(query);
 
@@ -759,6 +758,24 @@ public class MQCohortQueries {
     return definition;
   }
 
+  @DocumentedDefinition(value = "findPatientWithCVOver1000CopiesCategory13B2")
+  public CohortDefinition findPatientWithCVOver1000CopiesCategory13B2() {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName("findAdultWithCVOver1000CopiesCategory13B2");
+    definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
+
+    String query = MQQueriesInterface.QUERY.findPatientWithCVOver1000CopiesCategory13B2;
+
+    definition.setQuery(query);
+
+    return definition;
+  }
+
   @DocumentedDefinition(value = "findPatientWithCVOver1000CopiesAndPregnatCategory11B4")
   public CohortDefinition findPatientWithCVOver1000CopiesAndPregnatCategory11B4() {
 
@@ -976,25 +993,22 @@ public class MQCohortQueries {
   @DocumentedDefinition(value = "childrenPatientsWithAtLeast9APSSConsultations")
   public CohortDefinition findChildrenPatientsWithAtLeast9APSSConsultationByInclusionPeriod() {
 
-    BaseFghCalculationCohortDefinition cd =
-        new BaseFghCalculationCohortDefinition(
-            "childrenPatientsWithAtLeast9APSSConsultations",
-            Context.getRegisteredComponents(QualityImprovmentCategory11SectionICalculation.class)
-                .get(0));
-    cd.setName("findChildrenPatientsWithAtLeast9APSSConsultationByInclusionPeriod");
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
 
-    cd.setName("childrenPatientsWithAtLeast9APSSConsultations");
+    definition.setName(
+        "findPatientsWhoAreRequestForLaboratoryInvestigationAndPregnantInclusionPeriodCAT13DenumeratorP2ByB4");
+    definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
 
-    cd.addParameter(
-        new Parameter(
-            EptsReportConstants.START_INCULSION_DATE, "Start Inclusion Date", Date.class));
-    cd.addParameter(
-        new Parameter(EptsReportConstants.END_INCLUSION_DATE, "End Inclusion Date", Date.class));
-    cd.addParameter(
-        new Parameter(EptsReportConstants.END_REVISION_DATE, "End Revision Date", Date.class));
-    cd.addParameter(new Parameter("location", "Location", Location.class));
+    String query =
+        MQQueriesInterface.QUERY
+            .findFirstPatientChildrenAPSSConsultationWithinInclusionReportingPeriod;
 
-    return cd;
+    definition.setQuery(query);
+
+    return definition;
   }
 
   @DocumentedDefinition(
@@ -1310,6 +1324,50 @@ public class MQCohortQueries {
     return definition;
   }
 
+  @DocumentedDefinition(
+      value = "findAllPatientsWhoDroppedOutARTInFirstThreeMonthsBeforeInitiatedTreatment")
+  public CohortDefinition
+      findAllPatientsWhoDroppedOutARTInFirstThreeMonthsBeforeInitiatedTreatment() {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName("Patients who dropped out ART in first three months after initiated ART");
+    definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
+
+    String query =
+        MQCategory13P2QueriesInterface.QUERY
+            .findAllPatientsWhoDroppedOutARTInFirstThreeMonthsBeforeInitiatedTreatment;
+
+    definition.setQuery(query);
+
+    return definition;
+  }
+
+  @DocumentedDefinition(
+      value = "findAllPatientsWhoDroppedOutARTInFirstSixMonthsBeforeInitiatedTreatment")
+  public CohortDefinition
+      findAllPatientsWhoDroppedOutARTInFirstSixMonthsBeforeInitiatedTreatment() {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName("Patients who dropped out ART in first three months after initiated ART");
+    definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
+
+    String query =
+        MQCategory13P2QueriesInterface.QUERY
+            .findAllPatientsWhoDroppedOutARTInFirstSixMonthsBeforeInitiatedTreatment;
+
+    definition.setQuery(query);
+
+    return definition;
+  }
+
   @DocumentedDefinition(value = "findPatientWhoAreTBActiveASixMonthfterLastConsultationRF13_1")
   public CohortDefinition findPatientWhoAreTBActiveASixMonthfterLastConsultationRF13_1() {
 
@@ -1506,14 +1564,13 @@ public class MQCohortQueries {
   }
 
   @DocumentedDefinition(
-      value = "findPatientsWhoDroppedOutARTInFirstThreeMonthsPreviousConsultationMarkedAsPregnant")
-  public CohortDefinition
-      findPatientsWhoDroppedOutARTInFirstThreeMonthsPreviousConsultationMarkedAsPregnant() {
+      value = "findPatientsWhoDroppedOutARTThreeMonthsBeforeLastConsultationPeriod")
+  public CohortDefinition findPatientsWhoDroppedOutARTThreeMonthsBeforeLastConsultationPeriod() {
 
     final SqlCohortDefinition definition = new SqlCohortDefinition();
 
     definition.setName(
-        "Patients who abandoned ART three months previous consultation marked as pregnant");
+        "Patients who abandoned ART three months before last clinical consultation of period");
     definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
     definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
     definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
@@ -1521,7 +1578,7 @@ public class MQCohortQueries {
 
     String query =
         MQCategory13P2QueriesInterface.QUERY
-            .findPatientsWhoDroppedOutARTInFirstThreeMonthsPreviousConsultationMarkedAsPregnant;
+            .findPatientsWhoDroppedOutARTThreeMonthsBeforeLastConsultationPeriod;
 
     definition.setQuery(query);
 
@@ -1632,6 +1689,24 @@ public class MQCohortQueries {
     String query =
         MQQueriesInterface.QUERY
             .finPatientsWhoHadTBTreatmentDuring9MonthsAfterInitiatedINHCategory7;
+
+    definition.setQuery(query);
+
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "findAllPatientWhoAreDeadByEndOfRevisonPeriod")
+  public CohortDefinition findAllPatientWhoAreDeadByEndOfRevisonPeriod() {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName("patientsPregnantEnrolledOnART");
+    definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
+
+    String query = MQQueriesInterface.QUERY.findAllPatientWhoAreDeadByEndOfRevisonPeriod;
 
     definition.setQuery(query);
 

@@ -2,6 +2,9 @@ package org.openmrs.module.eptsreports.reporting.library.dimensions;
 
 import java.util.Date;
 import org.openmrs.Location;
+import org.openmrs.module.eptsreports.reporting.library.queries.mi.GenericMIQueryIntarface;
+import org.openmrs.module.eptsreports.reporting.library.queries.mq.MICategory9QueriesInterface;
+import org.openmrs.module.eptsreports.reporting.library.queries.mq.MQCategory13Section1QueriesInterface;
 import org.openmrs.module.eptsreports.reporting.library.queries.mq.MQQueriesInterface;
 import org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
@@ -42,6 +45,9 @@ public class MIAgeDimentions {
     final String mappingsMILessTreeMonths =
         "startInclusionDate=${endRevisionDate-3m+1d},endInclusionDate=${endRevisionDate-2m},endRevisionDate=${endRevisionDate},location=${location}";
 
+    final String mappingsMILessFourteenMonths =
+        "startInclusionDate=${endRevisionDate-14m+1d},endInclusionDate=${endRevisionDate-13m},endRevisionDate=${endRevisionDate},location=${location}";
+
     /*   Dimension Age for new enrrolment on ART less than 2 months
      */
 
@@ -50,6 +56,18 @@ public class MIAgeDimentions {
         EptsReportUtils.map(
             mQAgeDimensions.findPatientsWhoAreNewlyEnrolledOnARTByAdult(15),
             mappingsMILessTwoMonths));
+
+    dimension.addCohortDefinition(
+        "15PlusOrBreastfeeding",
+        EptsReportUtils.map(
+            mQAgeDimensions.findPatientsWhoAreNewlyEnrolledOnARTByAdultOrBreastfeeding(15),
+            mappingsMILessTwoMonths));
+
+    dimension.addCohortDefinition(
+        "15PlusOrBreastfeeding5MonthsA4Months",
+        EptsReportUtils.map(
+            mQAgeDimensions.findPatientsWhoAreNewlyEnrolledOnARTByAdultOrBreastfeeding(15),
+            mappingsMILessFiveMonths));
 
     dimension.addCohortDefinition(
         "LESS_2_MONTHS_15-",
@@ -321,7 +339,40 @@ public class MIAgeDimentions {
             mQAgeDimensions.findPatientsWhoAreNewlyEnrolledOnARTByAgeRengeUsingMonth(0, 18),
             mappingsMILess8Months));
 
+    dimension.addCohortDefinition(
+        "8-9RD",
+        EptsReportUtils.map(
+            this.calculateAgeOnTheFirstConsultationDateLessThanParamByAgeRenge(8, 9),
+            mappingsMILessFourteenMonths));
+
+    dimension.addCohortDefinition(
+        "10-14RD",
+        EptsReportUtils.map(
+            this.calculateAgeOnTheFirstConsultationDateLessThanParamByAgeRenge(10, 14),
+            mappingsMILessFourteenMonths));
+
     return dimension;
+  }
+
+  @DocumentedDefinition(value = "calculateAgeOnTheFirstConsultationDateLessThanParamByAgeRenge")
+  public CohortDefinition calculateAgeOnTheFirstConsultationDateLessThanParamByAgeRenge(
+      int startAge, int endAge) {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName("calculateAgeOnTheFirstConsultationDateLessThanParamByAgeRenge");
+    definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
+
+    String query =
+        GenericMIQueryIntarface.QUERY.calculateAgeOnTheFirstConsultationDateLessThanParamByAgeRenge(
+            startAge, endAge);
+
+    definition.setQuery(query);
+
+    return definition;
   }
 
   public CohortDefinitionDimension getDimensionForPatientsPatientWithCVOver1000Copies() {
@@ -340,6 +391,12 @@ public class MIAgeDimentions {
         "CV_LESS_4_MONTHS_15+",
         EptsReportUtils.map(
             mQAgeDimensions.findPAtientWithCVOver1000CopiesAdult(15), mappingsMILessFourMonths));
+
+    dimension.addCohortDefinition(
+        "15PlusBreastfeeding",
+        EptsReportUtils.map(
+            mQAgeDimensions.findPAtientWithCVOver1000CopiesBiggerThanParamOrBreastfeeding(15),
+            mappingsMILessFourMonths));
 
     dimension.addCohortDefinition(
         "CV_LESS_4_MONTHS_15-",
@@ -398,7 +455,40 @@ public class MIAgeDimentions {
                 2, 14),
             mappingsMI));
 
+    dimension.addCohortDefinition(
+        "15PlusOrBreastfeeding",
+        EptsReportUtils.map(
+            this
+                .findPatientsWithLastClinicalConsultationAdultOrPregnantOrBreatfeedingDenominatorB1AgeCalculation15Plus(
+                    15),
+            mappingsMI));
+
     return dimension;
+  }
+
+  @DocumentedDefinition(
+      value =
+          "findPatientsWithLastClinicalConsultationAdultOrPregnantOrBreatfeedingDenominatorB1AgeCalculation15Plus")
+  public CohortDefinition
+      findPatientsWithLastClinicalConsultationAdultOrPregnantOrBreatfeedingDenominatorB1AgeCalculation15Plus(
+          int age) {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName("patientsPregnantEnrolledOnART");
+    definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
+
+    String query =
+        MQCategory13Section1QueriesInterface.QUERY
+            .findPatientsWithLastClinicalConsultationAdultOrPregnantOrBreatfeedingDenominatorB1AgeCalculation15Plus(
+                age);
+
+    definition.setQuery(query);
+
+    return definition;
   }
 
   /*   		Calculate age on the last consultation
@@ -618,5 +708,73 @@ public class MIAgeDimentions {
             mappings));
 
     return dimension;
+  }
+
+  public CohortDefinitionDimension getDimensionAgeOnTheFirstConsultation() {
+    final CohortDefinitionDimension dimension = new CohortDefinitionDimension();
+
+    dimension.setName("patientsPregnantEnrolledOnART");
+    dimension.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
+    dimension.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
+    dimension.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
+    dimension.addParameter(new Parameter("location", "Location", Location.class));
+
+    final String mappings =
+        "startInclusionDate=${endRevisionDate-2m+1d},endInclusionDate=${endRevisionDate-1m},endRevisionDate=${endRevisionDate},location=${location}";
+
+    dimension.addCohortDefinition(
+        "15-",
+        EptsReportUtils.map(
+            this.calculateAgeOnTheFirstConsultationDateBiggerThanParam(15), mappings));
+
+    dimension.addCohortDefinition(
+        "15+",
+        EptsReportUtils.map(
+            this.calculateAgeOnTheFirstConsultationDateBiggerThanParamOrBreastfeeding(15),
+            mappings));
+
+    return dimension;
+  }
+
+  @DocumentedDefinition(
+      value = "calculateAgeOnTheFirstConsultationDateBiggerThanParamOrBreastfeeding")
+  public CohortDefinition calculateAgeOnTheFirstConsultationDateBiggerThanParamOrBreastfeeding(
+      int age) {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName("calculateAgeOnTheFirstConsultationDateBiggerThanParam");
+    definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
+
+    String query =
+        MICategory9QueriesInterface.QUERY
+            .calculateAgeOnTheFirstConsultationDateBiggerThanParamOrBreastfeeding(age);
+
+    definition.setQuery(query);
+
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "calculateAgeOnTheFirstConsultationDateBiggerThanParam")
+  public CohortDefinition calculateAgeOnTheFirstConsultationDateBiggerThanParam(int age) {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName("calculateAgeOnTheFirstConsultationDateBiggerThanParam");
+    definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
+
+    String query =
+        MICategory9QueriesInterface.QUERY
+            .findPatientsWhoAreNewlyEnrolledOnARTTUntilRevisionDateLessThanParamFC(age);
+
+    definition.setQuery(query);
+
+    return definition;
   }
 }

@@ -21,7 +21,6 @@ import org.openmrs.Location;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.eptsreports.metadata.HivMetadata;
 import org.openmrs.module.eptsreports.metadata.TbMetadata;
-import org.openmrs.module.eptsreports.reporting.calculation.resumomensal.ResumoMensalINHCalculation;
 import org.openmrs.module.eptsreports.reporting.calculation.resumomensal.ResumoMensalTBCalculation;
 import org.openmrs.module.eptsreports.reporting.calculation.resumomensal.ResumoMensalTbExclusionCalculation;
 import org.openmrs.module.eptsreports.reporting.cohort.definition.BaseFghCalculationCohortDefinition;
@@ -687,14 +686,16 @@ public class ResumoMensalCohortQueries {
   @DocumentedDefinition(value = "C2")
   public CohortDefinition getPatientsWhoMarkedINHC2() {
 
-    BaseFghCalculationCohortDefinition cd =
-        new BaseFghCalculationCohortDefinition(
-            "C2", Context.getRegisteredComponents(ResumoMensalINHCalculation.class).get(0));
-    cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
-    cd.addParameter(new Parameter("endDate", "end Date", Date.class));
-    cd.addParameter(new Parameter("location", "Location", Location.class));
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+    definition.setName("C2");
+    definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
 
-    return cd;
+    String query = ResumoMensalQueries.getPatientsWhoMarkedINHC2();
+    definition.setQuery(query);
+
+    return definition;
   }
 
   @DocumentedDefinition(value = "C3")
@@ -712,7 +713,6 @@ public class ResumoMensalCohortQueries {
 
   public CohortDefinition getPatientsWhoMarkedINHC2A2() {
 
-    String mapping = "startDate=${startDate-1m},endDate=${endDate},location=${location}";
     String mappingTPI = "startDate=${startDate},endDate=${endDate},location=${location}";
 
     CompositionCohortDefinition cd = new CompositionCohortDefinition();
@@ -720,11 +720,6 @@ public class ResumoMensalCohortQueries {
     cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
     cd.addParameter(new Parameter("endDate", "End Date", Date.class));
     cd.addParameter(new Parameter("location", "Location", Location.class));
-
-    cd.addSearch(
-        "A2",
-        EptsReportUtils.map(
-            this.getPatientsWhoInitiatedPreTarvAtAfacilityDuringCurrentMonthA2(), mapping));
 
     cd.addSearch("C2", EptsReportUtils.map(this.getPatientsWhoMarkedINHC2(), mappingTPI));
 
@@ -735,7 +730,16 @@ public class ResumoMensalCohortQueries {
                 "TOBEEXCLUDE", ResumoMensalQueries.getPatientsWhoMarkedINHC2ToBeExclude()),
             mappingTPI));
 
-    cd.setCompositionString("(A2 AND C2) NOT (TOBEEXCLUDE)");
+    cd.addSearch(
+        "TRASFERED",
+        EptsReportUtils.map(
+            this.genericCohortQueries.generalSql(
+                "getNumberOfPatientsWhoInitiatedPreTarvByEndOfPreviousMonthA2",
+                ResumoMensalQueries
+                    .getPatientsTransferredFromAnotherHealthFacilityDuringTheCurrentStartDateEndDate()),
+            mappingTPI));
+
+    cd.setCompositionString("C2 NOT (TOBEEXCLUDE OR TRASFERED)");
     return cd;
   }
 

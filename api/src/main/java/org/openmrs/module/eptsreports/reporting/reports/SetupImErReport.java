@@ -5,11 +5,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import org.openmrs.module.eptsreports.reporting.library.cohorts.GenericCohortQueries;
+import org.openmrs.module.eptsreports.reporting.library.datasets.B13DataSet;
 import org.openmrs.module.eptsreports.reporting.library.datasets.DatimCodeDataSet;
 import org.openmrs.module.eptsreports.reporting.library.datasets.Eri2MonthsDataset;
 import org.openmrs.module.eptsreports.reporting.library.datasets.Eri4MonthsDataset;
 import org.openmrs.module.eptsreports.reporting.library.datasets.IMR1BDataset;
 import org.openmrs.module.eptsreports.reporting.library.datasets.IMR1Dataset;
+import org.openmrs.module.eptsreports.reporting.library.datasets.SismaCodeDataSet;
 import org.openmrs.module.eptsreports.reporting.library.datasets.TxCurrDataset;
 import org.openmrs.module.eptsreports.reporting.library.datasets.TxNewDataset;
 import org.openmrs.module.eptsreports.reporting.library.queries.BaseQueries;
@@ -40,6 +42,10 @@ public class SetupImErReport extends EptsDataExportManager {
   @Autowired private IMR1BDataset imr1BDataset;
 
   @Autowired private DatimCodeDataSet datimCodeDataSet;
+
+  @Autowired private B13DataSet b13DataSet;
+
+  @Autowired private SismaCodeDataSet sismaCodeDataset;
 
   @Override
   public String getExcelDesignUuid() {
@@ -91,6 +97,13 @@ public class SetupImErReport extends EptsDataExportManager {
     rd.addDataSetDefinition(
         "D",
         Mapped.mapStraightThrough(this.datimCodeDataSet.constructDataset(this.getParameters())));
+
+    rd.addDataSetDefinition(
+        "R", Mapped.mapStraightThrough(this.b13DataSet.constructResumoMensalDataset()));
+
+    rd.addDataSetDefinition(
+        "SC",
+        Mapped.mapStraightThrough(this.sismaCodeDataset.constructDataset(this.getParameters())));
 
     rd.setBaseCohortDefinition(
         EptsReportUtils.map(

@@ -207,15 +207,7 @@ public interface MQCategory13P3QueriesInterface {
             + " inner join patient_program pg2 on pg2.patient_id = maxEstado.patient_id "
             + " inner join patient_state ps2 on pg2.patient_program_id = ps2.patient_program_id "
             + " where pg2.voided = 0 and ps2.voided = 0 and pg2.program_id = 2 and "
-            + " ps2.start_date = maxEstado.data_obito and pg2.location_id = :location and ps2.state = 10 and ps2.end_date is null"
-            + " union "
-            + " select p.patient_id, max(e.encounter_datetime) data_obito from "
-            + " patient p "
-            + " INNER JOIN encounter e ON p.patient_id = e.patient_id "
-            + " INNER JOIN obs o on o.encounter_id = e.encounter_id "
-            + " WHERE e.voided = 0 and p.voided = 0 and o.voided = 0 and e.encounter_type in (21,36,37) and e.location_id = :location "
-            + " AND o.concept_id in (2031,23944,23945) and o.value_coded = 1366 and DATE(e.encounter_datetime) <= :endRevisionDate "
-            + " group by p.patient_id "
+            + " ps2.start_date = maxEstado.data_obito and pg2.location_id = :location and ps2.state = 10 "
             + " UNION "
             + " select p.patient_id, max(o.obs_datetime) data_obito from patient p "
             + " inner join encounter e on p.patient_id = e.patient_id "
@@ -232,16 +224,18 @@ public interface MQCategory13P3QueriesInterface {
             + " union "
             + " Select person_id, death_date from person p where p.dead = 1 and DATE(p.death_date) <= :endRevisionDate) transferido "
             + " group by patient_id) obito "
-            + " inner join ( "
+            + " inner join "
+            + "( "
             + " select patient_id, max(encounter_datetime) encounter_datetime from ( "
             + " select p.patient_id, max(e.encounter_datetime) encounter_datetime from patient p "
             + " inner join encounter e on e.patient_id = p.patient_id "
             + " where p.voided = 0 and e.voided = 0 and e.encounter_type in (18,6,9)  and DATE(e.encounter_datetime) <= :endRevisionDate and e.location_id = :location "
             + " group by p.patient_id "
             + ") consultaLev "
-            + " group by patient_id ) "
+            + " group by patient_id "
+            + ") "
             + " consultaOuARV on obito.patient_id = consultaOuARV.patient_id "
-            + " where consultaOuARV.encounter_datetime < obito.data_obito and DATE(obito.data_obito) <= :endRevisionDate ";
+            + " where consultaOuARV.encounter_datetime <= obito.data_obito and DATE(obito.data_obito) <= :endRevisionDate ";
 
     public static final String
         findAllPatientsWhoHaveClinicalConsultationWithViralChargeBetweenSixAndNineMonthsAfterARTStartDateCategory13_3_J_Numerator =
@@ -376,11 +370,10 @@ public interface MQCategory13P3QueriesInterface {
                 + "group by p.patient_id "
                 + ")maxEnc "
                 + "inner join ( "
-                + "select p.patient_id, max(o.obs_datetime) data_estado from patient p "
+                + "select p.patient_id, o.obs_datetime data_estado from patient p "
                 + "inner join encounter e on p.patient_id=e.patient_id "
                 + "inner join obs  o on e.encounter_id=o.encounter_id "
-                + "where e.voided=0 and o.voided=0 and p.voided=0 and  e.encounter_type in (53,6) and o.concept_id in (6272,6273) and o.value_coded in (1707) and e.location_id=:location "
-                + "group by p.patient_id "
+                + "where e.voided=0 and o.voided=0 and p.voided=0 and  e.encounter_type in (53,6) and o.concept_id in (6272,6273) and o.value_coded in (1707,1705) and e.location_id=:location "
                 + ")abandono on abandono.patient_id = maxEnc.patient_id "
                 + "where abandono.data_estado between date_sub(maxEnc.encounter_datetime, interval 6 MONTH) and maxEnc.encounter_datetime ";
 

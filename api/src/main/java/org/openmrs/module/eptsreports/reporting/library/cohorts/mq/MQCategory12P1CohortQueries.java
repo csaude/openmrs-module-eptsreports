@@ -87,7 +87,7 @@ public class MQCategory12P1CohortQueries {
         "DENOMINATOR",
         EptsReportUtils.map(
             this.mQGenericCohortQueries
-                .findPatientOnARTdExcludingPregantAndBreastfeedingAndTransferredInTransferredOut(),
+                .findPatientOnARTdExcludingPregantAndTransferredInTransferredOut(),
             mappings));
 
     definition.addSearch(
@@ -125,7 +125,7 @@ public class MQCategory12P1CohortQueries {
         "DENOMINATOR",
         EptsReportUtils.map(
             this.mQGenericCohortQueries
-                .findPatientOnARTdExcludingPregantAndBreastfeedingAndTransferredInTransferredOut(),
+                .findPatientOnARTdExcludingPregantAndTransferredInTransferredOut(),
             mappings));
 
     definition.addSearch(

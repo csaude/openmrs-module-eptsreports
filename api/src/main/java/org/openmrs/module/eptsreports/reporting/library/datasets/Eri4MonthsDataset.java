@@ -70,7 +70,8 @@ public class Eri4MonthsDataset extends BaseDataSet {
                                 ErimType.TOTAL)),
                     "endDate=${endDate},location=${location}")),
             reportingPeriodMappings),
-        this.get4MonthsRetentionColumns());
+        this.get4MonthsRetentionColumns(),
+        " Initiated ART  ");
 
     this.addColumns(
         dataSetDefinition,
@@ -86,7 +87,8 @@ public class Eri4MonthsDataset extends BaseDataSet {
                                 ErimType.IN_TREATMENT)),
                     "endDate=${endDate},location=${location}")),
             reportingPeriodMappings),
-        this.get4MonthsRetentionColumns());
+        this.get4MonthsRetentionColumns(),
+        " Alive & Not transferred out and In Treatment");
 
     this.addColumns(
         dataSetDefinition,
@@ -102,7 +104,8 @@ public class Eri4MonthsDataset extends BaseDataSet {
                                 ErimType.DEAD)),
                     "endDate=${endDate},location=${location}")),
             reportingPeriodMappings),
-        this.get4MonthsRetentionColumns());
+        this.get4MonthsRetentionColumns(),
+        " Dead");
 
     this.addColumns(
         dataSetDefinition,
@@ -118,7 +121,8 @@ public class Eri4MonthsDataset extends BaseDataSet {
                                 ErimType.LFTU)),
                     "endDate=${endDate},location=${location}")),
             reportingPeriodMappings),
-        this.get4MonthsRetentionColumns());
+        this.get4MonthsRetentionColumns(),
+        " Lost To Follow-Up");
 
     this.addColumns(
         dataSetDefinition,
@@ -134,7 +138,8 @@ public class Eri4MonthsDataset extends BaseDataSet {
                                 ErimType.TRANFERED_OUT)),
                     "endDate=${endDate},location=${location}")),
             reportingPeriodMappings),
-        this.get4MonthsRetentionColumns());
+        this.get4MonthsRetentionColumns(),
+        " Transferred Out");
 
     this.addColumns(
         dataSetDefinition,
@@ -150,7 +155,8 @@ public class Eri4MonthsDataset extends BaseDataSet {
                                 ErimType.SPTOPPED_TREATMENT)),
                     "endDate=${endDate},location=${location}")),
             reportingPeriodMappings),
-        this.get4MonthsRetentionColumns());
+        this.get4MonthsRetentionColumns(),
+        " Stopped Treatment");
 
     this.addColumns(
         dataSetDefinition,
@@ -166,7 +172,8 @@ public class Eri4MonthsDataset extends BaseDataSet {
                                 ErimType.DEFAULTER)),
                     "endDate=${endDate},location=${location}")),
             reportingPeriodMappings),
-        this.get4MonthsRetentionColumns());
+        this.get4MonthsRetentionColumns(),
+        " Alive & Not transferred out and Defaulter");
 
     return dataSetDefinition;
   }
@@ -174,7 +181,7 @@ public class Eri4MonthsDataset extends BaseDataSet {
   private List<ColumnParameters> get4MonthsRetentionColumns() {
 
     final ColumnParameters allPatients =
-        new ColumnParameters("initiated ART", "Initiated ART", "", "I");
+        new ColumnParameters("All Patients ", "All Patients ", "", "I");
     final ColumnParameters pregnantWoman =
         new ColumnParameters("pregnant woman", "Pregnant Woman", "state=PREGNANT", "I");
     final ColumnParameters brestfedding =
@@ -190,16 +197,17 @@ public class Eri4MonthsDataset extends BaseDataSet {
       final CohortIndicatorDataSetDefinition definition,
       final String columNumber,
       final Mapped<CohortIndicator> indicator,
-      final List<ColumnParameters> columns) {
+      final List<ColumnParameters> columns,
+      String label) {
 
     int position = 1;
 
     for (final ColumnParameters column : columns) {
 
       final String name = column.getColumn() + "" + position + "-" + columNumber;
-      final String label = column.getLabel() + "(" + name + ")";
+      final String finalLabel = column.getLabel() + "(" + name + ")";
 
-      definition.addColumn(name, label, indicator, column.getDimensions());
+      definition.addColumn(name, finalLabel.concat(label), indicator, column.getDimensions());
 
       position++;
     }

@@ -136,7 +136,8 @@ public class ResumoTrimestralAPSSCohortQueries {
 
     final CompositionCohortDefinition compsitionDefinition = new CompositionCohortDefinition();
     compsitionDefinition.setName("NumberOfPatientsWhoAreCurrentlyEnrolledOnArtMOHC1");
-    final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
+    final String mappings = "startDate=${startDate-3m},endDate=${endDate-3m},location=${location}";
+    final String mappingsPP = "startDate=${startDate-3m},endDate=${endDate},location=${location}";
 
     compsitionDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
     compsitionDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
@@ -156,7 +157,7 @@ public class ResumoTrimestralAPSSCohortQueries {
                 "patientsWithPrevencaoPosetivaInReportingPeriod",
                 ResumoTrimestralAPSSQueries.QUERY
                     .findPatientsWithPrevencaoPosetivaInReportingPeriod),
-            "startDate=${startDate-3m},endDate=${endDate},location=${location}"));
+            mappingsPP));
 
     compsitionDefinition.setCompositionString("B1 AND PREVENCAOPOSETIVA");
 

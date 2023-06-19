@@ -79,7 +79,7 @@ public class DSDDataSetDefinition extends BaseDataSet {
 
     this.addColumns(
         "D1",
-        "D1: Number of active patients on ART, Non-Pregnant and Non-Breastfeeding and not on TB Treatment, Eligible for DSD for Stable Patients",
+        "D1: Número de Pacientes Activos em TARV Elegíveis a MDS para Pacientes Estáveis.",
         dsd,
         dsdCohortQueries.getDSDDenominator1(),
         !addWonaState,
@@ -91,7 +91,7 @@ public class DSDDataSetDefinition extends BaseDataSet {
 
     this.addColumns(
         "D2",
-        "D2: Number of active patients on ART Not Eligible for DSD for Stable Patients Number of Patients Number of  active patients on ART (Non-pregnant and Non-Breastfeeding not on TB treatment) Not Eligible  for DSD (Unstable)",
+        "D2: Número de Pacientes Activos em TARV não Elegíveis a MDS para Pacientes Estáveis",
         dsd,
         dsdCohortQueries.getDSDDenominator2(),
         addWonaState,
@@ -104,7 +104,7 @@ public class DSDDataSetDefinition extends BaseDataSet {
 
     this.addColumns(
         "D3",
-        "D3: Número de Pacientes Activos em TARV(Excluindo grávidas d e lactantes)",
+        "D3: Número de Pacientes Activos em TARV",
         dsd,
         this.dsdCohortQueries.getDSDDenominator3(),
         addWonaState,
@@ -117,7 +117,7 @@ public class DSDDataSetDefinition extends BaseDataSet {
 
     this.addBreastfeedingColumns(
         "D4",
-        "D4: Número de Mulheres Activas em TARV, Lactantes durante pelo menos 11 meses que são elegíveis para Dispensa Bimestral ",
+        "D4: Número de Pacientes Activos em TARV,  elegíveis para Dispensa Bimestral",
         dsd,
         dsdCohortQueries.getDSDDenominator4(),
         !addWonaState,
@@ -127,7 +127,7 @@ public class DSDDataSetDefinition extends BaseDataSet {
 
     this.addColumns(
         "N1-E",
-        "N1: Número de Pacientes Activos em TARV que se encontram inscritos em pelo menos um DSD para pacientes estáveis  (GA, DT, DS, DA, FR, DCA, DD) - Elegíveis ",
+        "N1: Número de Pacientes Activos em TARV que se encontram inscritos em pelo menos um DSD para pacientes estáveis  (GA, DT, DS, DA, FR, DCA, DD) - Elegíveis para MDS Estáveis",
         dsd,
         dsdCohortQueries.getDSDEligibleNumerator1(),
         !addWonaState,
@@ -139,7 +139,7 @@ public class DSDDataSetDefinition extends BaseDataSet {
 
     this.addColumns(
         "N1-NE",
-        "N1: Número de Pacientes Activos em TARV que se encontram inscritos em pelo menos um DSD para pacientes estáveis  (GA, DT, DS, DA, FR, DCA, DD) - Não Elegíveis ",
+        "N1: Número de Pacientes Activos em TARV que se encontram inscritos em pelo menos um DSD para pacientes estáveis  (GA, DT, DS, DA, FR, DCA, DD) - Não-Elegíveis para MDS Estáveis",
         dsd,
         dsdCohortQueries.getDSDNotEligibleNumerator1(),
         addWonaState,
@@ -197,7 +197,7 @@ public class DSDDataSetDefinition extends BaseDataSet {
 
     this.addColumns(
         "N3-E",
-        "N3:  Número de Pacientes activos em TARV que encontram-se inscritos no MDS: Dispensa Semestral (DS) - Elegíveis para MDS Estáveis",
+        "N3: Número de Pacientes activos em TARV que encontram-se inscritos no MDS: Dispensa Semestral (DS) - Elegíveis para MDS Estáveis",
         dsd,
         dsdCohortQueries.getDSDEligibleNumerator3(),
         !addWonaState,
@@ -209,7 +209,7 @@ public class DSDDataSetDefinition extends BaseDataSet {
 
     this.addColumns(
         "N3-NE",
-        "N3:  Número de Pacientes activos em TARV que encontram-se inscritos no MDS: Dispensa Semestral (DS) - Não-Elegíveis para MDS Estáveis",
+        "N3: Número de Pacientes activos em TARV que encontram-se inscritos no MDS: Dispensa Semestral (DS) - Não-Elegíveis para MDS Estáveis",
         dsd,
         dsdCohortQueries.getDSDNotEligibleNumerator3(),
         addWonaState,
@@ -232,7 +232,7 @@ public class DSDDataSetDefinition extends BaseDataSet {
 
     this.addColumns(
         "N4-E",
-        "N4:  Número de Pacientes activos em TARV que encontram-se inscritos no MDS: Dispensa Annual (DA) - Elegíveis para MDS Estáveis",
+        "N4: Número de Pacientes activos em TARV que encontram-se inscritos no MDS: Dispensa Annual (DA) - Elegíveis para MDS Estáveis",
         dsd,
         dsdCohortQueries.getDSDEligibleNumerator4(),
         !addWonaState,
@@ -244,7 +244,7 @@ public class DSDDataSetDefinition extends BaseDataSet {
 
     this.addColumns(
         "N4-NE",
-        "N4:  Número de Pacientes activos em TARV que encontram-sgetDSDDenominator1e inscritos no MDS: Dispensa Annual (DA) - Não-Elegíveis para MDS Estáveis",
+        "N4: Número de Pacientes activos em TARV que encontram-se inscritos no MDS: Dispensa Annual (DA) - Não-Elegíveis para MDS Estáveis",
         dsd,
         dsdCohortQueries.getDSDNotEligibleNumerator4(),
         addWonaState,
@@ -302,7 +302,7 @@ public class DSDDataSetDefinition extends BaseDataSet {
 
     this.addColumns(
         "N6-E",
-        "N6:  Número de Pacientes activos em TARV que encontram-se inscritos no MDS: Dispensa Comunitaria atraves do APE (DCA) - Elegíveis para MDS Estáveis",
+        "N6: Número de Pacientes activos em TARV que encontram-se inscritos no MDS: Dispensa Comunitaria atraves do APE (DCA) - Elegíveis para MDS Estáveis",
         dsd,
         dsdCohortQueries.getDSDEligibleNumerator6(),
         !addWonaState,
@@ -337,7 +337,7 @@ public class DSDDataSetDefinition extends BaseDataSet {
 
     this.addColumns(
         "N7-E",
-        "N7:  Número de Pacientes activos em TARV qu encontram-se inscritos no MDS: Fluxo Rapido (FR) - Elegíveis para MDS Estáveis",
+        "N7: Número de Pacientes activos em TARV qu encontram-se inscritos no MDS: Fluxo Rapido (FR) - Elegíveis para MDS Estáveis",
         dsd,
         dsdCohortQueries.getDSDEligibleNumerator7(),
         !addWonaState,
@@ -349,7 +349,7 @@ public class DSDDataSetDefinition extends BaseDataSet {
 
     this.addColumns(
         "N7-NE",
-        "N7:  Número de Pacientes activos em TARV qu encontram-se inscritos no MDS: Fluxo Rapido (FR) - Não-Elegíveis para MDS Estáveis",
+        "N7: Número de Pacientes activos em TARV qu encontram-se inscritos no MDS: Fluxo Rapido (FR) - Não-Elegíveis para MDS Estáveis",
         dsd,
         dsdCohortQueries.getDSDNotEligibleNumerator7(),
         addWonaState,
@@ -372,7 +372,7 @@ public class DSDDataSetDefinition extends BaseDataSet {
 
     this.addColumns(
         "N8-E",
-        "N8:  Número de Pacientes activos em TARV que encontram-se inscritos no MDS: GAAC (GA) - Elegíveis para MDS Estáveis",
+        "N8: Número de Pacientes activos em TARV que encontram-se inscritos no MDS: GAAC  (GA) - Elegíveis para MDS Estáveis",
         dsd,
         dsdCohortQueries.getDSDEligibleNumerator8(),
         !addWonaState,
@@ -384,7 +384,7 @@ public class DSDDataSetDefinition extends BaseDataSet {
 
     this.addColumns(
         "N8-NE",
-        "N8:  Número de Pacientes activos em TARV que encontram-se inscritos no MDS: GAAC (GA) - Não-Elegíveis para MDS Estáveis",
+        "N8: Número de Pacientes activos em TARV que encontram-se inscritos no MDS: GAAC  (GA) - Não-Elegíveis para MDS Estáveis",
         dsd,
         dsdCohortQueries.getDSDNotEligibleNumerator8(),
         addWonaState,
@@ -407,7 +407,7 @@ public class DSDDataSetDefinition extends BaseDataSet {
 
     this.addColumns(
         "N9",
-        "N9:  Número de Pacientes activos em TARV que encontram-se inscritos no MDS: Dispensa Comunitaria pelo Provedor (DCP)",
+        "N9: Número de Pacientes activos em TARV que encontram-se inscritos no MDS: Dispensa Comunitaria pelo Provedor (DCP)",
         dsd,
         dsdCohortQueries.getDSDNumerator9(),
         addWonaState,
@@ -420,7 +420,7 @@ public class DSDDataSetDefinition extends BaseDataSet {
 
     this.addColumns(
         "N10",
-        "N10:  Número de Pacientes activos em TARV que encontram-se inscritos no MDS: Brigada Movel (BM)",
+        "N10: Número de Pacientes activos em TARV que encontram-se inscritos no MDS: Brigada Movel (BM)",
         dsd,
         dsdCohortQueries.getDSDNumerator10(),
         addWonaState,
@@ -435,7 +435,7 @@ public class DSDDataSetDefinition extends BaseDataSet {
         "N11-E",
         "N11: Número de Pacientes activos em TARV qu encontram-se inscritos no MDS: Clinica Movel (CM)",
         dsd,
-        dsdCohortQueries.getDSDEligibleNumerator11(),
+        dsdCohortQueries.getDSDNumerator11(),
         addWonaState,
         mappings,
         UNDER_TWO,
@@ -450,7 +450,7 @@ public class DSDDataSetDefinition extends BaseDataSet {
         "N12-E",
         "N12:  Número de Pacientes activos em TARV que encontram-se inscritos no MDS: Abordagem Familiar (AF)",
         dsd,
-        dsdCohortQueries.getDSDEligibleNumerator12(),
+        dsdCohortQueries.getDSDNumerator12(),
         addWonaState,
         mappings,
         UNDER_TWO,
@@ -463,9 +463,9 @@ public class DSDDataSetDefinition extends BaseDataSet {
 
     this.addColumns(
         "N13-E",
-        "N13:  Número de Pacientes activos em TARV que encontram-se inscritos no MDS: Clube de Adesao (CA)",
+        "N13: Número de Pacientes activos em TARV que encontram-se inscritos no MDS: Clube de Adesao (CA)",
         dsd,
-        dsdCohortQueries.getDSDEligibleNumerator13(),
+        dsdCohortQueries.getDSDNumerator13(),
         addWonaState,
         mappings,
         UNDER_TWO,
@@ -478,9 +478,9 @@ public class DSDDataSetDefinition extends BaseDataSet {
 
     this.addColumns(
         "N14-E",
-        "N14:  Número de Pacientes activos em TARV que encontram-se inscritos no MDS: Extensao de Horario (EH)",
+        "N14: Número de Pacientes activos em TARV que encontram-se inscritos no MDS: Extensao de Horario (EH)",
         dsd,
-        dsdCohortQueries.getDSDEligibleNumerator14(),
+        dsdCohortQueries.getDSDNumerator14(),
         addWonaState,
         mappings,
         UNDER_TWO,
@@ -493,9 +493,9 @@ public class DSDDataSetDefinition extends BaseDataSet {
 
     this.addColumns(
         "N15-E",
-        "N15:  Número de Pacientes activos em TARV qu encontram-se inscritos no MDS: Paragem Unica no Sector de Tuberculose (TB)",
+        "N15: Número de Pacientes activos em TARV qu encontram-se inscritos no MDS: Paragem Unica no Sector de Tuberculose (TB)",
         dsd,
-        dsdCohortQueries.getDSDEligibleNumerator15(),
+        dsdCohortQueries.getDSDNumerator15(),
         addWonaState,
         mappings,
         UNDER_TWO,
@@ -508,9 +508,9 @@ public class DSDDataSetDefinition extends BaseDataSet {
 
     this.addColumns(
         "N16-E",
-        "N16:  Número de Pacientes activos em TARV que encontram-se inscritos no MDS: Paragem Unica nos Servicos TARV (CT)",
+        "N16: Número de Pacientes activos em TARV que encontram-se inscritos no MDS: Paragem Unica nos Servicos TARV (CT)",
         dsd,
-        dsdCohortQueries.getDSDEligibleNumerator16(),
+        dsdCohortQueries.getDSDNumerator16(),
         addWonaState,
         mappings,
         UNDER_TWO,
@@ -523,9 +523,9 @@ public class DSDDataSetDefinition extends BaseDataSet {
 
     this.addColumns(
         "N17-E",
-        "N17:  Número de Pacientes activos em TARV que encontram-se inscritos no MDS: Paragem Unica nos Servicos Amigos De Adolescentes e Jovens (SAAJ)",
+        "N17: Número de Pacientes activos em TARV que encontram-se inscritos no MDS: Paragem Unica nos Servicos Amigos De Adolescentes e Jovens (SAAJ)",
         dsd,
-        dsdCohortQueries.getDSDEligibleNumerator17(),
+        dsdCohortQueries.getDSDNumerator17(),
         addWonaState,
         mappings,
         UNDER_TWO,
@@ -538,9 +538,9 @@ public class DSDDataSetDefinition extends BaseDataSet {
 
     this.addColumns(
         "N18-E",
-        "N18:  Número de Pacientes activos em TARV que encontram-se inscritos no MDS: Paragem Unica Saude Materno-Infantil (SMI)",
+        "N18: Número de Pacientes activos em TARV que encontram-se inscritos no MDS: Paragem Unica Saude Materno-Infantil (SMI)",
         dsd,
-        dsdCohortQueries.getDSDEligibleNumerator18(),
+        dsdCohortQueries.getDSDNumerator18(),
         addWonaState,
         mappings,
         UNDER_TWO,
@@ -553,7 +553,7 @@ public class DSDDataSetDefinition extends BaseDataSet {
 
     this.addColumns(
         "N19-E",
-        "N19:  Número de Pacientes activos em TARV que encontram-se inscritos no MDS: Doenca Avancada por HIV (DAH) ",
+        "N19: Número de Pacientes activos em TARV que encontram-se inscritos no MDS: Doenca Avancada por HIV (DAH)",
         dsd,
         dsdCohortQueries.getDSDEligibleNumerator19(),
         addWonaState,
@@ -566,7 +566,7 @@ public class DSDDataSetDefinition extends BaseDataSet {
 
     this.addBreastfeedingColumns(
         "N20-E",
-        "N20: Número de pacientes activos em TARV que encontram-se inscritos no MDS: Dispensa Bimestral (DB) - Elegíveis",
+        "N20: Número de pacientes activos em TARV que encontram-se inscritos no MDS: Dispensa Bimestral (DB)",
         dsd,
         this.dsdCohortQueries.getDSDEligibleNumerator20(),
         !addWonaState,
@@ -596,6 +596,19 @@ public class DSDDataSetDefinition extends BaseDataSet {
                 EptsReportUtils.map(dsdCohortQueries.getDSDTotalNumerator20(), mappings)),
             mappings),
         "");
+
+    this.addColumns(
+        "N21",
+        "N21: Número de Pacientes activos em TARV que encontram-se inscritosem pelo menos um modelo MDS (DB, DT, DS, DA, DD, DCP, DCA, BM, CM,  AF, FR, GA, CA, EH, TB, C&T, SAAJ, SMI).",
+        dsd,
+        dsdCohortQueries.getDSDNumerator21(),
+        addWonaState,
+        mappings,
+        UNDER_TWO,
+        TWO_TO_FOUR,
+        FIVE_TO_NINE,
+        TEN_TO_FOURTEEN,
+        ADULT);
 
     return dsd;
   }

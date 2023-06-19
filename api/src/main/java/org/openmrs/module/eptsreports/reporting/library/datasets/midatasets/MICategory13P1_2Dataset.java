@@ -24,7 +24,7 @@ public class MICategory13P1_2Dataset extends MQAbstractDataSet {
                 "CAT13CV15PLUSDENOMINATOR_SECTION1_2",
                 mappings),
             mappings),
-        "age=15+");
+        "age=15PlusOrBreastfeeding");
 
     dataSetDefinition.addColumn(
         "CAT13CV24DENOMINATOR_SECTION1_2",
@@ -46,7 +46,7 @@ public class MICategory13P1_2Dataset extends MQAbstractDataSet {
                 "CAT13CV15PLUSNUMERATOR_SECTION1_2",
                 mappings),
             mappings),
-        "age=15+");
+        "age=15PlusOrBreastfeeding");
 
     dataSetDefinition.addColumn(
         "CAT13CV24NUMERATOR_SECTION1_2",

@@ -2,6 +2,9 @@ package org.openmrs.module.eptsreports.reporting.library.cohorts.mi;
 
 import java.util.Date;
 import org.openmrs.Location;
+import org.openmrs.module.eptsreports.reporting.library.cohorts.GenericCohortQueries;
+import org.openmrs.module.eptsreports.reporting.library.cohorts.mq.MQCategory15CohortQueries;
+import org.openmrs.module.eptsreports.reporting.library.queries.DSDQueriesInterface;
 import org.openmrs.module.eptsreports.reporting.library.queries.mi.MICategory15QueriesInterface;
 import org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
@@ -9,10 +12,15 @@ import org.openmrs.module.reporting.cohort.definition.CompositionCohortDefinitio
 import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
 import org.openmrs.module.reporting.definition.library.DocumentedDefinition;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class MICategory15CohortQueries {
+
+  @Autowired private GenericCohortQueries genericCohorts;
+
+  @Autowired private MQCategory15CohortQueries mQCategory15CohortQueries;
 
   @DocumentedDefinition(value = "findPatientsWhoAreActiveOnArtAndInAtleastOneDSD")
   public CohortDefinition findPatientsWhoAreActiveOnArtAndInAtleastOneDSD() {
@@ -349,13 +357,6 @@ public class MICategory15CohortQueries {
             mappingsMI));
 
     definition.addSearch(
-        "E",
-        EptsReportUtils.map(
-            this
-                .findPatientsWithRegularClinicalConsultationOrRegularArtPickUpInTheLastThreeMonths(),
-            mappingsMI));
-
-    definition.addSearch(
         "C",
         EptsReportUtils.map(
             this.findPatientOnARTMarkedPregnantOnTheLastNineMonthsRF8(), mappingsPregnant));
@@ -375,7 +376,38 @@ public class MICategory15CohortQueries {
         "J",
         EptsReportUtils.map(this.findPatientsWhoAreActiveOnArtAndInAtleastOneDSD(), mappingsMI));
 
-    definition.setCompositionString("(A AND B1 AND E) NOT (C OR D OR F OR G OR J)");
+    definition.addSearch(
+        "TB",
+        EptsReportUtils.map(
+            mQCategory15CohortQueries
+                .findPatientsWhoAreInTbTreatmentFor7MonthsPriorEndRevisionPeriod(),
+            mappings));
+
+    definition.addSearch(
+        "ADVERSASE-REACTIONS",
+        EptsReportUtils.map(
+            this.genericCohorts.generalSql(
+                "ADVERSASE-REACTIONS",
+                DSDQueriesInterface.QUERY
+                    .findPatientsWithAdverseDrugReactionsRequiringRegularMonitoringNotifiedInLast6Months),
+            "endDate=${endRevisionDate},location=${location}"));
+
+    definition.addSearch(
+        "SARCOMA-KAPOSI",
+        EptsReportUtils.map(
+            this.genericCohorts.generalSql(
+                "SARCOMA-KAPOSI",
+                DSDQueriesInterface.QUERY.findPatientsWhoHaveBeenNotifiedOfKaposiSarcoma),
+            "endDate=${endRevisionDate},location=${location}"));
+
+    definition.addSearch(
+        "IIT",
+        EptsReportUtils.map(
+            mQCategory15CohortQueries.findPatientsWhoReinitiatedTreatmentInTheLastThreeMonths(),
+            mappings));
+
+    definition.setCompositionString(
+        "(A AND B1) NOT (C OR D OR F OR G OR J OR TB OR ADVERSASE-REACTIONS OR SARCOMA-KAPOSI OR IIT)");
 
     return definition;
   }
@@ -511,19 +543,12 @@ public class MICategory15CohortQueries {
             mappings));
 
     definition.addSearch(
-        "MDC",
-        EptsReportUtils.map(
-            this
-                .findPatientsWhoHasRegisteredAsFimInAtLeastOneMDCOnTheLastClinicalConsultationInInclusionPeriod(),
-            mappingsMI));
-
-    definition.addSearch(
-        "FILA",
+        "FICHA-CLINICA",
         EptsReportUtils.map(
             this.findPatientsWhoHasCVBiggerThan1000InLastClinicalConsultationAndHaveARTPickUp(),
             mappingsMI));
 
-    definition.setCompositionString("(DENOMINATOR-15-2 AND MDC) OR (DENOMINATOR-15-2 AND FILA)");
+    definition.setCompositionString("(DENOMINATOR-15-2 AND FICHA-CLINICA)");
 
     return definition;
   }
@@ -632,14 +657,7 @@ public class MICategory15CohortQueries {
             this.findPatientsWithClinicalConsultationAndARTStartDateGreaterThanTwentyOneMonths(),
             mappings));
 
-    definition.addSearch(
-        "P",
-        EptsReportUtils.map(
-            this
-                .findAllPatientsWhoHaveLaboratoryInvestigationsRequestsAndViralChargeInLastConsultationDuringLast12Months(),
-            mappings));
-
-    definition.setCompositionString("(A AND J AND B2) NOT P");
+    definition.setCompositionString("(A AND J AND B2)");
 
     return definition;
   }

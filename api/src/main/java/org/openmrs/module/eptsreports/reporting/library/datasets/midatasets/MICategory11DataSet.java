@@ -2,6 +2,7 @@ package org.openmrs.module.eptsreports.reporting.library.datasets.midatasets;
 
 import org.openmrs.module.eptsreports.reporting.library.cohorts.mi.MICategory11CohortQueries;
 import org.openmrs.module.eptsreports.reporting.library.cohorts.mi.MICategory11P2CohortQueries;
+import org.openmrs.module.eptsreports.reporting.library.cohorts.mq.MQCategory11CohortQueries;
 import org.openmrs.module.eptsreports.reporting.library.cohorts.mq.MQGenericCohortQueries;
 import org.openmrs.module.eptsreports.reporting.library.datasets.mqdatasets.MQAbstractDataSet;
 import org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils;
@@ -15,6 +16,7 @@ public class MICategory11DataSet extends MQAbstractDataSet {
   @Autowired private MICategory11CohortQueries miCategory11CohortQueries;
   @Autowired private MICategory11P2CohortQueries miCategory11P2CohortQueries;
   @Autowired private MQGenericCohortQueries mQGenericCohortQueries;
+  @Autowired private MQCategory11CohortQueries mQCategory11CohortQueries;
 
   public void constructTMiDatset(
       CohortIndicatorDataSetDefinition dataSetDefinition, String mappings) {
@@ -26,11 +28,11 @@ public class MICategory11DataSet extends MQAbstractDataSet {
         EptsReportUtils.map(
             this.setIndicatorWithAllParameters(
                 this.mQGenericCohortQueries
-                    .findPatientOnARTdExcludingPregantAndBreastfeedingAndTransferredInTransferredOutMICategory11(),
+                    .findPatientOnARTdExcludingPregantAndTransferredInTransferredOutMI(),
                 "CAT11AdultoAPSSPPDENOMINATOR",
                 mappings),
             mappings),
-        "ageMiNewART=LESS_5_MONTHS_15+");
+        "ageMiNewART=15PlusOrBreastfeeding5MonthsA4Months");
 
     dataSetDefinition.addColumn(
         "CAT11AdultoAPSSPPNUMERATOR",
@@ -43,7 +45,7 @@ public class MICategory11DataSet extends MQAbstractDataSet {
                 "CAT11AdultoAPSSPPNUMERATOR",
                 mappings),
             mappings),
-        "ageMiNewART=LESS_5_MONTHS_15+");
+        "ageMiNewART=15PlusOrBreastfeeding5MonthsA4Months");
 
     dataSetDefinition.addColumn(
         "CAT11Adulto1000CVDENOMINATOR",
@@ -56,7 +58,7 @@ public class MICategory11DataSet extends MQAbstractDataSet {
                 "CAT11Adulto1000CVDENOMINATOR",
                 mappings),
             mappings),
-        "ageOnCV=CV_LESS_4_MONTHS_15+");
+        "ageOnCV=15PlusBreastfeeding");
 
     dataSetDefinition.addColumn(
         "CAT11Adulto1000CVNUMERATOR",
@@ -69,7 +71,7 @@ public class MICategory11DataSet extends MQAbstractDataSet {
                 "CAT11Adulto1000CVNUMERATOR",
                 mappings),
             mappings),
-        "ageOnCV=CV_LESS_4_MONTHS_15+");
+        "ageOnCV=15PlusBreastfeeding");
 
     dataSetDefinition.addColumn(
         "CAT11ChildrenBiggerThen2eLess14APSSPPDENOMINATOR",
@@ -77,8 +79,8 @@ public class MICategory11DataSet extends MQAbstractDataSet {
             + " adesão na ficha de APSS/PP nos primeiros 99 dias de TARV Denominador",
         EptsReportUtils.map(
             this.setIndicatorWithAllParameters(
-                this.mQGenericCohortQueries
-                    .findPatientOnARTdExcludingPregantAndBreastfeedingAndTransferredInTransferredOutMICategory11(),
+                this.miCategory11CohortQueries
+                    .findPatientOnARTdExcludingPregantAndBreastfeedingAndTransferredInTransferredOutChildrensMI(),
                 "CAT11ChildrenBiggerThen2eLess14APSSPPDENOMINATOR",
                 mappings),
             mappings),
@@ -91,7 +93,7 @@ public class MICategory11DataSet extends MQAbstractDataSet {
         EptsReportUtils.map(
             this.setIndicatorWithAllParameters(
                 this.miCategory11CohortQueries
-                    .findPatientsOnARTStartedExcludingPregantAndBreastfeedingAndTransferredInTRANSFEREDOUTCategory11NUMERATOR(),
+                    .findPatientsOnARTStartedExcludingPregantAndBreastfeedingAndTransferredInTRANSFEREDOUTCategory11NUMERATORChildrens(),
                 "CAT11ChildrenBiggerThen2eLess14APSSPPNUMERATOR",
                 mappings),
             mappings),
@@ -182,7 +184,7 @@ public class MICategory11DataSet extends MQAbstractDataSet {
         EptsReportUtils.map(
             this.setIndicatorWithAllParameters(
                 this.miCategory11P2CohortQueries
-                    .findPregnantOnARTStartedExcludingBreastfeedingAndTRANSFEREDOUTWITH1000CVCategory11DenominatorP2(),
+                    .findPregnantOnARTStartedExcludingBreastfeedingAndTransferredInTRANSFEREDOUTWITH50CVCategory11DenominatorP2(),
                 "CAT11PREGNANT1000CVDENOMINATOR",
                 mappings),
             mappings),

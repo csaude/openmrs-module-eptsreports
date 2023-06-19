@@ -36,7 +36,7 @@ public interface TXTBMontlyCascadeReportQueries {
             + "lastConsultation 																															"
             + "	inner join encounter e on e.patient_id = lastConsultation.patient_id								 		"
             + "where e.voided is false and e.location_id = :location  																						"
-            + "	and e.encounter_datetime between (:endDate - interval 6 month) and :endDate and e.encounter_type in (6,9) 																";
+            + "	and e.encounter_datetime between (:endDate - interval 6 month + interval 1 day) and :endDate and e.encounter_type in (6,9) 																";
 
     public static final String findPatientsWithClinicalConsultationsForMoreThanSixMonths =
         "																"
@@ -49,7 +49,7 @@ public interface TXTBMontlyCascadeReportQueries {
             + "	) 																																			"
             + "lastConsultation 																															"
             + "	inner join encounter e on e.patient_id = lastConsultation.patient_id 																		"
-            + "where e.voided is false and e.location_id = :location and e.encounter_datetime < (:endDate - interval 6 month) and :endDate and e.encounter_type in (6,9) 								";
+            + "where e.voided is false and e.location_id = :location and e.encounter_datetime < (:endDate - interval 6 month + interval 1 day) and :endDate and e.encounter_type in (6,9) 								";
 
     public enum EnrollmentPeriod {
       NEWLY,
@@ -63,11 +63,12 @@ public interface TXTBMontlyCascadeReportQueries {
 
       switch (enrollmentPeriod) {
         case NEWLY:
-          query += " where data_inicio between (:endDate - interval 6 month) and :endDate";
+          query +=
+              " where data_inicio between (:endDate - interval 6 month + interval 1 day) and :endDate";
           break;
 
         case PREVIOUSLY:
-          query += " where data_inicio < (:endDate - interval 6 month)";
+          query += " where data_inicio < (:endDate - interval 6 month + interval 1 day)";
           break;
       }
       return query;

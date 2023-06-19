@@ -110,6 +110,65 @@ public class MQCategory13Section2CohortQueries {
             mQCategory13Section1CohortQueries.findPatientsWhoArePregnantCAT13Part1(), mappings));
 
     definition.addSearch(
+        "DROPPEDOUT",
+        EptsReportUtils.map(
+            mQCohortQueries
+                .findAllPatientsWhoDroppedOutARTDuringTheLastSixMonthsBeforeLastClinicalConsultation(),
+            mappings));
+
+    definition.setCompositionString(
+        "(B1 AND (B2NEWII NOT (B2ENEW OR DROPPEDOUT)))  NOT (B5E OR C)");
+
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "findDenominatorCategory13SectionIIBChildrens")
+  public CohortDefinition findDenominatorCategory13SectionIIBChildrens() {
+
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+
+    definition.setName("findDenominatorCategory13SectionIIB");
+    definition.addParameter(
+        new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "Data Fim Revisão", Date.class));
+    definition.addParameter(new Parameter("location", "location", Date.class));
+
+    final String mappings =
+        "startInclusionDate=${startInclusionDate},endInclusionDate=${endInclusionDate},endRevisionDate=${endRevisionDate},location=${location}";
+
+    definition.addSearch(
+        "B1",
+        EptsReportUtils.map(
+            mQCategory13Section1CohortQueries
+                .findPatientsWithLastClinicalConsultationDenominatorB1(),
+            mappings));
+
+    definition.addSearch(
+        "B2ENEW",
+        EptsReportUtils.map(
+            mQCategory13Section1CohortQueries
+                .findPatientsWithLastClinicalConsultationwhoAreNotInFistLineDenominatorB2ENEW(),
+            mappings));
+
+    definition.addSearch(
+        "B2NEWII",
+        EptsReportUtils.map(
+            mQCategory13Section1CohortQueries
+                .findPatientsWithLastClinicalConsultationwhoAreNotInFistLineDenominatorB2NEWPartII(),
+            mappings));
+
+    definition.addSearch(
+        "B5E",
+        EptsReportUtils.map(
+            mQCategory13Section1CohortQueries.findPatientsWithRequestCVDenominatorB5E(), mappings));
+
+    definition.addSearch(
+        "C",
+        EptsReportUtils.map(
+            mQCategory13Section1CohortQueries.findPatientsWhoArePregnantCAT13Part1(), mappings));
+
+    definition.addSearch(
         "D",
         EptsReportUtils.map(
             mQCategory13Section1CohortQueries.findPatientsWhoAreBreastfeedingCAT13Part1(),
@@ -145,6 +204,34 @@ public class MQCategory13Section2CohortQueries {
 
     definition.addSearch(
         "B", EptsReportUtils.map(this.findDenominatorCategory13SectionIIB(), mappings));
+
+    definition.addSearch(
+        "C",
+        EptsReportUtils.map(
+            mQCategory13Section1CohortQueries.findNumeratorCategory13Section1C(), mappings));
+
+    definition.setCompositionString("B AND C");
+
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "findFinalNumeratorCategory13SectionIICChildrens")
+  public CohortDefinition findFinalNumeratorCategory13SectionIICChildrens() {
+
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+
+    definition.setName("findFinalNumeratorCategory13SectionIIC");
+    definition.addParameter(
+        new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "Data Fim Revisão", Date.class));
+    definition.addParameter(new Parameter("location", "location", Date.class));
+
+    final String mappings =
+        "startInclusionDate=${startInclusionDate},endInclusionDate=${endInclusionDate},endRevisionDate=${endRevisionDate},location=${location}";
+
+    definition.addSearch(
+        "B", EptsReportUtils.map(this.findDenominatorCategory13SectionIIBChildrens(), mappings));
 
     definition.addSearch(
         "C",

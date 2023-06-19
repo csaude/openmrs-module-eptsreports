@@ -23,14 +23,15 @@ public class MQCategory13DataSetSectionII extends MQAbstractDataSet {
                 "CAT13CV15PLUSDENOMINATOR_SECTION1_2",
                 mappings),
             mappings),
-        "age=15+");
+        "age=15PlusOrBreastfeeding");
 
     dataSetDefinition.addColumn(
         "CAT13CV24DENOMINATOR_SECTION1_2",
         "13.13: Crianças na 2a linha de TARV que tiveram consulta clínica no período de revisão e que eram elegíveis ao pedido de CV Denominador",
         EptsReportUtils.map(
             this.setIndicatorWithAllParameters(
-                this.mqCategory13Section2CohortQueries.findDenominatorCategory13SectionIIB(),
+                this.mqCategory13Section2CohortQueries
+                    .findDenominatorCategory13SectionIIBChildrens(),
                 "CAT13CV24DENOMINATOR_SECTION1_2",
                 mappings),
             mappings),
@@ -45,14 +46,15 @@ public class MQCategory13DataSetSectionII extends MQAbstractDataSet {
                 "CAT13CV15PLUSNUMERATOR_SECTION1_2",
                 mappings),
             mappings),
-        "age=15+");
+        "age=15PlusOrBreastfeeding");
 
     dataSetDefinition.addColumn(
         "CAT13CV24NUMERATOR_SECTION1_2",
         "13.13: Crianças na 2a linha de TARV que tiveram consulta clínica no período de revisão e que eram elegíveis ao pedido de CV Numerator",
         EptsReportUtils.map(
             this.setIndicatorWithAllParameters(
-                this.mqCategory13Section2CohortQueries.findFinalNumeratorCategory13SectionIIC(),
+                this.mqCategory13Section2CohortQueries
+                    .findFinalNumeratorCategory13SectionIICChildrens(),
                 "CAT13CV24NUMERATOR_SECTION1_2",
                 mappings),
             mappings),

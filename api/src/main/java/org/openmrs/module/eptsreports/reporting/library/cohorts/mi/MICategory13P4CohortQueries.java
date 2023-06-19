@@ -44,7 +44,7 @@ public class MICategory13P4CohortQueries {
     definition.addSearch(
         "B2",
         EptsReportUtils.map(
-            this.mQCohortQueries.findPatientWithCVOver1000CopiesCategory11B2(), mappings));
+            this.mQCohortQueries.findPatientWithCVOver1000CopiesCategory13B2(), mappings));
 
     definition.addSearch(
         "PREGNANT-B4",
@@ -71,8 +71,13 @@ public class MICategory13P4CohortQueries {
         "TRANSFERED-OUT",
         EptsReportUtils.map(this.mQCohortQueries.findPatientsWhoTransferedOutRF07(), mappings));
 
+    definition.addSearch(
+        "DEAD",
+        EptsReportUtils.map(
+            mQCohortQueries.findAllPatientWhoAreDeadByEndOfRevisonPeriod(), mappings));
+
     definition.setCompositionString(
-        "(B1 AND B2) NOT (PREGNANT-B4 OR BREASTFEEDING-B5 OR TRANSFERED-IN OR TRANSFERED-OUT)");
+        "(B1 AND B2) NOT (PREGNANT-B4 OR BREASTFEEDING-B5 OR TRANSFERED-IN OR TRANSFERED-OUT OR DEAD)");
 
     return definition;
   }

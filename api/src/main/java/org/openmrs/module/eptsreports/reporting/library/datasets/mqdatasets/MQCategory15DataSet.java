@@ -294,7 +294,7 @@ public class MQCategory15DataSet extends MQAbstractDataSet {
 
     dataSetDefinition.addColumn(
         "CAT15INDICATOR_15_13_NUMERATOR",
-        "'15.13: % de Utentes elegíveis a MDS (para pacientes estáveis) e que foram inscritos em MDS",
+        "15.13: % de Utentes elegíveis a MDS (para pacientes estáveis) e que foram inscritos em MDS",
         EptsReportUtils.map(
             this.setIndicatorWithAllParameters(
                 this.mqCohortCategory15Queries
@@ -302,7 +302,7 @@ public class MQCategory15DataSet extends MQAbstractDataSet {
                 "CAT15INDICATOR_15_13_NUMERATOR",
                 mappings),
             mappings),
-        "");
+        "ageOnEndInclusionDate=2+");
 
     dataSetDefinition.addColumn(
         "CAT15DENOMINADOR_15_14",
@@ -326,7 +326,7 @@ public class MQCategory15DataSet extends MQAbstractDataSet {
                 "CAT15NUMERADOR_15_14",
                 mappings),
             mappings),
-        "");
+        "ageOnEndInclusionDate=2+");
 
     dataSetDefinition.addColumn(
         "CAT15DENOMINADOR_15_15",

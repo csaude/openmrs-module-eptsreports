@@ -1,5 +1,7 @@
 package org.openmrs.module.eptsreports.reporting.library.queries.mq;
 
+import org.openmrs.module.eptsreports.reporting.utils.TypePTV;
+
 public interface MQCategory13Section1QueriesInterface {
 
   class QUERY {
@@ -47,6 +49,68 @@ public interface MQCategory13Section1QueriesInterface {
               + "INNER JOIN person pe ON maxEnc.patient_id=pe.person_id "
               + "WHERE (TIMESTAMPDIFF(year,birthdate,maxEnc.encounter_datetime)) >= %s AND birthdate IS NOT NULL and pe.voided = 0 "
               + ") final";
+
+      return String.format(sql, startAge);
+    }
+
+    public static final String
+        findPatientsWithLastClinicalConsultationAdultOrPregnantOrBreatfeedingDenominatorB1AgeCalculation15Plus(
+            int startAge) {
+
+      final String sql =
+          "Select final.patient_id from  (  "
+              + "Select maxEnc.patient_id,maxEnc.encounter_datetime from (  "
+              + "Select p.patient_id,max(e.encounter_datetime) encounter_datetime from patient p  "
+              + "inner join encounter e on p.patient_id=e.patient_id  "
+              + "where p.voided=0 and e.voided=0 and e.encounter_type=6 and  "
+              + "e.encounter_datetime >=:startInclusionDate and e.encounter_datetime<=:endRevisionDate  and e.location_id=:location  "
+              + "group by p.patient_id  "
+              + ")maxEnc  "
+              + "INNER JOIN person pe ON maxEnc.patient_id=pe.person_id  "
+              + "WHERE (TIMESTAMPDIFF(year,birthdate,maxEnc.encounter_datetime)) >= %s AND birthdate IS NOT NULL and pe.voided = 0  "
+              + ") final "
+              + "union "
+              + "select patient_id from (   "
+              + "select "
+              + "p.person_id as  patient_id, "
+              + "lactante.data_lactante,  "
+              + "gravida.data_gravida,  "
+              + "if(lactante.data_lactante is null,1, if(gravida.data_gravida is null,2, if(gravida.data_gravida>=lactante.data_lactante,1,2))) decisao "
+              + "from person p  "
+              + "left join  "
+              + "( "
+              + "select ultima_consulta.patient_id,ultima_consulta.data_ultima_consulta,e_.encounter_datetime  data_gravida from  (   "
+              + "Select p.patient_id, max(e.encounter_datetime) as data_ultima_consulta from  patient p   "
+              + "inner join encounter e on p.patient_id = e.patient_id   "
+              + "where p.voided = 0 and e.voided = 0 and e.encounter_type = 6 and e.location_id = :location   "
+              + "and e.encounter_datetime BETWEEN :startInclusionDate AND :endRevisionDate   "
+              + "group by p.patient_id   "
+              + ") ultima_consulta   "
+              + "inner join encounter e_ on e_.patient_id = ultima_consulta.patient_id   "
+              + "inner join obs obsGravida on e_.encounter_id = obsGravida.encounter_id   "
+              + "inner join person pe on pe.person_id = e_.patient_id   "
+              + "where pe.voided = 0 and e_.voided = 0 and obsGravida.voided = 0 and e_.encounter_type = 6 and e_.location_id = :location  "
+              + "and obsGravida.concept_id = 1982 and obsGravida.value_coded = 1065 and pe.gender = 'F'   "
+              + "and e_.encounter_datetime = ultima_consulta.data_ultima_consulta   "
+              + ")gravida on gravida.patient_id=p.person_id "
+              + "left join ( "
+              + "select ultima_consulta.patient_id,ultima_consulta.data_ultima_consulta,e_.encounter_datetime  data_lactante from  (   "
+              + "Select p.patient_id, max(e.encounter_datetime) as data_ultima_consulta from  patient p   "
+              + "inner join encounter e on p.patient_id = e.patient_id   "
+              + "where p.voided = 0 and e.voided = 0 and e.encounter_type = 6 and e.location_id = :location   "
+              + "and e.encounter_datetime BETWEEN :startInclusionDate AND :endRevisionDate   "
+              + "group by p.patient_id   "
+              + ") ultima_consulta   "
+              + "inner join encounter e_ on e_.patient_id = ultima_consulta.patient_id   "
+              + "inner join obs obsGravida on e_.encounter_id = obsGravida.encounter_id   "
+              + "inner join person pe on pe.person_id = e_.patient_id   "
+              + "where pe.voided = 0 and e_.voided = 0 and obsGravida.voided = 0 and e_.encounter_type = 6 and e_.location_id = :location  "
+              + "and obsGravida.concept_id = 6332 and obsGravida.value_coded = 1065 and pe.gender = 'F'   "
+              + "and e_.encounter_datetime = ultima_consulta.data_ultima_consulta   "
+              + ")lactante on lactante.patient_id=p.person_id "
+              + "where (lactante.data_lactante is not null or gravida.data_gravida is not null) and p.voided=0 and p.gender='F' "
+              + "group by p.person_id "
+              + ")f  where f.decisao=2 ";
 
       return String.format(sql, startAge);
     }
@@ -218,37 +282,61 @@ public interface MQCategory13Section1QueriesInterface {
             + " where cvPedido.obs_datetime = enc.encounter_datetime and cvPedido.concept_id = 23722 and cvPedido.value_coded = 856 and cvPedido.voided = 0 "
             + " and e_.voided = 0 and e_.encounter_type = 6 and e_.location_id = :location and cvPedido.location_id = :location ";
 
-    public static final String findPatientsWhoArePregnantCAT13Part1 =
-        " select ultima_consulta.patient_id from ( "
-            + " Select p.patient_id, max(e.encounter_datetime) as data_ultima_consulta from "
-            + " patient p "
-            + " inner join encounter e on p.patient_id = e.patient_id "
-            + " where p.voided = 0 and e.voided = 0 and e.encounter_type = 6 and e.location_id = :location "
-            + " and e.encounter_datetime BETWEEN :startInclusionDate AND :endRevisionDate "
-            + " group by p.patient_id "
-            + " ) ultima_consulta "
-            + " inner join encounter e_ on e_.patient_id = ultima_consulta.patient_id "
-            + " inner join obs obsGravida on e_.encounter_id = obsGravida.encounter_id "
-            + " inner join person pe on pe.person_id = e_.patient_id "
-            + " where pe.voided = 0 and e_.voided = 0 and obsGravida.voided = 0 and e_.encounter_type = 6 and e_.location_id = :location "
-            + " and obsGravida.concept_id = 1982 and obsGravida.value_coded = 1065 and pe.gender = 'F' "
-            + " and e_.encounter_datetime = ultima_consulta.data_ultima_consulta ";
+    public static final String findPatientsWhoArePregnantOrBreastfeeding(TypePTV typePTV) {
+      String query =
+          "select patient_id from (   "
+              + "select "
+              + "p.person_id as  patient_id, "
+              + "lactante.data_lactante,  "
+              + "gravida.data_gravida,  "
+              + "if(lactante.data_lactante is null,1, if(gravida.data_gravida is null,2, if(gravida.data_gravida>=lactante.data_lactante,1,2))) decisao "
+              + "from person p  "
+              + "left join  "
+              + "( "
+              + "select ultima_consulta.patient_id,ultima_consulta.data_ultima_consulta,e_.encounter_datetime  data_gravida from  (   "
+              + "Select p.patient_id, max(e.encounter_datetime) as data_ultima_consulta from  patient p   "
+              + "inner join encounter e on p.patient_id = e.patient_id   "
+              + "where p.voided = 0 and e.voided = 0 and e.encounter_type = 6 and e.location_id = :location   "
+              + "and e.encounter_datetime BETWEEN :startInclusionDate AND :endRevisionDate   "
+              + "group by p.patient_id   "
+              + ") ultima_consulta   "
+              + "inner join encounter e_ on e_.patient_id = ultima_consulta.patient_id   "
+              + "inner join obs obsGravida on e_.encounter_id = obsGravida.encounter_id   "
+              + "inner join person pe on pe.person_id = e_.patient_id   "
+              + "where pe.voided = 0 and e_.voided = 0 and obsGravida.voided = 0 and e_.encounter_type = 6 and e_.location_id = :location  "
+              + "and obsGravida.concept_id = 1982 and obsGravida.value_coded = 1065 and pe.gender = 'F'   "
+              + "and e_.encounter_datetime = ultima_consulta.data_ultima_consulta   "
+              + ")gravida on gravida.patient_id=p.person_id "
+              + "left join ( "
+              + "select ultima_consulta.patient_id,ultima_consulta.data_ultima_consulta,e_.encounter_datetime  data_lactante from  (   "
+              + "Select p.patient_id, max(e.encounter_datetime) as data_ultima_consulta from  patient p   "
+              + "inner join encounter e on p.patient_id = e.patient_id   "
+              + "where p.voided = 0 and e.voided = 0 and e.encounter_type = 6 and e.location_id = :location   "
+              + "and e.encounter_datetime BETWEEN :startInclusionDate AND :endRevisionDate   "
+              + "group by p.patient_id   "
+              + ") ultima_consulta   "
+              + "inner join encounter e_ on e_.patient_id = ultima_consulta.patient_id   "
+              + "inner join obs obsGravida on e_.encounter_id = obsGravida.encounter_id   "
+              + "inner join person pe on pe.person_id = e_.patient_id   "
+              + "where pe.voided = 0 and e_.voided = 0 and obsGravida.voided = 0 and e_.encounter_type = 6 and e_.location_id = :location  "
+              + "and obsGravida.concept_id = 6332 and obsGravida.value_coded = 1065 and pe.gender = 'F'   "
+              + "and e_.encounter_datetime = ultima_consulta.data_ultima_consulta   "
+              + ")lactante on lactante.patient_id=p.person_id "
+              + "where (lactante.data_lactante is not null or gravida.data_gravida is not null) and p.voided=0 and p.gender='F' "
+              + "group by p.person_id "
+              + ")f  ";
 
-    public static final String findPatientsWhoAreBreastfeedingCAT13Part1 =
-        " select ultima_consulta.patient_id from ( "
-            + " Select p.patient_id, max(e.encounter_datetime) as data_ultima_consulta from "
-            + " patient p "
-            + " inner join encounter e on p.patient_id = e.patient_id "
-            + " where p.voided = 0 and e.voided = 0 and e.encounter_type = 6 and e.location_id = :location "
-            + " and e.encounter_datetime BETWEEN :startInclusionDate AND :endRevisionDate "
-            + " group by p.patient_id "
-            + " ) ultima_consulta "
-            + " inner join encounter e_ on e_.patient_id = ultima_consulta.patient_id "
-            + " inner join obs obsGravida on e_.encounter_id = obsGravida.encounter_id "
-            + " inner join person pe on pe.person_id = e_.patient_id "
-            + " where pe.voided = 0 and e_.voided = 0 and obsGravida.voided = 0 and e_.encounter_type = 6 and e_.location_id = :location "
-            + " and obsGravida.concept_id = 6332 and obsGravida.value_coded = 1065 and pe.gender = 'F' "
-            + " and e_.encounter_datetime = ultima_consulta.data_ultima_consulta ";
+      switch (typePTV) {
+        case PREGNANT:
+          query = query + "where f.decisao = 1 ";
+          break;
+
+        case BREASTFEEDING:
+          query = query + "where f.decisao = 2 ";
+          break;
+      }
+      return query;
+    }
 
     public static final String
         findPatientsWithLastClinicalConsultationwhoAreNotInFistLineDenominatorB2NEW =
@@ -281,7 +369,7 @@ public interface MQCategory13Section1QueriesInterface {
                 + " and obs.voided = 0 and obs.location_id = :location and e.location_id = :location "
                 + " and e.voided = 0 and e.encounter_type = 6 "
                 + " ) primeiraLinha on art_start.patient_id = primeiraLinha.patient_id "
-                + " where primeiraLinha.maxDataLinha >= date_add(art_start.art_start_date, INTERVAL 6 Month) ";
+                + " where TIMESTAMPDIFF(MONTH,art_start.art_start_date,primeiraLinha.maxDataLinha)>=6 ";
 
     public static final String findPatientsWhoAbandonedARTInTheFirstSixMonthsOfARTStart =
         "select primeiraLinha.patient_id from ( "

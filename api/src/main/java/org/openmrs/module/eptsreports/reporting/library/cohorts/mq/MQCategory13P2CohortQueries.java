@@ -15,7 +15,7 @@ public class MQCategory13P2CohortQueries {
   @Autowired private MQCohortQueries mQCohortQueries;
 
   @DocumentedDefinition(value = "findPatientsWhoArePregnantWithCVInTARVCategory13P2Denumerator")
-  public CohortDefinition findPatientsWhoArePregnantWithCVInTARVCategory13P2Denumerator() {
+  public CohortDefinition findPatientsWhoArePregnantWithCVInTARVCategory13P2Denominator() {
     final CompositionCohortDefinition definition = new CompositionCohortDefinition();
 
     definition.setName("findPatientsWhoArePregnantWithCVInTARVCategory13P2Denumerator");
@@ -54,18 +54,18 @@ public class MQCategory13P2CohortQueries {
         "DROPPED-OUT",
         EptsReportUtils.map(
             this.mQCohortQueries
-                .findAllPatientsWhoDroppedOutARTInFirstThreeMonthsAfterInitiatedTreatment(),
+                .findPatientsWhoDroppedOutARTThreeMonthsBeforeLastConsultationPeriod(),
             mappings));
 
     definition.setCompositionString(
-        "((START-ART NOT DROPPED-OUT) AND PREGNANT) NOT (TRANSFERED-OUT OR TRANSFERED-IN)");
+        "(START-ART AND PREGNANT) NOT (TRANSFERED-OUT OR TRANSFERED-IN OR DROPPED-OUT)");
     return definition;
   }
 
   @DocumentedDefinition(
       value = "findPatientsWhoArePregnantWithCVInFirstConsultationTARVCategory13P2Denumerator")
   public CohortDefinition
-      findPatientsWhoArePregnantWithCVInFirstConsultationTARVCategory13P2Denumerator() {
+      findPatientsWhoArePregnantWithCVInFirstConsultationTARVCategory13P2Denominator() {
     final CompositionCohortDefinition definition = new CompositionCohortDefinition();
 
     definition.setName(
@@ -90,7 +90,7 @@ public class MQCategory13P2CohortQueries {
         "DROPPEDOUT",
         EptsReportUtils.map(
             this.mQCohortQueries
-                .findPatientsWhoDroppedOutARTInFirstThreeMonthsPreviousConsultationMarkedAsPregnant(),
+                .findPatientsWhoDroppedOutARTThreeMonthsBeforeLastConsultationPeriod(),
             mappings));
 
     definition.setCompositionString("B2 NOT DROPPEDOUT");
@@ -102,7 +102,7 @@ public class MQCategory13P2CohortQueries {
       value =
           "findPatientsWhoArePregnantWithCVIn33DaysAfterInclusionDateTARVCategory13P2Denumerator")
   public CohortDefinition
-      findPatientsWhoArePregnantWithCVIn33DaysAfterInclusionDateTARVCategory13P2Denumerator() {
+      findPatientsWhoArePregnantWithCVIn33DaysAfterInclusionDateTARVCategory13P2Denominator() {
     final CompositionCohortDefinition definition = new CompositionCohortDefinition();
 
     definition.setName(
@@ -118,53 +118,17 @@ public class MQCategory13P2CohortQueries {
         "startInclusionDate=${startInclusionDate},endInclusionDate=${endInclusionDate},endRevisionDate=${endRevisionDate},location=${location}";
 
     definition.addSearch(
-        "START-ART",
+        "RF29",
         EptsReportUtils.map(
-            this.mQCohortQueries.findPatientsWhoAreNewlyEnrolledOnARTRF05(), mappings));
+            this.findPatientsWhoArePregnantWithCVInTARVCategory13P2Numerator(), mappings));
 
     definition.addSearch(
-        "PREGNANT",
+        "RF31",
         EptsReportUtils.map(
-            this.mQCohortQueries.findPatientsWhoArePregnantInclusionDateRF08(), mappings));
-
-    definition.addSearch(
-        "B2",
-        EptsReportUtils.map(
-            this.mQCohortQueries.findPatientsWhoArePregnantInFirstConsultationInclusionPeriodByB2(),
+            this.findPatientsWhoArePregnantWithCVInFirstConsultationTARVCategory13P2Numerator(),
             mappings));
 
-    definition.addSearch(
-        "B3",
-        EptsReportUtils.map(
-            this.mQCohortQueries
-                .findPatientsWhoAreRequestForLaboratoryInvestigationsInclusionPeriodCAT13DenumeratorP2ByB3(),
-            mappings));
-
-    definition.addSearch(
-        "B4",
-        EptsReportUtils.map(
-            this.mQCohortQueries
-                .findPatientsWhoAreRequestForLaboratoryInvestigationAndPregnantInclusionPeriodCAT13DenumeratorP2ByB4(),
-            mappings));
-
-    definition.addSearch(
-        "BREASTFEEDING",
-        EptsReportUtils.map(
-            this.mQCohortQueries.findPatientsWhoAreBreastfeedingInclusionDateRF09(), mappings));
-
-    definition.addSearch(
-        "TRANSFERED-IN",
-        EptsReportUtils.map(
-            this.mQCohortQueries
-                .findPatientsWhoWhereMarkedAsTransferedInAndOnARTOnInAPeriodOnMasterCardRF06(),
-            mappings));
-
-    definition.addSearch(
-        "TRANSFERED-OUT",
-        EptsReportUtils.map(this.mQCohortQueries.findPatientsWhoTransferedOutRF07(), mappings));
-
-    definition.setCompositionString(
-        "((START-ART AND PREGNANT AND B3) NOT (BREASTFEEDING OR TRANSFERED-IN OR TRANSFERED-OUT)) OR (B2 AND B4) ");
+    definition.setCompositionString("RF29 OR RF31");
 
     return definition;
   }
@@ -186,14 +150,9 @@ public class MQCategory13P2CohortQueries {
         "startInclusionDate=${startInclusionDate},endInclusionDate=${endInclusionDate},endRevisionDate=${endRevisionDate},location=${location}";
 
     definition.addSearch(
-        "START-ART",
+        "DENOMINATOR",
         EptsReportUtils.map(
-            this.mQCohortQueries.findPatientsWhoAreNewlyEnrolledOnARTRF05(), mappings));
-
-    definition.addSearch(
-        "PREGNANT",
-        EptsReportUtils.map(
-            this.mQCohortQueries.findPatientsWhoArePregnantInclusionDateRF08(), mappings));
+            this.findPatientsWhoArePregnantWithCVInTARVCategory13P2Denominator(), mappings));
 
     definition.addSearch(
         "H",
@@ -202,24 +161,7 @@ public class MQCategory13P2CohortQueries {
                 .findPatientsWhoAreRequestForLaboratoryInvestigationsInclusionPeriodCAT13DenumeratorP2ByB3(),
             mappings));
 
-    definition.addSearch(
-        "BREASTFEEDING",
-        EptsReportUtils.map(
-            this.mQCohortQueries.findPatientsWhoAreBreastfeedingInclusionDateRF09(), mappings));
-
-    definition.addSearch(
-        "TRANSFERED-IN",
-        EptsReportUtils.map(
-            this.mQCohortQueries
-                .findPatientsWhoWhereMarkedAsTransferedInAndOnARTOnInAPeriodOnMasterCardRF06(),
-            mappings));
-
-    definition.addSearch(
-        "TRANSFERED-OUT",
-        EptsReportUtils.map(this.mQCohortQueries.findPatientsWhoTransferedOutRF07(), mappings));
-
-    definition.setCompositionString(
-        "(START-ART AND PREGNANT AND H) NOT (BREASTFEEDING OR TRANSFERED-OUT OR TRANSFERED-IN)");
+    definition.setCompositionString("DENOMINATOR AND H");
     return definition;
   }
 
@@ -241,11 +183,10 @@ public class MQCategory13P2CohortQueries {
 
     final String mappings =
         "startInclusionDate=${startInclusionDate},endInclusionDate=${endInclusionDate},endRevisionDate=${endRevisionDate},location=${location}";
-
     definition.addSearch(
-        "B2",
+        "DENOMINADOR",
         EptsReportUtils.map(
-            this.mQCohortQueries.findPatientsWhoArePregnantInFirstConsultationInclusionPeriodByB2(),
+            this.findPatientsWhoArePregnantWithCVInFirstConsultationTARVCategory13P2Denominator(),
             mappings));
 
     definition.addSearch(
@@ -255,14 +196,7 @@ public class MQCategory13P2CohortQueries {
                 .findPatientsWhoAreRequestForLaboratoryInvestigationAndPregnantInclusionPeriodCAT13DenumeratorP2ByB4(),
             mappings));
 
-    definition.addSearch(
-        "DROPPED-OUT",
-        EptsReportUtils.map(
-            this.mQCohortQueries
-                .findAllPatientsWhoDroppedOutARTInFirstThreeMonthsAfterInitiatedTreatment(),
-            mappings));
-
-    definition.setCompositionString("((B2 NOT DROPPED-OUT) AND J)");
+    definition.setCompositionString("DENOMINADOR AND J");
     return definition;
   }
 

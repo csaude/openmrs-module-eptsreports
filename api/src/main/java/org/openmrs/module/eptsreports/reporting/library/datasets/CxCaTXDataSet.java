@@ -309,11 +309,16 @@ public class CxCaTXDataSet extends BaseDataSet {
     ColumnParameters a5 = new ColumnParameters("35-39", "35-39 female", "gender=F|age=35-39", "05");
     ColumnParameters a6 = new ColumnParameters("40-44", "40-44 female", "gender=F|age=40-44", "06");
     ColumnParameters a7 = new ColumnParameters("45-49", "45-49 female", "gender=F|age=45-49", "07");
-    ColumnParameters a8 = new ColumnParameters("50+", "50+ female", "gender=F|age=50+", "08");
+    ColumnParameters a8 = new ColumnParameters("50-54", "50-54 female", "gender=F|age=50-54", "08");
+    ColumnParameters a9 = new ColumnParameters("55-59", "55-59 female", "gender=F|age=55-59", "09");
+    ColumnParameters a10 =
+        new ColumnParameters("60-64", "60-64 female", "gender=F|age=60-64", "10");
+    ColumnParameters a11 = new ColumnParameters("65+", "65+ female", "gender=F|age=65+", "11");
     ColumnParameters unknownF =
-        new ColumnParameters("unknownF", "Unknown age", "gender=F|age=UK", "09");
-    ColumnParameters a9 = new ColumnParameters("subTotal", "subTotal", "gender=F|age=15+", "10");
+        new ColumnParameters("unknownF", "Unknown age", "gender=F|age=UK", "12");
 
-    return Arrays.asList(a1, a2, a3, a4, a5, a6, a7, a8, unknownF, a9);
+    ColumnParameters a13 = new ColumnParameters("subTotal", "subTotal", "gender=F|age=15+", "13");
+
+    return Arrays.asList(a1, a2, a3, a4, a5, a6, a7, a8, unknownF, a9, a10, a11, a13);
   }
 }

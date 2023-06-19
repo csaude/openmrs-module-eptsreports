@@ -79,12 +79,6 @@ public class MICategory13P1_1CohortQueries {
             MQCategory13Section1CohortQueries.findPatientsWhoArePregnantCAT13Part1(), mappingsMI));
 
     definition.addSearch(
-        "D",
-        EptsReportUtils.map(
-            MQCategory13Section1CohortQueries.findPatientsWhoAreBreastfeedingCAT13Part1(),
-            mappingsMI));
-
-    definition.addSearch(
         "DROPPEDOUT",
         EptsReportUtils.map(
             mQCohortQueries
@@ -99,7 +93,7 @@ public class MICategory13P1_1CohortQueries {
             mappingsReinitiated));
 
     definition.setCompositionString(
-        "(B1 AND ((B2NEW NOT DROPPEDOUT) OR (REINITIATED-ART NOT DROPPEDOUT) OR (B3 NOT (B3E OR DROPPEDOUT)))) NOT B5E NOT C NOT D");
+        "(B1 AND (B2NEW OR REINITIATED-ART OR (B3 NOT B3E ))) NOT B5E NOT C NOT DROPPEDOUT");
 
     return definition;
   }

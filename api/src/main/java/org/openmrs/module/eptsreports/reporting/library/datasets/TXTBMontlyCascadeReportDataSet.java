@@ -290,8 +290,8 @@ public class TXTBMontlyCascadeReportDataSet extends BaseDataSet {
         "diagnostictest=baciloscopia");
 
     dataSetDefinition.addColumn(
-        "TBD-SP-genexpert",
-        " 5. Screened patients with GeneXpert MTB/RIF",
+        "TBD-SP-mWRD",
+        " 5. Screened patients with mWRD MTB/RIF",
         EptsReportUtils.map(specimenSet, mappings),
         "diagnostictest=genexpert");
 
@@ -329,8 +329,8 @@ public class TXTBMontlyCascadeReportDataSet extends BaseDataSet {
         "diagnostictest=baciloscopia|posetiveTestResult=positiveBaciloscopia");
 
     dataSetDefinition.addColumn(
-        "TBD-PR-genexpert",
-        " 6a.Screened patients with positive TB testing result - GeneXpert MTB/RIF",
+        "TBD-PR-mWRD",
+        " 6a.Screened patients with positive TB testing result - mWRD MTB/RIF",
         EptsReportUtils.map(positiveResults, mappings),
         "diagnostictest=genexpert|posetiveTestResult=positiveGenexpert");
 
@@ -363,8 +363,8 @@ public class TXTBMontlyCascadeReportDataSet extends BaseDataSet {
         "diagnostictest=baciloscopia|negativeTestResult=negativeBaciloscopia");
 
     dataSetDefinition.addColumn(
-        "TBD-NR-genexpert",
-        " 6b.Screened patients with negative TB testing result - GeneXpert MTB/RIF",
+        "TBD-NR-mWRD",
+        " 6b.Screened patients with negative TB testing result - mWRD MTB/RIF",
         EptsReportUtils.map(negativeResults, mappings),
         "diagnostictest=genexpert|negativeTestResult=negativeGenexpert");
 
@@ -399,8 +399,8 @@ public class TXTBMontlyCascadeReportDataSet extends BaseDataSet {
         "diagnostictest=baciloscopia");
 
     dataSetDefinition.addColumn(
-        "TBD-STB-genexpert",
-        " 7. Screened patients with pos TB testing result who initiated treatment - GeneXpert MTB/RIF",
+        "TBD-STB-mWRD",
+        " 7. Screened patients with pos TB testing result who initiated treatment - mWRD MTB/RIF",
         EptsReportUtils.map(startedTBTreatment, mappings),
         "diagnostictest=genexpert");
 

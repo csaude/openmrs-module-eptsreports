@@ -45,7 +45,7 @@ public class MQCategory13P3DataSet extends MQAbstractDataSet {
         EptsReportUtils.map(
             this.setIndicatorWithAllParameters(
                 this.mqCohortQueries13_3
-                    .findPatientsInFirstLineTherapheuticWhoReceivedViralChargeBetweenSixthAndNinthMonthAfterARTStartCategory13Denominador(),
+                    .findPatientsInFirstLineTherapheuticWhoReceivedViralChargeBetweenSixthAndNinthMonthAfterARTStartCategory13DenominadorChildrens(),
                 "CAT13_PART_3_13_9_DENOMINATOR",
                 mappings),
             mappings),
@@ -58,7 +58,7 @@ public class MQCategory13P3DataSet extends MQAbstractDataSet {
         EptsReportUtils.map(
             this.setIndicatorWithAllParameters(
                 this.mqCohortQueries13_3
-                    .findPatientsInFirstLineTherapheuticWhoReceivedViralChargeBetweenSixthAndNinthMonthAfterARTStartCategory13Numerador(),
+                    .findPatientsInFirstLineTherapheuticWhoReceivedViralChargeBetweenSixthAndNinthMonthAfterARTStartCategory13NumeradorChildrens(),
                 "CAT13_PART_3_13_9_NUMERATOR",
                 mappings),
             mappings),
@@ -71,7 +71,7 @@ public class MQCategory13P3DataSet extends MQAbstractDataSet {
         EptsReportUtils.map(
             this.setIndicatorWithAllParameters(
                 this.mqCohortQueries13_3
-                    .findPatientsInFirstLineTherapheuticWhoReceivedViralChargeBetweenSixthAndNinthMonthAfterARTStartCategory13Denominador(),
+                    .findPatientsInFirstLineTherapheuticWhoReceivedViralChargeBetweenSixthAndNinthMonthAfterARTStartCategory13DenominadorChildrens(),
                 "CAT13_PART_3_13_10_DENOMINATOR",
                 mappings),
             mappings),
@@ -84,7 +84,7 @@ public class MQCategory13P3DataSet extends MQAbstractDataSet {
         EptsReportUtils.map(
             this.setIndicatorWithAllParameters(
                 this.mqCohortQueries13_3
-                    .findPatientsInFirstLineTherapheuticWhoReceivedViralChargeBetweenSixthAndNinthMonthAfterARTStartCategory13_10Numerador(),
+                    .findPatientsInFirstLineTherapheuticWhoReceivedViralChargeBetweenSixthAndNinthMonthAfterARTStartCategory13NumeradorChildrens(),
                 "CAT13_PART_3_13_10_NUMERATOR",
                 mappings),
             mappings),
@@ -97,7 +97,7 @@ public class MQCategory13P3DataSet extends MQAbstractDataSet {
         EptsReportUtils.map(
             this.setIndicatorWithAllParameters(
                 this.mqCohortQueries13_3
-                    .findPatientsInFirstLineTherapheuticWhoReceivedViralChargeBetweenSixthAndNinthMonthAfterARTStartCategory13Denominador(),
+                    .findPatientsInFirstLineTherapheuticWhoReceivedViralChargeBetweenSixthAndNinthMonthAfterARTStartCategory13DenominadorChildrens(),
                 "CAT13_PART_3_13_11_DENOMINATOR",
                 mappings),
             mappings),
@@ -110,7 +110,7 @@ public class MQCategory13P3DataSet extends MQAbstractDataSet {
         EptsReportUtils.map(
             this.setIndicatorWithAllParameters(
                 this.mqCohortQueries13_3
-                    .findPatientsInFirstLineTherapheuticWhoReceivedViralChargeBetweenSixthAndNinthMonthAfterARTStartCategory13Numerador(),
+                    .findPatientsInFirstLineTherapheuticWhoReceivedViralChargeBetweenSixthAndNinthMonthAfterARTStartCategory13NumeradorChildrens(),
                 "CAT13_PART_3_13_11_NUMERATOR",
                 mappings),
             mappings),
@@ -127,7 +127,7 @@ public class MQCategory13P3DataSet extends MQAbstractDataSet {
                 "CAT13_PART_3_13_5_DENOMINATOR",
                 mappings),
             mappings),
-        "ageOnEndInclusionDate=15+");
+        "ageOnEndInclusionDate=15PlusSecondLine");
 
     dataSetDefinition.addColumn(
         "CAT13_PART_3_13_5_NUMERATOR",
@@ -140,7 +140,7 @@ public class MQCategory13P3DataSet extends MQAbstractDataSet {
                 "CAT13_PART_3_13_5_NUMERATOR",
                 mappings),
             mappings),
-        "ageOnEndInclusionDate=15+");
+        "ageOnEndInclusionDate=15PlusSecondLine");
 
     dataSetDefinition.addColumn(
         "CAT13_PART_3_13_14_DENOMINATOR",
@@ -153,7 +153,7 @@ public class MQCategory13P3DataSet extends MQAbstractDataSet {
                 "CAT13_PART_3_13_14_DENOMINATOR",
                 mappings),
             mappings),
-        "ageOnEndInclusionDate=2-14");
+        "ageOnEndInclusionDate=2-14SL");
 
     dataSetDefinition.addColumn(
         "CAT13_PART_3_13_14_NUMERATOR",
@@ -166,6 +166,6 @@ public class MQCategory13P3DataSet extends MQAbstractDataSet {
                 "CAT13_PART_3_13_14_NUMERATOR",
                 mappings),
             mappings),
-        "ageOnEndInclusionDate=2-14");
+        "ageOnEndInclusionDate=2-14SL");
   }
 }

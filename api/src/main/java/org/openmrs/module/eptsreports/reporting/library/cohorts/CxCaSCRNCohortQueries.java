@@ -414,7 +414,9 @@ public class CxCaSCRNCohortQueries {
         EptsReportUtils.map(
             this.findpatientwithScreeningTypeVisitAsPostTreatmentFollowUp(), mappings));
 
-    definition.setCompositionString("PREVIUS-SCREENING AND P2");
+    definition.addSearch("SCREENING", EptsReportUtils.map(this.getTotalNumerator(), mappings));
+
+    definition.setCompositionString("PREVIUS-SCREENING AND P2 AND SCREENING");
 
     return definition;
   }
@@ -444,7 +446,9 @@ public class CxCaSCRNCohortQueries {
             this.getTotalNumeratorfindpatientwithScreeningTypeVisitAsPostTreatmentFollowUpTotal(),
             mappings));
 
-    definition.setCompositionString("NEGATIVE AND P2");
+    definition.addSearch("SCREENING", EptsReportUtils.map(this.getTotalNumerator(), mappings));
+
+    definition.setCompositionString("NEGATIVE AND P2 AND SCREENING");
 
     return definition;
   }
@@ -474,7 +478,9 @@ public class CxCaSCRNCohortQueries {
             this.getTotalNumeratorfindpatientwithScreeningTypeVisitAsPostTreatmentFollowUpTotal(),
             mappings));
 
-    definition.setCompositionString("POSITIVE AND P2");
+    definition.addSearch("SCREENING", EptsReportUtils.map(this.getTotalNumerator(), mappings));
+
+    definition.setCompositionString("POSITIVE AND P2 AND SCREENING");
 
     return definition;
   }
@@ -504,7 +510,9 @@ public class CxCaSCRNCohortQueries {
             this.getTotalNumeratorfindpatientwithScreeningTypeVisitAsPostTreatmentFollowUpTotal(),
             mappings));
 
-    definition.setCompositionString("SUSPECT-CANCER AND P2");
+    definition.addSearch("SCREENING", EptsReportUtils.map(this.getTotalNumerator(), mappings));
+
+    definition.setCompositionString("SUSPECT-CANCER AND P2 AND SCREENING");
 
     return definition;
   }

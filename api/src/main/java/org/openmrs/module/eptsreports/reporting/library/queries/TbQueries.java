@@ -62,7 +62,8 @@ public interface TbQueries {
             + ") tb";
 
     public static final String findPatientsWhoAreInTbTreatmentFor7MonthsPriorEndReportingPeriod =
-        "select tb.patient_id from ( select inicioTB.patient_id from ( "
+        "select tb.patient_id from ( "
+            + "select inicioTB.patient_id from ( "
             + "select p.patient_id,min(o.value_datetime) data_inicio_tb from patient p "
             + "inner join encounter e on p.patient_id=e.patient_id "
             + "inner join obs o on o.encounter_id=e.encounter_id "
@@ -110,10 +111,11 @@ public interface TbQueries {
             + "o.value_coded=1065 and o.location_id=:location "
             + "union "
             + "select p.patient_id from patient p "
-            + "inner join encounter e on p.patient_id=e.patient_id "
-            + "inner join obs o on o.encounter_id=e.encounter_id where e.encounter_type=53 and e.voided=0 and o.voided=0 and p.voided=0 and o.concept_id=1113 "
-            + "and o.value_datetime between (:endDate - INTERVAL 7 MONTH) and :endDate "
-            + "and e.location_id=:location "
-            + ") tb";
+            + "inner join encounter e on e.patient_id=p.patient_id "
+            + "inner join obs obsTB on obsTB.encounter_id=e.encounter_id "
+            + "where p.voided=0 and e.voided=0 and obsTB.obs_datetime between :endDate - INTERVAL 7 MONTH and  :endDate  and "
+            + "e.location_id=:location and e.encounter_type=53 and obsTB.concept_id=1406 and obsTB.value_coded =42 and obsTB.voided=0 "
+            + "group by p.patient_id "
+            + ") tb ";
   }
 }

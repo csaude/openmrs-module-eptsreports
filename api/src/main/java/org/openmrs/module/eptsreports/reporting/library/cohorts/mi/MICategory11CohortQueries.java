@@ -42,10 +42,14 @@ public class MICategory11CohortQueries {
     final String mappingsMIB1 =
         "startInclusionDate=${endRevisionDate-4m+1d},endInclusionDate=${endRevisionDate-3m},endRevisionDate=${endRevisionDate},location=${location}";
 
+    final String mappingsMIB1TerapeuticLine =
+        "startInclusionDate=${endRevisionDate-5m+1d},endInclusionDate=${endRevisionDate},endRevisionDate=${endRevisionDate},location=${location}";
+
     definition.addSearch(
         "B1",
         EptsReportUtils.map(
-            this.mQCohortQueries.findPatientsWhoHaveLastFirstLineTerapeutic(), mappingsMIB1));
+            this.mQCohortQueries.findPatientsWhoHaveLastFirstLineTerapeutic(),
+            mappingsMIB1TerapeuticLine));
 
     definition.addSearch(
         "B2",
@@ -60,17 +64,10 @@ public class MICategory11CohortQueries {
             mappingsMIB1));
 
     definition.addSearch(
-        "B5",
-        EptsReportUtils.map(
-            this
-                .findPatientsWhoHasCVBiggerThan1000AndMarkedAsBreastFeedingInTheSameClinicalConsultation(),
-            mappingsMIB1));
-
-    definition.addSearch(
         "TRANSFERED-OUT",
         EptsReportUtils.map(this.mQCohortQueries.findPatientsWhoTransferedOutRF07(), mappings));
 
-    definition.setCompositionString("(B1 AND B2) NOT (B4 OR B5 OR TRANSFERED-OUT)");
+    definition.setCompositionString("(B1 AND B2) NOT (B4 OR TRANSFERED-OUT)");
 
     return definition;
   }
@@ -101,7 +98,7 @@ public class MICategory11CohortQueries {
         "DENOMINATOR",
         EptsReportUtils.map(
             this.mQGenericCohortQueries
-                .findPatientOnARTdExcludingPregantAndBreastfeedingAndTransferredInTransferredOutMICategory11(),
+                .findPatientOnARTdExcludingPregantAndTransferredInTransferredOutMI(),
             mappings));
 
     definition.addSearch(
@@ -277,6 +274,93 @@ public class MICategory11CohortQueries {
             .findPatientsWhoHasCVBiggerThan1000AndMarkedAsBreastFeedingInTheSameClinicalConsultation;
 
     definition.setQuery(query);
+
+    return definition;
+  }
+
+  @DocumentedDefinition(
+      value =
+          "findPatientOnARTdExcludingPregantAndBreastfeedingAndTransferredInTransferredOutChildrensMI")
+  public CohortDefinition
+      findPatientOnARTdExcludingPregantAndBreastfeedingAndTransferredInTransferredOutChildrensMI() {
+
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+
+    definition.setName("MQ TX_NEW");
+    definition.addParameter(
+        new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "Data Fim Revisão", Date.class));
+    definition.addParameter(new Parameter("location", "location", Date.class));
+
+    final String mappings =
+        "startInclusionDate=${endRevisionDate-5m+1d},endInclusionDate=${endRevisionDate-4m},endRevisionDate=${endRevisionDate},location=${location}";
+
+    definition.addSearch(
+        "START-ART",
+        EptsReportUtils.map(
+            this.mQCohortQueries.findPatientsWhoAreNewlyEnrolledOnARTRF05(), mappings));
+
+    definition.addSearch(
+        "PREGNANT",
+        EptsReportUtils.map(
+            this.mQCohortQueries.findPatientsWhoArePregnantInclusionDateRF08(), mappings));
+
+    definition.addSearch(
+        "BREASTFEEDING",
+        EptsReportUtils.map(
+            this.mQCohortQueries.findPatientsWhoAreBreastfeedingInclusionDateRF09(), mappings));
+
+    definition.addSearch(
+        "TRANSFERED-IN",
+        EptsReportUtils.map(
+            this.mQCohortQueries
+                .findPatientsWhoWhereMarkedAsTransferedInAndOnARTOnInAPeriodOnMasterCardRF06(),
+            mappings));
+
+    definition.addSearch(
+        "TRANSFERED-OUT",
+        EptsReportUtils.map(this.mQCohortQueries.findPatientsWhoTransferedOutRF07(), mappings));
+
+    definition.setCompositionString(
+        "START-ART NOT (PREGNANT OR BREASTFEEDING OR TRANSFERED-IN OR TRANSFERED-OUT)");
+
+    return definition;
+  }
+
+  @DocumentedDefinition(
+      value =
+          "findPatientsOnARTStartedExcludingPregantAndBreastfeedingAndTransferredInTRANSFEREDOUTCategory11NUMERATORChildrens")
+  public CohortDefinition
+      findPatientsOnARTStartedExcludingPregantAndBreastfeedingAndTransferredInTRANSFEREDOUTCategory11NUMERATORChildrens() {
+
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+
+    definition.setName(
+        "findAdultsOnARTStartedExcludingPregantAndBreastfeedingAndTransferredInTRANSFEREDOUTCategory11NUMERATOR");
+    definition.addParameter(
+        new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "Data Fim Revisão", Date.class));
+    definition.addParameter(new Parameter("location", "location", Date.class));
+    final String mappings =
+        "startInclusionDate=${startInclusionDate},endInclusionDate=${endInclusionDate},endRevisionDate=${endRevisionDate},location=${location}";
+
+    definition.addSearch(
+        "DENOMINATOR",
+        EptsReportUtils.map(
+            this
+                .findPatientOnARTdExcludingPregantAndBreastfeedingAndTransferredInTransferredOutChildrensMI(),
+            mappings));
+
+    definition.addSearch(
+        "G-APSS-PP",
+        EptsReportUtils.map(
+            this.mQCohortQueries
+                .findPatientsOnARTWithMinimum3APSSFollowupConsultationsIntheFirst3MonthsAfterStartingARTCategory11Numerator(),
+            mappings));
+
+    definition.setCompositionString("(DENOMINATOR AND G-APSS-PP)");
 
     return definition;
   }

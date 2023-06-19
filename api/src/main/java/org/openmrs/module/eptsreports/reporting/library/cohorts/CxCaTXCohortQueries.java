@@ -492,7 +492,27 @@ public class CxCaTXCohortQueries {
                 .findPatientWithScreeningTypeVisitAsRescreenedAfterPreviousPositive(),
             mappings));
 
-    definition.setCompositionString("(CX-TX-DENOMINATOR AND CX-RP)");
+    definition.addSearch(
+        "FIRST-SCREEN",
+        EptsReportUtils.map(
+            this.getPatientsWhoeReceivedTreatmentTypeDuringReportingPeriodFirstScreean(),
+            mappings));
+
+    definition.addSearch(
+        "CX-RN",
+        EptsReportUtils.map(
+            this
+                .getPatientsWhoeReceivedTreatmentTypeDuringReportingPeriodRescreenedAfterPreviousNegative(),
+            mappings));
+
+    definition.addSearch(
+        "CX-PT",
+        EptsReportUtils.map(
+            this.getPatientsWhoeReceivedTreatmentTypeDuringReportingPeriodPostTreatmentFollowUp(),
+            mappings));
+
+    definition.setCompositionString(
+        "(CX-TX-DENOMINATOR AND CX-RP) NOT (FIRST-SCREEN OR CX-RN OR CX-PT)");
 
     return definition;
   }

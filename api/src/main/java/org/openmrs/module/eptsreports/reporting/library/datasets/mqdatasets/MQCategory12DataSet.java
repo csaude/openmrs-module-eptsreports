@@ -23,7 +23,7 @@ public class MQCategory12DataSet extends MQAbstractDataSet {
         EptsReportUtils.map(
             this.setIndicatorWithAllParameters(
                 this.mQGenericCohortQueries
-                    .findPatientOnARTdExcludingPregantAndBreastfeedingAndTransferredInTransferredOut(),
+                    .findPatientOnARTdExcludingPregantAndTransferredInTransferredOut(),
                 "CAT12ADULTDENOMINADOR33DAYS",
                 mappings),
             mappings),
@@ -49,7 +49,7 @@ public class MQCategory12DataSet extends MQAbstractDataSet {
         EptsReportUtils.map(
             this.setIndicatorWithAllParameters(
                 this.mQGenericCohortQueries
-                    .findPatientOnARTdExcludingPregantAndBreastfeedingAndTransferredInTransferredOut(),
+                    .findPatientOnARTdExcludingPregantAndTransferredInTransferredOut(),
                 "CAT12ADULTDENOMINADOR99DAYS",
                 mappings),
             mappings),
@@ -75,7 +75,7 @@ public class MQCategory12DataSet extends MQAbstractDataSet {
         EptsReportUtils.map(
             this.setIndicatorWithAllParameters(
                 this.mQGenericCohortQueries
-                    .findPatientOnARTdExcludingPregantAndBreastfeedingAndTransferredInTransferredOut(),
+                    .findPatientOnARTdExcludingPregantAndTransferredInTransferredOut(),
                 "CAT12CHILDRENDENOMINADOR33DAYS",
                 mappings),
             mappings),
@@ -101,7 +101,7 @@ public class MQCategory12DataSet extends MQAbstractDataSet {
         EptsReportUtils.map(
             this.setIndicatorWithAllParameters(
                 this.mQGenericCohortQueries
-                    .findPatientOnARTdExcludingPregantAndBreastfeedingAndTransferredInTransferredOut(),
+                    .findPatientOnARTdExcludingPregantAndTransferredInTransferredOut(),
                 "CAT12CHILDRENDENOMINADOR99DAYS",
                 mappings),
             mappings),

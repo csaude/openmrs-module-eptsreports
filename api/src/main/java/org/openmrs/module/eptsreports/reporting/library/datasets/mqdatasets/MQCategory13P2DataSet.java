@@ -20,7 +20,7 @@ public class MQCategory13P2DataSet extends MQAbstractDataSet {
         EptsReportUtils.map(
             this.setIndicatorWithAllParameters(
                 this.mQCohortQueriesCategory13P2
-                    .findPatientsWhoArePregnantWithCVInTARVCategory13P2Denumerator(),
+                    .findPatientsWhoArePregnantWithCVInTARVCategory13P2Denominator(),
                 "CAT13P2PregnantWithCVInTARVDENOMINATOR",
                 mappings),
             mappings),
@@ -33,7 +33,7 @@ public class MQCategory13P2DataSet extends MQAbstractDataSet {
         EptsReportUtils.map(
             this.setIndicatorWithAllParameters(
                 this.mQCohortQueriesCategory13P2
-                    .findPatientsWhoArePregnantWithCVInFirstConsultationTARVCategory13P2Denumerator(),
+                    .findPatientsWhoArePregnantWithCVInFirstConsultationTARVCategory13P2Denominator(),
                 "CAT13P2PregnantWithCVInFirstConsultationTARVDENOMINATOR",
                 mappings),
             mappings),
@@ -45,7 +45,7 @@ public class MQCategory13P2DataSet extends MQAbstractDataSet {
         EptsReportUtils.map(
             this.setIndicatorWithAllParameters(
                 this.mQCohortQueriesCategory13P2
-                    .findPatientsWhoArePregnantWithCVIn33DaysAfterInclusionDateTARVCategory13P2Denumerator(),
+                    .findPatientsWhoArePregnantWithCVIn33DaysAfterInclusionDateTARVCategory13P2Denominator(),
                 "CAT13P2PregnantWithCVIn33DaysAfterInclusionDateTARVDENOMINATOR",
                 mappings),
             mappings),
