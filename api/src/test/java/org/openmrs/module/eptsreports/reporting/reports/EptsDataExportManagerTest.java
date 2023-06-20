@@ -13,6 +13,7 @@ import org.openmrs.module.eptsreports.api.EptsReportsService;
 import org.openmrs.module.eptsreports.reporting.reports.manager.EptsDataExportManager;
 import org.openmrs.module.eptsreports.reporting.unit.PowerMockBaseContextTest;
 import org.openmrs.module.reporting.report.ReportDesign;
+import org.openmrs.module.reporting.report.definition.PeriodIndicatorReportDefinition;
 import org.openmrs.module.reporting.report.definition.ReportDefinition;
 import org.openmrs.module.reporting.report.renderer.ExcelTemplateRenderer;
 import org.openmrs.module.reporting.report.renderer.XlsReportRenderer;
@@ -89,8 +90,8 @@ public class EptsDataExportManagerTest extends PowerMockBaseContextTest {
     }
 
     @Override
-    public ReportDefinition constructReportDefinition() {
-      ReportDefinition reportDefinition = new ReportDefinition();
+    public PeriodIndicatorReportDefinition constructReportDefinition() {
+      PeriodIndicatorReportDefinition reportDefinition = new PeriodIndicatorReportDefinition();
       reportDefinition.setUuid(getUuid());
       reportDefinition.setName(getName());
       reportDefinition.setDescription(getDescription());

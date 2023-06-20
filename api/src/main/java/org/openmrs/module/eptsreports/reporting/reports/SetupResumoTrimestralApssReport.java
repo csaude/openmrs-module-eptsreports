@@ -23,16 +23,17 @@ import org.openmrs.module.eptsreports.reporting.library.cohorts.GenericCohortQue
 import org.openmrs.module.eptsreports.reporting.library.datasets.LocationDataSetDefinition;
 import org.openmrs.module.eptsreports.reporting.library.datasets.resumo.ResumoTrimestralApssDataSetDefinition;
 import org.openmrs.module.eptsreports.reporting.library.queries.BaseQueries;
-import org.openmrs.module.eptsreports.reporting.reports.manager.EptsDataExportManager;
+import org.openmrs.module.eptsreports.reporting.reports.manager.EptsPeriodIndicatorDataExportManager;
 import org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils;
 import org.openmrs.module.reporting.ReportingException;
 import org.openmrs.module.reporting.report.ReportDesign;
+import org.openmrs.module.reporting.report.definition.PeriodIndicatorReportDefinition;
 import org.openmrs.module.reporting.report.definition.ReportDefinition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SetupResumoTrimestralApssReport extends EptsDataExportManager {
+public class SetupResumoTrimestralApssReport extends EptsPeriodIndicatorDataExportManager {
 
   private GenericCohortQueries genericCohortQueries;
 
@@ -67,8 +68,9 @@ public class SetupResumoTrimestralApssReport extends EptsDataExportManager {
   }
 
   @Override
-  public ReportDefinition constructReportDefinition() {
-    ReportDefinition rd = new ReportDefinition();
+  public PeriodIndicatorReportDefinition constructReportDefinition() {
+    PeriodIndicatorReportDefinition rd =
+        SetupResumoMensalReport.getDefaultPeriodIndicatorReportDefinition();
     rd.setUuid(getUuid());
     rd.setName(getName());
     rd.setDescription(getDescription());

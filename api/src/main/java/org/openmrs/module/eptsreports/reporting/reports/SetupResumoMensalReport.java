@@ -24,16 +24,18 @@ import org.openmrs.module.eptsreports.reporting.library.datasets.LocationDataSet
 import org.openmrs.module.eptsreports.reporting.library.datasets.resumo.ResumoMensalDataSetDefinition;
 import org.openmrs.module.eptsreports.reporting.library.datasets.resumo.ResumoMensalEncounterDataSetDefinition;
 import org.openmrs.module.eptsreports.reporting.library.queries.BaseQueries;
-import org.openmrs.module.eptsreports.reporting.reports.manager.EptsDataExportManager;
+import org.openmrs.module.eptsreports.reporting.reports.manager.EptsPeriodIndicatorDataExportManager;
 import org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils;
+import org.openmrs.module.reporting.ReportingConstants;
 import org.openmrs.module.reporting.ReportingException;
 import org.openmrs.module.reporting.report.ReportDesign;
+import org.openmrs.module.reporting.report.definition.PeriodIndicatorReportDefinition;
 import org.openmrs.module.reporting.report.definition.ReportDefinition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SetupResumoMensalReport extends EptsDataExportManager {
+public class SetupResumoMensalReport extends EptsPeriodIndicatorDataExportManager {
 
   @Autowired private ResumoMensalDataSetDefinition resumoMensalDataSetDefinition;
   @Autowired private ResumoMensalEncounterDataSetDefinition resumoMensalEncounterDataSetDefinition;
@@ -66,12 +68,16 @@ public class SetupResumoMensalReport extends EptsDataExportManager {
   }
 
   @Override
-  public ReportDefinition constructReportDefinition() {
-    ReportDefinition rd = new ReportDefinition();
+  public PeriodIndicatorReportDefinition constructReportDefinition() {
+
+    PeriodIndicatorReportDefinition rd =
+        SetupResumoMensalReport.getDefaultPeriodIndicatorReportDefinition();
+
     rd.setUuid(getUuid());
     rd.setName(getName());
     rd.setDescription(getDescription());
     rd.addParameters(resumoMensalDataSetDefinition.getParameters());
+
     rd.addDataSetDefinition("HF", mapStraightThrough(new LocationDataSetDefinition()));
     rd.addDataSetDefinition(
         "R", mapStraightThrough(resumoMensalDataSetDefinition.constructResumoMensalDataset()));
@@ -112,5 +118,14 @@ public class SetupResumoMensalReport extends EptsDataExportManager {
     }
 
     return Arrays.asList(reportDesign);
+  }
+
+  public static PeriodIndicatorReportDefinition getDefaultPeriodIndicatorReportDefinition() {
+    PeriodIndicatorReportDefinition rd = new PeriodIndicatorReportDefinition();
+    rd.removeParameter(ReportingConstants.START_DATE_PARAMETER);
+    rd.removeParameter(ReportingConstants.END_DATE_PARAMETER);
+    rd.removeParameter(ReportingConstants.LOCATION_PARAMETER);
+
+    return rd;
   }
 }
