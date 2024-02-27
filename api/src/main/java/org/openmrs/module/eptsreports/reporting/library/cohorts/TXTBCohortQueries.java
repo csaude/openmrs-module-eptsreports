@@ -1027,7 +1027,10 @@ public class TXTBCohortQueries {
         "DTS",
         EptsReportUtils.map(this.findPatientWhoAreDiagnosticTestSmearMicroscopyOnly(), mappings));
 
-    definition.setCompositionString("DENOMINATOR AND DTS");
+    definition.addSearch(
+        "MWRD", EptsReportUtils.map(this.getDiagnosticTestCohortDefinitionMWRS(), mappings));
+
+    definition.setCompositionString("(DENOMINATOR AND DTS) NOT MWRD ");
 
     return definition;
   }
