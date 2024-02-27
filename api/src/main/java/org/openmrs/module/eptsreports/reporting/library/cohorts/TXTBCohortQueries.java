@@ -583,8 +583,7 @@ public class TXTBCohortQueries {
     cd.addSearch(
         "started-during-reporting-period",
         EptsReportUtils.map(
-            txNewCohortQueries.getTxNewCompositionCohort("TX_NEW"),
-            "startDate=${startDate},endDate=${endDate},location=${location}"));
+            this.getNewOnArt(), "startDate=${startDate},endDate=${endDate},location=${location}"));
     cd.setCompositionString("NUM AND started-during-reporting-period");
     this.addGeneralParameters(cd);
 
@@ -599,9 +598,7 @@ public class TXTBCohortQueries {
     cd.addSearch("NUM", this.map(NUM, this.generalParameterMapping));
     cd.addSearch(
         "started-before-start-reporting-period",
-        EptsReportUtils.map(
-            this.findPatientsWhoAreNewEnrolledOnARTUntilTheEndReportinPeriod(),
-            "endDate=${startDate-1d},location=${location}"));
+        EptsReportUtils.map(this.getAlreadOnArt(), "endDate=${startDate-1d},location=${location}"));
     cd.setCompositionString("NUM AND started-before-start-reporting-period");
     this.addGeneralParameters(cd);
     return cd;
@@ -842,6 +839,26 @@ public class TXTBCohortQueries {
         "TXNEW",
         EptsReportUtils.map(
             txNewCohortQueries.findPatientsWhoAreNewEnrolmentOnARTForTxTB(), mappings));
+
+    definition.setCompositionString("TXNEW");
+
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "get New on Art")
+  public CohortDefinition getAlreadOnArt() {
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+
+    definition.setName("getTotalNumerator");
+    definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("location", "location", Location.class));
+
+    final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
+
+    definition.addSearch(
+        "TXNEW",
+        EptsReportUtils.map(txNewCohortQueries.findPatientsWhoAlreadEnrolledOnART(), mappings));
 
     definition.setCompositionString("TXNEW");
 

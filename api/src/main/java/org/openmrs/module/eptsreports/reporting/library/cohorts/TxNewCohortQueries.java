@@ -174,6 +174,20 @@ public class TxNewCohortQueries {
     return definition;
   }
 
+  @DocumentedDefinition(value = "findPatientsWhoAreNewEnrolmentOnARTForTxTB")
+  public CohortDefinition findPatientsWhoAlreadEnrolledOnART() {
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName("findPatientsOnArtOnArvDispenseBetween3And5Months");
+    definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("location", "location", Location.class));
+
+    definition.setQuery(TxNewQueries.QUERY.findPatientsWhoAlreadEnrolledOnART);
+
+    return definition;
+  }
+
   public CohortDefinition findPatientsWithCD4LessThan200() {
     final CompositionCohortDefinition txNewCompositionCohort = new CompositionCohortDefinition();
 
