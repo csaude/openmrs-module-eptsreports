@@ -26,6 +26,8 @@ public class TxTbPrevCohortQueries {
       FIND_PATIENTS_WHO_COMPLETED_TB_PREV_PREVENTIVE_TREATMENT_DURING_REPORTING_PERIOD =
           "TBPREV/PATIENTS_WHO_COMPLETED_TB_PREV_PREVENTIVE_TREATMENT_DURING_REPORTING_PERIOD.sql";
 
+  private static final String TRF_OUT = "TRANSFERRED_OUT/FIND_PATIENTS_WHO_ARE_TRANSFERRED_OUT.sql";
+
   @DocumentedDefinition(value = "getTbPrevTotalDenominator")
   public CohortDefinition getTbPrevTotalDenominator() {
     final CompositionCohortDefinition dsd = new CompositionCohortDefinition();
@@ -148,7 +150,7 @@ public class TxTbPrevCohortQueries {
     definition.addParameter(new Parameter("endDate", "End Date", Date.class));
     definition.addParameter(new Parameter("location", "location", Location.class));
 
-    definition.setQuery(TxTbPrevQueriesInterface.QUERY.findPatientsTransferredOut);
+    definition.setQuery(EptsQuerysUtils.loadQuery(TRF_OUT));
 
     return definition;
   }
