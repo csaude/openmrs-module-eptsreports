@@ -200,11 +200,11 @@
 			                                     inner join patient_program pg on p.patient_id = pg.patient_id                                                               
 			                                     inner join patient_state ps on pg.patient_program_id = ps.patient_program_id                                                
 			                                 where pg.voided=0 and ps.voided=0 and p.voided=0 and pg.program_id = 2                                        
-			                                     and ps.start_date<= :endDate and pg.location_id =:location group by pg.patient_id                                           
+			                                     and ps.start_date<= CURDATE() and pg.location_id =:location group by pg.patient_id                                           
 			                             ) max_estado                                                                                                                        
 			                                 inner join patient_program pp on pp.patient_id = max_estado.patient_id                                                          
 			                                 inner join patient_state ps on ps.patient_program_id = pp.patient_program_id and ps.start_date = max_estado.data_estado         
-			                             where pp.program_id = 2 and ps.state = 8 and pp.voided = 0 and ps.voided = 0 and pp.location_id = 277                 
+			                             where pp.program_id = 2 and ps.state = 8 and pp.voided = 0 and ps.voided = 0 and pp.location_id =:location                 
 			                             
 										 union                                                                                                                               
 			                             
@@ -221,11 +221,11 @@
 																		inner join patient_program pg on p.patient_id = pg.patient_id                                                               
 																		inner join patient_state ps on pg.patient_program_id = ps.patient_program_id                                                
 																	where pg.voided=0 and ps.voided=0 and p.voided=0 and pg.program_id = 2                                        
-																		and ps.start_date<= :endDate and pg.location_id =:location group by pg.patient_id                                           
+																		and ps.start_date<= CURDATE() and pg.location_id =:location group by pg.patient_id                                           
 														) max_estado                                                                                                                        
 															inner join patient_program pp on pp.patient_id = max_estado.patient_id                                                          
 															inner join patient_state ps on ps.patient_program_id = pp.patient_program_id and ps.start_date = max_estado.data_estado         
-														where pp.program_id = 2 and ps.state = 10 and pp.voided = 0 and ps.voided = 0 and pp.location_id = 277  
+														where pp.program_id = 2 and ps.state = 10 and pp.voided = 0 and ps.voided = 0 and pp.location_id =:location  
 														 union
 														select  p.patient_id,                                                                                                               
 															max(o.obs_datetime) data_estado                                                                                             
@@ -234,12 +234,12 @@
 															inner join obs  o on e.encounter_id=o.encounter_id                                                                          
 														where e.voided=0 and o.voided=0 and p.voided=0                                                                
 															and e.encounter_type in (53,6) and o.concept_id in (6272,6273) and o.value_coded = 1366                         
-															and o.obs_datetime<=:endDate and e.location_id=:location                                                                        
+															and o.obs_datetime<=CURDATE() and e.location_id=:location                                                                        
 															group by p.patient_id                                                                                                               
 														union                                                                                                                               
 														select person_id as patient_id,death_date as data_estado                                                                            
 														from person                                                                                                                         
-														where dead=1 and voided = 0 and death_date is not null and death_date<=:endDate 
+														where dead=1 and voided = 0 and death_date is not null and death_date<=CURDATE()
 														union                                                                                                                               
 														select  p.patient_id,                                                                                                               
 															max(obsObito.obs_datetime) data_estado                                                                                      
@@ -247,7 +247,7 @@
 															inner join encounter e on p.patient_id=e.patient_id                                                                         
 															inner join obs obsObito on e.encounter_id=obsObito.encounter_id                                                             
 														where e.voided=0 and p.voided=0 and obsObito.voided=0                                                        
-															and e.encounter_type in (21,36,37) and  e.encounter_datetime<=:endDate and  e.location_id=:location                          
+															and e.encounter_type in (21,36,37) and  e.encounter_datetime<=CURDATE() and  e.location_id=:location                          
 															and obsObito.concept_id in (2031,23944,23945) and obsObito.value_coded=1366                                                     
 														group by p.patient_id                                                                                                               
 												) dead_state group by dead_state.patient_id  
@@ -260,7 +260,7 @@
 															from    patient p                                                                                                                                   
 																	inner join encounter e on e.patient_id=p.patient_id                                                                                         
 															where   p.voided=0 and e.voided=0 and e.encounter_type=18                                                                      
-																	and e.location_id=:location and e.encounter_datetime<=:endDate                                                                                  
+																	and e.location_id=:location and e.encounter_datetime<=CURDATE()                                                                                  
 																	group by p.patient_id  
 															union
 															
@@ -268,7 +268,7 @@
 															from patient p                                                                                                                                   
 																inner join encounter e on e.patient_id=p.patient_id                                                                                         
 															where   p.voided=0 and e.voided=0 and e.encounter_type in (6,9)                                                                
-																and e.location_id=:location and e.encounter_datetime<=:endDate                                                                                  
+																and e.location_id=:location and e.encounter_datetime<=CURDATE()                                                                                 
 																group by p.patient_id   
 												) fila_seguimento	group by fila_seguimento.patient_id  
 										 ) fila_seguimento on dead_state.patient_id = fila_seguimento.patient_id
@@ -283,7 +283,7 @@
 			                                     inner join obs  o on e.encounter_id=o.encounter_id                                                                          
 			                             where   e.voided=0 and o.voided=0 and p.voided=0 and                                                              
 			                                     e.encounter_type in (53,6) and o.concept_id in (6272,6273) and o.value_coded = 1709 and                        
-			                                     o.obs_datetime<=:endDate and e.location_id=:location                                                                        
+			                                     o.obs_datetime<=CURDATE() and e.location_id=:location                                                                        
 			                             group by p.patient_id                                                                                                               
 			                             union
 			 					         select saidas_por_transferencia.patient_id, data_estado 
@@ -300,11 +300,11 @@
 							                                 		inner join patient_program pg on p.patient_id = pg.patient_id                                                               
 							                                     	inner join patient_state ps on pg.patient_program_id = ps.patient_program_id                                                
 							                                 where pg.voided=0 and ps.voided=0 and p.voided=0 and pg.program_id = 2                                        
-							                                 		and ps.start_date<= :endDate and pg.location_id =:location group by pg.patient_id                                           
+							                                 		and ps.start_date<= CURDATE() and pg.location_id =:location group by pg.patient_id                                           
 						                             		) max_estado                                                                                                                        
 						                                 		inner join patient_program pp on pp.patient_id = max_estado.patient_id                                                          
 						                                 		inner join patient_state ps on ps.patient_program_id = pp.patient_program_id and ps.start_date = max_estado.data_estado         
-						                             		where pp.program_id = 2 and ps.state = 7 and pp.voided = 0 and ps.voided = 0 and pp.location_id = 277                 
+						                             		where pp.program_id = 2 and ps.state = 7 and pp.voided = 0 and ps.voided = 0 and pp.location_id =:location                 
 						                             
 						                             		union                                                                                                                               
 						                             		
@@ -314,7 +314,7 @@
 						                                     	inner join obs o on e.encounter_id=o.encounter_id                                                                          
 						                             		where e.voided=0 and o.voided=0 and p.voided=0                                                                
 						                                   	and e.encounter_type in (53,6) and o.concept_id in (6272,6273) and o.value_coded = 1706                         
-						                                     	and o.obs_datetime<=:endDate and e.location_id=:location                                                                        
+						                                     	and o.obs_datetime<=CURDATE() and e.location_id=:location                                                                        
 						                             			group by p.patient_id                                                                                                               
 						                             		
 						                             	     union                                                                                                                               
@@ -325,13 +325,13 @@
 							                                     from patient p                                                                                                              
 							                                         inner join encounter e on p.patient_id=e.patient_id                                                                     
 							                                         inner join obs o on o.encounter_id=e.encounter_id                                                                       
-							                                     where e.voided=0 and p.voided=0 and e.encounter_datetime<= :endDate                                       
-							                                         and e.encounter_type = 21 and  e.location_id= 277                                                                 
+							                                     where e.voided=0 and p.voided=0 and e.encounter_datetime<= CURDATE()                                       
+							                                         and e.encounter_type = 21 and  e.location_id=:location                                                                 
 							                                         group by p.patient_id                                                                                                   
 							                                 ) ultimaBusca                                                                                                                   
 							                                     inner join encounter e on e.patient_id = ultimaBusca.patient_id                                                             
 							                                     inner join obs o on o.encounter_id = e.encounter_id                                                                         
-							                                where e.encounter_type = 21 and o.voided=0 and o.concept_id=2016 and o.value_coded in (1706,23863) and ultimaBusca.data_estado = e.encounter_datetime and e.location_id = 277 
+							                                where e.encounter_type = 21 and o.voided=0 and o.concept_id=2016 and o.value_coded in (1706,23863) and ultimaBusca.data_estado = e.encounter_datetime and e.location_id =:location 
 					                                ) saidas_por_transferencia 
 				                                	group by patient_id 
 			                               	) saidas_por_transferencia
@@ -345,7 +345,7 @@
 														inner join encounter e on e.patient_id= p.patient_id 
 														inner join obs o on o.encounter_id = e.encounter_id                                                                                        
 													where p.voided= 0 and e.voided=0 and o.voided = 0 and e.encounter_type=18 and o.concept_id = 5096                                                                  
-														and e.location_id=:location and e.encounter_datetime <= :endDate                                                                               
+														and e.location_id=:location and e.encounter_datetime <= CURDATE()                                                                              
 														group by p.patient_id 
 					                        
 					                        		union
@@ -359,7 +359,7 @@
 						                        	group by p.patient_id
 							                    	) ultimo_levantamento group by patient_id
 						                		) ultimo_levantamento on saidas_por_transferencia.patient_id = ultimo_levantamento.patient_id 
-						               		where ultimo_levantamento.data_ultimo_levantamento <= :endDate
+						               		where ultimo_levantamento.data_ultimo_levantamento <= CURDATE()
 							                                                                                                                                                                         
 			                         	) allSaida                                                                                                                                      
 			                 				group by patient_id 
@@ -629,41 +629,53 @@
                          ) tb on tb.patient_id=coorte12meses_final.patient_id                              
                          left join                                                                                                                                                                                                                                                                                      
                          (                                                                                                                                                                                                                                                                                              
-                         select maxConsent.patient_id,if(o.value_coded=1065,'S','N') consente                                                                                                                                                                                 
+                            select maxConsent.patient_id,dataConsentimento,if(o.value_coded=1065,'S','N') consente, e.encounter_id                                                                                                                                                                                 
                          from                                                                                                                                                                                                                                                                                     
                          (                                                                                                                                                                                                                                                                                        
-                           select p.patient_id,max(e.encounter_datetime) dataConsentimento                                                                                                                                                                                          
+                           select p.patient_id,max(data.value_datetime) dataConsentimento                                                                                                                                                                                          
                            from  patient p                                                                                                                                                                                                                                                                  
-                               inner join encounter e on p.patient_id=e.patient_id                                                                                                                                                                     
+                               inner join encounter e on p.patient_id=e.patient_id 
+                               inner join obs data on data.encounter_id=e.encounter_id                                                                                                                                                                                                                                                                                                                                                                                   
                            where p.voided=0 and e.voided=0 
-                                 and e.encounter_datetime<=curdate() and e.encounter_type=35 
-                                 and e.location_id=:location                                                                                                                                                                                                                       
+                                 and e.encounter_datetime<=curdate() 
+                                 and e.encounter_type=35
+                                 and data.concept_id=23775
+                                 and data.voided=0 
+                                 and e.location_id=:location 
                                  group by p.patient_id                                                                                                                                                                                                                                                            
                          )maxConsent                                                                                                                                                                                                                                                                              
                          inner join encounter e on e.patient_id=maxConsent.patient_id                                                                                                                                                                                                     
-                         inner join obs o on o.encounter_id=e.encounter_id                                                                                                                                                                                                                
-                         where e.voided=0 and o.voided=0 and e.encounter_type=35 and  o.concept_id=6306 and e.location_id=:location 
-                          and e.encounter_datetime=maxConsent.dataConsentimento                                                                                                                                                                                                        
+                         inner join obs o on o.encounter_id=e.encounter_id 
+                         where e.voided=0 and o.voided=0 
+                         and e.encounter_type=35 
+                         and o.concept_id=6306 
+                         and e.location_id=:location 
+                         and e.encounter_datetime=maxConsent.dataConsentimento                                                                                                                                                                                                       
                          ) consentimentoPaciente on coorte12meses_final.patient_id = consentimentoPaciente.patient_id                                                                                                                                                               
                          left join                                                                                                                                                                                                                                                                                      
                          (                                                                                                                                                                                                                                                                                              
-                         select maxConsent.patient_id,if(o.value_coded=1065,'S','N') consente                                                                                                                                                                                 
+                      select maxConsent.patient_id,dataConsentimento,if(o.value_coded=1065,'S','N') consente,e.encounter_id                                                                                                                                                                                 
                          from                                                                                                                                                                                                                                                                                     
                          (                                                                                                                                                                                                                                                                                        
-                           select p.patient_id,max(e.encounter_datetime) dataConsentimento                                                                                                                                                                                          
+                           select p.patient_id,max(data.value_datetime) dataConsentimento                                                                                                                                                                                          
                            from  patient p                                                                                                                                                                                                                                                                  
                                inner join encounter e on p.patient_id=e.patient_id                                                                                                                                                                                                  
-                               inner join obs o on o.encounter_id=e.encounter_id                                                                                                                                                                                                          
-                           where   p.voided=0 and e.voided=0 and o.voided=0 and                                                                                                                                                                                                           
-                               e.encounter_datetime<=curdate() and e.encounter_type=35 and e.location_id=:location and o.concept_id=6177                                                                                                                                                
-                           group by p.patient_id                                                                                                                                                                                                                                                            
+                               inner join obs data on data.encounter_id=e.encounter_id                                                                                                                                                                                                          
+                           where    p.voided=0 and e.voided=0 
+                                    and data.voided=0 
+                                    and e.encounter_datetime<=curdate() 
+	                               and e.encounter_type=35 
+	                               and e.location_id=:location 
+	                               and data.concept_id=23776                                                                                                                                                
+	                           group by p.patient_id                                                                                                                                                                                                                                                            
                          )maxConsent                                                                                                                                                                                                                                                                              
                          inner join encounter e on e.patient_id=maxConsent.patient_id                                                                                                                                                                                                     
                          inner join obs o on o.encounter_id=e.encounter_id                                                                                                                                                                                                                
-                         where e.voided=0 and o.voided=0 and                                                                                                                                                                                                                                          
-                             e.encounter_type=35 and e.location_id=:location and                                                                                                                                                                                                          
-                             e.encounter_datetime=maxConsent.dataConsentimento and                                                                                                                                                                                                        
-                             o.concept_id=6177                                                                                                                                                                                                                                                              
+                         where e.voided=0 
+                             and o.voided=0 
+                             and e.encounter_type=35 and e.location_id=:location 
+                             and e.encounter_datetime=maxConsent.dataConsentimento 
+                             and o.concept_id=6177                                                                                                                                                                                                                                                          
                          ) consentimentoConfidente on coorte12meses_final.patient_id = consentimentoConfidente.patient_id                                   
                                                        
                          left join                               
