@@ -23,6 +23,9 @@ public class TxTbPrevCohortQueries {
       FIND_PATIENTS_WHO_STARTED_TB_PREV_PREVENTIVE_TREATMENT_DURING_PREVIOUS_REPORTING_PERIOD =
           "TBPREV/PATIENTS_WHO_STARTED_TB_PREV_PREVENTIVE_TREATMENT_DURING_PREVIOUS_REPORTING_PERIOD.sql";
   private static final String
+      PATIENTS_WHO_COMPLETED_TB_PREV_PREVENTIVE_TREATMENT_DURING_REPORTING_PERIOD_FOR_TR_OUT =
+          "TBPREV/PATIENTS_WHO_COMPLETED_TB_PREV_PREVENTIVE_TREATMENT_DURING_REPORTING_PERIOD_FOR_TR_OUT.sql";
+  private static final String
       FIND_PATIENTS_WHO_COMPLETED_TB_PREV_PREVENTIVE_TREATMENT_DURING_REPORTING_PERIOD =
           "TBPREV/PATIENTS_WHO_COMPLETED_TB_PREV_PREVENTIVE_TREATMENT_DURING_REPORTING_PERIOD.sql";
 
@@ -39,6 +42,8 @@ public class TxTbPrevCohortQueries {
     dsd.addParameter(new Parameter("endDate", "End Date", Date.class));
     dsd.addParameter(new Parameter("location", "location", Location.class));
     final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
+    final String mappingsPreviousPeriod =
+        "startDate=${startDate-6m},endDate=${endDate-6m},location=${location}";
 
     dsd.addSearch(
         "STARTED-TPT",
@@ -51,15 +56,15 @@ public class TxTbPrevCohortQueries {
     dsd.addSearch("TRF-OUT", EptsReportUtils.map(this.findPatientsTransferredOut(), mappings));
     dsd.addSearch(
         "TRF-OUT-PREVIOUS",
-        EptsReportUtils.map(this.findPatientsTransferredOutPreviousPeriod(), mappings));
+        EptsReportUtils.map(this.findPatientsTransferredOut(), mappingsPreviousPeriod));
 
     dsd.addSearch(
-        "ENDED-TPT",
+        "ENDED-TPT-TROUT",
         EptsReportUtils.map(
             this.genericCohorts.generalSql(
                 "Finding Patients Who have Completed TPT",
                 EptsQuerysUtils.loadQuery(
-                    FIND_PATIENTS_WHO_COMPLETED_TB_PREV_PREVENTIVE_TREATMENT_DURING_REPORTING_PERIOD)),
+                    PATIENTS_WHO_COMPLETED_TB_PREV_PREVENTIVE_TREATMENT_DURING_REPORTING_PERIOD_FOR_TR_OUT)),
             mappings));
     dsd.addSearch(
         "NEWLY-ART",
@@ -70,7 +75,7 @@ public class TxTbPrevCohortQueries {
             this.findPatientsWhoStartedArtAndTpiPreviouslyDessagragation(), mappings));
 
     dsd.setCompositionString(
-        "(STARTED-TPT AND (NEWLY-ART OR PREVIOUS-ART)) NOT ((TRF-OUT OR TRF-OUT-PREVIOUS) NOT ENDED-TPT) ");
+        "(STARTED-TPT AND (NEWLY-ART OR PREVIOUS-ART)) NOT ((TRF-OUT OR TRF-OUT-PREVIOUS) NOT ENDED-TPT-TROUT) ");
 
     return dsd;
   }

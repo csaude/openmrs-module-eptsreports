@@ -29,7 +29,7 @@ from(
 	      	from patient p
 	      		inner join encounter e on p.patient_id = e.patient_id
 	      		inner join obs o on o.encounter_id = e.encounter_id
-	      	where e.voided = 0 and p.voided = 0 and e.encounter_datetime <=:endDate and e.encounter_type = 21
+	      	where e.voided = 0 and p.voided = 0 and e.encounter_datetime <:startDate and e.encounter_type = 21
 	      		and o.voided = 0 and o.concept_id = 2016 and o.value_coded in(1706,23863) and e.location_id =:location
 	      		group by p.patient_id
 	      	union
@@ -39,7 +39,7 @@ from(
 	      	from patient p
 	     		 inner join encounter e on p.patient_id = e.patient_id
 	      		inner join obs o on o.encounter_id = e.encounter_id
-	      	where e.voided = 0 and p.voided = 0 and o.obs_datetime <=:endDate and o.voided = 0 and o.concept_id = 6272 and o.value_coded = 1706
+	      	where e.voided = 0 and p.voided = 0 and o.obs_datetime <:startDate and o.voided = 0 and o.concept_id = 6272 and o.value_coded = 1706
 	      		and e.encounter_type = 53 and e.location_id =:location
 	      		group by p.patient_id
 	      	
@@ -50,7 +50,7 @@ from(
 	      	from patient p
 	      		inner join encounter e on p.patient_id = e.patient_id
 	      		inner join obs o on o.encounter_id = e.encounter_id
-	      	where e.voided = 0 and p.voided = 0 and e.encounter_datetime <=:endDate and o.voided = 0
+	      	where e.voided = 0 and p.voided = 0 and e.encounter_datetime <:startDate and o.voided = 0
 	      		and o.concept_id = 6273 and o.value_coded = 1706 and e.encounter_type = 6 and e.location_id =:location
 	      		group by p.patient_id
 	  	)
@@ -67,7 +67,7 @@ from(
 				inner join person pe on pe.person_id = p.patient_id                                                                                         
 				inner join encounter e on e.patient_id=p.patient_id                                                                                         
 			where p.voided=0 and pe.voided = 0 and e.voided=0 and e.encounter_type=18                                                                      
-				and e.location_id=:location  and e.encounter_datetime <=:endDate                                                                             
+				and e.location_id=:location  and e.encounter_datetime <:startDate                                                                             
 				group by p.patient_id 
 		) ultimo_fila
 		inner join(
@@ -133,5 +133,5 @@ inner join
  	) ultimo_levantamento
 	where ultimo_levantamento.data_ultimo_levantamento <= :endDate 
 )ultimo_levantamento on ultimo_levantamento.patient_id = transferido_para.patient_id
-where ultimo_levantamento.patient_id is null or ( ultimo_levantamento.patient_id is not null and ultimo_levantamento.data_ultimo_levantamento<=:endDate)
+where ultimo_levantamento.patient_id is null or ( ultimo_levantamento.patient_id is not null and ultimo_levantamento.data_ultimo_levantamento between :startDate and :endDate)
 
