@@ -30,8 +30,6 @@ public class TxTbPrevCohortQueries {
           "TBPREV/PATIENTS_WHO_COMPLETED_TB_PREV_PREVENTIVE_TREATMENT_DURING_REPORTING_PERIOD.sql";
 
   private static final String TRF_OUT = "TRANSFERRED_OUT/FIND_PATIENTS_WHO_ARE_TRANSFERRED_OUT.sql";
-  private static final String TRF_OUT_PREVIOUS_PERIOD =
-      "TRANSFERRED_OUT/FIND_PATIENTS_WHO_ARE_TRANSFERRED_PREVIOUS_PERIOD.sql";
 
   @DocumentedDefinition(value = "getTbPrevTotalDenominator")
   public CohortDefinition getTbPrevTotalDenominator() {
@@ -43,7 +41,7 @@ public class TxTbPrevCohortQueries {
     dsd.addParameter(new Parameter("location", "location", Location.class));
     final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
     final String mappingsPreviousPeriod =
-        "startDate=${startDate-6m},endDate=${endDate-6m},location=${location}";
+        "startDate=${startDate-6m},endDate=${endDate},location=${location}";
 
     dsd.addSearch(
         "STARTED-TPT",
@@ -53,11 +51,8 @@ public class TxTbPrevCohortQueries {
                 EptsQuerysUtils.loadQuery(
                     FIND_PATIENTS_WHO_STARTED_TB_PREV_PREVENTIVE_TREATMENT_DURING_PREVIOUS_REPORTING_PERIOD)),
             mappings));
-    dsd.addSearch("TRF-OUT", EptsReportUtils.map(this.findPatientsTransferredOut(), mappings));
     dsd.addSearch(
-        "TRF-OUT-PREVIOUS",
-        EptsReportUtils.map(this.findPatientsTransferredOut(), mappingsPreviousPeriod));
-
+        "TRF-OUT", EptsReportUtils.map(this.findPatientsTransferredOut(), mappingsPreviousPeriod));
     dsd.addSearch(
         "ENDED-TPT-TROUT",
         EptsReportUtils.map(
@@ -75,7 +70,7 @@ public class TxTbPrevCohortQueries {
             this.findPatientsWhoStartedArtAndTpiPreviouslyDessagragation(), mappings));
 
     dsd.setCompositionString(
-        "(STARTED-TPT AND (NEWLY-ART OR PREVIOUS-ART)) NOT ((TRF-OUT OR TRF-OUT-PREVIOUS) NOT ENDED-TPT-TROUT) ");
+        "(STARTED-TPT AND (NEWLY-ART OR PREVIOUS-ART)) NOT (TRF-OUT NOT (ENDED-TPT-TROUT)) ");
 
     return dsd;
   }
@@ -162,20 +157,6 @@ public class TxTbPrevCohortQueries {
     definition.addParameter(new Parameter("location", "location", Location.class));
 
     definition.setQuery(EptsQuerysUtils.loadQuery(TRF_OUT));
-
-    return definition;
-  }
-
-  @DocumentedDefinition(value = "findPatientsTransferredOutPreviousPeriod")
-  public CohortDefinition findPatientsTransferredOutPreviousPeriod() {
-    final SqlCohortDefinition definition = new SqlCohortDefinition();
-
-    definition.setName("get Patients Who were Transferred Out");
-    definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
-    definition.addParameter(new Parameter("endDate", "End Date", Date.class));
-    definition.addParameter(new Parameter("location", "location", Location.class));
-
-    definition.setQuery(EptsQuerysUtils.loadQuery(TRF_OUT_PREVIOUS_PERIOD));
 
     return definition;
   }

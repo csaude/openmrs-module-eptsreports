@@ -280,23 +280,6 @@ public class TB4MontlyCascadeReportDataSet extends BaseDataSet {
         "5. Screened patients with specimen sent -Total",
         EptsReportUtils.map(specimenSet, mappings),
         "");
-    this.addRow(
-        dataSetDefinition,
-        "TBD-SP-N",
-        "5. Smear Only (New On ART)",
-        EptsReportUtils.map(specimenSet, mappings),
-        this.getColumnsForAgeDesaggregation(),
-        mappings,
-        "artStartState=txcurrNewlyOnArt");
-
-    this.addRow(
-        dataSetDefinition,
-        "TBD-SP-P",
-        "5. Smear Only (Previously on ART)",
-        EptsReportUtils.map(specimenSet, mappings),
-        this.getColumnsForAgeDesaggregation(),
-        mappings,
-        "artStartState=txcurrPreviouslyOnArt");
 
     dataSetDefinition.addColumn(
         "TBD-SP-baciloscopia",
