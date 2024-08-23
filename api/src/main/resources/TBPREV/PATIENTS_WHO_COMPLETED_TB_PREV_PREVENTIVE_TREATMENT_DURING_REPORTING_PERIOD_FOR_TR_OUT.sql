@@ -630,7 +630,7 @@ from(
 			where e.voided=0 and p.voided=0 and profilaxiaINH.voided=0 and e.encounter_type in (6,9,53)and profilaxiaINH.concept_id=23985 and profilaxiaINH.value_coded=656
 				and estadoFIM.concept_id=165308 and estadoFIM.value_coded=1267 and estadoFIM.voided=0
 				and estadoFIM.obs_datetime between (:startDate - interval 6 month) and :endDate  
-				and e.encounter_datetime between :startDate and :endDate
+				and estadoFIM.obs_datetime between :startDate and :endDate
 				and  e.location_id=:location
 				group by p.patient_id	
 		) fimINH on fimINH.patient_id = inicio_INH.patient_id and fimINH.data_fim_INH  >=inicio_INH.data_inicio_INH + interval 173 day
