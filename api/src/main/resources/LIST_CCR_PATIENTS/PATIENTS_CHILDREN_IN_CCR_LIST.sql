@@ -2,8 +2,9 @@
                        pid.identifier as NID,
              concat(ifnull(pn.given_name,''),' ',ifnull(pn.middle_name,''),' ',ifnull(pn.family_name,'')) as NAME,
              p.gender as GENDER, 
+             birthdate,
              floor(datediff(:endDate,birthdate)/365) AGE,
-             floor(TIMESTAMPDIFF(month,birthdate, :endDate)) AGE_IN_MONTHS,
+             IF(DATE_FORMAT(FROM_DAYS(DATEDIFF(:endDate,birthdate)),'%y-%m-%d') = '00-00-00', TIMESTAMPDIFF(month,birthdate, :endDate),DATE_FORMAT(FROM_DAYS(DATEDIFF(:endDate,birthdate)),'%m') - 1) AGE_IN_MONTHS,
              pad3.address6 as 'localidade',
              pad3.address5 as 'bairro',
              pad3.address1 as 'pontoReferencia', 
@@ -108,14 +109,14 @@
         select patient_id, min(data_inicio) data_inicio from (
          select  pg.patient_id,min(date_enrolled) data_inicio                                
          from  patient p inner join patient_program pg on p.patient_id=pg.patient_id                   
-         where   pg.voided=0 and p.voided=0 and program_id=6 and date_enrolled between :startDate and :endDate and location_id= :location       
+         where   pg.voided=0 and p.voided=0 and program_id=6 and date_enrolled between :startDate and :endDate and location_id=:location       
          group by pg.patient_id  
         union
         Select  p.patient_id,min(e.encounter_datetime) data_inicio                                
           from  patient p                                                 
               inner join encounter e on p.patient_id=e.patient_id                                                   
           where   p.voided=0 and e.voided=0 and e.encounter_type = 92 and                                      
-              e.encounter_datetime between :startDate and :endDate and e.location_id= :location                              
+              e.encounter_datetime between :startDate and :endDate and e.location_id=:location                              
           group by p.patient_id 
           ) ccr group by ccr.patient_id
           ) ccr
@@ -138,11 +139,11 @@
             ) pn2  
             where pn1.person_id=pn2.person_id and pn1.person_name_id=pn2.id  
             ) pn on pn.person_id=ccr.patient_id 
-            left join  ( 
+            inner join  ( 
             select pid1.*  from patient_identifier pid1  
             inner join  (  
-            select patient_id,min(patient_identifier_id) id  from patient_identifier  
-            where voided=0  
+            select patient_id,min(patient_identifier_id) id, identifier  from patient_identifier  
+            where voided=0 and identifier_type = 9
             group by patient_id  
             ) pid2 
             where pid1.patient_id=pid2.patient_id and pid1.patient_identifier_id=pid2.id  
@@ -159,7 +160,7 @@
                    inner join obs  o on e.encounter_id=o.encounter_id                                      
                where   e.voided=0 and o.voided=0 and p.voided=0 and                                        
                    e.encounter_type = 92 and o.concept_id = 1874 and        
-                   e.encounter_datetime<=:endDate and e.location_id= :location
+                   e.encounter_datetime<=:endDate and e.location_id=:location
                    )motivoDaConsulta left join (
                  select  p.patient_id, value_coded                                             
                from  patient p                                                         
@@ -167,7 +168,7 @@
                    inner join obs  o on e.encounter_id=o.encounter_id                                      
                where   e.voided=0 and o.voided=0 and p.voided=0 and                                        
                    e.encounter_type = 92 and o.concept_id = 1874 and o.value_coded = 1842 and   
-                   e.encounter_datetime<=:endDate and e.location_id= :location
+                   e.encounter_datetime<=:endDate and e.location_id=:location
                    ) motivo on motivo.patient_id = motivoDaConsulta.patient_id
                    
                    union
@@ -179,7 +180,7 @@
                    inner join obs  o on e.encounter_id=o.encounter_id                                      
                where   e.voided=0 and o.voided=0 and p.voided=0 and                                        
                    e.encounter_type = 92 and o.concept_id = 1874 and        
-                   e.encounter_datetime<=:endDate and e.location_id= :location
+                   e.encounter_datetime<=:endDate and e.location_id=:location
                    )motivoDaConsulta left join (
                  select  p.patient_id, value_coded                                             
                from  patient p                                                         
@@ -187,7 +188,7 @@
                    inner join obs  o on e.encounter_id=o.encounter_id                                      
                where   e.voided=0 and o.voided=0 and p.voided=0 and                                        
                    e.encounter_type = 92 and o.concept_id = 1874 and o.value_coded = 6397 and   
-                   e.encounter_datetime<=:endDate and e.location_id= :location
+                   e.encounter_datetime<=:endDate and e.location_id=:location
                    ) motivo on motivo.patient_id = motivoDaConsulta.patient_id
                    
             union
@@ -199,7 +200,7 @@
                    inner join obs  o on e.encounter_id=o.encounter_id                                      
                where   e.voided=0 and o.voided=0 and p.voided=0 and                                        
                    e.encounter_type = 92 and o.concept_id = 1874 and        
-                   e.encounter_datetime<=:endDate and e.location_id= :location
+                   e.encounter_datetime<=:endDate and e.location_id=:location
                    )motivoDaConsulta left join (
                  select  p.patient_id, value_coded                                             
                from  patient p                                                         
@@ -207,7 +208,7 @@
                    inner join obs  o on e.encounter_id=o.encounter_id                                      
                where   e.voided=0 and o.voided=0 and p.voided=0 and                                        
                    e.encounter_type = 92 and o.concept_id = 1874 and o.value_coded = 5050 and   
-                   e.encounter_datetime<=:endDate and e.location_id= :location
+                   e.encounter_datetime<=:endDate and e.location_id=:location
                    ) motivo on motivo.patient_id = motivoDaConsulta.patient_id
                    
                     union
@@ -219,7 +220,7 @@
                    inner join obs  o on e.encounter_id=o.encounter_id                                      
                where   e.voided=0 and o.voided=0 and p.voided=0 and                                        
                    e.encounter_type = 92 and o.concept_id = 1874 and        
-                   e.encounter_datetime<=:endDate and e.location_id= :location
+                   e.encounter_datetime<=:endDate and e.location_id=:location
                    )motivoDaConsulta left join (
                  select  p.patient_id, value_coded                                             
                from  patient p                                                         
@@ -227,7 +228,7 @@
                    inner join obs  o on e.encounter_id=o.encounter_id                                      
                where   e.voided=0 and o.voided=0 and p.voided=0 and                                        
                    e.encounter_type = 92 and o.concept_id = 1874 and o.value_coded = 1844 and   
-                   e.encounter_datetime<=:endDate and e.location_id= :location
+                   e.encounter_datetime<=:endDate and e.location_id=:location
                    ) motivo on motivo.patient_id = motivoDaConsulta.patient_id
 
                    union
@@ -239,7 +240,7 @@
                    inner join obs  o on e.encounter_id=o.encounter_id                                      
                where   e.voided=0 and o.voided=0 and p.voided=0 and                                        
                    e.encounter_type = 92 and o.concept_id = 1874 and        
-                   e.encounter_datetime<=:endDate and e.location_id= :location
+                   e.encounter_datetime<=:endDate and e.location_id=:location
                    )motivoDaConsulta left join (
                  select  p.patient_id, value_coded                                             
                from  patient p                                                         
@@ -247,7 +248,7 @@
                    inner join obs  o on e.encounter_id=o.encounter_id                                      
                where   e.voided=0 and o.voided=0 and p.voided=0 and                                        
                    e.encounter_type = 92 and o.concept_id = 1874 and o.value_coded = 1586 and   
-                   e.encounter_datetime<=:endDate and e.location_id= :location
+                   e.encounter_datetime<=:endDate and e.location_id=:location
                    ) motivo on motivo.patient_id = motivoDaConsulta.patient_id
 
                    union
@@ -259,7 +260,7 @@
                    inner join obs  o on e.encounter_id=o.encounter_id                                      
                where   e.voided=0 and o.voided=0 and p.voided=0 and                                        
                    e.encounter_type = 92 and o.concept_id = 1874 and        
-                   e.encounter_datetime<=:endDate and e.location_id= :location
+                   e.encounter_datetime<=:endDate and e.location_id=:location
                    )motivoDaConsulta left join (
                  select  p.patient_id, value_coded                                             
                from  patient p                                                         
@@ -267,7 +268,7 @@
                    inner join obs  o on e.encounter_id=o.encounter_id                                      
                where   e.voided=0 and o.voided=0 and p.voided=0 and                                        
                    e.encounter_type = 92 and o.concept_id = 1874 and o.value_coded = 1847 and   
-                   e.encounter_datetime<=:endDate and e.location_id= :location
+                   e.encounter_datetime<=:endDate and e.location_id=:location
                    ) motivo on motivo.patient_id = motivoDaConsulta.patient_id
 
                    union
@@ -279,7 +280,7 @@
                    inner join obs  o on e.encounter_id=o.encounter_id                                      
                where   e.voided=0 and o.voided=0 and p.voided=0 and                                        
                    e.encounter_type = 92 and o.concept_id = 1874 and        
-                   e.encounter_datetime<=:endDate and e.location_id= :location
+                   e.encounter_datetime<=:endDate and e.location_id=:location
                    )motivoDaConsulta left join (
                  select  p.patient_id, value_coded                                             
                from  patient p                                                         
@@ -287,7 +288,7 @@
                    inner join obs  o on e.encounter_id=o.encounter_id                                      
                where   e.voided=0 and o.voided=0 and p.voided=0 and                                        
                    e.encounter_type = 92 and o.concept_id = 1874 and o.value_coded = 1845 and   
-                   e.encounter_datetime<=:endDate and e.location_id= :location
+                   e.encounter_datetime<=:endDate and e.location_id=:location
                    ) motivo on motivo.patient_id = motivoDaConsulta.patient_id
 
                    union
@@ -299,7 +300,7 @@
                    inner join obs  o on e.encounter_id=o.encounter_id                                      
                where   e.voided=0 and o.voided=0 and p.voided=0 and                                        
                    e.encounter_type = 92 and o.concept_id = 1874 and        
-                   e.encounter_datetime<=:endDate and e.location_id= :location
+                   e.encounter_datetime<=:endDate and e.location_id=:location
                    )motivoDaConsulta left join (
                  select  p.patient_id, value_coded                                             
                from  patient p                                                         
@@ -307,7 +308,7 @@
                    inner join obs  o on e.encounter_id=o.encounter_id                                      
                where   e.voided=0 and o.voided=0 and p.voided=0 and                                        
                    e.encounter_type = 92 and o.concept_id = 1874 and o.value_coded = 1846 and   
-                   e.encounter_datetime<=:endDate and e.location_id= :location
+                   e.encounter_datetime<=:endDate and e.location_id=:location
                    ) motivo on motivo.patient_id = motivoDaConsulta.patient_id
 
                    union
@@ -319,7 +320,7 @@
                    inner join obs  o on e.encounter_id=o.encounter_id                                      
                where   e.voided=0 and o.voided=0 and p.voided=0 and                                        
                    e.encounter_type = 92 and o.concept_id = 1874 and        
-                   e.encounter_datetime<=:endDate and e.location_id= :location
+                   e.encounter_datetime<=:endDate and e.location_id=:location
                    )motivoDaConsulta left join (
                  select  p.patient_id, value_coded                                             
                from  patient p                                                         
@@ -327,7 +328,7 @@
                    inner join obs  o on e.encounter_id=o.encounter_id                                      
                where   e.voided=0 and o.voided=0 and p.voided=0 and                                        
                    e.encounter_type = 92 and o.concept_id = 1874 and o.value_coded = 1843 and   
-                   e.encounter_datetime<=:endDate and e.location_id= :location
+                   e.encounter_datetime<=:endDate and e.location_id=:location
                    ) motivo on motivo.patient_id = motivoDaConsulta.patient_id
 
                    union
@@ -339,7 +340,7 @@
                    inner join obs  o on e.encounter_id=o.encounter_id                                      
                where   e.voided=0 and o.voided=0 and p.voided=0 and                                        
                    e.encounter_type = 92 and o.concept_id = 1874 and        
-                   e.encounter_datetime<=:endDate and e.location_id= :location
+                   e.encounter_datetime<=:endDate and e.location_id=:location
                    )motivoDaConsulta left join (
                  select  p.patient_id, value_coded                                             
                from  patient p                                                         
@@ -347,7 +348,7 @@
                    inner join obs  o on e.encounter_id=o.encounter_id                                      
                where   e.voided=0 and o.voided=0 and p.voided=0 and                                        
                    e.encounter_type = 92 and o.concept_id = 1874 and o.value_coded = 6409 and   
-                   e.encounter_datetime<=:endDate and e.location_id= :location
+                   e.encounter_datetime<=:endDate and e.location_id=:location
                    ) motivo on motivo.patient_id = motivoDaConsulta.patient_id
 
                    union
@@ -360,7 +361,7 @@
                    inner join obs  o on e.encounter_id=o.encounter_id                                      
                where   e.voided=0 and o.voided=0 and p.voided=0 and                                        
                    e.encounter_type = 92 and o.concept_id = 1874 and        
-                   e.encounter_datetime<=:endDate and e.location_id= :location
+                   e.encounter_datetime<=:endDate and e.location_id=:location
                    )motivoDaConsulta left join (
                  select  p.patient_id, value_coded, comments                                             
                from  patient p                                                         
@@ -368,7 +369,7 @@
                    inner join obs  o on e.encounter_id=o.encounter_id                                      
                where   e.voided=0 and o.voided=0 and p.voided=0 and                                        
                    e.encounter_type = 92 and o.concept_id = 1874 and o.value_coded = 5622 and   
-                   e.encounter_datetime<=:endDate and e.location_id= :location
+                   e.encounter_datetime<=:endDate and e.location_id=:location
                    ) motivo on motivo.patient_id = motivoDaConsulta.patient_id
                    ) motivos order by motivos.patient_id, motivos.motivo asc 
                    ) motivos group by motivos.patient_id
@@ -380,7 +381,7 @@
                    inner join obs  o on e.encounter_id=o.encounter_id                                      
                where   e.voided=0 and o.voided=0 and p.voided=0 and                                        
                    e.encounter_type = 92 and o.concept_id = 1874 and o.value_coded = 1586 and        
-                   e.encounter_datetime<=:endDate and e.location_id= :location
+                   e.encounter_datetime<=:endDate and e.location_id=:location
              ) ptvCode on ptvCode.patient_id = ccr.patient_id
                 left join (
                  select  p.patient_id, o.value_text                                             
@@ -389,7 +390,7 @@
                    inner join obs  o on e.encounter_id=o.encounter_id                                      
                where   e.voided=0 and o.voided=0 and p.voided=0 and                                        
                    e.encounter_type = 92 and o.concept_id = 1477 and        
-                   e.encounter_datetime<=:endDate and e.location_id= :location
+                   e.encounter_datetime<=:endDate and e.location_id=:location
              ) nomeDaMae on nomeDaMae.patient_id = ccr.patient_id
             left join (
             select  person_a,person_b, nomeDaMaeSesp,pidMae.identifier from (
@@ -415,21 +416,21 @@
                    inner join obs  o on e.encounter_id=o.encounter_id                                      
                where   e.voided=0 and o.voided=0 and p.voided=0 and                                        
                    e.encounter_type = 92 and o.concept_id = 2071 and o.value_coded in (1065,1066) and   
-                   e.encounter_datetime <=  :endDate and e.location_id= :location
+                   e.encounter_datetime <=  :endDate and e.location_id=:location
             ) aceitaVisita on aceitaVisita.patient_id = ccr.patient_id
             left join (
                 select ccr.patient_id, min(fichaSeguimento.encounter_datetime) primeira_consulta_ccr from
                 (select patient_id, min(data_inicio) data_inicio from (
          select  pg.patient_id,min(date_enrolled) data_inicio                                
          from  patient p inner join patient_program pg on p.patient_id=pg.patient_id                   
-         where   pg.voided=0 and p.voided=0 and program_id=6 and date_enrolled between :startDate and :endDate and location_id= :location       
+         where   pg.voided=0 and p.voided=0 and program_id=6 and date_enrolled between :startDate and :endDate and location_id=:location       
          group by pg.patient_id  
         union
         Select  p.patient_id,min(e.encounter_datetime) data_inicio                                
           from  patient p                                                 
               inner join encounter e on p.patient_id=e.patient_id                                                   
           where   p.voided=0 and e.voided=0 and e.encounter_type = 92 and                                      
-              e.encounter_datetime between :startDate and :endDate and e.location_id= :location                              
+              e.encounter_datetime between :startDate and :endDate and e.location_id=:location                              
           group by p.patient_id 
           ) ccr group by ccr.patient_id
           ) ccr left join (
@@ -437,7 +438,7 @@
                from  patient p                                                         
                    inner join encounter e on p.patient_id=e.patient_id                                                                       
                where   e.voided=0 and p.voided=0 and                                        
-                   e.encounter_type = 93 and e.location_id= :location
+                   e.encounter_type = 93 and e.location_id=:location
             ) fichaSeguimento on fichaSeguimento.patient_id = ccr.patient_id
             where fichaSeguimento.encounter_datetime between ccr.data_inicio and :endDate
             group by ccr.patient_id
@@ -451,14 +452,14 @@
             (
             select  pg.patient_id,min(date_enrolled) data_inicio                                
              from  patient p inner join patient_program pg on p.patient_id=pg.patient_id                   
-             where   pg.voided=0 and p.voided=0 and program_id=6 and date_enrolled between :startDate and :endDate and location_id= :location       
+             where   pg.voided=0 and p.voided=0 and program_id=6 and date_enrolled between :startDate and :endDate and location_id=:location       
              group by pg.patient_id  
          union
               Select  p.patient_id,min(e.encounter_datetime) data_inicio                                
               from  patient p                                                 
                   inner join encounter e on p.patient_id=e.patient_id                                                   
               where   p.voided=0 and e.voided=0 and e.encounter_type = 92 and                                      
-                  e.encounter_datetime between :startDate and :endDate and e.location_id= :location                              
+                  e.encounter_datetime between :startDate and :endDate and e.location_id=:location                              
               group by p.patient_id 
            ) ccr group by ccr.patient_id
           ) ccr left join (
@@ -466,7 +467,7 @@
                from  patient p                                                         
                    inner join encounter e on p.patient_id=e.patient_id
                where   e.voided=0 and p.voided=0                                    
-                  and e.encounter_type = 93 and e.location_id= :location
+                  and e.encounter_type = 93 and e.location_id=:location
             ) fichaSeguimento on fichaSeguimento.patient_id = ccr.patient_id
             where fichaSeguimento.encounter_datetime between ccr.data_inicio and :endDate
             group by ccr.patient_id
@@ -479,14 +480,14 @@
             (
             select  pg.patient_id,min(date_enrolled) data_inicio                                
              from  patient p inner join patient_program pg on p.patient_id=pg.patient_id                   
-             where   pg.voided=0 and p.voided=0 and program_id=6 and date_enrolled between :startDate and :endDate and location_id= :location       
+             where   pg.voided=0 and p.voided=0 and program_id=6 and date_enrolled between :startDate and :endDate and location_id=:location       
              group by pg.patient_id  
          union
               Select  p.patient_id,min(e.encounter_datetime) data_inicio                                
               from  patient p                                                 
                   inner join encounter e on p.patient_id=e.patient_id                                                   
               where   p.voided=0 and e.voided=0 and e.encounter_type = 92 and                                      
-                  e.encounter_datetime between :startDate and :endDate and e.location_id= :location                              
+                  e.encounter_datetime between :startDate and :endDate and e.location_id=:location                              
               group by p.patient_id 
                ) ccr group by ccr.patient_id
             ) ccr
@@ -495,14 +496,14 @@
                from  patient p                                                         
                    inner join encounter e on p.patient_id=e.patient_id
                where   e.voided=0 and p.voided=0                                    
-                  and e.encounter_type = 93 and e.location_id= :location
+                  and e.encounter_type = 93 and e.location_id=:location
              ) fichaSeguimento on fichaSeguimento.patient_id = ccr.patient_id
              where fichaSeguimento.encounter_datetime between ccr.data_inicio and :endDate
              group by ccr.patient_id
              ) seguimento
             inner join encounter e on e.patient_id = seguimento.patient_id
             inner join obs o on o.encounter_id = e.encounter_id
-            where o.concept_id = 1410 and o.voided = 0 and e.voided = 0 and e.location_id = :location
+            where o.concept_id = 1410 and o.voided = 0 and e.voided = 0 and e.location_id =:location
             and e.encounter_datetime = seguimento.data_seguimento
             ) proximaConsulta on proximaConsulta.patient_id = seguimento.patient_id
            )maxCCRSeguimento on maxCCRSeguimento.patient_id = ccr.patient_id
@@ -513,7 +514,7 @@
                    inner join encounter e on p.patient_id=e.patient_id
                    inner join obs o on o.encounter_id = e.encounter_id
                where   e.voided=0 and p.voided=0 and o.voided = 0 and o.concept_id = 1030                                      
-                  and e.encounter_type in (93,13) and e.location_id= :location and e.encounter_datetime <= :endDate
+                  and e.encounter_type in (93,13) and e.location_id=:location and e.encounter_datetime <= :endDate
                   group by p.patient_id
                   ) pcr 
                   inner join encounter e on e.patient_id = pcr.patient_id
@@ -528,7 +529,7 @@
                    inner join encounter e on p.patient_id=e.patient_id
                    inner join obs o on o.encounter_id = e.encounter_id
                where   e.voided=0 and p.voided=0 and o.voided = 0 and o.concept_id = 165502 and o.voided = 0                                    
-                  and e.encounter_type = 13 and e.location_id= :location and e.encounter_datetime <= :endDate
+                  and e.encounter_type = 13 and e.location_id=:location and e.encounter_datetime <= :endDate
                   group by p.patient_id
                   ) pcr 
                   inner join encounter e on e.patient_id = pcr.patient_id
@@ -544,7 +545,7 @@
                    inner join encounter e on p.patient_id=e.patient_id
                    inner join obs o on o.encounter_id = e.encounter_id
                where   e.voided=0 and p.voided=0 and o.voided = 0 and o.concept_id = 1030                                      
-                  and e.encounter_type in (93,13) and e.location_id= :location and e.encounter_datetime <= :endDate
+                  and e.encounter_type in (93,13) and e.location_id=:location and e.encounter_datetime <= :endDate
                   group by p.patient_id
                 ) ultimoPCR
                 left join(
@@ -553,14 +554,14 @@
                    inner join encounter e on p.patient_id=e.patient_id
                    inner join obs o on o.encounter_id = e.encounter_id
                where   e.voided=0 and p.voided=0 and o.voided = 0 and o.concept_id = 1030                                      
-                  and e.encounter_type in (93,13) and e.location_id= :location and e.encounter_datetime <= :endDate
+                  and e.encounter_type in (93,13) and e.location_id=:location and e.encounter_datetime <= :endDate
                 ) penultimoPCR on penultimoPCR.patient_id = ultimoPCR.patient_id
                 where penultimoPCR.encounter_datetime < ultimoPCR.encounter_datetime
                 group by penultimoPCR.patient_id
                 ) penultimo 
                 inner join encounter e on e.patient_id = penultimo.patient_id
                 inner join obs o on o.encounter_id = e.encounter_id
-                where e.voided = 0 and o.voided = 0 and o.concept_id = 1030 and e.encounter_type in (93,13) and e.location_id= :location
+                where e.voided = 0 and o.voided = 0 and o.concept_id = 1030 and e.encounter_type in (93,13) and e.location_id=:location
                 and e.encounter_datetime = penultimo.penultimoDatePCR
             )penultimoPCR on penultimoPCR.patient_id = ccr.patient_id
             left join(
@@ -570,7 +571,7 @@
                    inner join encounter e on p.patient_id=e.patient_id
                    inner join obs o on o.encounter_id = e.encounter_id
                where   e.voided=0 and p.voided=0 and o.voided = 0 and o.concept_id = 165502                                      
-                  and e.encounter_type = 13 and e.location_id= :location and e.encounter_datetime <= :endDate
+                  and e.encounter_type = 13 and e.location_id=:location and e.encounter_datetime <= :endDate
                   group by p.patient_id
                 ) ultimoTipoDeAmostra left join (
                             select  p.patient_id, encounter_datetime, o.value_coded                                           
@@ -578,7 +579,7 @@
                    inner join encounter e on p.patient_id=e.patient_id
                    inner join obs o on o.encounter_id = e.encounter_id
                where   e.voided=0 and p.voided=0 and o.voided = 0 and o.concept_id = 165502                                      
-                  and e.encounter_type = 13 and e.location_id= :location and e.encounter_datetime <= :endDate
+                  and e.encounter_type = 13 and e.location_id=:location and e.encounter_datetime <= :endDate
                 ) penultimoTipoDeColheitaPCR on penultimoTipoDeColheitaPCR.patient_id = ultimoTipoDeAmostra.patient_id
                 where penultimoTipoDeColheitaPCR.encounter_datetime < ultimoTipoDeAmostra.encounter_datetime
                 group by penultimoTipoDeColheitaPCR.patient_id
@@ -590,7 +591,7 @@
                    inner join encounter e on p.patient_id=e.patient_id
                    inner join obs o on o.encounter_id = e.encounter_id
                where   e.voided=0 and p.voided=0 and o.voided = 0 and o.concept_id = 1040                                      
-                  and e.encounter_type = 93 and e.location_id= :location and e.encounter_datetime <= :endDate
+                  and e.encounter_type = 93 and e.location_id=:location and e.encounter_datetime <= :endDate
                   group by p.patient_id
                   ) pcr 
                   inner join encounter e on e.patient_id = pcr.patient_id
@@ -608,7 +609,7 @@
              group by  pg.patient_id
              )maxEstado inner join patient_program pp on pp.patient_id = maxEstado.patient_id
              inner join patient_state ps on ps.patient_program_id = pp.patient_program_id
-             where ps.start_date = maxEstado.data_estado
+             where ps.start_date = maxEstado.data_estado and pp.voided = 0 and ps.voided = 0
             )programa on programa.patient_id = ccr.patient_id
             left join(
                     select fichaResumo.patient_id, o.value_coded state from (
@@ -617,12 +618,12 @@
                    inner join encounter e on p.patient_id=e.patient_id
                    inner join obs o on o.encounter_id = e.encounter_id
                where   e.voided=0 and p.voided=0 and o.voided = 0 and o.concept_id = 1873                                      
-                  and e.encounter_type = 93 and e.location_id= :location and e.encounter_datetime <= :endDate
+                  and e.encounter_type = 92 and e.location_id=:location and e.encounter_datetime <= :endDate
                   group by p.patient_id
                   ) fichaResumo 
                   inner join encounter e on e.patient_id = fichaResumo.patient_id
                   inner join obs o on o.encounter_id = e.encounter_id
-                  where o.voided = 0 and o.concept_id = 1873 and o.value_coded in (165484,1706,165485,165483,1707,1366)
+                  where e.voided = 0 and e.encounter_type = 92 and o.voided = 0 and o.concept_id = 1873 and o.value_coded in (165484,1706,165485,165483,1707,1366)
                   and e.encounter_datetime = fichaResumo.encounter_datetime
             )fichaResumo on fichaResumo.patient_id = ccr.patient_id
             left join (
@@ -632,12 +633,12 @@
                    inner join encounter e on p.patient_id=e.patient_id
                    inner join obs o on o.encounter_id = e.encounter_id
                where   e.voided=0 and p.voided=0 and o.voided = 0 and o.concept_id = 1873                                      
-                  and e.encounter_type = 92 and e.location_id= :location and e.encounter_datetime <= :endDate
+                  and e.encounter_type = 93 and e.location_id=:location and e.encounter_datetime <= :endDate
                   group by p.patient_id
                   ) fichaSeguimento 
                   inner join encounter e on e.patient_id = fichaSeguimento.patient_id
                   inner join obs o on o.encounter_id = e.encounter_id
-                  where o.voided = 0 and o.concept_id = 1873 and o.value_coded in (165484,1706,165485,165483,1707,1366)
+                  where o.voided = 0 and e.encounter_type = 93 and e.voided = 0 and o.concept_id = 1873 and o.value_coded in (165484,1706,165485,165483,1707,1366)
                   and e.encounter_datetime = fichaSeguimento.encounter_datetime
             )fichaSeguimento on fichaSeguimento.patient_id = ccr.patient_id
             left join(

@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
-import org.openmrs.module.eptsreports.reporting.library.cohorts.GenericCohortQueries;
 import org.openmrs.module.eptsreports.reporting.library.datasets.DatimCodeDataSet;
 import org.openmrs.module.eptsreports.reporting.library.datasets.ListOfPatientsChildreenEnrolledInCCRDataSet;
 import org.openmrs.module.eptsreports.reporting.library.datasets.SismaCodeDataSet;
@@ -21,8 +20,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class SetupListPatientsChildrenEnrolledCCR extends EptsDataExportManager {
-
-  @Autowired private GenericCohortQueries genericCohortQueries;
 
   @Autowired
   private ListOfPatientsChildreenEnrolledInCCRDataSet listOfPatientsChildreenEnrolledInCCRDataSet;
@@ -47,7 +44,7 @@ public class SetupListPatientsChildrenEnrolledCCR extends EptsDataExportManager 
 
   @Override
   public String getName() {
-    return "Lista de Crianças Inscritas em CCR";
+    return "CCR1: Lista de Crianças Inscritas em CCR";
   }
 
   @Override
