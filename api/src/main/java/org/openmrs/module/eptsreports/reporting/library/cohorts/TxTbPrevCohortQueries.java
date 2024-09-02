@@ -64,15 +64,6 @@ public class TxTbPrevCohortQueries {
             mappings));
 
     dsd.addSearch(
-        "ENDED-TPT-PREVIOUS-PERIOD",
-        EptsReportUtils.map(
-            this.genericCohorts.generalSql(
-                "Finding Patients Who have Completed TPT in Previous Period",
-                EptsQuerysUtils.loadQuery(
-                    FIND_PATIENTS_WHO_COMPLETED_TB_PREV_PREVENTIVE_TREATMENT_DURING_REPORTING_PERIOD)),
-            "startDate=${startDate-6m},endDate=${endDate-6m},location=${location}"));
-
-    dsd.addSearch(
         "NEWLY-ART",
         EptsReportUtils.map(this.findPatientsWhoStartedArtAndTpiNewDessagragation(), mappings));
     dsd.addSearch(
@@ -81,7 +72,7 @@ public class TxTbPrevCohortQueries {
             this.findPatientsWhoStartedArtAndTpiPreviouslyDessagragation(), mappings));
 
     dsd.setCompositionString(
-        "(STARTED-TPT AND (NEWLY-ART OR PREVIOUS-ART)) NOT (TRF-OUT NOT (ENDED-TPT OR ENDED-TPT-PREVIOUS-PERIOD))");
+        "(STARTED-TPT AND (NEWLY-ART OR PREVIOUS-ART)) NOT (TRF-OUT NOT ENDED-TPT )");
 
     return dsd;
   }
