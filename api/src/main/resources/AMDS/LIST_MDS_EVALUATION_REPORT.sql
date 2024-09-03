@@ -8,7 +8,7 @@
            coorteFinal.art_start_date,
            if(tpt.data_tb is not null,'Não','Sim') as elegibilidade_tpt,
            tptFinal.dataInicioTPI data_inicio_tpt,
-           DATE_FORMAT(DATE(resultadoCd4Inicial.data_cd4_12_meses), '%d-%m-%Y')  as data_resultado_cd4,
+           DATE_FORMAT(DATE(min(resultadoCd4Inicial.data_cd4_12_meses)), '%d-%m-%Y')  as data_resultado_cd4,
            resultadoCd4Inicial.resultado_cd4_12_meses as resultado_cd4_12_meses,
 
            -- COLUNAS 12 MESES
@@ -483,7 +483,7 @@
        )tptFinal on tptFinal.patient_id=coorteFinal.patient_id 
        left join
        (
-		   select p.patient_id,min(o.obs_datetime) data_cd4_12_meses, o.value_numeric resultado_cd4_12_meses
+		   select p.patient_id,o.obs_datetime data_cd4_12_meses, o.value_numeric resultado_cd4_12_meses
               from patient p   
               inner join encounter e on p.patient_id = e.patient_id   
               inner join obs o on o.encounter_id = e.encounter_id   
@@ -1828,7 +1828,7 @@
 				   )viaPositivo on viaPositivo.patient_id=tx_new.patient_id
 				   inner join person p on p.person_id=tx_new.patient_id
 			     --group by tx_new.patient_id order by tx_new.patient_id,via.encounter_datetime
-         )viaPositivo
+         )viaPositivo on viaPositivo.patient_id=coorteFinal.patient_id
 
         left join
         (
