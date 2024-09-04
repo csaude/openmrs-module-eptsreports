@@ -16,7 +16,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class ListMDSEvaluationReportDataSet extends BaseDataSet {
 
-  private static final String LIST_MDS_EVALUATION_REPORT = "AMDS/LIST_MDS_EVALUATION_REPORT.sql";
+  private static final String LIST_MDS_EVALUATION_REPORT_COORTE_12_MESES =
+      "AMDS/LIST_MDS_EVALUATION_REPORT_COORTE_12_MESES.sql";
+  private static final String LIST_MDS_EVALUATION_REPORT_COORTE_24_MESES =
+      "AMDS/LIST_MDS_EVALUATION_REPORT_COORTE_24_MESES.sql";
+  private static final String LIST_MDS_EVALUATION_REPORT_COORTE_36_MESES =
+      "AMDS/LIST_MDS_EVALUATION_REPORT_COORTE_36_MESES.sql";
 
   @Autowired EptsGeneralIndicator eptsGeneralIndicator;
 
@@ -25,11 +30,29 @@ public class ListMDSEvaluationReportDataSet extends BaseDataSet {
   @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
   private AgeDimensionCohortInterface ageDimensionCohort;
 
-  public DataSetDefinition constructDataset(List<Parameter> parameterList) {
+  public DataSetDefinition constructDataset12Coorte(List<Parameter> parameterList) {
     SqlDataSetDefinition definition = new SqlDataSetDefinition();
-    definition.setName("Relatório de Avaliação de MDS");
+    definition.setName("Relatório de Avaliação de MDS (Coorte 12 Meses)");
     definition.addParameters(parameterList);
-    String query = EptsQuerysUtils.loadQuery(LIST_MDS_EVALUATION_REPORT);
+    String query = EptsQuerysUtils.loadQuery(LIST_MDS_EVALUATION_REPORT_COORTE_12_MESES);
+    definition.setSqlQuery(query);
+    return definition;
+  }
+
+  public DataSetDefinition constructDataset24Coorte(List<Parameter> parameterList) {
+    SqlDataSetDefinition definition = new SqlDataSetDefinition();
+    definition.setName("Relatório de Avaliação de MDS (Coorte 24 Meses)");
+    definition.addParameters(parameterList);
+    String query = EptsQuerysUtils.loadQuery(LIST_MDS_EVALUATION_REPORT_COORTE_24_MESES);
+    definition.setSqlQuery(query);
+    return definition;
+  }
+
+  public DataSetDefinition constructDataset36Coorte(List<Parameter> parameterList) {
+    SqlDataSetDefinition definition = new SqlDataSetDefinition();
+    definition.setName("Relatório de Avaliação de MDS (Coorte 36 Meses)");
+    definition.addParameters(parameterList);
+    String query = EptsQuerysUtils.loadQuery(LIST_MDS_EVALUATION_REPORT_COORTE_36_MESES);
     definition.setSqlQuery(query);
     return definition;
   }

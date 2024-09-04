@@ -58,9 +58,18 @@ public class SetupMDSEvaluationReport extends EptsDataExportManager {
     rd.addParameters(this.getParameters());
 
     rd.addDataSetDefinition(
-        "AMDS",
+        "AMDS12",
         Mapped.mapStraightThrough(
-            mdsEvaluationReportSetDataSet.constructDataset(this.getParameters())));
+            mdsEvaluationReportSetDataSet.constructDataset12Coorte(this.getParameters())));
+    rd.addDataSetDefinition(
+        "AMDS24",
+        Mapped.mapStraightThrough(
+            mdsEvaluationReportSetDataSet.constructDataset24Coorte(this.getParameters())));
+
+    rd.addDataSetDefinition(
+        "AMDS36",
+        Mapped.mapStraightThrough(
+            mdsEvaluationReportSetDataSet.constructDataset36Coorte(this.getParameters())));
 
     rd.setBaseCohortDefinition(
         EptsReportUtils.map(
@@ -92,7 +101,9 @@ public class SetupMDSEvaluationReport extends EptsDataExportManager {
               getExcelDesignUuid(),
               null);
       Properties props = new Properties();
-      props.put("repeatingSections", "sheet:1,row:13,dataset:AMDS");
+      props.put(
+          "repeatingSections",
+          "sheet:1,row:13,dataset:AMDS12 | sheet:1,row:13,dataset:AMDS24 | sheet:1,row:13,dataset:AMDS36 ");
 
       props.put("sortWeight", "5000");
       reportDesign.setProperties(props);
