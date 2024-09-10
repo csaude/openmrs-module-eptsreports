@@ -1,5 +1,7 @@
 package org.openmrs.module.eptsreports.reporting.reports;
 
+import static org.openmrs.module.reporting.evaluation.parameter.Mapped.mapStraightThrough;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,10 +10,9 @@ import java.util.List;
 import java.util.Properties;
 import org.openmrs.module.eptsreports.reporting.library.cohorts.GenericCohortQueries;
 import org.openmrs.module.eptsreports.reporting.library.datasets.ListMDSEvaluationReportDataSet;
+import org.openmrs.module.eptsreports.reporting.library.datasets.LocationDataSetDefinition;
 import org.openmrs.module.eptsreports.reporting.library.datasets.SismaCodeDataSet;
-import org.openmrs.module.eptsreports.reporting.library.queries.BaseQueries;
 import org.openmrs.module.eptsreports.reporting.reports.manager.EptsDataExportManager;
-import org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils;
 import org.openmrs.module.reporting.ReportingConstants;
 import org.openmrs.module.reporting.ReportingException;
 import org.openmrs.module.reporting.evaluation.parameter.Mapped;
@@ -58,25 +59,11 @@ public class SetupMDSEvaluationReport extends EptsDataExportManager {
     rd.addParameters(this.getParameters());
 
     rd.addDataSetDefinition(
-        "AMDS12",
+        "AMDS",
         Mapped.mapStraightThrough(
-            mdsEvaluationReportSetDataSet.constructDataset12Coorte(this.getParameters())));
-    rd.addDataSetDefinition(
-        "AMDS24",
-        Mapped.mapStraightThrough(
-            mdsEvaluationReportSetDataSet.constructDataset24Coorte(this.getParameters())));
+            mdsEvaluationReportSetDataSet.constructDatasetCoorte(this.getParameters())));
 
-    rd.addDataSetDefinition(
-        "AMDS36",
-        Mapped.mapStraightThrough(
-            mdsEvaluationReportSetDataSet.constructDataset36Coorte(this.getParameters())));
-
-    rd.setBaseCohortDefinition(
-        EptsReportUtils.map(
-            this.genericCohortQueries.generalSql(
-                "baseCohortQuery", BaseQueries.getBaseCohortQuery()),
-            "endDate=${endDate},location=${location}"));
-
+    rd.addDataSetDefinition("HF", mapStraightThrough(new LocationDataSetDefinition()));
     rd.addDataSetDefinition(
         "SC",
         Mapped.mapStraightThrough(this.sismaCodeDataSet.constructDataset(this.getParameters())));
@@ -101,9 +88,7 @@ public class SetupMDSEvaluationReport extends EptsDataExportManager {
               getExcelDesignUuid(),
               null);
       Properties props = new Properties();
-      props.put(
-          "repeatingSections",
-          "sheet:1,row:13,dataset:AMDS12 | sheet:1,row:13,dataset:AMDS24 | sheet:1,row:13,dataset:AMDS36 ");
+      props.put("repeatingSections", "sheet:1,row:13,dataset:AMDS");
 
       props.put("sortWeight", "5000");
       reportDesign.setProperties(props);
