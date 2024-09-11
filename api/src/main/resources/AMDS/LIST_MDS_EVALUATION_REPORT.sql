@@ -10932,9 +10932,9 @@ select f.* from
                     from patient p 
                         inner join encounter e on p.patient_id=e.patient_id 
                         inner join obs o on o.encounter_id=e.encounter_id 
-                    where e.encounter_type = 6 and e.voided=0 and o.voided=0 and p.voided=0 and o.concept_id=374 
-                    and  o.value_coded in (190, 780, 5279, 21928, 5275, 5276, 23714, 23715)
-                    and e.location_id=:location 
+                    where e.encounter_type = 6 and e.voided=0 and o.voided=0 and p.voided=0 
+                     and  ((o.concept_id=374 and o.value_coded in (190, 780, 5279, 21928, 5275, 5276, 23714, 23715)) or (o.concept_id=23728 and o.value_text is not null))  
+                     and e.location_id=:location 
                 ) pf 
                 )pf order by pf.patient_id, pf.encounter_datetime 
                 )pf on pf.patient_id=mds.patient_id
@@ -13854,16 +13854,15 @@ select f.* from
             left join
             (
             select pf.patient_id, pf.encounter_datetime encounter_datetime,pf.value_coded
-            from( 
+            from ( 
                 select pf.patient_id,pf.encounter_datetime,pf.value_coded 
                 from( 
                     select p.patient_id,e.encounter_datetime encounter_datetime,o.value_coded 
                     from patient p 
                         inner join encounter e on p.patient_id=e.patient_id 
                         inner join obs o on o.encounter_id=e.encounter_id 
-                    where e.encounter_type = 6 and e.voided=0 and o.voided=0 and p.voided=0 and o.concept_id=374 
-                    and  o.value_coded in (190, 780, 5279, 21928, 5275, 5276, 23714, 23715)
-                    and e.location_id=:location 
+                    where e.encounter_type = 6 and e.voided=0 and o.voided=0 and p.voided=0 
+                    and  ((o.concept_id=374 and o.value_coded in (190, 780, 5279, 21928, 5275, 5276, 23714, 23715)) or (o.concept_id=23728 and o.value_text is not null))                    and e.location_id=:location 
                 ) pf 
                 )pf order by pf.patient_id, pf.encounter_datetime 
                 )pf on pf.patient_id=mds.patient_id
