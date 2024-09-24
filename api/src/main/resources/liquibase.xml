@@ -23,15 +23,5 @@
 		constraintName="eptsreports_item_owner_fk" baseTableName="eptsreports_item" 
 		baseColumnNames="owner" referencedTableName="users" referencedColumnNames="user_id" 
 		/> </changeSet> -->
-
-
-	<changeSet id="20240920-16:00" author="csaude"
-		runAlways="true">
-		<comment>
-			SESP Release version 3.18.0
-		</comment>
-		<sqlFile
-			path="_metadata/SESPMetadataForRelease318_20092024.sql" />
-	</changeSet>
 	 
 </databaseChangeLog>
