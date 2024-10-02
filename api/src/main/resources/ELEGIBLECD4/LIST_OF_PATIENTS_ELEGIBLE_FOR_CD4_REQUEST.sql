@@ -571,11 +571,11 @@
 												inner join patient_program pg on p.patient_id = pg.patient_id                                                               
 												inner join patient_state ps on pg.patient_program_id = ps.patient_program_id                                                
 											where pg.voided=0 and ps.voided=0 and p.voided=0 and pe.voided = 0 and pg.program_id = 2                                        
-														and ps.start_date<= CURDATE() and pg.location_id =:location group by pg.patient_id                                           
+														and ps.start_date<= CURDATE() and pg.location_id =3 group by pg.patient_id                                           
 										) max_estado                                                                                                                        
 											inner join patient_program pp on pp.patient_id = max_estado.patient_id                                                          
 											inner join patient_state ps on ps.patient_program_id = pp.patient_program_id and ps.start_date = max_estado.data_estado         
-										where pp.program_id = 2 and ps.state = 10 and pp.voided = 0 and ps.voided = 0 and pp.location_id =:location  
+										where pp.program_id = 2 and ps.state = 10 and pp.voided = 0 and ps.voided = 0 and pp.location_id =3  
 										
 										union
 										
@@ -641,7 +641,7 @@
 				                                     	inner join patient_program pg on p.patient_id = pg.patient_id                                                               
 				                                     	inner join patient_state ps on pg.patient_program_id = ps.patient_program_id                                           
 				                                 where pg.voided=0 and ps.voided=0 and p.voided=0 and pe.voided = 0 and pg.program_id = 2                                    
-				                                 		and ps.start_date<  CURDATE() and pg.location_id =:location group by pg.patient_id                                          
+				                                 		and ps.start_date<  CURDATE() and pg.location_id =3 group by pg.patient_id                                          
 			                             	) max_estado                                                                                                                        
 			                              	inner join patient_program pp on pp.patient_id = max_estado.patient_id                                                          
 			                                 	inner join patient_state ps on ps.patient_program_id = pp.patient_program_id and ps.start_date = max_estado.data_estado         
@@ -666,7 +666,7 @@
 								      select p.patient_id,max(e.encounter_datetime) encounter_datetime
 								      from patient p
 								      	inner join encounter e on e.patient_id = p.patient_id
-								      where p.voided = 0 and e.voided = 0 and e.encounter_datetime <  CURDATE() and e.location_id =:location and e.encounter_type=18
+								      where p.voided = 0 and e.voided = 0 and e.encounter_datetime <  CURDATE() and e.location_id =3 and e.encounter_type=18
 								      	group by p.patient_id
 			                      	)lev on saidas_por_transferencia.patient_id=lev.patient_id
 			                 	where lev.encounter_datetime<=saidas_por_transferencia.data_estado or lev.encounter_datetime is null
@@ -909,6 +909,7 @@
 		                        and o.value_coded=1695
 		                        and e.encounter_type=6 
 		                        and e.location_id=:location 
+		                        and o.obs_datetime<=:endDate
 		                        group by p.patient_id 
 		                      )cd4 on cd4.patient_id=coorteFinal.patient_id
 		                      left join
@@ -1104,11 +1105,13 @@
 								)estadiamentoClinico on estadiamentoClinico.patient_id = coorteFinal.patient_id 
 								left join
 								(
-								
-								  select cv.* 
+				               select cv.* 
 		                              from 
 		                              (
-		                           select cv.patient_id,cv.data_ultimo_resultado_cv data_ultimo_resultado_cv,cv.resultado_cv,cv.comments as comments
+		                           select cv.patient_id,
+		                                  cv.data_ultimo_resultado_cv data_ultimo_resultado_cv,
+		                                  if(cv.comments is null,cv.resultado_cv,concat(cv.resultado_cv,' ',cv.comments)) resultado_cv,
+		                                  cv.comments as comments
 								   from (
 							        select p.patient_id,o.obs_datetime  data_ultimo_resultado_cv,
 							        			  case o.value_coded 
@@ -1371,11 +1374,11 @@
 												                inner join obs o on o.encounter_id=e.encounter_id 
 												                where o.voided=0 and o.concept_id in(856,1305) and ((o.obs_datetime=cv.data_ultimo_resultado_cv_anterior and e.encounter_type in(53,90)) or (e.encounter_datetime=cv.data_ultimo_resultado_cv_anterior and  e.encounter_type in(13,6,51))) 
 												             )cvAnterior on cvAnterior.patient_id=ultimoCV.patient_id
-												             where cvAnterior.data_ultimo_resultado_cv_anterior<ultimoCV.data_ultimo_resultado_cv
+												             where date(cvAnterior.data_ultimo_resultado_cv_anterior)<date(ultimoCV.data_ultimo_resultado_cv)
 								                                   order by cvAnterior.data_ultimo_resultado_cv_anterior desc
 								                                   )final
 								                                   group by final.patient_id
 								                                   order by final.data_ultimo_resultado_cv desc
-										)finalCV on finalCV.patient_id=coorteFinal.patient_id
+										)finalCV on finalCV.patient_id=coorteFinal.patient_id 
 									  where saidas.patient_id is null
 									  group by coorteFinal.patient_id
