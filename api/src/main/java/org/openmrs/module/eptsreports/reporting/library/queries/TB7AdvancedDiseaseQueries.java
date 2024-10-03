@@ -74,10 +74,11 @@ public interface TB7AdvancedDiseaseQueries {
     }
 
     public static String findPatientsWithHighViralLoad =
-        "select penultimaCV.patient_id from ( "
+        "select penultimaCV.patient_id from "
+            + "( "
             + " select ultima_cv.patient_id, max(date(o.obs_datetime)) dataPenultimaCV "
             + "from( "
-            + "	select p.patient_id ,min(o.obs_datetime) data_cv "
+            + "	select p.patient_id ,max(date(o.obs_datetime)) data_cv "
             + "	from patient p "
             + "		inner join encounter e on p.patient_id=e.patient_id "
             + "		inner join obs o on e.encounter_id=o.encounter_id "
@@ -88,7 +89,7 @@ public interface TB7AdvancedDiseaseQueries {
             + "inner join encounter e on ultima_cv.patient_id=e.patient_id "
             + "		inner join obs o on e.encounter_id=o.encounter_id "
             + "		where e.voided=0 and o.voided=0 and concept_id in (856,1305) and  e.encounter_type in (13,51) "
-            + "	and o.obs_datetime < ultima_cv.data_cv and e.location_id=:location "
+            + "	and date(o.obs_datetime) < ultima_cv.data_cv and e.location_id=:location "
             + "	group by ultima_cv.patient_id "
             + "	) penultimaCV "
             + "	inner join encounter e on penultimaCV.patient_id=e.patient_id "
