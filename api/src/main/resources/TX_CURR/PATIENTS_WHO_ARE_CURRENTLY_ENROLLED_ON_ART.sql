@@ -1,4 +1,4 @@
-   select patient_id                                                                                                   
+   select %s                                                                                                   
              from                                                                                                                    
              (select inicio_fila_seg_prox.*,     
              	    GREATEST(COALESCE(data_proximo_lev,data_recepcao_levantou30), COALESCE(data_recepcao_levantou30,data_proximo_lev)) data_usar 
