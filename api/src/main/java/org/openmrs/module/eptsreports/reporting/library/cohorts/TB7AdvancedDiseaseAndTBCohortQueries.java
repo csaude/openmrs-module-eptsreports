@@ -1268,7 +1268,7 @@ public class TB7AdvancedDiseaseAndTBCohortQueries {
     definition.addParameter(new Parameter("endDate", "End Date", Date.class));
     definition.addParameter(new Parameter("location", "location", Location.class));
 
-    final String mappings = "endDate=${endDate-2m+1d},location=${location}";
+    final String mappings = "startDate=${endDate-2m+1d},endDate=${endDate-1m},location=${location}";
 
     definition.addSearch(
         "TBLAM-RESULTS",
