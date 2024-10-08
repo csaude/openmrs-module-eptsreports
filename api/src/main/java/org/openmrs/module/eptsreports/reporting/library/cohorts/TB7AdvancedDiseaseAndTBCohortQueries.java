@@ -132,7 +132,8 @@ public class TB7AdvancedDiseaseAndTBCohortQueries {
             this.getNumberOfClientsWithCd4ResultDuringInclusionPeriodIndicator3()));
 
     definition.addSearch(
-        "TBLAM", Mapped.mapStraightThrough(this.findPatientsWhoHaveTBLAMResults()));
+        "TBLAM",
+        Mapped.mapStraightThrough(this.findPatientsWithTBLAMResultsByreportGenereationDate()));
 
     definition.setCompositionString("CD4-IMMUNOSUPPRESSION and TBLAM");
 
@@ -1276,6 +1277,32 @@ public class TB7AdvancedDiseaseAndTBCohortQueries {
             this.genericCohortQueries.generalSql(
                 "Clients with TBLAM Results By the end of  Report Generation Date",
                 TB7AdvancedDiseaseQueries.QUERY.findPatientsWithTBLAMResults),
+            mappings));
+
+    definition.setCompositionString("TBLAM-RESULTS");
+
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "findPatientsWithTBLAMResultsByreportGenereationDate")
+  private CohortDefinition findPatientsWithTBLAMResultsByreportGenereationDate() {
+
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+
+    definition.setName("clients with TBLAM Result");
+    definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("location", "location", Location.class));
+
+    final String mappings = "endDate=${endDate-2m+1d},location=${location}";
+
+    definition.addSearch(
+        "TBLAM-RESULTS",
+        EptsReportUtils.map(
+            this.genericCohortQueries.generalSql(
+                "Clients with TBLAM Results By the end of  Report Generation Date",
+                TB7AdvancedDiseaseQueries.QUERY
+                    .findPatientsWithTBLAMResultsByreportGenereationDate),
             mappings));
 
     definition.setCompositionString("TBLAM-RESULTS");
