@@ -106,7 +106,7 @@ from(
 				and estadoFIM.concept_id=165308 and estadoFIM.value_coded=1267 and estadoFIM.voided=0
 				and estadoFIM.obs_datetime <:endDate  and  e.location_id=:location
 				group by p.patient_id	
-		) fimINH on fimINH.patient_id = inicio_INH.patient_id and fimINH.data_fim_INH  >=inicio_INH.data_inicio_INH + interval 173 day
+		) fimINH on fimINH.patient_id = inicio_INH.patient_id and fimINH.data_fim_INH between inicio_INH.data_inicio_INH + interval 173 day and inicio_INH.data_inicio_INH + interval 365 day
 		
 		union
 		

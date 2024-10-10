@@ -113,7 +113,7 @@ select inicio_3HP.patient_id, max( inicio_3HP.data_final_3HP)
 					group by p.patient_id
 							
 				) final group by final.patient_id				
-			) final3hp on final3hp.patient_id = inicio_3HP.patient_id and final3hp.data_final_3hp >= inicio_3HP.data_inicio_3HP + interval 86 day 
+			) final3hp on final3hp.patient_id = inicio_3HP.patient_id and final3hp.data_final_3hp between inicio_3HP.data_inicio_3HP + interval 86 day and inicio_3HP.data_inicio_3HP + interval 365 day
 			
 		union
 		
