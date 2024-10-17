@@ -271,7 +271,7 @@ public interface TB7AdvancedDiseaseQueries {
             + "  inner join encounter e on e.patient_id=p.patient_id                                                                                         "
             + "  inner join obs o on o.encounter_id=e.encounter_id                                                                                           "
             + "where p.voided=0 and  e.voided=0 and e.encounter_type = 90 and o.concept_id=23951 and o.value_coded in (703, 664)  and o.voided=0         "
-            + "  and  e.location_id=:location and  and o.obs_datetime between :startDate and :endDate                                                       ";
+            + "  and  e.location_id=:location and o.obs_datetime between :startDate and :endDate                                                       ";
 
     public static final String findPatientsWithTBLAMResultsByreportGenereationDate =
         "																						"
@@ -288,7 +288,7 @@ public interface TB7AdvancedDiseaseQueries {
             + "  inner join encounter e on e.patient_id=p.patient_id                                                                                         "
             + "  inner join obs o on o.encounter_id=e.encounter_id                                                                                           "
             + "where p.voided=0 and  e.voided=0 and e.encounter_type = 90 and o.concept_id=23951 and o.value_coded in (703, 664)  and o.voided=0         "
-            + "  and  e.location_id=:location and and o.obs_datetime between :endDate and CURDATE()                                                       ";
+            + "  and  e.location_id=:location and o.obs_datetime between :endDate and CURDATE()                                                       ";
 
     public static final String findPatientsWithNegativeTBLAMResults =
         "																							"
