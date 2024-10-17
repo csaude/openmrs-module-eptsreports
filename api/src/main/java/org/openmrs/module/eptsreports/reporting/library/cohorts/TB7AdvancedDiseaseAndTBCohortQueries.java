@@ -173,7 +173,13 @@ public class TB7AdvancedDiseaseAndTBCohortQueries {
     definition.addSearch(
         "TBLAM", Mapped.mapStraightThrough(this.findPatientsWhoHaveTBLAMResults()));
 
-    definition.setCompositionString("DENOMINATOR and TBLAM");
+    definition.addSearch(
+        "TRANSFERREDOUT",
+        Mapped.mapStraightThrough(this.findPatientsWhoAreTransferredOutByReportGenerationDate()));
+    definition.addSearch(
+        "DEAD", Mapped.mapStraightThrough(this.findPatientsWhoAreDeadByReportGenerationDate()));
+
+    definition.setCompositionString("(DENOMINATOR and TBLAM) NOT (TRANSFERREDOUT OR DEAD)");
 
     return definition;
   }
