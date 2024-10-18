@@ -1,5 +1,7 @@
 package org.openmrs.module.eptsreports.reporting.calculation.dsd;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
@@ -23,7 +25,12 @@ public class OnArtInitiatedArvDrugsMisaDefinitionCalculation extends BaseFghCalc
             .get(0)
             .getResutls(context);
     for (Integer pId : processorResult.keySet()) {
-      Date date = (Date) processorResult.get(pId);
+
+      Object dateProcessor = processorResult.get(pId);
+      LocalDateTime localDateTime = (LocalDateTime) dateProcessor;
+
+      Date date = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+
       if (date != null) {
         resultMap.put(pId, new SimpleResult(date, this));
       }
