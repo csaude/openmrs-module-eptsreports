@@ -117,7 +117,9 @@ from(
 			the INH Start Date (not including the INH Start Date)
 		 * 
 		 * */
-		select inicio_INH.patient_id, fimINH.data_fim_INH
+
+	select inicio_INH.patient_id, inicio_INH.data_fim_INH from (
+       select distinct inicio_INH.patient_id,fimINH.data_fim_INH, fimINH.encounter_id
 		from(
 			select inicio_INH.patient_id,inicio_INH.data_inicio_INH data_inicio_INH 
 			from (
@@ -146,8 +148,9 @@ from(
 			
 		) fimINH on fimINH.patient_id=inicio_INH.patient_id
 		where fimINH.data_fim_INH BETWEEN (inicio_INH.data_inicio_INH +interval 1 day) and (inicio_INH.data_inicio_INH + interval 7 month)
+		) inicio_INH
 		group by inicio_INH.patient_id
-		HAVING count(fimINH.encounter_id)>=5
+		HAVING count(inicio_INH.encounter_id)>=5
 		
 		union
 		 
