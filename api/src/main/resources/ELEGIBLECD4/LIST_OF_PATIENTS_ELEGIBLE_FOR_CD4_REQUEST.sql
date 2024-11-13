@@ -1634,223 +1634,257 @@
 								)estadiamentoClinico on estadiamentoClinico.patient_id = coorteFinal.patient_id 
 								left join
 								(
-								select ultimoCV.patient_id,
-		                                   max(ultimoCV.data_resultado) data_ultimo_resultado_cv,
-		                                   if(ultimoCV.comments is not null,concat(ultimoCV.resultado,' ',ultimoCV.comments),ultimoCV.resultado) resultado_cv,
-		                                   comments
-				                   from
-				                   ( 
-									 select final.patient_id,final.data_resultado, 
-	 					                     case o.value_coded 
-					                         when 23814  then 'INDETECTAVEL'
-									         when 165331 then 'MENOR QUE'
-										     when 1306   then 'NIVEL BAIXO DE DETECÇÃO'
-									         when 1304   then 'MA QUALIDADE DA AMOSTRA'
-										     when 23905  then 'MENOR QUE 10 COPIAS/ML'
-										     when 23906  then 'MENOR QUE 20 COPIAS/ML'
-									         when 23907  then 'MENOR QUE 40 COPIAS/ML'
-									         when 23908  then 'MENOR QUE 400 COPIAS/ML'
-							                 when 23904  then 'MENOR QUE 839 COPIAS/ML'
-								             when 165331 then CONCAT('MENOR QUE', ' ',o.comments)
-								             else null 
-										   end as resultado, o.comments 
-						                    
-						                    from 
-						                    (
-						                     select p.patient_id,max(e.encounter_datetime)  data_resultado
-											 from patient p   
-											 inner join encounter e on p.patient_id = e.patient_id   
-											 inner join obs o on o.encounter_id = e.encounter_id   
-										     where p.voided = 0 
-					                         and  e.voided = 0  
-							                 and  o.voided = 0     
-											 and  o.concept_id=1305
-											 and  e.encounter_type=6
-											 and  e.encounter_datetime<=:endDate
-											 and  e.location_id=:location
-											 
-											 group by p.patient_id
-										 )final
-						                  left join encounter e on e.patient_id=final.patient_id
-						                  left join obs o on o.encounter_id=e.encounter_id
-						                  WHERE e.encounter_type=6 and o.concept_id=1305 and e.voided=0 and o.voided=0  and o.obs_datetime=final.data_resultado
-					                  group by final.patient_id
-				       
-							      union
-				                     
-				                     select cv.patient_id,cv.data_resultado,o.value_numeric resultado, o.comments from 
-				                     (
-						           select cv.patient_id,max(cv.data_resultado) data_resultado
-						            from (
-						             select p.patient_id,e.encounter_datetime data_resultado
-					                  from patient p   
-					                  inner join encounter e on p.patient_id = e.patient_id
-					                  inner join obs o on o.encounter_id=e.encounter_id   
-					                  where p.voided = 0 
-					                  and e.voided = 0  
-					                  and e.encounter_datetime <=:endDate
-					                  and e.encounter_type=6
-					                  and o.concept_id=856 
-					                  and e.location_id=:location
-					                  
-					                  and o.voided=0
-					                  )cv 
-					                  group by cv.patient_id
-					                  )cv
-					                  left join encounter e on e.patient_id=cv.patient_id
-					                  left join obs o on o.encounter_id=e.encounter_id
-					                  WHERE e.encounter_type=6 and o.concept_id=856 and e.voided=0 and o.voided=0  and o.obs_datetime=cv.data_resultado
-					                  group by cv.patient_id
-				                  )ultimoCV
-				                  group by ultimoCV.patient_id	
-								)ultimoCV on ultimoCV.patient_id=coorteFinal.patient_id 
-								left join
-								(
-						       select ultimoCV.patient_id,
-		                          ultimoCV.data_resultado,
-		                          ultimoCV.resultado,
-		                          max(cvAnterior.data_resultado_anterior) data_ultimo_resultado_cv_anterior,
-		                          cvAnterior.resultado_anterior,
-		                          if(ultimoCV.comments is not null,concat(ultimoCV.resultado,' ',ultimoCV.comments),ultimoCV.resultado ) resultado_cv,
-		                          if(cvAnterior.comments is not null,concat(cvAnterior.resultado_anterior,' ',cvAnterior.comments),cvAnterior.resultado_anterior) resultado_cv_anterior,
-		                          date_sub(ultimoCV.data_resultado,interval 3 month)
-					              from ( 
-
-						     		  select final.patient_id,final.data_resultado, 
-	 					                     case o.value_coded 
-					                         when 23814  then 'INDETECTAVEL'
-									     when 165331 then 'MENOR QUE'
-										when 1306   then 'NIVEL BAIXO DE DETECÇÃO'
-									     when 1304   then 'MA QUALIDADE DA AMOSTRA'
-										when 23905  then 'MENOR QUE 10 COPIAS/ML'
-										when 23906  then 'MENOR QUE 20 COPIAS/ML'
-									     when 23907  then 'MENOR QUE 40 COPIAS/ML'
-								          when 23908  then 'MENOR QUE 400 COPIAS/ML'
-						                    when 23904  then 'MENOR QUE 839 COPIAS/ML'
-							               when 165331 then CONCAT('MENOR QUE', ' ',o.comments)
-							               else null 
-									     end as resultado, o.comments 
-					                    
-					                    from 
-					                    (
-					                     select p.patient_id,max(e.encounter_datetime)  data_resultado
-										 from patient p   
-										 inner join encounter e on p.patient_id = e.patient_id   
-										 inner join obs o on o.encounter_id = e.encounter_id   
-									     where p.voided = 0 
-				                         and  e.voided = 0  
-						                 and  o.voided = 0     
-										 and  o.concept_id=1305
-										 and  e.encounter_type=6
-										 and  e.encounter_datetime<=:endDate
-										 and  e.location_id=:location
-										 group by p.patient_id
-									 )final
-					                  left join encounter e on e.patient_id=final.patient_id
-					                  left join obs o on o.encounter_id=e.encounter_id
-					                  WHERE e.encounter_type=6 and o.concept_id=1305 and e.voided=0 and o.voided=0  and o.obs_datetime=final.data_resultado
-										 union
-										 
-						                     select cv.patient_id,cv.data_resultado,o.value_numeric resultado, o.comments from 
-						                     (
-								           select cv.patient_id,max(cv.data_resultado) data_resultado
-								            from (
-								             select p.patient_id,e.encounter_datetime data_resultado
-							                  from patient p   
-							                  inner join encounter e on p.patient_id = e.patient_id
-							                  inner join obs o on o.encounter_id=e.encounter_id   
-							                  where p.voided = 0 
-							                  and e.voided = 0  
-							                  and e.encounter_datetime <=:endDate
-							                  and e.encounter_type=6
-							                  and o.concept_id=856 
-							                  and e.location_id=:location
-							                  and o.voided=0
-							                  )cv 
-							                  group by cv.patient_id
-							                  )cv
-							                  left join encounter e on e.patient_id=cv.patient_id
-							                  left join obs o on o.encounter_id=e.encounter_id
-							                  WHERE e.encounter_type=6 and o.concept_id=856 and e.voided=0 and o.voided=0  and o.obs_datetime=cv.data_resultado
-							                  group by cv.patient_id
-						                  )ultimoCV
-						                  left join 
-						                 (
-							                select p.patient_id,e.encounter_datetime data_resultado_anterior,
-					                          case o.value_coded 
-					                          when 23814  then 'INDETECTAVEL'
-									          when 165331 then 'MENOR QUE'
-										      when 1306   then 'NIVEL BAIXO DE DETECÇÃO'
-									          when 1304   then 'MA QUALIDADE DA AMOSTRA'
-										      when 23905  then 'MENOR QUE 10 COPIAS/ML'
-										      when 23906  then 'MENOR QUE 20 COPIAS/ML'
-									          when 23907  then 'MENOR QUE 40 COPIAS/ML'
-										      when 23908  then 'MENOR QUE 400 COPIAS/ML'
-							                  when 23904  then 'MENOR QUE 839 COPIAS/ML'
-										      when 165331 then CONCAT('MENOR QUE', ' ',o.comments)
-								              else null 
-											 end as resultado_anterior,o.comments
-											 from patient p   
-											 inner join encounter e on p.patient_id = e.patient_id   
-											 inner join obs o on o.encounter_id = e.encounter_id   
-										      where p.voided = 0 
-					                               and  e.voided = 0  
-							                     and  o.voided = 0     
-											 and  o.concept_id=1305
-											 and  e.encounter_type=6
-											 and  e.encounter_datetime<=:endDate
-											 and  e.location_id=:location 
-											 union
-									           select p.patient_id,o.obs_datetime data_resultado_anterior, o.value_numeric as resultado_anterior,o.comments
-									                from patient p   
-									              inner join encounter e on p.patient_id = e.patient_id   
-									              inner join obs o on o.encounter_id = e.encounter_id   
-									              where p.voided = 0 
-									              and e.voided = 0  
-									              and o.voided = 0
-									              and  o.concept_id=856
-									              and  o.obs_datetime<=:endDate
-									              and e.encounter_type=6 
-									              and e.location_id=:location 
-								             ) cvAnterior on cvAnterior.patient_id=ultimoCV.patient_id
-								            where cvAnterior.data_resultado_anterior<date_sub(ultimoCV.data_resultado,interval 3 month)
-								              group by patient_id
-								)finalCVFC on finalCVFC.patient_id=coorteFinal.patient_id
-								left join
-								(
-								                                         select ultimoCV.patient_id,
-		                                  max(ultimoCV.data_resultado) data_ultimo_resultado_cv_lab,
-		                                  ultimoCV.resultado,
-		                                  if(ultimoCV.comments is not null,concat(ultimoCV.resultado,' ',ultimoCV.comments),ultimoCV.resultado) resultado_cv_lab,
-		                                  comments
-				                   from
-				                   ( 
-				                   		 select cv.patient_id,max(cv.data_resultado) data_resultado, cv.resultado,cv.comments from
-				                   		 (
-				                          select final.patient_id,final.data_resultado, 
-		 					                     case o.value_coded 
+								    select  f.patient_id,
+		                                    f.data_resultado data_ultimo_resultado_cv,
+		                                    if(f.comments is not null,concat(f.resultado,' ',f.comments),f.resultado) resultado_cv 
+		                              from 
+		                              (
+		                                           	
+		                               select final.patient_id,final.data_resultado data_resultado,o.value_numeric as resultado,o.comments from
+		                                           	(
+									           select cv.patient_id,max(cv.data_resultado) data_resultado,cv.comments
+									            from (
+									             select p.patient_id,e.encounter_datetime data_resultado,o.comments
+								                  from patient p   
+								                  inner join encounter e on p.patient_id = e.patient_id
+								                  inner join obs o on o.encounter_id=e.encounter_id   
+								                  where p.voided = 0 
+								                  and e.voided = 0  
+								                  and e.encounter_datetime <=:endDate
+								                  and e.encounter_type=6
+								                  and o.concept_id=856 
+								                  and e.location_id=:location
+								                  and o.voided=0
+								                  )cv 
+								                  group by cv.patient_id
+								                  )final
+								                  left join encounter e on e.patient_id=final.patient_id
+								                  left join obs o on o.encounter_id=e.encounter_id
+								                  where e.encounter_type=6 and e.voided=0 and o.voided=0 and e.encounter_datetime=final.data_resultado and o.concept_id=856
+								                 
+								                  union
+							         
+								     		   select final.patient_id,final.data_resultado, 
+			 					                     case o.value_coded 
 							                         when 23814  then 'INDETECTAVEL'
-											     when 165331 then 'MENOR QUE'
-												when 1306   then 'NIVEL BAIXO DE DETECÇÃO'
-											     when 1304   then 'MA QUALIDADE DA AMOSTRA'
-												when 23905  then 'MENOR QUE 10 COPIAS/ML'
-												when 23906  then 'MENOR QUE 20 COPIAS/ML'
-											     when 23907  then 'MENOR QUE 40 COPIAS/ML'
-											     when 23908  then 'MENOR QUE 400 COPIAS/ML'
-								                    when 23904  then 'MENOR QUE 839 COPIAS/ML'
-									               when 165331 then CONCAT('MENOR QUE', ' ',o.comments)
-									               else null 
-											     end as resultado, o.comments 
+											         when 165331 then 'MENOR QUE'
+												     when 1306   then 'NIVEL BAIXO DE DETECÇÃO'
+											         when 1304   then 'MA QUALIDADE DA AMOSTRA'
+												     when 23905  then 'MENOR QUE 10 COPIAS/ML'
+												     when 23906  then 'MENOR QUE 20 COPIAS/ML'
+											         when 23907  then 'MENOR QUE 40 COPIAS/ML'
+										             when 23908  then 'MENOR QUE 400 COPIAS/ML'
+								                     when 23904  then 'MENOR QUE 839 COPIAS/ML'
+									                 when 165331 then CONCAT('MENOR QUE', ' ',o.comments)
+									                 else null 
+											         end as resultado,o.comments
 							                    
 							                    from 
 							                    (
-							                     select p.patient_id,max(e.encounter_datetime)  data_resultado
+							                     select p.patient_id,max(e.encounter_datetime)  data_resultado,o.comments
+												 from patient p   
+												 inner join encounter e on p.patient_id = e.patient_id   
+												 inner join obs o on o.encounter_id = e.encounter_id   
+											     where p.voided = 0 
+						                         and  e.voided = 0  
+								                 and  o.voided = 0     
+												 and  o.concept_id=1305
+												 and  e.encounter_type=6
+												 and  e.encounter_datetime<=:endDate
+												 and  e.location_id=:location
+												 group by p.patient_id
+											 )final
+							                  left join encounter e on e.patient_id=final.patient_id
+							                  left join obs o on o.encounter_id=e.encounter_id
+							                  WHERE e.encounter_type=6 and o.concept_id=1305 and e.voided=0 and o.voided=0  and o.obs_datetime=final.data_resultado
+							                  )f group by patient_id order by data_resultado desc
+							                  
+									                  
+								)ultimoCV on ultimoCV.patient_id=coorteFinal.patient_id 
+								left join
+								(
+						     	 		   select finalCV.*,
+		                                           if(final.comments is not null,concat(final.resultado_anterior,' ',final.comments),final.resultado_anterior) resultado_cv_anterior
+		                                            
+		                                           from
+		                                           (
+		                                           select lastCV.*,
+		                                           max(e.encounter_datetime) data_ultimo_resultado_cv_anterior
+		                                           
+		                                           from
+		                                           (
+		                                           	select  f.patient_id,
+		                                           	        f.data_resultado data_ultimo_resultado_cv,
+		                                           	        if(f.comments is not null,concat(f.resultado,' ',f.comments),f.resultado) resultado_cv
+		                                           	        
+		                                           	from 
+		                                           	(
+		                                           	
+		                                           	select final.patient_id,final.data_resultado data_resultado,o.value_numeric as resultado,o.comments from
+		                                           	(
+									           select cv.patient_id,max(date(cv.data_resultado)) data_resultado,cv.comments
+									            from (
+									             select p.patient_id,e.encounter_datetime data_resultado,o.comments
+								                  from patient p   
+								                  inner join encounter e on p.patient_id = e.patient_id
+								                  inner join obs o on o.encounter_id=e.encounter_id   
+								                  where p.voided = 0 
+								                  and e.voided = 0  
+								                  and e.encounter_datetime <=:endDate
+								                  and e.encounter_type=6
+								                  and o.concept_id=856 
+								                  and e.location_id=:location
+								                  and o.voided=0
+								                  )cv 
+								                  group by cv.patient_id
+								                  )final
+								                  left join encounter e on e.patient_id=final.patient_id
+								                  left join obs o on o.encounter_id=e.encounter_id
+								                  where e.encounter_type=6 and e.voided=0 and o.voided=0 and e.encounter_datetime=final.data_resultado and o.concept_id=856
+								                 
+								                  union
+							         
+								     		   select final.patient_id,final.data_resultado, 
+			 					                     case o.value_coded 
+							                         when 23814  then 'INDETECTAVEL'
+											         when 165331 then 'MENOR QUE'
+												     when 1306   then 'NIVEL BAIXO DE DETECÇÃO'
+											         when 1304   then 'MA QUALIDADE DA AMOSTRA'
+												     when 23905  then 'MENOR QUE 10 COPIAS/ML'
+												     when 23906  then 'MENOR QUE 20 COPIAS/ML'
+											         when 23907  then 'MENOR QUE 40 COPIAS/ML'
+										             when 23908  then 'MENOR QUE 400 COPIAS/ML'
+								                     when 23904  then 'MENOR QUE 839 COPIAS/ML'
+									                 when 165331 then CONCAT('MENOR QUE', ' ',o.comments)
+									                 else null 
+											         end as resultado,o.comments
+							                    
+							                    from 
+							                    (
+							                     select p.patient_id,max(date(e.encounter_datetime))  data_resultado,o.comments
 												 from patient p   
 												 inner join encounter e on p.patient_id = e.patient_id   
 												 inner join obs o on o.encounter_id = e.encounter_id   
 											     where p.voided = 0 
 						                               and  e.voided = 0  
 								                     and  o.voided = 0     
+												 and  o.concept_id=1305
+												 and  e.encounter_type=6
+												 and  e.encounter_datetime<=:endDate
+												 and  e.location_id=:location
+												 group by p.patient_id
+											 )final
+							                  left join encounter e on e.patient_id=final.patient_id
+							                  left join obs o on o.encounter_id=e.encounter_id
+							                  WHERE e.encounter_type=6 and o.concept_id=1305 and e.voided=0 and o.voided=0  and o.obs_datetime=final.data_resultado
+							                  )f group by patient_id order by data_resultado desc
+							                  )lastCV 
+							                  left join encounter e on e.patient_id=lastCV.patient_id
+							                  left join obs o on o.encounter_id=e.encounter_id
+							                  where e.voided=0 and o.voided=0 and e.encounter_type=6 and date(e.encounter_datetime) < date_sub(date(lastCV.data_ultimo_resultado_cv), interval 3 month) and o.concept_id in(856,1305)
+							                  group by lastCV.patient_id
+							                  )finalCV
+							                  left join
+							                  ( 
+								              select final.* 
+	                                                 from
+	                                                 (
+	                                                   select p.patient_id,e.encounter_datetime data_resultado_anterior,
+						                          case o.value_coded 
+						                               when 23814  then 'INDETECTAVEL'
+										           when 165331 then 'MENOR QUE'
+											      when 1306   then 'NIVEL BAIXO DE DETECÇÃO'
+										           when 1304   then 'MA QUALIDADE DA AMOSTRA'
+											       when 23905  then 'MENOR QUE 10 COPIAS/ML'
+											       when 23906  then 'MENOR QUE 20 COPIAS/ML'
+										           when 23907  then 'MENOR QUE 40 COPIAS/ML'
+											       when 23908  then 'MENOR QUE 400 COPIAS/ML'
+								                   when 23904  then 'MENOR QUE 839 COPIAS/ML'
+											       when 165331 then CONCAT('MENOR QUE', ' ',o.comments)
+									               else null 
+												   end as resultado_anterior,o.comments
+													 from patient p   
+													 inner join encounter e on p.patient_id = e.patient_id   
+													 inner join obs o on o.encounter_id = e.encounter_id   
+												      where p.voided = 0 
+							                         and  e.voided = 0  
+									                 and  o.voided = 0     
+													 and  o.concept_id=1305
+													 and  e.encounter_type=6
+													 and  e.encounter_datetime<=:endDate
+													 and  e.location_id=:location 
+													 union
+											           select p.patient_id,o.obs_datetime data_resultado_anterior, o.value_numeric as resultado_anterior,o.comments
+											                from patient p   
+											              inner join encounter e on p.patient_id = e.patient_id   
+											              inner join obs o on o.encounter_id = e.encounter_id   
+											              where p.voided = 0 
+											              and e.voided = 0  
+											              and o.voided = 0
+											              and  o.concept_id=856
+											              and  o.obs_datetime<=:endDate
+											              and e.encounter_type=6 
+											              and e.location_id=:location 
+										              )final
+										              ) final on final.patient_id=finalCV.patient_id
+										              where date(final.data_resultado_anterior)=date(finalCV.data_ultimo_resultado_cv_anterior) 	
+								 )finalCVFC on finalCVFC.patient_id=coorteFinal.patient_id
+								left join
+								(
+								    select  f.patient_id,
+		                                    f.data_resultado data_ultimo_resultado_cv_lab,
+		                                    if(f.comments is not null,concat(f.resultado,' ',f.comments),f.resultado) resultado_cv_lab 
+		                              from 
+		                              (
+		                                           	
+		                               select final.patient_id,final.data_resultado data_resultado,o.value_numeric as resultado,o.comments from
+		                                           	(
+									           select cv.patient_id,max(cv.data_resultado) data_resultado,cv.comments
+									            from (
+									             select p.patient_id,e.encounter_datetime data_resultado,o.comments
+								                  from patient p   
+								                  inner join encounter e on p.patient_id = e.patient_id
+								                  inner join obs o on o.encounter_id=e.encounter_id   
+								                  where p.voided = 0 
+								                  and e.voided = 0  
+								                  and e.encounter_datetime <=:endDate
+								                  and e.encounter_type in(13,51)
+								                  and o.concept_id=856 
+								                  and e.location_id=:location
+								                  and o.voided=0
+								                  )cv 
+								                  group by cv.patient_id
+								                  )final
+								                  left join encounter e on e.patient_id=final.patient_id
+								                  left join obs o on o.encounter_id=e.encounter_id
+								                  where e.encounter_type in(13,51) and e.voided=0 and o.voided=0 and e.encounter_datetime=final.data_resultado and o.concept_id=856
+								                 
+								                  union
+							         
+								     		   select final.patient_id,final.data_resultado, 
+			 					                     case o.value_coded 
+							                         when 23814  then 'INDETECTAVEL'
+											         when 165331 then 'MENOR QUE'
+												     when 1306   then 'NIVEL BAIXO DE DETECÇÃO'
+											         when 1304   then 'MA QUALIDADE DA AMOSTRA'
+												     when 23905  then 'MENOR QUE 10 COPIAS/ML'
+												     when 23906  then 'MENOR QUE 20 COPIAS/ML'
+											         when 23907  then 'MENOR QUE 40 COPIAS/ML'
+										             when 23908  then 'MENOR QUE 400 COPIAS/ML'
+								                     when 23904  then 'MENOR QUE 839 COPIAS/ML'
+									                 when 165331 then CONCAT('MENOR QUE', ' ',o.comments)
+									                 else null 
+											         end as resultado,o.comments
+							                    
+							                    from 
+							                    (
+							                     select p.patient_id,max(e.encounter_datetime)  data_resultado,o.comments
+												 from patient p   
+												 inner join encounter e on p.patient_id = e.patient_id   
+												 inner join obs o on o.encounter_id = e.encounter_id   
+											     where p.voided = 0 
+						                         and  e.voided = 0  
+								                 and  o.voided = 0     
 												 and  o.concept_id=1305
 												 and  e.encounter_type in(13,51)
 												 and  e.encounter_datetime<=:endDate
@@ -1859,48 +1893,53 @@
 											 )final
 							                  left join encounter e on e.patient_id=final.patient_id
 							                  left join obs o on o.encounter_id=e.encounter_id
-							                  WHERE e.encounter_type=6 and o.concept_id=1305 and e.voided=0 and o.voided=0  and o.obs_datetime=final.data_resultado
-						                       group by final.patient_id
-									
-										 union
-						                     
-						                     select cv.patient_id,cv.data_resultado,o.value_numeric resultado, o.comments from 
-						                     (
-								           select cv.patient_id,max(cv.data_resultado) data_resultado
-								            from (
-								             select p.patient_id,e.encounter_datetime data_resultado
-							                  from patient p   
-							                  inner join encounter e on p.patient_id = e.patient_id
-							                  inner join obs o on o.encounter_id=e.encounter_id   
-							                  where p.voided = 0 
-							                  and e.voided = 0  
-							                  and e.encounter_datetime <=:endDate
-							                  and e.encounter_type in(13,51)
-							                  and o.concept_id=856 
-							                  and e.location_id=:location
-							                  and o.voided=0
-							                  )cv 
-							                  group by cv.patient_id
-							                  )cv
-							                  left join encounter e on e.patient_id=cv.patient_id
-							                  left join obs o on o.encounter_id=e.encounter_id
-							                  WHERE e.encounter_type in(13,51) and o.concept_id=856 and e.voided=0 and o.voided=0  and o.obs_datetime=cv.data_resultado
-							                  group by cv.patient_id
-							                  )cv group by cv.patient_id
-							                  )ultimoCV
-							                  group by ultimoCV.patient_id
-								)ultimoCVLAB  on ultimoCVLAB.patient_id=coorteFinal.patient_id
+							                  WHERE e.encounter_type in(13,51) and o.concept_id=1305 and e.voided=0 and o.voided=0  and o.obs_datetime=final.data_resultado
+							                  )f group by patient_id order by data_resultado desc
+								 )ultimoCVLAB  on ultimoCVLAB.patient_id=coorteFinal.patient_id
 								left join
 								(
-								select ultimoCV.patient_id,
-		                          ultimoCV.data_resultado,
-		                          ultimoCV.resultado,
-		                          max(cvAnterior.data_resultado_anterior) data_ultimo_resultado_cv_anterior_lab,
-		                          cvAnterior.resultado_anterior resultado_anterior_lab,
-		                          if(ultimoCV.comments is not null,concat(ultimoCV.resultado,' ',ultimoCV.comments),ultimoCV.resultado) resultado_cv_lab,
-		                          if(cvAnterior.comments is not null,concat(cvAnterior.resultado_anterior,' ',cvAnterior.comments),cvAnterior.resultado_anterior) resultado_cv_anterior_lab
-					              from ( 
-				                            select final.patient_id,final.data_resultado, 
+										    select finalCV.*,
+		                                           if(final.comments is not null,concat(final.resultado_anterior,' ',final.comments),final.resultado_anterior) resultado_cv_anterior_lab
+		                                            
+		                                           from
+		                                           (
+		                                           select lastCV.*,
+		                                           max(e.encounter_datetime) data_ultimo_resultado_cv_anterior_lab
+		                                           
+		                                           from
+		                                           (
+		                                           	select  f.patient_id,
+		                                           	        f.data_resultado data_ultimo_resultado_cv,
+		                                           	        if(f.comments is not null,concat(f.resultado,' ',f.comments),f.resultado) resultado_cv
+		                                           	        
+		                                           	from 
+		                                           	(
+		                                           	
+		                                           	select final.patient_id,final.data_resultado data_resultado,o.value_numeric as resultado,o.comments from
+		                                           	(
+									           select cv.patient_id,max(cv.data_resultado) data_resultado,cv.comments
+									            from (
+									             select p.patient_id,e.encounter_datetime data_resultado,o.comments
+								                  from patient p   
+								                  inner join encounter e on p.patient_id = e.patient_id
+								                  inner join obs o on o.encounter_id=e.encounter_id   
+								                  where p.voided = 0 
+								                  and e.voided = 0  
+								                  and e.encounter_datetime <=:endDate
+								                  and e.encounter_type in(13,51)
+								                  and o.concept_id=856 
+								                  and e.location_id=:location
+								                  and o.voided=0
+								                  )cv 
+								                  group by cv.patient_id
+								                  )final
+								                  left join encounter e on e.patient_id=final.patient_id
+								                  left join obs o on o.encounter_id=e.encounter_id
+								                  where e.encounter_type in(13,51) and e.voided=0 and o.voided=0 and e.encounter_datetime=final.data_resultado and o.concept_id=856
+								                 
+								                  union
+							         
+								     		   select final.patient_id,final.data_resultado, 
 			 					                     case o.value_coded 
 							                         when 23814  then 'INDETECTAVEL'
 											     when 165331 then 'MENOR QUE'
@@ -1913,11 +1952,11 @@
 								                    when 23904  then 'MENOR QUE 839 COPIAS/ML'
 									               when 165331 then CONCAT('MENOR QUE', ' ',o.comments)
 									               else null 
-											     end as resultado, o.comments 
+											     end as resultado,o.comments
 							                    
 							                    from 
 							                    (
-							                     select p.patient_id,max(e.encounter_datetime)  data_resultado
+							                     select p.patient_id,max(e.encounter_datetime)  data_resultado,o.comments
 												 from patient p   
 												 inner join encounter e on p.patient_id = e.patient_id   
 												 inner join obs o on o.encounter_id = e.encounter_id   
@@ -1932,72 +1971,58 @@
 											 )final
 							                  left join encounter e on e.patient_id=final.patient_id
 							                  left join obs o on o.encounter_id=e.encounter_id
-							                  WHERE e.encounter_type=6 and o.concept_id=1305 and e.voided=0 and o.voided=0  and o.obs_datetime=final.data_resultado
-										 union
-						                     select cv.patient_id,cv.data_resultado,o.value_numeric resultado, o.comments from 
-						                     (
-								           select cv.patient_id,max(cv.data_resultado) data_resultado
-								            from (
-								             select p.patient_id,e.encounter_datetime data_resultado
-							                  from patient p   
-							                  inner join encounter e on p.patient_id = e.patient_id
-							                  inner join obs o on o.encounter_id=e.encounter_id   
-							                  where p.voided = 0 
-							                  and e.voided = 0  
-							                  and e.encounter_datetime <=:endDate
-							                  and e.encounter_type in(13,51)
-							                  and o.concept_id=856 
-							                  and e.location_id=:location
-							                  and o.voided=0
-							                  )cv 
-							                  group by cv.patient_id
-							                  )cv
-							                  left join encounter e on e.patient_id=cv.patient_id
+							                  WHERE e.encounter_type in(13,51) and o.concept_id=1305 and e.voided=0 and o.voided=0  and o.obs_datetime=final.data_resultado
+							                  )f group by patient_id order by data_resultado desc
+							                  )lastCV 
+							                  left join encounter e on e.patient_id=lastCV.patient_id
 							                  left join obs o on o.encounter_id=e.encounter_id
-							                  WHERE e.encounter_type in(13,51) and o.concept_id=856 and e.voided=0 and o.voided=0  and o.obs_datetime=cv.data_resultado
-							                  group by cv.patient_id
-						                  )ultimoCV
-						                  left join 
-						                 (
-							                select p.patient_id,e.encounter_datetime data_resultado_anterior,
-					                          case o.value_coded 
-					                          when 23814  then 'INDETECTAVEL'
-									          when 165331 then 'MENOR QUE'
-										      when 1306   then 'NIVEL BAIXO DE DETECÇÃO'
-									          when 1304   then 'MA QUALIDADE DA AMOSTRA'
-										      when 23905  then 'MENOR QUE 10 COPIAS/ML'
-										      when 23906  then 'MENOR QUE 20 COPIAS/ML'
-									          when 23907  then 'MENOR QUE 40 COPIAS/ML'
-										      when 23908  then 'MENOR QUE 400 COPIAS/ML'
-							                  when 23904  then 'MENOR QUE 839 COPIAS/ML'
-										      when 165331 then CONCAT('MENOR QUE', ' ',o.comments)
-								              else null 
-											 end as resultado_anterior,o.comments
-											 from patient p   
-											 inner join encounter e on p.patient_id = e.patient_id   
-											 inner join obs o on o.encounter_id = e.encounter_id   
-										      where p.voided = 0 
-					                         and  e.voided = 0  
-							                 and  o.voided = 0     
-											 and  o.concept_id=1305
-											 and  e.encounter_type in(13,51)
-											 and  e.encounter_datetime<=:endDate
-											 and  e.location_id=:location 
-											 union
-									           select p.patient_id,o.obs_datetime data_resultado_anterior, o.value_numeric as resultado_anterior,o.comments
-									                from patient p   
-									              inner join encounter e on p.patient_id = e.patient_id   
-									              inner join obs o on o.encounter_id = e.encounter_id   
-									              where p.voided = 0 
-									              and e.voided = 0  
-									              and o.voided = 0
-									              and  o.concept_id=856
-									              and  o.obs_datetime<=:endDate
-									              and e.encounter_type=13 
-									              and e.location_id=:location 
-								             ) cvAnterior on cvAnterior.patient_id=ultimoCV.patient_id
-								            where cvAnterior.data_resultado_anterior<date_sub(ultimoCV.data_resultado,interval 3 month)
-								              group by patient_id
+							                  where e.voided=0 and o.voided=0 and e.encounter_type in(13,51) and e.encounter_datetime < date_sub(lastCV.data_ultimo_resultado_cv, interval 3 month) and o.concept_id in(856,1305)
+							                  group by lastCV.patient_id
+							                  )finalCV
+							                  left join
+							                  ( 
+								              select final.* 
+	                                                 from
+	                                                 (
+	                                                   select p.patient_id,e.encounter_datetime data_resultado_anterior,
+						                          case o.value_coded 
+						                               when 23814  then 'INDETECTAVEL'
+										           when 165331 then 'MENOR QUE'
+											      when 1306   then 'NIVEL BAIXO DE DETECÇÃO'
+										           when 1304   then 'MA QUALIDADE DA AMOSTRA'
+											      when 23905  then 'MENOR QUE 10 COPIAS/ML'
+											      when 23906  then 'MENOR QUE 20 COPIAS/ML'
+										           when 23907  then 'MENOR QUE 40 COPIAS/ML'
+											      when 23908  then 'MENOR QUE 400 COPIAS/ML'
+								                  when 23904  then 'MENOR QUE 839 COPIAS/ML'
+											      when 165331 then CONCAT('MENOR QUE', ' ',o.comments)
+									              else null 
+												 end as resultado_anterior,o.comments
+												 from patient p   
+												 inner join encounter e on p.patient_id = e.patient_id   
+												 inner join obs o on o.encounter_id = e.encounter_id   
+											      where p.voided = 0 
+						                               and  e.voided = 0  
+								                     and  o.voided = 0     
+												 and  o.concept_id=1305
+												 and  e.encounter_type in(13,51)
+												 and  e.encounter_datetime<=:endDate
+												 and  e.location_id=:location 
+												 union
+										           select p.patient_id,o.obs_datetime data_resultado_anterior, o.value_numeric as resultado_anterior,o.comments
+										                from patient p   
+										              inner join encounter e on p.patient_id = e.patient_id   
+										              inner join obs o on o.encounter_id = e.encounter_id   
+										              where p.voided = 0 
+										              and e.voided = 0  
+										              and o.voided = 0
+										              and  o.concept_id=856
+										              and  o.obs_datetime<=:endDate
+										              and e.encounter_type in(13,51) 
+										              and e.location_id=:location 
+									              )final
+									              ) final on final.patient_id=finalCV.patient_id
+									              where date(final.data_resultado_anterior)=date(finalCV.data_ultimo_resultado_cv_anterior_lab) 
 							   )finalCVLAB on finalCVLAB.patient_id=coorteFinal.patient_id
 							    where saidas.patient_id is null
 								group by coorteFinal.patient_id
