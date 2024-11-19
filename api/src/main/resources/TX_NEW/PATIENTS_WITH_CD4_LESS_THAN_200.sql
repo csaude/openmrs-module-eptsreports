@@ -1,8 +1,8 @@
-select patient_id
+select tx_new.patient_id
 from (
-		select tx_new.patient_id, min(tx_new.data_cd4)
+		select tx_new.patient_id, min(tx_new.data_cd4) data_cd4,tx_new.data_cd4__greater
 		from (
-		select tx_new.patient_id, tx_new.art_start_date,first_cd4.data_cd4  from  
+		select tx_new.patient_id, tx_new.art_start_date,first_cd4.data_cd4,first_cd4.data_cd4__greater  from  
 		(
 		select tx_new.patient_id, tx_new.art_start_date  from  
 		(
@@ -55,7 +55,7 @@ from (
 		                              group by p.patient_id
 		                  ) 
 		            art_start group by patient_id 
-		      ) tx_new where art_start_date between :startDate and :endDate and art_start_date < '2023-12-21'
+		      ) tx_new where art_start_date between '2024-03-21' and :endDate and art_start_date < '2023-12-21'
 		      union
 		      select tx_new.patient_id, tx_new.art_start_date 
 		      from 
@@ -85,7 +85,7 @@ from (
 		                                          group by p.patient_id
 		                              ) 
 		                        art_start group by patient_id 
-		                  ) tx_new where art_start_date between :startDate and :endDate and art_start_date >= '2023-12-21'
+		                  ) tx_new where art_start_date between '2024-03-21' and :endDate and art_start_date >= '2023-12-21'
 		            ) tx_new
 		            left join
 		            (
@@ -128,9 +128,9 @@ from (
 				inner join person pe on pe.person_id = tx_new.patient_id
 				where (pe.birthdate is not null and floor(datediff(tx_new.art_start_date,pe.birthdate )/365) >= 5) or pe.birthdate is  null
 		) tx_new
-		inner join
+		left join
 		(     
-			select first_cd4.patient_id, first_cd4.data_cd4
+			select first_cd4.patient_id, first_cd4.data_cd4 data_cd4,first_cd4_greater.data_cd4__greater
 		     from (
 		      	select first_cd4.patient_id, first_cd4.data_cd4 data_cd4
 		      	from( 
@@ -162,7 +162,7 @@ from (
 					
 					union
 					
-					select p.patient_id, e.encounter_datetime data_cd4
+					select p.patient_id,cd4.obs_datetime  data_cd4
 					from patient p
 					   inner join encounter e on e.patient_id = p.patient_id
 					   inner join obs cd4 on cd4.encounter_id = e.encounter_id
@@ -181,7 +181,7 @@ from (
 		      ) first_cd4
 		      left join
 		      ( 
-		      	select first_cd4.patient_id, first_cd4.data_cd4 data_cd4
+		      	select first_cd4.patient_id, first_cd4.data_cd4 data_cd4__greater
 		      	from( 
 					select p.patient_id, lastCD4.obs_datetime data_cd4
 					from patient p
@@ -192,7 +192,7 @@ from (
 					 
 					union
 					
-					select p.patient_id, artStartDate.value_datetime data_cd4
+					select p.patient_id, artStartDate.value_datetime data_cd4__greater
 					from patient p
 					   inner join encounter e on e.patient_id = p.patient_id
 					   inner join obs cd4ArtStart on cd4ArtStart.encounter_id = e.encounter_id
@@ -202,7 +202,7 @@ from (
 					  
 					union
 					
-					select p.patient_id, e.encounter_datetime data_cd4
+					select p.patient_id, e.encounter_datetime data_cd4__greater
 					from patient p
 					   inner join encounter e on e.patient_id = p.patient_id
 					   inner join obs cd4 on cd4.encounter_id = e.encounter_id
@@ -211,7 +211,7 @@ from (
 					  
 					union
 					
-					select p.patient_id, e.encounter_datetime data_cd4
+					select p.patient_id, cd4.obs_datetime data_cd4__greater
 					from patient p
 					   inner join encounter e on e.patient_id = p.patient_id
 					   inner join obs cd4 on cd4.encounter_id = e.encounter_id
@@ -220,17 +220,17 @@ from (
 					 
 					union
 					
-					select p.patient_id, e.encounter_datetime data_cd4
+					select p.patient_id, e.encounter_datetime data_cd4__greater
 					from patient p
 					   inner join encounter e on e.patient_id = p.patient_id
 					   inner join obs cd4 on cd4.encounter_id = e.encounter_id
 					where p.voided is false and e.voided is false and cd4.voided is false and e.encounter_type = 51  and e.location_id=:location
 					   and cd4.concept_id = 1695 and cd4.value_numeric >=200 and e.encounter_datetime <= :endDate
 		      	) first_cd4 
-		      ) first_cd4_greater on first_cd4_greater.patient_id = first_cd4.patient_id
-		      where first_cd4_greater.data_cd4 is null or first_cd4_greater.data_cd4>=first_cd4.data_cd4
-		            
+		      ) first_cd4_greater on first_cd4_greater.patient_id = first_cd4.patient_id   
 		) first_cd4 on first_cd4.patient_id = tx_new.patient_id
 	)tx_new
-	where tx_new.data_cd4 between date_add(tx_new.art_start_date, interval - 90 day)  and date_add(tx_new.art_start_date, interval 28 day) group by tx_new.patient_id
-)tx_new
+where (tx_new.data_cd4 between date_add(tx_new.art_start_date, interval - 90 day)  and date_add(tx_new.art_start_date, interval 28 day)) and
+	(tx_new.data_cd4__greater is null or tx_new.data_cd4>=tx_new.data_cd4__greater)
+	group by tx_new.patient_id)tx_new 
+
