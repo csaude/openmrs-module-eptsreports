@@ -87,7 +87,7 @@ select * from (
            variaveisDeTextoCoorte24.gravida_lactante_24_meses  gravida_lactante_24_meses,
 
             case 
-            when variaveisDeTextoCoorte24.tipo_estadio_24_meses=3  then 'Estadio III' 
+            when variaveisDeTextoCoorte24.tipo_estadio_24_meses=:location  then 'Estadio III' 
             when variaveisDeTextoCoorte24.tipo_estadio_24_meses=4  then 'Estadio IV' 
             end as tipo_estadio_24_meses,  
             
@@ -841,7 +841,7 @@ select * from (
 	                    from patient p   
 	                    inner join encounter e on p.patient_id = e.patient_id   
 	                    where p.voided = 0 and e.voided = 0  
-	                    and e.encounter_type=35 
+	                    and e.encounter_type=35  
 	                    and e.location_id=:location
                     order by p.patient_id,e.encounter_datetime
                     )totalApss on totalApss.patient_id=tx_new.patient_id
@@ -948,51 +948,54 @@ select * from (
                         union
 
                         
-          select tx_new.patient_id,
-                    if(gravidaLactante36Meses.value_coded=1065 and gravidaLactante36Meses.data_gravida_lactante BETWEEN date_add(tx_new.art_start_date, interval 24 month) and date_add(tx_new.art_start_date, interval 36 month)  ,'Sim','Não') answer,
-                    't6' as source
-                                    from 
-                                    (
-                                    SELECT patient_id, MIN(art_start_date) art_start_date FROM 
-                                    ( 
-                                    SELECT p.patient_id, MIN(e.encounter_datetime) art_start_date FROM 
-                                    patient p 
-                                    INNER JOIN encounter e ON p.patient_id=e.patient_id 
-                                    INNER JOIN obs o ON o.encounter_id=e.encounter_id 
-                                    WHERE e.voided=0 AND o.voided=0 AND p.voided=0 AND e.encounter_type in (18) 
-                                    AND e.location_id=:location 
-                                    GROUP BY p.patient_id 
-                                    UNION 
-                                    SELECT p.patient_id, MIN(value_datetime) art_start_date FROM 
-                                    patient p 
-                                    INNER JOIN encounter e ON p.patient_id=e.patient_id 
-                                    INNER JOIN obs o ON e.encounter_id=o.encounter_id 
-                                    WHERE p.voided=0 AND e.voided=0 AND o.voided=0 AND e.encounter_type=52 
-                                    AND o.concept_id=23866 AND o.value_datetime is NOT NULL 
-                                    AND e.location_id=:location 
-                                    GROUP BY p.patient_id 
-                                    ) tx_new
-                                     group by tx_new.patient_id
-                                    )tx_new
-                                    left join
+          				select f.patient_id, if(f.numeroDeSims>=1, 'Sim', 'Não') as answer, 't6' as source from (
+	SELECT patient_id, count(CASE WHEN answer = 'Sim' THEN 1 ELSE NULL END) as numeroDeSims FROM (
+                                                  select tx_new.patient_id,
+            if(gravidaLactante.value_coded=1065 and gravidaLactante.data_gravida_lactante BETWEEN date_add(tx_new.art_start_date, interval 24 month) and date_add(tx_new.art_start_date, interval 36 month) ,'Sim','Não') answer
+                            from 
                             (
-                              select p.patient_id,e.encounter_datetime data_gravida_lactante ,o.value_coded, e.encounter_id 
-                              from patient p   
-                              inner join encounter e on p.patient_id = e.patient_id   
-                              inner join obs o on o.encounter_id = e.encounter_id   
-                              where p.voided = 0 and e.voided = 0  and o.voided = 0     
-                              and   o.concept_id in(1982,6332)
-                              and   e.encounter_type=6 and e.location_id=:location
-                              order by p.patient_id,e.encounter_datetime
-                          )gravidaLactante36Meses on gravidaLactante36Meses.patient_id=tx_new.patient_id
-                           inner join person p on p.person_id=tx_new.patient_id 
-                           where floor(datediff(tx_new.art_start_date,p.birthdate)/365)>9
-                           and p.gender='F' 
-
+                            SELECT patient_id, MIN(art_start_date) art_start_date FROM 
+                            ( 
+                            SELECT p.patient_id, MIN(e.encounter_datetime) art_start_date FROM 
+                            patient p 
+                            INNER JOIN encounter e ON p.patient_id=e.patient_id 
+                            INNER JOIN obs o ON o.encounter_id=e.encounter_id 
+                            WHERE e.voided=0 AND o.voided=0 AND p.voided=0 AND e.encounter_type in (18) 
+                            AND e.location_id=:location 
+                            GROUP BY p.patient_id 
+                            UNION 
+                            SELECT p.patient_id, MIN(value_datetime) art_start_date FROM 
+                            patient p 
+                            INNER JOIN encounter e ON p.patient_id=e.patient_id 
+                            INNER JOIN obs o ON e.encounter_id=o.encounter_id 
+                            WHERE p.voided=0 AND e.voided=0 AND o.voided=0 AND e.encounter_type=52 
+                            AND o.concept_id=23866 AND o.value_datetime is NOT NULL 
+                            AND e.location_id=:location 
+                            GROUP BY p.patient_id 
+                            ) tx_new
+                             group by tx_new.patient_id
+                            )tx_new
+                            left join
+                    (
+                      select p.patient_id,e.encounter_datetime data_gravida_lactante ,o.value_coded, e.encounter_id 
+                      from patient p   
+                      inner join encounter e on p.patient_id = e.patient_id   
+                      inner join obs o on o.encounter_id = e.encounter_id   
+                      where p.voided = 0 and e.voided = 0  and o.voided = 0     
+                      and   o.concept_id in(1982,6332)
+                      and   e.encounter_type=6 and e.location_id=:location
+                      order by p.patient_id,e.encounter_datetime
+                  )gravidaLactante on gravidaLactante.patient_id=tx_new.patient_id
+                   inner join person p on p.person_id=tx_new.patient_id 
+                   where floor(datediff(tx_new.art_start_date,p.birthdate)/365)>9 
+                   and p.gender='F' 
+                   ) f group by f.patient_id
+                   ) f
+                   
                            union
 
                            
-             select f.patient_id,case when f.tipoEstadio36Meses=3 then 'Estadio III' when f.tipoEstadio36Meses=4 then 'Estadio IV' end as valor, 't7' as source
+             select f.patient_id,case when f.tipoEstadio36Meses=:location then 'Estadio III' when f.tipoEstadio36Meses=4 then 'Estadio IV' end as valor, 't7' as source
                          from
                          (
                              select tx_new.patient_id,
@@ -1201,13 +1204,11 @@ select * from (
 
                     union
 
-                select * from (
-               select  tx_new.patient_id,
-                   if((tpt36Meses.data_inicio_tpt_36_meses BETWEEN date_add(tx_new.art_start_date, interval 24 month) and date_add(tx_new.art_start_date, interval 36 month)),'Sim','Não') tpt_36_meses,
+               SELECT patient_id, if(ISNULL(data_inicio_tpt_24_meses),'Não', 'Sim') as tpt_36_meses,
                    't13' as source
-                 from
-                 (
-                 select tx_new.patient_id,tx_new.art_start_date from  
+                   FROM (
+			SELECT * FROM (
+                 select tx_new.patient_id,tpt24Meses.data_inicio_tpt_24_meses from  
                  (
                   SELECT patient_id, MIN(art_start_date) art_start_date FROM 
                       ( 
@@ -1230,20 +1231,86 @@ select * from (
                       ) 
                       art_start GROUP BY patient_id 
                   )tx_new
-                )tx_new
-                left join
-                (
-                     select p.patient_id, obsEstado.obs_datetime data_inicio_tpt_36_meses from patient p 
-                            inner join encounter e on p.patient_id = e.patient_id 
-                            inner join obs ultimaProfilaxia on ultimaProfilaxia.encounter_id = e.encounter_id 
-                             inner join obs obsEstado on obsEstado.encounter_id = e.encounter_id
-                              where e.encounter_type in(6,9) and  ultimaProfilaxia.concept_id=23985
-                              and obsEstado.concept_id=165308 and obsEstado.value_coded in(1256,1257) 
-                              and p.voided=0 and e.voided=0 and ultimaProfilaxia.voided=0 and obsEstado.voided=0 
-                              and e.location_id=:location                 
-               )tpt36Meses on tpt36Meses.patient_id=tx_new.patient_id
-                    group by tx_new.patient_id order by tx_new.patient_id,tpt36Meses.data_inicio_tpt_36_meses
-                    )tpt36Meses
+                  inner join (
+                    select p.patient_id, obsEstado.obs_datetime data_inicio_tpt_24_meses from patient p 
+	                          inner join encounter e on p.patient_id = e.patient_id 
+	                          inner join obs ultimaProfilaxia on ultimaProfilaxia.encounter_id = e.encounter_id 
+	                           inner join obs obsEstado on obsEstado.encounter_id = e.encounter_id
+	                            where e.encounter_type in(6,9) and  ultimaProfilaxia.concept_id=23985
+	                            and obsEstado.concept_id=165308 and obsEstado.value_coded in(1256,1257) 
+	                            and p.voided=0 and e.voided=0 and ultimaProfilaxia.voided=0 and obsEstado.voided=0 
+	                            and   e.location_id=:location                 
+                  )tpt24Meses on tpt24Meses.patient_id=tx_new.patient_id
+                  	           where tpt24Meses.data_inicio_tpt_24_meses BETWEEN date_add(tx_new.art_start_date, interval 12 month) and date_add(tx_new.art_start_date, interval 24 month)
+                    group by tx_new.patient_id order by tx_new.patient_id,tpt24Meses.data_inicio_tpt_24_meses
+                    )tpt24Meses
+
+
+                    union 
+
+                   SELECT patient_id, value FROM  (	
+                 select tx_new.patient_id,null as value from  
+                 (
+                  SELECT patient_id, MIN(art_start_date) art_start_date FROM 
+                      ( 
+                      SELECT p.patient_id, MIN(e.encounter_datetime) art_start_date FROM 
+                      patient p 
+                      INNER JOIN encounter e ON p.patient_id=e.patient_id 
+                      INNER JOIN obs o ON o.encounter_id=e.encounter_id 
+                      WHERE e.voided=0 AND o.voided=0 AND p.voided=0 AND e.encounter_type in (18) 
+                      AND e.location_id=:location 
+                      GROUP BY p.patient_id 
+                      UNION 
+                      SELECT p.patient_id, MIN(value_datetime) art_start_date FROM 
+                      patient p 
+                      INNER JOIN encounter e ON p.patient_id=e.patient_id 
+                      INNER JOIN obs o ON e.encounter_id=o.encounter_id 
+                      WHERE p.voided=0 AND e.voided=0 AND o.voided=0 AND e.encounter_type=52 
+                      AND o.concept_id=23866 AND o.value_datetime is NOT NULL 
+                      AND e.location_id=:location 
+                      GROUP BY p.patient_id 
+                      ) 
+                      art_start GROUP BY patient_id 
+                  )tx_new
+                    ) tx_new where tx_new.patient_id not in (
+                 select tx_new.patient_id from  
+                 (
+                  SELECT patient_id, MIN(art_start_date) art_start_date FROM 
+                      ( 
+                      SELECT p.patient_id, MIN(e.encounter_datetime) art_start_date FROM 
+                      patient p 
+                      INNER JOIN encounter e ON p.patient_id=e.patient_id 
+                      INNER JOIN obs o ON o.encounter_id=e.encounter_id 
+                      WHERE e.voided=0 AND o.voided=0 AND p.voided=0 AND e.encounter_type in (18) 
+                      AND e.location_id=:location 
+                      GROUP BY p.patient_id 
+                      UNION 
+                      SELECT p.patient_id, MIN(value_datetime) art_start_date FROM 
+                      patient p 
+                      INNER JOIN encounter e ON p.patient_id=e.patient_id 
+                      INNER JOIN obs o ON e.encounter_id=o.encounter_id 
+                      WHERE p.voided=0 AND e.voided=0 AND o.voided=0 AND e.encounter_type=52 
+                      AND o.concept_id=23866 AND o.value_datetime is NOT NULL 
+                      AND e.location_id=:location 
+                      GROUP BY p.patient_id 
+                      ) 
+                      art_start GROUP BY patient_id 
+                  )tx_new
+                  inner join (
+                    select p.patient_id, obsEstado.obs_datetime data_inicio_tpt_24_meses from patient p 
+	                          inner join encounter e on p.patient_id = e.patient_id 
+	                          inner join obs ultimaProfilaxia on ultimaProfilaxia.encounter_id = e.encounter_id 
+	                           inner join obs obsEstado on obsEstado.encounter_id = e.encounter_id
+	                            where e.encounter_type in(6,9) and  ultimaProfilaxia.concept_id=23985
+	                            and obsEstado.concept_id=165308 and obsEstado.value_coded in(1256,1257) 
+	                            and p.voided=0 and e.voided=0 and ultimaProfilaxia.voided=0 and obsEstado.voided=0 
+	                            and   e.location_id=:location                 
+                  )tpt24Meses on tpt24Meses.patient_id=tx_new.patient_id
+                  	           where tpt24Meses.data_inicio_tpt_24_meses BETWEEN date_add(tx_new.art_start_date, interval 12 month) and date_add(tx_new.art_start_date, interval 24 month)
+                    group by tx_new.patient_id order by tx_new.patient_id,tpt24Meses.data_inicio_tpt_24_meses
+                    )
+                 ) tpt24Meses
+	            
 
                     union
 
@@ -2990,7 +3057,7 @@ select * from (
 
                            ---primeiroResultadoPedidoCV24Meses
                            
-          select coorte24Meses.patient_id,primeiroResultadoPedidoCV24Meses.data_primeiro_resultado_cv_24_meses, 't2' as source
+          select coorte36Meses.patient_id,primeiroResultadoPedidoCV24Meses.data_primeiro_resultado_cv_24_meses, 't2' as source
                from 
                (
       
@@ -3019,8 +3086,8 @@ select * from (
                     GROUP BY p.patient_id 
                     ) 
                     art_start GROUP BY patient_id 
-                ) tx_new WHERE art_start_date BETWEEN  date_sub(date(concat(:year,'-12','-21')), interval 36 MONTH) and  date_sub(date(concat(:year,'-06','-20')), interval 24 MONTH)
-              )coorte24Meses
+                ) tx_new WHERE art_start_date BETWEEN  date_sub(date(concat(:year,'-12','-21')), interval 48 MONTH) and  date_sub(date(concat(:year,'-06','-20')), interval 36 MONTH)
+              )coorte36Meses
                     inner join
                  (
                    select p.patient_id,e.encounter_datetime data_primeiro_resultado_cv_24_meses,12 tipo_coorte_12, 24 tipo_coorte_24
@@ -3033,9 +3100,9 @@ select * from (
                         and  o.concept_id in(1305,856)
                         and e.encounter_type=6 
                         and e.location_id=:location 
-                 )primeiroResultadoPedidoCV24Meses on primeiroResultadoPedidoCV24Meses.patient_id=coorte24Meses.patient_id 
-                  and (primeiroResultadoPedidoCV24Meses.data_primeiro_resultado_cv_24_meses>=date_add(coorte24Meses.art_start_date, interval 12 month)) 
-                  and (primeiroResultadoPedidoCV24Meses.data_primeiro_resultado_cv_24_meses<=date_add(coorte24Meses.art_start_date, interval 24 month)) 
+                 )primeiroResultadoPedidoCV24Meses on primeiroResultadoPedidoCV24Meses.patient_id=coorte36Meses.patient_id 
+                  and (primeiroResultadoPedidoCV24Meses.data_primeiro_resultado_cv_24_meses>=date_add(coorte36Meses.art_start_date, interval 12 month)) 
+                  and (primeiroResultadoPedidoCV24Meses.data_primeiro_resultado_cv_24_meses<=date_add(coorte36Meses.art_start_date, interval 24 month)) 
 
                   union
 
@@ -3097,7 +3164,7 @@ select * from (
 
               --inicioMds24Meses
 
-          select coorte24Meses.patient_id,inicioMds24Meses.data_inicio_mds_24_meses, 't10' as source
+          select coorte36Meses.patient_id,inicioMds24Meses.data_inicio_mds_24_meses, 't10' as source
            from 
            (
   
@@ -3126,8 +3193,8 @@ select * from (
                 GROUP BY p.patient_id 
                 ) 
                 art_start GROUP BY patient_id 
-            ) tx_new WHERE art_start_date BETWEEN  date_sub(date(concat(:year,'-12','-21')), interval 36 MONTH) and  date_sub(date(concat(:year,'-06','-20')), interval 24 MONTH)
-          )coorte24Meses
+            ) tx_new WHERE art_start_date BETWEEN  date_sub(date(concat(:year,'-12','-21')), interval 48 MONTH) and  date_sub(date(concat(:year,'-06','-20')), interval 36 MONTH)
+          )coorte36Meses
                      left join
 
        (
@@ -3149,8 +3216,8 @@ select * from (
               and grupo.voided=0 
               and grupo.obs_id=o.obs_group_id 
               and grupo.obs_id=obsEstado.obs_group_id 
-       )inicioMds24Meses on inicioMds24Meses.patient_id=coorte24Meses.patient_id
-       and inicioMds24Meses.data_inicio_mds_24_meses BETWEEN date_add(coorte24Meses.art_start_date, interval 12 month) and date_add(coorte24Meses.art_start_date, interval 24 month) 
+       )inicioMds24Meses on inicioMds24Meses.patient_id=coorte36Meses.patient_id
+       and inicioMds24Meses.data_inicio_mds_24_meses BETWEEN date_add(coorte36Meses.art_start_date, interval 12 month) and date_add(coorte36Meses.art_start_date, interval 24 month) 
             
                  )tmp
                  group by tmp.patient_id
@@ -3320,9 +3387,10 @@ select * from (
 
                              --gravidaLactante24Meses
 
-                             select tx_new.patient_id,
-            if(gravidaLactante.value_coded=1065 and gravidaLactante.data_gravida_lactante BETWEEN date_add(tx_new.art_start_date, interval 12 month) and date_add(tx_new.art_start_date, interval 24 month) ,'Sim','Não') answer,
-            't6' as source
+                            				select f.patient_id, if(f.numeroDeSims>=1, 'Sim', 'Não') as answer, 't6' as source from (
+	SELECT patient_id, count(CASE WHEN answer = 'Sim' THEN 1 ELSE NULL END) as numeroDeSims FROM (
+                                                  select tx_new.patient_id,
+            if(gravidaLactante.value_coded=1065 and gravidaLactante.data_gravida_lactante BETWEEN date_add(tx_new.art_start_date, interval 12 month) and date_add(tx_new.art_start_date, interval 24 month) ,'Sim','Não') answer
                             from 
                             (
                             SELECT patient_id, MIN(art_start_date) art_start_date FROM 
@@ -3360,12 +3428,13 @@ select * from (
                    inner join person p on p.person_id=tx_new.patient_id 
                    where floor(datediff(tx_new.art_start_date,p.birthdate)/365)>9 
                    and p.gender='F' 
-
+                   ) f group by f.patient_id
+                   ) f
+                   
                    union
 
                    --estadiamentoClinico24Meses
-
-                   
+ 
         select * from (
                          select tx_new.patient_id,
                         estadiamentoClinico24Meses.tipoEstadio24Meses,
@@ -3436,7 +3505,7 @@ select * from (
 
                 --tb24Meses
 
-                    select coorte24Meses.patient_id,tb24Meses.tb_24_meses, 't8' as source
+                    select coorte36Meses.patient_id,tb24Meses.tb_24_meses, 't8' as source
                from 
                (
       
@@ -3465,8 +3534,8 @@ select * from (
                     GROUP BY p.patient_id 
                     ) 
                     art_start GROUP BY patient_id 
-                ) tx_new WHERE art_start_date BETWEEN  date_sub(date(concat(:year,'-12','-21')), interval 36 MONTH) and  date_sub(date(concat(:year,'-06','-20')), interval 24 MONTH)
-              )coorte24Meses
+                ) tx_new WHERE art_start_date BETWEEN  date_sub(date(concat(:year,'-12','-21')), interval 48 MONTH) and  date_sub(date(concat(:year,'-06','-20')), interval 36 MONTH)
+              )coorte36Meses
                  left join
        (
         select tb24Meses.patient_id,
@@ -3489,8 +3558,8 @@ select * from (
               where e.encounter_type in(6) and o.concept_id=1268 and o.value_coded in(1256,1257)  and e.location_id=:location 
               and e.voided=0 and p.voided=0 and o.voided=0 
               )tb24Meses
-       ) tb24Meses on tb24Meses.patient_id=coorte24Meses.patient_id  
-            and tb24Meses.data_tb_24_meses BETWEEN date_add(coorte24Meses.art_start_date, interval 12 month) and date_add(coorte24Meses.art_start_date, interval 24 month) 
+       ) tb24Meses on tb24Meses.patient_id=coorte36Meses.patient_id  
+            and tb24Meses.data_tb_24_meses BETWEEN date_add(coorte36Meses.art_start_date, interval 12 month) and date_add(coorte36Meses.art_start_date, interval 24 month) 
 
             union
 
@@ -3634,13 +3703,11 @@ select * from (
 
             --tpt24Meses
 
-    select * from (
-             select  tx_new.patient_id,
-                   if((tpt24Meses.data_inicio_tpt_24_meses BETWEEN date_add(tx_new.art_start_date, interval 12 month) and date_add(tx_new.art_start_date, interval 24 month)),'Sim','Não') tpt_24_meses,
+   	SELECT patient_id, if(ISNULL(data_inicio_tpt_24_meses),'Não', 'Sim') as tpt_24_meses,
                    't13' as source
-                 from
-                 (
-                 select tx_new.patient_id,tx_new.art_start_date from  
+                   FROM (
+			SELECT * FROM (
+                 select tx_new.patient_id,tpt24Meses.data_inicio_tpt_24_meses from  
                  (
                   SELECT patient_id, MIN(art_start_date) art_start_date FROM 
                       ( 
@@ -3663,76 +3730,86 @@ select * from (
                       ) 
                       art_start GROUP BY patient_id 
                   )tx_new
-                )tx_new
-                left join
-                (
-                     select p.patient_id, obsEstado.obs_datetime data_inicio_tpt_24_meses from patient p 
-                            inner join encounter e on p.patient_id = e.patient_id 
-                            inner join obs ultimaProfilaxia on ultimaProfilaxia.encounter_id = e.encounter_id 
-                             inner join obs obsEstado on obsEstado.encounter_id = e.encounter_id
-                              where e.encounter_type in(6,9) and  ultimaProfilaxia.concept_id=23985
-                              and obsEstado.concept_id=165308 and obsEstado.value_coded in(1256,1257) 
-                              and p.voided=0 and e.voided=0 and ultimaProfilaxia.voided=0 and obsEstado.voided=0 
-                              and e.location_id=:location                 
-                      )tpt24Meses on tpt24Meses.patient_id=tx_new.patient_id
+                  inner join (
+                    select p.patient_id, obsEstado.obs_datetime data_inicio_tpt_24_meses from patient p 
+	                          inner join encounter e on p.patient_id = e.patient_id 
+	                          inner join obs ultimaProfilaxia on ultimaProfilaxia.encounter_id = e.encounter_id 
+	                           inner join obs obsEstado on obsEstado.encounter_id = e.encounter_id
+	                            where e.encounter_type in(6,9) and  ultimaProfilaxia.concept_id=23985
+	                            and obsEstado.concept_id=165308 and obsEstado.value_coded in(1256,1257) 
+	                            and p.voided=0 and e.voided=0 and ultimaProfilaxia.voided=0 and obsEstado.voided=0 
+	                            and   e.location_id=:location                 
+                  )tpt24Meses on tpt24Meses.patient_id=tx_new.patient_id
+                  	           where tpt24Meses.data_inicio_tpt_24_meses BETWEEN date_add(tx_new.art_start_date, interval 12 month) and date_add(tx_new.art_start_date, interval 24 month)
                     group by tx_new.patient_id order by tx_new.patient_id,tpt24Meses.data_inicio_tpt_24_meses
-                    ) tpt24Meses
+                    )tpt24Meses
 
-                    union
 
-                    --pbImc24Meses
-                    
-               select  pbImc24Meses.patient_id,if(count(pbImc24Meses.consultas_pb_imc_24_meses)=count(pbImc24Meses.consultas_pb_imc_24_meses_2),'Sim','Não') consultas_pb_imc_24_meses, 't14' as source
-               from 
-                    (
-                   select pbImc24Meses.patient_id,pbImc24Meses.consultas_pb_imc_24_meses,fc.consultas_pb_imc_24_meses consultas_pb_imc_24_meses_2 from
-                    (
-                    select  p.patient_id,e.encounter_datetime consultas_pb_imc_24_meses 
-                     from
-                        patient p
-                        left join encounter e on p.patient_id=e.patient_id
-                        where e.encounter_type=6   and e.location_id=:location and e.voided=0 and p.voided=0 and e.voided=0 
-                        order by e.encounter_datetime
-                        ) pbImc24Meses   
-                        left join
-                       (
-                        select  p.patient_id,e.encounter_datetime consultas_pb_imc_24_meses, o.value_numeric,o.concept_id  from
-                        patient p
-                        left join encounter e on p.patient_id=e.patient_id
-                        left join obs o on e.encounter_id=o.encounter_id and o.concept_id in (1342,1343) and o.voided=0
-                        where e.encounter_type=6   and e.location_id=:location and e.voided=0
-                        and p.voided=0 and e.voided=0  and o.voided=0
-                        order by e.encounter_datetime
-                        )fc on fc.patient_id=pbImc24Meses.patient_id and pbImc24Meses.consultas_pb_imc_24_meses=fc.consultas_pb_imc_24_meses
-                      )pbImc24Meses
-        
-                       left join 
-                        (
-                        SELECT patient_id, MIN(art_start_date) art_start_date FROM 
-                        ( 
-                        SELECT p.patient_id, MIN(e.encounter_datetime) art_start_date FROM 
-                        patient p 
-                        INNER JOIN encounter e ON p.patient_id=e.patient_id 
-                        INNER JOIN obs o ON o.encounter_id=e.encounter_id 
-                        WHERE e.voided=0 AND o.voided=0 AND p.voided=0 AND e.encounter_type in (18) 
-                        AND e.location_id=:location 
-                        GROUP BY p.patient_id 
-                        UNION 
-                        SELECT p.patient_id, MIN(value_datetime) art_start_date FROM 
-                        patient p 
-                        INNER JOIN encounter e ON p.patient_id=e.patient_id 
-                        INNER JOIN obs o ON e.encounter_id=o.encounter_id 
-                        WHERE p.voided=0 AND e.voided=0 AND o.voided=0 AND e.encounter_type=52 
-                        AND o.concept_id=23866 AND o.value_datetime is NOT NULL 
-                        AND e.location_id=:location 
-                        GROUP BY p.patient_id 
-                        ) 
-                        art_start 
-                        GROUP BY patient_id 
-                       ) tx_new  on pbImc24Meses.patient_id=tx_new.patient_id
-                        where   pbImc24Meses.consultas_pb_imc_24_meses BETWEEN date_add(tx_new.art_start_date, interval 12 month)  and date_add(tx_new.art_start_date, interval 24 month) 
-                        GROUP BY pbImc24Meses.patient_id   
+                    union 
 
+                   SELECT patient_id, value FROM  (	
+                 select tx_new.patient_id,null as value from  
+                 (
+                  SELECT patient_id, MIN(art_start_date) art_start_date FROM 
+                      ( 
+                      SELECT p.patient_id, MIN(e.encounter_datetime) art_start_date FROM 
+                      patient p 
+                      INNER JOIN encounter e ON p.patient_id=e.patient_id 
+                      INNER JOIN obs o ON o.encounter_id=e.encounter_id 
+                      WHERE e.voided=0 AND o.voided=0 AND p.voided=0 AND e.encounter_type in (18) 
+                      AND e.location_id=:location 
+                      GROUP BY p.patient_id 
+                      UNION 
+                      SELECT p.patient_id, MIN(value_datetime) art_start_date FROM 
+                      patient p 
+                      INNER JOIN encounter e ON p.patient_id=e.patient_id 
+                      INNER JOIN obs o ON e.encounter_id=o.encounter_id 
+                      WHERE p.voided=0 AND e.voided=0 AND o.voided=0 AND e.encounter_type=52 
+                      AND o.concept_id=23866 AND o.value_datetime is NOT NULL 
+                      AND e.location_id=:location 
+                      GROUP BY p.patient_id 
+                      ) 
+                      art_start GROUP BY patient_id 
+                  )tx_new
+                    ) tx_new where tx_new.patient_id not in (
+                 select tx_new.patient_id from  
+                 (
+                  SELECT patient_id, MIN(art_start_date) art_start_date FROM 
+                      ( 
+                      SELECT p.patient_id, MIN(e.encounter_datetime) art_start_date FROM 
+                      patient p 
+                      INNER JOIN encounter e ON p.patient_id=e.patient_id 
+                      INNER JOIN obs o ON o.encounter_id=e.encounter_id 
+                      WHERE e.voided=0 AND o.voided=0 AND p.voided=0 AND e.encounter_type in (18) 
+                      AND e.location_id=:location 
+                      GROUP BY p.patient_id 
+                      UNION 
+                      SELECT p.patient_id, MIN(value_datetime) art_start_date FROM 
+                      patient p 
+                      INNER JOIN encounter e ON p.patient_id=e.patient_id 
+                      INNER JOIN obs o ON e.encounter_id=o.encounter_id 
+                      WHERE p.voided=0 AND e.voided=0 AND o.voided=0 AND e.encounter_type=52 
+                      AND o.concept_id=23866 AND o.value_datetime is NOT NULL 
+                      AND e.location_id=:location 
+                      GROUP BY p.patient_id 
+                      ) 
+                      art_start GROUP BY patient_id 
+                  )tx_new
+                  inner join (
+                    select p.patient_id, obsEstado.obs_datetime data_inicio_tpt_24_meses from patient p 
+	                          inner join encounter e on p.patient_id = e.patient_id 
+	                          inner join obs ultimaProfilaxia on ultimaProfilaxia.encounter_id = e.encounter_id 
+	                           inner join obs obsEstado on obsEstado.encounter_id = e.encounter_id
+	                            where e.encounter_type in(6,9) and  ultimaProfilaxia.concept_id=23985
+	                            and obsEstado.concept_id=165308 and obsEstado.value_coded in(1256,1257) 
+	                            and p.voided=0 and e.voided=0 and ultimaProfilaxia.voided=0 and obsEstado.voided=0 
+	                            and   e.location_id=:location                 
+                  )tpt24Meses on tpt24Meses.patient_id=tx_new.patient_id
+                  	           where tpt24Meses.data_inicio_tpt_24_meses BETWEEN date_add(tx_new.art_start_date, interval 12 month) and date_add(tx_new.art_start_date, interval 24 month)
+                    group by tx_new.patient_id order by tx_new.patient_id,tpt24Meses.data_inicio_tpt_24_meses
+                    )
+                 ) tpt24Meses
+	          
                         union
 
                         --todasConsultas24MesesPA
@@ -5675,9 +5752,13 @@ select * from (
                           union
 
                           
-                     select tx_new.patient_id,
-                     if((gravidaLactante.data_gravida_lactante BETWEEN date_add(tx_new.art_start_date, interval 3 month) and date_add(tx_new.art_start_date, interval 9 month)) and  gravidaLactante.value_coded=1065,'Sim','Não') valor10,
-                     't6' as source
+                    
+
+				select f.patient_id, if(f.numeroDeSims>=1, 'Sim', 'Não') as valor10, 
+				                     't6' as source from (
+				SELECT patient_id, count(CASE WHEN valor10 = 'Sim' THEN 1 ELSE NULL END) as numeroDeSims FROM (
+                    select tx_new.patient_id,
+                     if((gravidaLactante.data_gravida_lactante BETWEEN date_add(tx_new.art_start_date, interval 3 month) and date_add(tx_new.art_start_date, interval 9 month)) and  gravidaLactante.value_coded=1065,'Sim','Não') valor10
                    from 
                    (
                    SELECT patient_id, MIN(art_start_date) art_start_date FROM 
@@ -5715,6 +5796,9 @@ select * from (
                      inner join person p on p.person_id=tx_new.patient_id 
                       where  floor(datediff(tx_new.art_start_date,p.birthdate)/365)>9 
                      and p.gender='F'
+                     ) f group by f.patient_id
+                     )
+                     f
 
                      union
 
@@ -5854,7 +5938,7 @@ select * from (
                         mds.art_start_date,
                         mds.data_inicio_mds,
                        if(mds.data_inicio_mds is null, 'N/A',
-                       if(((estadiamentoClinico.encounter_datetime BETWEEN mds.data_inicio_mds and date_add(mds.data_inicio_mds, interval 12 month)) and (mds.data_inicio_mds BETWEEN mds.art_start_date and date_add(mds.art_start_date, interval 12 month)) and estadiamentoClinico.tipoEstadio=3),'Estadio III',
+                       if(((estadiamentoClinico.encounter_datetime BETWEEN mds.data_inicio_mds and date_add(mds.data_inicio_mds, interval 12 month)) and (mds.data_inicio_mds BETWEEN mds.art_start_date and date_add(mds.art_start_date, interval 12 month)) and estadiamentoClinico.tipoEstadio=:location),'Estadio III',
                        if(((estadiamentoClinico.encounter_datetime BETWEEN mds.data_inicio_mds and date_add(mds.data_inicio_mds, interval 12 month)) and (mds.data_inicio_mds BETWEEN mds.art_start_date and date_add(mds.art_start_date, interval 12 month)) and estadiamentoClinico.tipoEstadio=4),'Estadio IV',''))) tipo_estadio_12_meses
                  from
                           (

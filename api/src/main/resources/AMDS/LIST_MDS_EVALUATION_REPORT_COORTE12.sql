@@ -930,46 +930,49 @@
                           union
 
                           
-                     select tx_new.patient_id,
-                     if((gravidaLactante.data_gravida_lactante BETWEEN date_add(tx_new.art_start_date, interval 3 month) and date_add(tx_new.art_start_date, interval 9 month)) and  gravidaLactante.value_coded=1065,'Sim','Não') valor10,
-                     't6' as source
-                   from 
-                   (
-                   SELECT patient_id, MIN(art_start_date) art_start_date FROM 
-                   ( 
-                   SELECT p.patient_id, MIN(e.encounter_datetime) art_start_date FROM 
-                   patient p 
-                   INNER JOIN encounter e ON p.patient_id=e.patient_id 
-                   INNER JOIN obs o ON o.encounter_id=e.encounter_id 
-                   WHERE e.voided=0 AND o.voided=0 AND p.voided=0 AND e.encounter_type in (18) 
-                   AND e.location_id=:location 
-                   GROUP BY p.patient_id 
-                   UNION 
-                   SELECT p.patient_id, MIN(value_datetime) art_start_date FROM 
-                   patient p 
-                   INNER JOIN encounter e ON p.patient_id=e.patient_id 
-                   INNER JOIN obs o ON e.encounter_id=o.encounter_id 
-                   WHERE p.voided=0 AND e.voided=0 AND o.voided=0 AND e.encounter_type=52 
-                   AND o.concept_id=23866 AND o.value_datetime is NOT NULL 
-                   AND e.location_id=:location 
-                   GROUP BY p.patient_id 
-                   ) tx_new
-                    group by tx_new.patient_id
-                   )tx_new
-                   left join
-                     (
-                      select p.patient_id,e.encounter_datetime data_gravida_lactante ,o.concept_id,o.value_coded, e.encounter_id 
-                         from patient p   
-                         inner join encounter e on p.patient_id = e.patient_id   
-                         inner join obs o on o.encounter_id = e.encounter_id   
-                         where p.voided = 0 and e.voided = 0  and o.voided = 0     
-                         and   o.concept_id in(1982,6332)
-                         and   e.encounter_type=6 and e.location_id=:location
-                         order by p.patient_id,e.encounter_datetime
-                     )gravidaLactante on gravidaLactante.patient_id=tx_new.patient_id
-                     inner join person p on p.person_id=tx_new.patient_id 
-                      where  floor(datediff(tx_new.art_start_date,p.birthdate)/365)>9 
-                     and p.gender='F'
+                    				select f.patient_id, if(f.numeroDeSims>=1, 'Sim', 'Não') as answer, 't6' as source from (
+	SELECT patient_id, count(CASE WHEN answer = 'Sim' THEN 1 ELSE NULL END) as numeroDeSims FROM (
+                                                  select tx_new.patient_id,
+            if(gravidaLactante.value_coded=1065 and gravidaLactante.data_gravida_lactante BETWEEN date_add(tx_new.art_start_date, interval 3 month) and date_add(tx_new.art_start_date, interval 9 month) ,'Sim','Não') answer
+                            from 
+                            (
+                            SELECT patient_id, MIN(art_start_date) art_start_date FROM 
+                            ( 
+                            SELECT p.patient_id, MIN(e.encounter_datetime) art_start_date FROM 
+                            patient p 
+                            INNER JOIN encounter e ON p.patient_id=e.patient_id 
+                            INNER JOIN obs o ON o.encounter_id=e.encounter_id 
+                            WHERE e.voided=0 AND o.voided=0 AND p.voided=0 AND e.encounter_type in (18) 
+                            AND e.location_id=:location 
+                            GROUP BY p.patient_id 
+                            UNION 
+                            SELECT p.patient_id, MIN(value_datetime) art_start_date FROM 
+                            patient p 
+                            INNER JOIN encounter e ON p.patient_id=e.patient_id 
+                            INNER JOIN obs o ON e.encounter_id=o.encounter_id 
+                            WHERE p.voided=0 AND e.voided=0 AND o.voided=0 AND e.encounter_type=52 
+                            AND o.concept_id=23866 AND o.value_datetime is NOT NULL 
+                            AND e.location_id=:location 
+                            GROUP BY p.patient_id 
+                            ) tx_new
+                             group by tx_new.patient_id
+                            )tx_new
+                            left join
+                    (
+                      select p.patient_id,e.encounter_datetime data_gravida_lactante ,o.value_coded, e.encounter_id 
+                      from patient p   
+                      inner join encounter e on p.patient_id = e.patient_id   
+                      inner join obs o on o.encounter_id = e.encounter_id   
+                      where p.voided = 0 and e.voided = 0  and o.voided = 0     
+                      and   o.concept_id in(1982,6332)
+                      and   e.encounter_type=6 and e.location_id=:location
+                      order by p.patient_id,e.encounter_datetime
+                  )gravidaLactante on gravidaLactante.patient_id=tx_new.patient_id
+                   inner join person p on p.person_id=tx_new.patient_id 
+                   where floor(datediff(tx_new.art_start_date,p.birthdate)/365)>9 
+                   and p.gender='F' 
+                   ) f group by f.patient_id
+                   ) f
 
                      union
 
@@ -1198,108 +1201,109 @@
                           union
 
                           
+                           
                            select f.patient_id,f.consultas_pb_imc valor14, 't10' as source
                        from 
                        (
-                          select 
-                            p.person_id patient_id, 
-                             if((count(consultas_pbimc_12_meses)=count(consultas_pb_imc) and ((consultas_pbimc_12_meses between data_registo_primeiro_mdc and date_add(art_start_date, interval 12 month))
-                             and (consultas_pb_imc between data_registo_primeiro_mdc and date_add(art_start_date, interval 12 month)) ) ),'Sim',
-                                 if(min(data_registo_primeiro_mdc) is null,'N/A','Não')) consultas_pb_imc  
-                            from 
-                            person p
-                            left join
-                            (
-                                  SELECT patient_id, MIN(art_start_date) art_start_date FROM 
-                                  ( 
-                                  SELECT p.patient_id, MIN(e.encounter_datetime) art_start_date FROM 
-                                  patient p 
-                                  INNER JOIN encounter e ON p.patient_id=e.patient_id 
-                                  INNER JOIN obs o ON o.encounter_id=e.encounter_id 
-                                  WHERE e.voided=0 AND o.voided=0 AND p.voided=0 AND e.encounter_type in (18) 
-                                  AND e.location_id=:location
-                                  GROUP BY p.patient_id 
-                                  UNION 
-                                  SELECT p.patient_id, MIN(value_datetime) art_start_date FROM 
-                                  patient p 
-                                  INNER JOIN encounter e ON p.patient_id=e.patient_id 
-                                  INNER JOIN obs o ON e.encounter_id=o.encounter_id 
-                                  WHERE p.voided=0 AND e.voided=0 AND o.voided=0 AND e.encounter_type=52 
-                                  AND o.concept_id=23866 AND o.value_datetime is NOT NULL 
-                                  AND e.location_id=:location
-                                  GROUP BY p.patient_id 
-                                  ) art_start 
-                                  GROUP BY patient_id 
-                                 )tx_new on tx_new.patient_id=p.person_id
-                                 left join
-                                 (
-                                 select pbImc12Meses.patient_id,pbImc12Meses.consultas_pbimc_12_meses,fc.consultas_pb_imc
-                                 from 
-                                 (
-                                  select  p.patient_id,e.encounter_datetime consultas_pbimc_12_meses from
-                                  patient p
-                                  left join encounter e on p.patient_id=e.patient_id
-                                  where e.encounter_type=6   and e.location_id=:location and e.voided=0 and p.voided=0 and e.voided=0
-                                   order by p.patient_id,e.encounter_datetime
-                                  ) pbImc12Meses  
-                                  left join
-                                 (
-                                select p.patient_id,e.encounter_datetime consultas_pb_imc,o.concept_id  from 
-                                  patient p 
-                                  inner join encounter e on p.patient_id=e.patient_id 
-                                  left join obs o on e.encounter_id=o.encounter_id and o.concept_id in (1342,1343) and o.voided=0
-                                  where e.encounter_type=6   and e.location_id=:location and e.voided=0 and p.voided=0 and e.voided=0 and o.concept_id is not null
-                                  order by p.patient_id
-                                  )fc on fc.consultas_pb_imc=pbImc12Meses.consultas_pbimc_12_meses and pbImc12Meses.patient_id=fc.patient_id
-                                 )pbImc on pbImc.patient_id=p.person_id
-                                 left join
-                                 (
-                                 select primeiroMdc.patient_id,primeiroMdc.data_mdc data_registo_primeiro_mdc from 
-                                  (
-                                  select p.patient_id,e.encounter_datetime as data_mdc  from patient p 
-                                      join encounter e on p.patient_id=e.patient_id 
-                                      join obs grupo on grupo.encounter_id=e.encounter_id 
-                                      join obs o on o.encounter_id=e.encounter_id 
-                                      join obs obsEstado on obsEstado.encounter_id=e.encounter_id 
-                                      where  e.encounter_type in(6) 
-                                      and e.location_id=:location
-                                      and o.concept_id=165174  
-                                      and o.voided=0 
-                                      and grupo.concept_id=165323  
-                                      and grupo.voided=0 
-                                      and obsEstado.concept_id=165322  
-                                      and obsEstado.value_coded in(1256) 
-                                      and obsEstado.voided=0  
-                                      and grupo.voided=0 
-                                      and grupo.obs_id=o.obs_group_id 
-                                      and grupo.obs_id=obsEstado.obs_group_id 
-                                      )primeiroMdc
-                                      left join
-                                      (
-                                      SELECT patient_id, MIN(art_start_date) art_start_date FROM 
-                                      ( 
-                                      SELECT p.patient_id, MIN(e.encounter_datetime) art_start_date FROM 
-                                      patient p 
-                                      INNER JOIN encounter e ON p.patient_id=e.patient_id 
-                                      INNER JOIN obs o ON o.encounter_id=e.encounter_id 
-                                      WHERE e.voided=0 AND o.voided=0 AND p.voided=0 AND e.encounter_type in (18) 
-                                      AND e.location_id=:location
-                                      GROUP BY p.patient_id 
-                                      UNION 
-                                      SELECT p.patient_id, MIN(value_datetime) art_start_date FROM 
-                                      patient p 
-                                      INNER JOIN encounter e ON p.patient_id=e.patient_id 
-                                      INNER JOIN obs o ON e.encounter_id=o.encounter_id 
-                                      WHERE p.voided=0 AND e.voided=0 AND o.voided=0 AND e.encounter_type=52 
-                                      AND o.concept_id=23866 AND o.value_datetime is NOT NULL 
-                                      AND e.location_id=:location
-                                      GROUP BY p.patient_id 
-                                      ) art_start 
-                                      GROUP BY patient_id 
-                                      )tx_new on tx_new.patient_id=primeiroMdc.patient_id
-                                      --where primeiroMdc.data_mdc  between date_add(tx_new.art_start_date, interval 3 month) and date_add(tx_new.art_start_date, interval 9 month)
-                                    )mds on mds.patient_id=p.person_id
-                                    group by p.person_id     
+                         select 
+		                      p.person_id patient_id, 
+		                       if((count(consultas_pbimc_12_meses)=count(consultas_pb_imc) and ((consultas_pbimc_12_meses between data_registo_primeiro_mdc and date_add(art_start_date, interval 12 month))
+		                       and (consultas_pb_imc between data_registo_primeiro_mdc and date_add(art_start_date, interval 12 month)) ) ),'Sim',
+		                           if(min(data_registo_primeiro_mdc) is null,'N/A','Sim')) consultas_pb_imc  
+				                from 
+				                person p
+				                left join
+				                (
+				                      SELECT patient_id, MIN(art_start_date) art_start_date FROM 
+				                      ( 
+				                      SELECT p.patient_id, MIN(e.encounter_datetime) art_start_date FROM 
+				                      patient p 
+				                      INNER JOIN encounter e ON p.patient_id=e.patient_id 
+				                      INNER JOIN obs o ON o.encounter_id=e.encounter_id 
+				                      WHERE e.voided=0 AND o.voided=0 AND p.voided=0 AND e.encounter_type in (18) 
+				                      AND e.location_id=:location
+				                      GROUP BY p.patient_id 
+				                      UNION 
+				                      SELECT p.patient_id, MIN(value_datetime) art_start_date FROM 
+				                      patient p 
+				                      INNER JOIN encounter e ON p.patient_id=e.patient_id 
+				                      INNER JOIN obs o ON e.encounter_id=o.encounter_id 
+				                      WHERE p.voided=0 AND e.voided=0 AND o.voided=0 AND e.encounter_type=52 
+				                      AND o.concept_id=23866 AND o.value_datetime is NOT NULL 
+				                      AND e.location_id=:location
+				                      GROUP BY p.patient_id 
+				                      ) art_start 
+				                      GROUP BY patient_id 
+				                     )tx_new on tx_new.patient_id=p.person_id
+				                     left join
+				                     (
+				                     select pbImc12Meses.patient_id,pbImc12Meses.consultas_pbimc_12_meses,fc.consultas_pb_imc
+				                     from 
+				                     (
+				                      select  p.patient_id,e.encounter_datetime consultas_pbimc_12_meses from
+				                      patient p
+				                      left join encounter e on p.patient_id=e.patient_id
+				                      where e.encounter_type=6   and e.location_id=:location and e.voided=0 and p.voided=0 and e.voided=0
+				                       order by p.patient_id,e.encounter_datetime
+				                      ) pbImc12Meses  
+				                      left join
+				                     (
+				                    select p.patient_id,e.encounter_datetime consultas_pb_imc,o.concept_id  from 
+				                      patient p 
+				                      inner join encounter e on p.patient_id=e.patient_id 
+				                      left join obs o on e.encounter_id=o.encounter_id and o.concept_id in (1342,1343) and o.voided=0
+				                      where e.encounter_type=6   and e.location_id=:location and e.voided=0 and p.voided=0 and e.voided=0 and o.concept_id is not null
+				                      order by p.patient_id
+				                      )fc on fc.consultas_pb_imc=pbImc12Meses.consultas_pbimc_12_meses and pbImc12Meses.patient_id=fc.patient_id
+				                     )pbImc on pbImc.patient_id=p.person_id
+				                     left join
+				                     (
+				                     select primeiroMdc.patient_id,primeiroMdc.data_mdc data_registo_primeiro_mdc from 
+				                      (
+				                      select p.patient_id,e.encounter_datetime as data_mdc  from patient p 
+				                          join encounter e on p.patient_id=e.patient_id 
+				                          join obs grupo on grupo.encounter_id=e.encounter_id 
+				                          join obs o on o.encounter_id=e.encounter_id 
+				                          join obs obsEstado on obsEstado.encounter_id=e.encounter_id 
+				                          where  e.encounter_type in(6) 
+				                          and e.location_id=:location
+				                          and o.concept_id=165174  
+				                          and o.voided=0 
+				                          and grupo.concept_id=165323  
+				                          and grupo.voided=0 
+				                          and obsEstado.concept_id=165322  
+				                          and obsEstado.value_coded in(1256) 
+				                          and obsEstado.voided=0  
+				                          and grupo.voided=0 
+				                          and grupo.obs_id=o.obs_group_id 
+				                          and grupo.obs_id=obsEstado.obs_group_id 
+				                          )primeiroMdc
+				                          left join
+				                          (
+				                          SELECT patient_id, MIN(art_start_date) art_start_date FROM 
+				                          ( 
+				                          SELECT p.patient_id, MIN(e.encounter_datetime) art_start_date FROM 
+				                          patient p 
+				                          INNER JOIN encounter e ON p.patient_id=e.patient_id 
+				                          INNER JOIN obs o ON o.encounter_id=e.encounter_id 
+				                          WHERE e.voided=0 AND o.voided=0 AND p.voided=0 AND e.encounter_type in (18) 
+				                          AND e.location_id=:location
+				                          GROUP BY p.patient_id 
+				                          UNION 
+				                          SELECT p.patient_id, MIN(value_datetime) art_start_date FROM 
+				                          patient p 
+				                          INNER JOIN encounter e ON p.patient_id=e.patient_id 
+				                          INNER JOIN obs o ON e.encounter_id=o.encounter_id 
+				                          WHERE p.voided=0 AND e.voided=0 AND o.voided=0 AND e.encounter_type=52 
+				                          AND o.concept_id=23866 AND o.value_datetime is NOT NULL 
+				                          AND e.location_id=:location
+				                          GROUP BY p.patient_id 
+				                          ) art_start 
+				                          GROUP BY patient_id 
+				                          )tx_new on tx_new.patient_id=primeiroMdc.patient_id
+				                          --where primeiroMdc.data_mdc  between date_add(tx_new.art_start_date, interval 3 month) and date_add(tx_new.art_start_date, interval 9 month)
+				                        )mds on mds.patient_id=p.person_id
+				                        group by p.person_id     
                                    )f 
 
                             union
