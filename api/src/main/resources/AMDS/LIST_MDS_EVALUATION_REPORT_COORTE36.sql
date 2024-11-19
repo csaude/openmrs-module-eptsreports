@@ -3811,6 +3811,59 @@ select * from (
                  ) tpt24Meses
 	          
                         union
+                        
+                     select  pbImc24Meses.patient_id,if(count(pbImc24Meses.consultas_pb_imc_24_meses)=count(pbImc24Meses.consultas_pb_imc_24_meses_2),'Sim','Não') consultas_pb_imc_24_meses, 't14' as source
+               from 
+                    (
+                   select pbImc24Meses.patient_id,pbImc24Meses.consultas_pb_imc_24_meses,fc.consultas_pb_imc_24_meses consultas_pb_imc_24_meses_2 from
+                    (
+                    select  p.patient_id,e.encounter_datetime consultas_pb_imc_24_meses 
+                     from
+                        patient p
+                        left join encounter e on p.patient_id=e.patient_id
+                        where e.encounter_type=6   and e.location_id=:location and e.voided=0 and p.voided=0 and e.voided=0 
+                        order by e.encounter_datetime
+                        ) pbImc24Meses   
+                        left join
+                       (
+                        select  p.patient_id,e.encounter_datetime consultas_pb_imc_24_meses, o.value_numeric,o.concept_id  from
+                        patient p
+                        left join encounter e on p.patient_id=e.patient_id
+                        left join obs o on e.encounter_id=o.encounter_id and o.concept_id in (1342,1343) and o.voided=0
+                        where e.encounter_type=6   and e.location_id=:location and e.voided=0
+                        and p.voided=0 and e.voided=0  and o.voided=0
+                        order by e.encounter_datetime
+                        )fc on fc.patient_id=pbImc24Meses.patient_id and pbImc24Meses.consultas_pb_imc_24_meses=fc.consultas_pb_imc_24_meses
+                      )pbImc24Meses
+        
+                       left join 
+                        (
+                        SELECT patient_id, MIN(art_start_date) art_start_date FROM 
+                        ( 
+                        SELECT p.patient_id, MIN(e.encounter_datetime) art_start_date FROM 
+                        patient p 
+                        INNER JOIN encounter e ON p.patient_id=e.patient_id 
+                        INNER JOIN obs o ON o.encounter_id=e.encounter_id 
+                        WHERE e.voided=0 AND o.voided=0 AND p.voided=0 AND e.encounter_type in (18) 
+                        AND e.location_id=:location 
+                        GROUP BY p.patient_id 
+                        UNION 
+                        SELECT p.patient_id, MIN(value_datetime) art_start_date FROM 
+                        patient p 
+                        INNER JOIN encounter e ON p.patient_id=e.patient_id 
+                        INNER JOIN obs o ON e.encounter_id=o.encounter_id 
+                        WHERE p.voided=0 AND e.voided=0 AND o.voided=0 AND e.encounter_type=52 
+                        AND o.concept_id=23866 AND o.value_datetime is NOT NULL 
+                        AND e.location_id=:location 
+                        GROUP BY p.patient_id 
+                        ) 
+                        art_start 
+                        GROUP BY patient_id 
+                       ) tx_new  on pbImc24Meses.patient_id=tx_new.patient_id
+                        where   pbImc24Meses.consultas_pb_imc_24_meses BETWEEN date_add(tx_new.art_start_date, interval 12 month)  and date_add(tx_new.art_start_date, interval 24 month) 
+                        GROUP BY pbImc24Meses.patient_id   
+
+                        union
 
                         --todasConsultas24MesesPA
                 select 
