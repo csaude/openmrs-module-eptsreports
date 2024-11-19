@@ -55,7 +55,7 @@ from (
 		                              group by p.patient_id
 		                  ) 
 		            art_start group by patient_id 
-		      ) tx_new where art_start_date between '2024-03-21' and :endDate and art_start_date < '2023-12-21'
+		      ) tx_new where art_start_date between :startDate and :endDate and art_start_date < '2023-12-21'
 		      union
 		      select tx_new.patient_id, tx_new.art_start_date 
 		      from 
@@ -85,7 +85,7 @@ from (
 		                                          group by p.patient_id
 		                              ) 
 		                        art_start group by patient_id 
-		                  ) tx_new where art_start_date between '2024-03-21' and :endDate and art_start_date >= '2023-12-21'
+		                  ) tx_new where art_start_date between :startDate and :endDate and art_start_date >= '2023-12-21'
 		            ) tx_new
 		            left join
 		            (
