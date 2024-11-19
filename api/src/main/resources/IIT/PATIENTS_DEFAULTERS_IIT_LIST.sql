@@ -942,7 +942,7 @@
                         )championManAPSS on championManAPSS.patient_id=coorte12meses_final.patient_id
                         left join
                         (
-                                        select     
+                                                    select     
                             f.patient_id,f.encounter_datetime as encounter_datetime,
                             @num_mdc := 1 + LENGTH(f.MDC) - LENGTH(REPLACE(f.MDC, ',', '')) AS MDC,  
                             SUBSTRING_INDEX(f.MDC, ',', 1) AS MDC1,  
@@ -950,11 +950,11 @@
                             IF(@num_mdc > 2, SUBSTRING_INDEX(SUBSTRING_INDEX(f.MDC, ',', 3), ',', -1), '') AS MDC3,  
                             IF(@num_mdc > 3, SUBSTRING_INDEX(SUBSTRING_INDEX(f.MDC, ',', 4), ',', -1), '') AS MDC4, 
                             IF(@num_mdc > 4, SUBSTRING_INDEX(SUBSTRING_INDEX(f.MDC, ',', 5), ',', -1), '') AS MDC5
-                         from (   
-                           select f.patient_id,max(f.encounter_datetime) as encounter_datetime,group_concat(f.MDC ORDER BY encounter_datetime ASC) as MDC from 
-                            (
-				             select distinct e.patient_id,e.encounter_datetime encounter_datetime,
-				              case o.value_coded
+                         from (
+                         select final.patient_id,final.encounter_datetime,group_concat(final.MDC) as MDC  from
+                         (
+                         select final.patient_id,final.encounter_datetime encounter_datetime,o.value_coded,final.obs_group_id,
+                                  case o.value_coded
 				              when  165340 then 'DB'
 				              when  23730 then 'DT' 
 				              when  165314 then 'DA' 
@@ -978,13 +978,20 @@
 				              when  165177 then 'FARMAC/Farmácia Privada'
 				              when  23732  then 'OUTRO'
 				              end AS MDC
+                         
+                         from
+                         (   
+                           select f.patient_id,max(date(f.encounter_datetime)) as encounter_datetime,encounter_id,f.obs_group_id  from 
+                            (
+				             select  e.patient_id,e.encounter_datetime encounter_datetime,e.encounter_id,o.value_coded,obsEstado.obs_group_id
+				   
 				              from patient p 
 				              join encounter e on p.patient_id=e.patient_id 
 				              join obs grupo on grupo.encounter_id=e.encounter_id 
 				              join obs o on o.encounter_id=e.encounter_id 
 				              join obs obsEstado on obsEstado.encounter_id=e.encounter_id 
 				              where  e.encounter_type in(6) 
-				              and e.location_id=:location 
+				              and e.location_id =:location 
 				              and o.concept_id=165174  
 				              and o.voided=0 
 				              and grupo.concept_id=165323  
@@ -995,11 +1002,31 @@
 				              and grupo.voided=0 
 				              and grupo.obs_id=o.obs_group_id 
 				              and grupo.obs_id=obsEstado.obs_group_id 
-				              order by p.patient_id, date(e.encounter_datetime) desc
+				              order by p.patient_id, date(e.encounter_datetime) desc ,obsEstado.obs_group_id  ASC
                                 )f
-                                group by f.patient_id,f.encounter_datetime  order by f.encounter_datetime asc
-                                )f
-                          group by f.patient_id order by @num_mdc       
+                                group by f.patient_id
+                                )final
+                                  join encounter e on final.patient_id=e.patient_id 
+				              join obs grupo on grupo.encounter_id=e.encounter_id 
+				              join obs o on o.encounter_id=e.encounter_id 
+				              join obs obsEstado on obsEstado.encounter_id=e.encounter_id 
+				              where  e.encounter_type in(6) 
+				              and e.location_id =:location 
+				              and o.concept_id=165174  
+				              and o.voided=0 
+				              and grupo.concept_id=165323  
+				              and grupo.voided=0 
+				              and obsEstado.concept_id=165322  
+				              and obsEstado.value_coded in(1256,1257) 
+				              and obsEstado.voided=0  
+				              and grupo.voided=0 
+				              and grupo.obs_id=o.obs_group_id 
+				              and grupo.obs_id=obsEstado.obs_group_id 
+				              and date(final.encounter_datetime)=date(e.encounter_datetime)
+                                )final
+                                group by  final.patient_id
+                                )f 
+                                group by f.patient_id order by @num_mdc desc                               
                           ) MDC on MDC.patient_id=coorte12meses_final.patient_id
 
                           left join
@@ -1033,7 +1060,7 @@
 		                            left join encounter e on e.patient_id=maxkp.patient_id and maxkp.maxkpdate=e.encounter_datetime                                            
 		                            left join obs o on o.encounter_id=e.encounter_id and maxkp.maxkpdate=o.obs_datetime                                                        
 		                            inner join person pe on pe.person_id=maxkp.patient_id                                                                                       
-		                        where o.concept_id=23703 and o.voided=0 and e.encounter_type=6 and e.voided=0 and e.location_id=3 and pe.voided=0                   
+		                        where o.concept_id=23703 and o.voided=0 and e.encounter_type=6 and e.voided=0 and e.location_id =:location and pe.voided=0                   
 		                            and o.value_coded in (1377, 20454,20426,1901)
 		                          )final
 		                          )final
