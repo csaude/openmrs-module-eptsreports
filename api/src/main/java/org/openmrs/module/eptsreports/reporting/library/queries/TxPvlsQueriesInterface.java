@@ -10,6 +10,10 @@ public interface TxPvlsQueriesInterface {
         FIND_WOMAN_STATE_WHO_HAVE_MORE_THAN_3MONTHS_ON_ART_WITH_VIRALLOAD_REGISTERED_IN_THELAST12MONTHS =
             "PVLS/FIND_WOMAN_STATE_WHO_HAVE_MORE_THAN_3MONTHS_ON_ART_WITH_VIRALLOAD_REGISTERED_IN_THELAST12MONTHS.sql";
 
+    private static final String
+        FIND_PREGNANT_AND_BREASTFEEDING_WOMEN_SUPLEMENTAL_COVERAGE_DENOMINATORS =
+            "TX_PVLS_SUPLEMENTAL/PREGNANT_AND_BREASTFEEDING_WOMEN.sql";
+
     public enum WomanState {
       PREGNANT,
       BREASTFEEDING;
@@ -183,6 +187,25 @@ public interface TxPvlsQueriesInterface {
 
         case BREASTFEEDING:
           query = String.format(query, 1);
+          break;
+      }
+      return query;
+    }
+
+    public static final String findPregnantAdnBreastfeedingWomenSuplementalCoverageDenominators(
+        WomanState womanState) {
+
+      String query =
+          EptsQuerysUtils.loadQuery(
+              FIND_PREGNANT_AND_BREASTFEEDING_WOMEN_SUPLEMENTAL_COVERAGE_DENOMINATORS);
+
+      switch (womanState) {
+        case PREGNANT:
+          query = String.format(query, 1);
+          break;
+
+        case BREASTFEEDING:
+          query = String.format(query, 2);
           break;
       }
       return query;

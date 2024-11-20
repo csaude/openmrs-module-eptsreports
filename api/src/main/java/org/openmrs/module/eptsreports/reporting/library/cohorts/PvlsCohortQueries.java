@@ -469,4 +469,112 @@ public class PvlsCohortQueries {
 
     return definition;
   }
+
+  @DocumentedDefinition(value = "findBreastfeedingWomanForTxPvlsSupplementalCoverageDenominators")
+  public CohortDefinition findBreastfeedingWomanForTxPvlsSupplementalCoverageDenominators() {
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName("findBreastfeedingWomanForTxPvlsSupplementalCoverageDenominators");
+    definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("location", "location", Location.class));
+
+    definition.setQuery(
+        TxPvlsQueriesInterface.QUERY
+            .findPregnantAdnBreastfeedingWomenSuplementalCoverageDenominators(
+                WomanState.BREASTFEEDING));
+
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "findPregnantWomanForTxPvlsSupplementalCoverageDenominators")
+  public CohortDefinition findPregnantWomanForTxPvlsSupplementalCoverageDenominators() {
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName("findPregnantWomanForTxPvlsSupplementalCoverageDenominators");
+    definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("location", "location", Location.class));
+
+    definition.setQuery(
+        TxPvlsQueriesInterface.QUERY
+            .findPregnantAdnBreastfeedingWomenSuplementalCoverageDenominators(WomanState.PREGNANT));
+
+    return definition;
+  }
+
+  @DocumentedDefinition(
+      value =
+          "findPregnantBreatsFeedingWhoHaveMoreThan3MonthsOnArtWithViralLoadRegisteredInTheLast12MonthsWithVlMoreThan1000Target")
+  public CohortDefinition
+      findBreastfeedingWomanForTxPvlsSupplementalCoverageDenominatorsPatients() {
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+
+    definition.setName("findBreastfeedingWomanForTxPvlsSupplementalCoverageDenominatorsPatients");
+    definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("location", "location", Location.class));
+
+    final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
+
+    definition.addSearch(
+        "BREASTFEEDING",
+        EptsReportUtils.map(
+            this.findBreastfeedingWomanForTxPvlsSupplementalCoverageDenominators(), mappings));
+
+    definition.setCompositionString("BREASTFEEDING");
+
+    return definition;
+  }
+
+  @DocumentedDefinition(
+      value = "findPregnantWomanForTxPvlsSupplementalCoverageDenominatorsPatients")
+  public CohortDefinition findPregnantWomanForTxPvlsSupplementalCoverageDenominatorsPatients() {
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+
+    definition.setName("findPregnantWomanForTxPvlsSupplementalCoverageDenominatorsPatients");
+    definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("location", "location", Location.class));
+
+    final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
+
+    definition.addSearch(
+        "PREGNANT",
+        EptsReportUtils.map(
+            this.findPregnantWomanForTxPvlsSupplementalCoverageDenominators(), mappings));
+
+    definition.setCompositionString("PREGNANT");
+
+    return definition;
+  }
+
+  @DocumentedDefinition(
+      value = "findPregnantAndBreastfeedingWomenForTxPvlsSupplementalCoverageDenominatorsPatients")
+  public CohortDefinition
+      findPregnantAndBreastfeedingWomenForTxPvlsSupplementalCoverageDenominatorsPatients() {
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+
+    definition.setName(
+        "findPregnantAndBreastfeedingWomenForTxPvlsSupplementalCoverageDenominatorsPatients");
+    definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("location", "location", Location.class));
+
+    final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
+
+    definition.addSearch(
+        "PREGNANT",
+        EptsReportUtils.map(
+            this.findPregnantWomanForTxPvlsSupplementalCoverageDenominators(), mappings));
+
+    definition.addSearch(
+        "BREASTFEEDING",
+        EptsReportUtils.map(
+            this.findBreastfeedingWomanForTxPvlsSupplementalCoverageDenominators(), mappings));
+
+    definition.setCompositionString("PREGNANT OR BREASTFEEDING");
+
+    return definition;
+  }
 }
