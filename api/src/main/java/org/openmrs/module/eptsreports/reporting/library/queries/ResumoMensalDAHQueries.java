@@ -473,7 +473,7 @@ public class ResumoMensalDAHQueries {
             + "inner join obs o on e.encounter_id=o.encounter_id "
             + "where pe.voided=0 and p.voided=0 and e.voided=0 and o.voided=0  and e.encounter_type=6 and e.location_id=:location and pe.gender='F' and "
             + "o.concept_id=1982 and o.value_coded=1065 and e.encounter_datetime "
-            + "between date_add(date_sub(:startDate, interval 3 month), interval 1 day) and :endDate ";
+            + "between :startDate and :endDate ";
 
     return query;
   }
