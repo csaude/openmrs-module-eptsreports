@@ -130,7 +130,9 @@ from (
 		) tx_new
 		left join
 		(     
-			select first_cd4.patient_id, first_cd4.data_cd4 data_cd4,first_cd4_greater.data_cd4__greater
+	    select * from 
+       (
+       select first_cd4.patient_id, first_cd4.data_cd4 data_cd4,first_cd4_greater.data_cd4__greater
 		     from (
 		      	select first_cd4.patient_id, first_cd4.data_cd4 data_cd4
 		      	from( 
@@ -167,7 +169,7 @@ from (
 					   inner join encounter e on e.patient_id = p.patient_id
 					   inner join obs cd4 on cd4.encounter_id = e.encounter_id
 					where p.voided is false and e.voided is false and cd4.voided is false and e.encounter_type = 13 and e.location_id=:location 
-					   and cd4.concept_id = 1695 and cd4.value_numeric <200 and e.encounter_datetime <= :endDate
+					   and cd4.concept_id = 1695 and cd4.value_numeric <200 and e.encounter_datetime <= :endDate 
 					 
 					union
 					
@@ -177,8 +179,8 @@ from (
 					   inner join obs cd4 on cd4.encounter_id = e.encounter_id
 					where p.voided is false and e.voided is false and cd4.voided is false and e.encounter_type = 51 and e.location_id=:location 
 					   and cd4.concept_id = 1695 and cd4.value_numeric <200 and e.encounter_datetime <= :endDate
-		      	) first_cd4 
-		      ) first_cd4
+		      	) first_cd4  
+		      ) first_cd4 
 		      left join
 		      ( 
 		      	select first_cd4.patient_id, first_cd4.data_cd4 data_cd4__greater
@@ -207,7 +209,7 @@ from (
 					   inner join encounter e on e.patient_id = p.patient_id
 					   inner join obs cd4 on cd4.encounter_id = e.encounter_id
 					where p.voided is false and e.voided is false and cd4.voided is false and e.encounter_type = 6 and e.location_id=:location 
-					   and cd4.concept_id = 1695 and cd4.value_numeric >=200 and e.encounter_datetime <= :endDate
+					   and cd4.concept_id = 1695 and cd4.value_numeric >=200 and e.encounter_datetime <= :endDate and p.patient_id=31751
 					  
 					union
 					
@@ -216,7 +218,7 @@ from (
 					   inner join encounter e on e.patient_id = p.patient_id
 					   inner join obs cd4 on cd4.encounter_id = e.encounter_id
 					where p.voided is false and e.voided is false and cd4.voided is false and e.encounter_type = 13 and e.location_id=:location 
-					   and cd4.concept_id = 1695 and cd4.value_numeric >=200 and e.encounter_datetime <= :endDate
+					   and cd4.concept_id = 1695 and cd4.value_numeric >=200 and e.encounter_datetime <= :endDate 
 					 
 					union
 					
@@ -226,11 +228,13 @@ from (
 					   inner join obs cd4 on cd4.encounter_id = e.encounter_id
 					where p.voided is false and e.voided is false and cd4.voided is false and e.encounter_type = 51  and e.location_id=:location
 					   and cd4.concept_id = 1695 and cd4.value_numeric >=200 and e.encounter_datetime <= :endDate
-		      	) first_cd4 
-		      ) first_cd4_greater on first_cd4_greater.patient_id = first_cd4.patient_id   
+		      	) first_cd4  
+		      ) first_cd4_greater on first_cd4_greater.patient_id = first_cd4.patient_id  
+		      where 
+		      (first_cd4.data_cd4<=first_cd4_greater.data_cd4__greater or first_cd4_greater.data_cd4__greater is null) 
+		     ) first_cd4
 		) first_cd4 on first_cd4.patient_id = tx_new.patient_id
 	)tx_new
-where (tx_new.data_cd4 between date_add(tx_new.art_start_date, interval - 90 day)  and date_add(tx_new.art_start_date, interval 28 day)) and
-	(tx_new.data_cd4__greater is null or tx_new.data_cd4>=tx_new.data_cd4__greater)
-	group by tx_new.patient_id)tx_new 
-
+     where (tx_new.data_cd4 between date_add(tx_new.art_start_date, interval - 90 day)  and date_add(tx_new.art_start_date, interval 28 day)) 
+	group by tx_new.patient_id 
+	)tx_new 
