@@ -67,6 +67,10 @@ public class SetupListForReminderCallPrepPatients extends EptsDataExportManager 
         "PREP1",
         Mapped.mapStraightThrough(
             ListPatientWithReminderCallPrepDataSet.constructDataset(getParameters())));
+    rd.addDataSetDefinition(
+        "PREP1T",
+        Mapped.mapStraightThrough(
+            ListPatientWithReminderCallPrepDataSet.getTotalEPrepTotalDataset()));
 
     rd.addDataSetDefinition(
         "D",
