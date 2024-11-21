@@ -43,7 +43,7 @@ public class TxPvlsSuplementalDataSet extends BaseDataSet {
 
     final CohortIndicator denominator =
         this.eptsGeneralIndicator.getIndicator(
-            "pregnant-denominator",
+            "total-denominator",
             EptsReportUtils.map(
                 this.pvlsCohortQueries
                     .findPregnantAndBreastfeedingWomenForTxPvlsSupplementalCoverageDenominatorsPatients(),
@@ -67,7 +67,7 @@ public class TxPvlsSuplementalDataSet extends BaseDataSet {
 
     dataSetDefinition.addColumn(
         "TXPVLS-SUPLEMENTAL-TOTAL",
-        "TXPVLS-SUPLEMENTAL: Eligible for a VL test and on ART for 90 days (Pregnant Women)",
+        "TXPVLS-SUPLEMENTAL: Eligible for a VL test and on ART for 90 days (Total Denominator)",
         EptsReportUtils.map(denominator, mappings),
         "");
 
