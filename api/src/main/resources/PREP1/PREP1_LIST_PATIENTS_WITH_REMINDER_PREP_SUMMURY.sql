@@ -1,32 +1,4 @@
-				            select coorteFinalPrep.patient_id as PATIENT_ID,
-				                   DATE_FORMAT(DATE(coorteFinalPrep.prep_consultation_date ),'%d-%m-%Y') DATA_CONSULTA,
-				                   DATE_FORMAT(DATE(coorteFinalPrep.data_proximo),'%d-%m-%Y') DATA_PROXIMA_CONSULTA,
-				                   pid.identifier as NID,
-				                   concat(ifnull(pn.given_name,''),' ',ifnull(pn.middle_name,''),' ',ifnull(pn.family_name,'')) as NAME,
-				                   p.gender as GENDER,
-				                   floor(datediff(:endDate,birthdate)/365) AGE,
-				                   pat.value as CONTACTO,
-				                   if(grupoAlvo.value_coded=165287,'S','N') ADOLESCENTE_JOVENS,
-				                   if(grupoAlvo.value_coded=1902,'S','N') MILITAR_POLICÍA,
-				                   if(grupoAlvo.value_coded=1908,'S','N') MINEIRO,
-				                   if(grupoAlvo.value_coded=1903,'S','N') MOTORISTA,
-				                   if(grupoAlvo.value_coded=1995,'S','N') SERODISCORDANTES,
-				                   if(grupoAlvoKp.value_coded=20426,'S','N') PRISAO,
-				                   if(grupoAlvoKp.value_coded=1377,'S','N') HSH,
-				                   if(grupoAlvoKp.value_coded=165205,'S','N') TG,
-				                   if(grupoAlvoKp.value_coded=1901,'S','N') TS,
-				                   if(grupoAlvoKp.value_coded=20454,'S','N') PID,  
-				                   if(grupoAlvoKp.value_coded=5622,'S','N') OUTRO ,
-				                   gravidaLactante.decisao GRAVIDA_LATANTE,
-				                   case 
-							       when ISNULL(sector.value_coded) then '' 
-							       when sector.value_coded = 1987 then 'SAAJ'
-							       when sector.value_coded = 23873 then 'Triagem Adulto'
-							       when sector.value_coded = 165206 then 'Consultas integradas'
-							       when sector.value_coded = 1978 then 'CPN'
-							       when sector.value_coded = 23913 then 'Outro'   
-							       end AS SECTOR
-
+				            select coorteFinalPrep.patient_id
 				            from (
 				            select coorteFinal.patient_id, coorteFinal.prep_consultation_date,coorteFinal.data_proximo 
 				            from 
@@ -339,4 +311,4 @@
 					      left join obs o on o.encounter_id=e.encounter_id
 					      where e.voided=0 and o.voided=0 and o.concept_id=165291 and e.encounter_type=80  and e.encounter_datetime=sector.prep_consultation_date
 				          )sector on sector.patient_id=coorteFinalPrep.patient_id
-				          group by coorteFinalPrep.patient_id
+				         group by coorteFinalPrep.patient_id
