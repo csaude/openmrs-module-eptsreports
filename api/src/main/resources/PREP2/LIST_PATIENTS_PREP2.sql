@@ -49,50 +49,43 @@
 			                  )coorteFinal
 			                  left join
 			                  (
-			                   select p.patient_id, max(e.encounter_datetime) prep_consultation_date
-			                     from patient p 
-				                  inner join encounter e on p.patient_id=e.patient_id 
-				                  inner join obs o on o.encounter_id=e.encounter_id
-				                  where e.voided=0 
-				                  and o.voided=0 
-				                  and p.voided=0 
-				                  and e.encounter_type=80 
-				                  and o.concept_id=165292 
-				                  and o.value_coded=1706 
-				                  and e.encounter_datetime<=:endDate 
-				                  and e.location_id=:location 
-				              group by p.patient_id 
-			                   )trOut on trOut.patient_id=coorteFinal.patient_id
-			                   left join
-			                   (
-			                    select p.patient_id, max(o.obs_datetime) prep_consultation_date
-			                     from patient p 
-				                  inner join encounter e on p.patient_id=e.patient_id 
-				                  inner join obs o on o.encounter_id=e.encounter_id
-				                  where e.voided=0 
-				                  and o.voided=0 
-				                  and p.voided=0 
-				                  and e.encounter_type=80 
-				                  and o.concept_id=165292 
-				                  and o.value_coded=1260 
-				                  and o.obs_datetime<=:endDate 
-				                  and e.location_id=:location 
-			                   group by p.patient_id 
-                                  union
-			                   select p.patient_id, max(e.encounter_datetime) prep_consultation_date
-			                     from patient p 
-				                  inner join encounter e on p.patient_id=e.patient_id 
-				                  inner join obs o on o.encounter_id=e.encounter_id
-				                  where e.voided=0 
-				                  and o.voided=0 
-				                  and p.voided=0 
-				                  and e.encounter_type=81 
-				                  and o.concept_id=165225 
-				                  and e.encounter_datetime<=:endDate 
-				                  and e.location_id=:location 
-			                   group by p.patient_id 
-			                   )suspend on suspend.patient_id=coorteFinal.patient_id
-			                   where (trOut.patient_id is null and suspend.patient_id is null)
+			                  select 	prep.patient_id
+					from 
+						(
+							select 	p.patient_id,max(encounter_datetime) data_inicial_prep
+							from 	patient p 
+									inner join encounter e on e.patient_id=p.patient_id
+							where 	p.voided=0 and e.voided=0 and e.encounter_type=80 and 
+									e.location_id=:location and	e.encounter_datetime<=:endDate
+							group by p.patient_id
+						) 	prep
+							inner join encounter e on e.patient_id=prep.patient_id
+							inner join obs o on e.encounter_id=o.encounter_id
+							
+						where 	e.voided=0 and o.voided=0 and e.encounter_type=80 and 
+								e.encounter_datetime=prep.data_inicial_prep and 
+								o.concept_id = 165292 and o.value_coded in (1706,1260) and o.obs_datetime<=:endDate
+					union 
+					
+					-- Interrompido Ficha Seguimento
+					select 	prep.patient_id
+					from 
+						(
+							select 	p.patient_id,max(encounter_datetime) data_seguimento_prep
+							from 	patient p 
+									inner join encounter e on e.patient_id=p.patient_id
+							where 	p.voided=0 and e.voided=0 and e.encounter_type=81 and 
+									e.location_id=:location and	e.encounter_datetime<=:endDate
+							group by p.patient_id
+						) 	prep
+							inner join encounter e on e.patient_id=prep.patient_id
+							inner join obs o on e.encounter_id=o.encounter_id
+							
+						where 	e.voided=0 and o.voided=0 and e.encounter_type=81 and 
+								e.encounter_datetime=prep.data_seguimento_prep and 
+								o.concept_id=165225 and o.value_coded is not null and o.obs_datetime<=:endDate
+			                   )saidas on saidas.patient_id=coorteFinal.patient_id
+			                   where saidas.patient_id is null
 			                   group by coorteFinal.patient_id
 			                  )coorteFinalPrep
 			                 left join person p on p.person_id=coorteFinalPrep.patient_id
