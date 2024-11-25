@@ -22,7 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SetupListForReminderCallPrepPatients extends EptsDataExportManager {
+public class SetupListPrep1ForReminderCallPrepPatients extends EptsDataExportManager {
 
   @Autowired private GenericCohortQueries genericCohortQueries;
 
