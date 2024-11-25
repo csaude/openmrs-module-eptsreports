@@ -47,6 +47,24 @@
 			                  where e.encounter_type in (80,81) and e.encounter_datetime=prepConsultation.prep_consultation_date 
 			                  and pe.voided=0 and e.voided=0 and o.voided=0 and o.concept_id=165228 and o.value_datetime between :startDate and :endDate
 			                  )coorteFinal
+			                  inner join 
+								(
+									select 	prep.patient_id
+									from 
+										(
+											select 	p.patient_id,max(encounter_datetime) data_inicial_prep
+											from 	patient p 
+													inner join encounter e on e.patient_id=p.patient_id
+											where 	p.voided=0 and e.voided=0 and e.encounter_type=80 and 
+													e.location_id=:location and	e.encounter_datetime<=:endDate
+											group by p.patient_id
+										) 	prep
+											inner join encounter e on e.patient_id=prep.patient_id
+											inner join obs o on e.encounter_id=o.encounter_id					
+										where 	e.voided=0 and o.voided=0 and e.encounter_type=80 and 
+												e.encounter_datetime=prep.data_inicial_prep and 
+												o.concept_id=6309 and o.value_coded=6307 and o.obs_datetime<=:endDate
+								) consentimento on consentimento.patient_id=coorteFinal.patient_id
 			                   left join
 			                   (
 			        			select 	prep.patient_id
@@ -84,42 +102,6 @@
 						where 	e.voided=0 and o.voided=0 and e.encounter_type=81 and 
 								e.encounter_datetime=prep.data_seguimento_prep and 
 								o.concept_id=165225 and o.value_coded is not null and o.obs_datetime<=:endDate
-
-								union
-
-								select 	prep.patient_id
-				from 
-					(
-						select 	p.patient_id,max(encounter_datetime) data_inicial_prep
-						from 	patient p 
-								inner join encounter e on e.patient_id=p.patient_id
-						where 	p.voided=0 and e.voided=0 and e.encounter_type=80 and 
-								e.location_id=:location and	e.encounter_datetime<=:endDate
-						group by p.patient_id
-					) 	prep
-						inner join encounter e on e.patient_id=prep.patient_id
-						inner join obs o on e.encounter_id=o.encounter_id					
-					where 	e.voided=0 and o.voided=0 and e.encounter_type=80 and 
-							e.encounter_datetime=prep.data_inicial_prep and 
-							o.concept_id=6309 and o.value_coded in (1066,23719,165303,165304) and o.obs_datetime<=:endDate
-					and prep.patient_id
-						not in (
-				select 	prep.patient_id
-				from 
-					(
-						select 	p.patient_id,max(encounter_datetime) data_inicial_prep
-						from 	patient p 
-								inner join encounter e on e.patient_id=p.patient_id
-						where 	p.voided=0 and e.voided=0 and e.encounter_type=80 and 
-								e.location_id=:location and	e.encounter_datetime<=:endDate
-						group by p.patient_id
-					) 	prep
-						inner join encounter e on e.patient_id=prep.patient_id
-						inner join obs o on e.encounter_id=o.encounter_id					
-					where 	e.voided=0 and o.voided=0 and e.encounter_type=80 and 
-							e.encounter_datetime=prep.data_inicial_prep and 
-							o.concept_id=6309 and o.value_coded=6307 and o.obs_datetime<=:endDate
-					)
 			       )saidas on saidas.patient_id=coorteFinal.patient_id
 			                   where saidas.patient_id is null
 			                   group by coorteFinal.patient_id
