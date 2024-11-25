@@ -41,9 +41,11 @@
 			                        where e.voided=0 and p.voided=0 and e.encounter_type in (80,81) and e.encounter_datetime<=:endDate and e.location_id=:location 
 			                        group by p.patient_id 
 			                  )prepConsultation
-			                  left join encounter e on e.patient_id= prepConsultation.patient_id
-			                  left join obs o on o.encounter_id=e.encounter_id
-			                  where e.encounter_type in (80,81) and e.voided=0 and o.voided=0 and o.concept_id=165228 and date_add(o.value_datetime, interval 90 day) < :endDate
+			                  inner join person pe on pe.person_id = prepConsultation.patient_id
+			                  inner join encounter e on e.patient_id= prepConsultation.patient_id
+			                  inner join obs o on o.encounter_id=e.encounter_id
+			                  where pe.voided = 0 and e.encounter_type in (80,81) and e.encounter_datetime = prepConsultation.prep_consultation_date 
+			                  and e.voided=0 and o.voided=0 and o.concept_id=165228 and date_add(o.value_datetime, interval 90 day) < :endDate
 			                  )coorteFinal
 			                  left join
 			                  (
@@ -91,7 +93,8 @@
 			                   group by p.patient_id 
 			                   )suspend on suspend.patient_id=coorteFinal.patient_id
 			                   where (trOut.patient_id is null and suspend.patient_id is null)
-			                   )coorteFinalPrep
+			                   group by coorteFinal.patient_id
+			                  )coorteFinalPrep
 			                 left join person p on p.person_id=coorteFinalPrep.patient_id
 			                 left join person_attribute pat on pat.person_id=coorteFinalPrep.patient_id and pat.person_attribute_type_id=9 and pat.value is not null and pat.value<>'' and pat.voided=0
 			                 left join person_attribute pat2 on pat2.person_id=coorteFinalPrep.patient_id and pat2.person_attribute_type_id=30 and pat2.value is not null and pat2.value<>'' and pat2.voided=0
@@ -323,6 +326,6 @@
 			               )sector
 			                left join encounter e on sector.patient_id=e.patient_id 
 					      left join obs o on o.encounter_id=e.encounter_id
-					      where e.voided=0 and o.voided=0 and o.concept_id=165291 and e.encounter_type=80  and e.encounter_datetime=sector.prep_consultation_date
+					      where e.voided=0 and o.voided=0 and o.concept_id=165291 and e.encounter_type=80 and e.encounter_datetime=sector.prep_consultation_date
 				          )sector on sector.patient_id=coorteFinalPrep.patient_id
 				          group by coorteFinalPrep.patient_id   
