@@ -121,7 +121,7 @@
 			               )grupoAlvo
 			                left join encounter e on grupoAlvo.patient_id=e.patient_id 
 					      left join obs o on o.encounter_id=e.encounter_id
-					      where e.voided=0 and o.voided=0 and o.concept_id=165196 and e.encounter_type=80  and e.encounter_datetime=grupoAlvo.prep_consultation_date
+					      where e.voided=0 and o.voided=0 and o.concept_id=165196 and o.value_coded in (165287,1902,1908,1903,1995) and e.encounter_type=80  and e.encounter_datetime=grupoAlvo.prep_consultation_date
 				          )grupoAlvo on grupoAlvo.patient_id=coorteFinalPrep.patient_id
 				          left join
 				          (

@@ -1,10 +1,10 @@
 				            select coorteFinalPrep.patient_id as PATIENT_ID,
-				                   DATE_FORMAT(DATE(coorteFinalPrep.prep_consultation_date ),'%d-%m-%Y') DATA_CONSULTA,
-				                   DATE_FORMAT(DATE(coorteFinalPrep.data_proximo),'%d-%m-%Y') DATA_PROXIMA_CONSULTA,
+				                   DATE_FORMAT(DATE(coorteFinalPrep.prep_consultation_date ),'%d/%m/%Y') DATA_CONSULTA,
+				                   DATE_FORMAT(DATE(coorteFinalPrep.data_proximo),'%d/%m/%Y') DATA_PROXIMA_CONSULTA,
 				                   pid.identifier as NID,
 				                   concat(ifnull(pn.given_name,''),' ',ifnull(pn.middle_name,''),' ',ifnull(pn.family_name,'')) as NAME,
 				                   p.gender as GENDER,
-				                   floor(datediff(:endDate,birthdate)/365) AGE,
+				                   TIMESTAMPDIFF(year,birthdate,:endDate) AGE,
 				                   pat.value as CONTACTO,
 				                   pat2.value as CONTACTO2,
 				                   if(grupoAlvo.value_coded=165287,'S','N') ADOLESCENTE_JOVENS,
@@ -150,7 +150,7 @@
 			               )grupoAlvo
 			                left join encounter e on grupoAlvo.patient_id=e.patient_id 
 					      left join obs o on o.encounter_id=e.encounter_id
-					      where e.voided=0 and o.voided=0 and o.concept_id=165196 and e.encounter_type=80  and e.encounter_datetime=grupoAlvo.prep_consultation_date
+					      where e.voided=0 and o.voided=0 and o.concept_id=165196 and o.value_coded in (165287,1902,1908,1903,1995) and e.encounter_type=80  and e.encounter_datetime=grupoAlvo.prep_consultation_date
 				          )grupoAlvo on grupoAlvo.patient_id=coorteFinalPrep.patient_id
 				          left join
 				          (
