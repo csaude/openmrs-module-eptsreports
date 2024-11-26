@@ -91,8 +91,8 @@ public class SetupListPatientsPrep2 extends EptsDataExportManager {
       reportDesign =
           createXlsReportDesign(
               reportDefinition,
-              "MASC_PrEP2_Lista_90_dias.xls",
-              "MASC PrEP2 Lista 90 dias",
+              "PrEP2_Lista_90_dias.xls",
+              "PrEP2 Lista 90 dias",
               getExcelDesignUuid(),
               null);
 
