@@ -209,6 +209,33 @@ public class ResumoMensalCCRQueries {
   }
 
   /**
+   * Filtrando as crianças que tiveram registo de “Diagnóstico Tratamento” igual a "Profilaxia com
+   * Isoniazida” em seis (6) consultas (“Ficha de Seguimento de CCR”)
+   *
+   * @return String
+   */
+  public static String getChildrenWhoHave6OrMoreCCRWithINHTreatmentRegistered() {
+
+    String query =
+        "		select p.patient_id, count(e.encounter_id) as numero_consultas "
+            + " from patient p "
+            + "   inner join encounter e on p.patient_id=e.patient_id "
+            + "   inner join obs o on o.encounter_id=e.encounter_id "
+            + "   where e.voided=0 "
+            + "   and o.voided=0 "
+            + "   and p.voided=0 "
+            + "   and e.encounter_type = 93 "
+            + "   and o.concept_id=23985 "
+            + "   and o.value_coded = 656 "
+            + "   and e.encounter_datetime between :startDate - interval 10 month and :endDate "
+            + "   and e.location_id=:location "
+            + "     group by p.patient_id "
+            + "   having count(e.encounter_id) >= 6 ";
+
+    return query;
+  }
+
+  /**
    * Total de crianças que receberam ATPU
    *
    * @return String
@@ -379,6 +406,217 @@ public class ResumoMensalCCRQueries {
     return query;
   }
 
+  /**
+   * Filtrando as crianças que tiveram registo de “Transferido para sector de TB” na “Ficha Resumo
+   * de CCR” ou na última “Ficha de Seguimento de CCR”
+   *
+   * @return String
+   */
+  public static String getChildrenReferredToPNCT(int encounterType) {
+
+    String query =
+        "		select p.patient_id, min(e.encounter_datetime) data_transferencia_tb "
+            + " from patient p "
+            + "   inner join encounter e on p.patient_id=e.patient_id "
+            + "   inner join obs o on o.encounter_id=e.encounter_id "
+            + "   where e.voided=0 "
+            + "   and o.voided=0 "
+            + "   and p.voided=0 "
+            + "   and e.encounter_type = %d "
+            + "   and o.concept_id=1873 "
+            + "   and o.value_coded = 165483 "
+            + "   and e.encounter_datetime between :startDate and :endDate "
+            + "   and e.location_id=:location "
+            + "     group by p.patient_id ";
+
+    return String.format(query, encounterType);
+  }
+
+  /**
+   * Filtrando as crianças que tiveram registo de “Abandono” na “Ficha Resumo de CCR” ou na última
+   * “Ficha de Seguimento de CCR”
+   *
+   * @return String
+   */
+  public static String getChildrenWhoAbandonedCCR(int encounterType) {
+
+    String query =
+        "		select p.patient_id, min(e.encounter_datetime) data_abandono "
+            + " from patient p "
+            + "   inner join encounter e on p.patient_id=e.patient_id "
+            + "   inner join obs o on o.encounter_id=e.encounter_id "
+            + "   where e.voided=0 "
+            + "   and o.voided=0 "
+            + "   and p.voided=0 "
+            + "   and e.encounter_type = %d "
+            + "   and o.concept_id=1873 "
+            + "   and o.value_coded = 1707 "
+            + "   and e.encounter_datetime between :startDate and :endDate "
+            + "   and e.location_id=:location "
+            + "     group by p.patient_id ";
+
+    return String.format(query, encounterType);
+  }
+
+  /**
+   * Filtrando as crianças que tiveram registo de “Transferido para Consulta de Criança Sadia” na
+   * “Ficha Resumo de CCR” ou na última “Ficha de Seguimento de CCR”
+   *
+   * @return String
+   */
+  public static String getChildrenTransferredToHealthyChildConsultation(int encounterType) {
+
+    String query =
+        "		select p.patient_id, min(e.encounter_datetime) data_abandono "
+            + " from patient p "
+            + "   inner join encounter e on p.patient_id=e.patient_id "
+            + "   inner join obs o on o.encounter_id=e.encounter_id "
+            + "   where e.voided=0 "
+            + "   and o.voided=0 "
+            + "   and p.voided=0 "
+            + "   and e.encounter_type = %d "
+            + "   and o.concept_id=1873 "
+            + "   and o.value_coded = 165485 "
+            + "   and e.encounter_datetime between :startDate and :endDate "
+            + "   and e.location_id=:location "
+            + "     group by p.patient_id ";
+
+    return String.format(query, encounterType);
+  }
+
+  /**
+   * Filtrando as que tiveram o registo de “Referido para Internamento” igual a "Sim” na última
+   * consulta de CCR
+   *
+   * @return String
+   */
+  public static String getChildrenWithDAGReferredForHospitalization() {
+
+    String query =
+        "	select 	internamento.patient_id "
+            + "	from "
+            + "	( "
+            + "		select 	p.patient_id,max(encounter_datetime) data_internamento "
+            + "		from 	patient p "
+            + "				inner join encounter e on e.patient_id=p.patient_id "
+            + "		where 	p.voided=0 and e.voided=0 and e.encounter_type=93 and "
+            + "				e.location_id=220 and e.encounter_datetime between :startDate and :endDate "
+            + "		group by p.patient_id "
+            + "	) 	internamento "
+            + "		inner join encounter e on e.patient_id=internamento.patient_id "
+            + "		inner join obs o on e.encounter_id=o.encounter_id "
+            + " "
+            + "	where 	e.voided=0 and o.voided=0 and e.encounter_type=93 and "
+            + "			e.encounter_datetime=internamento.data_internamento and "
+            + "			o.concept_id=1595 and o.value_coded = 1065 ";
+
+    return query;
+  }
+
+  /**
+   * Filtrando as crianças que tiveram registo de “Óbito” na “Ficha Resumo de CCR”
+   *
+   * @return String
+   */
+  public static String getChildrenMarkedDeathOnFichaResumoCCR() {
+
+    String query =
+        "		select p.patient_id, min(e.encounter_datetime) data_abandono "
+            + " from patient p "
+            + "   inner join encounter e on p.patient_id=e.patient_id "
+            + "   inner join obs o on o.encounter_id=e.encounter_id "
+            + "   where e.voided=0 "
+            + "   and o.voided=0 "
+            + "   and p.voided=0 "
+            + "   and e.encounter_type = 92 "
+            + "   and o.concept_id=1873 "
+            + "   and o.value_coded = 1366 "
+            + "   and e.encounter_datetime between :startDate and :endDate "
+            + "   and e.location_id=:location "
+            + "     group by p.patient_id ";
+
+    return query;
+  }
+
+  /**
+   * Filtrando as crianças que tiveram registo de “Óbito” na última “Ficha de Seguimento de CCR”
+   *
+   * @return String
+   */
+  public static String getChildrenMarkedDeathOnFichaSeguimentoCCR() {
+
+    String query =
+        "	select 	obito.patient_id "
+            + "	from "
+            + "	( "
+            + "		select 	p.patient_id,max(encounter_datetime) data_obito "
+            + "		from 	patient p "
+            + "				inner join encounter e on e.patient_id=p.patient_id "
+            + "		where 	p.voided=0 and e.voided=0 and e.encounter_type=93 and "
+            + "				e.location_id=:location and e.encounter_datetime between :startDate and :endDate "
+            + "		group by p.patient_id "
+            + "	) 	obito "
+            + "		inner join encounter e on e.patient_id=obito.patient_id "
+            + "		inner join obs o on e.encounter_id=o.encounter_id "
+            + " "
+            + "	where 	e.voided=0 and o.voided=0 and e.encounter_type=93 and "
+            + "			e.encounter_datetime=obito.data_obito and "
+            + "			o.concept_id=1873 and o.value_coded = 165485 ";
+
+    return query;
+  }
+
+  /**
+   * Filtrando as crianças que tiveram registo de “PTV Mãe” igual a “TARV”
+   *
+   * @return String
+   */
+  public static String getChildrenWithMotherInTARV() {
+
+    String query =
+        "		select p.patient_id, min(e.encounter_datetime) data_abandono "
+            + " from patient p "
+            + "   inner join encounter e on p.patient_id=e.patient_id "
+            + "   inner join obs o on o.encounter_id=e.encounter_id "
+            + "   where e.voided=0 "
+            + "   and o.voided=0 "
+            + "   and p.voided=0 "
+            + "   and e.encounter_type = 92 "
+            + "   and o.concept_id=6394 "
+            + "   and o.value_coded = 6276 "
+            + "   and e.encounter_datetime between :startDate and :endDate "
+            + "   and e.location_id=:location "
+            + "     group by p.patient_id ";
+
+    return query;
+  }
+
+  /**
+   * Filtrando as crianças que tiveram registo de “Aleitamento Materno Exclusivo” igual a “Sim” numa
+   * “Ficha de Seguimento de CCR”
+   *
+   * @return String
+   */
+  public static String getChildrenWithAleitamentoMaternoExclusivoInFichaCCR() {
+
+    String query =
+        "		select p.patient_id, min(e.encounter_datetime) data_abandono "
+            + " from patient p "
+            + "   inner join encounter e on p.patient_id=e.patient_id "
+            + "   inner join obs o on o.encounter_id=e.encounter_id "
+            + "   where e.voided=0 "
+            + "   and o.voided=0 "
+            + "   and p.voided=0 "
+            + "   and e.encounter_type = 92 "
+            + "   and o.concept_id=6394 "
+            + "   and o.value_coded = 6276 "
+            + "   and e.encounter_datetime between :startDate and :endDate "
+            + "   and e.location_id=:location "
+            + "     group by p.patient_id ";
+
+    return query;
+  }
+
   public static String findPatientsAgeGreaterThan(int age) {
 
     String query =
@@ -409,6 +647,23 @@ public class ResumoMensalCCRQueries {
             + "		) firstConsultationCCR "
             + "		inner join person on person_id = firstConsultationCCR.patient_id "
             + "	   WHERE (TIMESTAMPDIFF(month, birthdate, firstConsultationCCR.date_first_consultation_ccr)) < %d  AND birthdate IS NOT NULL and voided = 0 ";
+
+    return String.format(query, age);
+  }
+
+  public static String findPatientsWithAgeEqualTo(int age) {
+
+    String query =
+        "select firstConsultationCCR.patient_id from ( "
+            + "	select p.patient_id,min(encounter_datetime) date_first_consultation_ccr "
+            + "		from 	patient p "
+            + "				inner join encounter e on e.patient_id=p.patient_id "
+            + "		where 	p.voided=0 and e.voided=0 and e.encounter_type=92 and "
+            + "				e.location_id=:location and e.encounter_datetime between :startDate and :endDate "
+            + "		group by p.patient_id "
+            + "		) firstConsultationCCR "
+            + "		inner join person on person_id = firstConsultationCCR.patient_id "
+            + "	   WHERE (TIMESTAMPDIFF(month, birthdate, firstConsultationCCR.date_first_consultation_ccr)) = %d  AND birthdate IS NOT NULL and voided = 0 ";
 
     return String.format(query, age);
   }
