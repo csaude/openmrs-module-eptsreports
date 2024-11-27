@@ -18,13 +18,14 @@
 				                   if(grupoAlvoKp.value_coded=1901,'S','N') TS,
 				                   if(grupoAlvoKp.value_coded=20454,'S','N') PID,  
 				                   if(grupoAlvoKp.value_coded=5622,'S','N') OUTRO ,
-				                   gravidaLactante.decisao GRAVIDA_LATANTE,
+				                   gravidaLactante.estado GRAVIDA_LATANTE,
 				                   case 
 							       when ISNULL(sector.value_coded) then '' 
 							       when sector.value_coded = 1987 then 'SAAJ'
 							       when sector.value_coded = 23873 then 'Triagem Adulto'
 							       when sector.value_coded = 165206 then 'Consultas integradas'
 							       when sector.value_coded = 1978 then 'CPN'
+							       when sector.value_coded = 5483 then 'CPF'  
 							       when sector.value_coded = 23913 then 'Outro'   
 							       end AS SECTOR
 
@@ -136,7 +137,7 @@
 				          )grupoAlvo on grupoAlvo.patient_id=coorteFinalPrep.patient_id
 				          left join
 				          (
-				         select grupoAlvoKp.patient_id,grupoAlvoKp.prep_consultation_date,o.value_coded  from 
+				         select grupoAlvoKp.patient_id,grupoAlvoKp.prep_consultation_date, o.value_coded  from 
 			                (
 			                select p.patient_id, max(e.encounter_datetime) prep_consultation_date
 				                     from patient p 
@@ -153,152 +154,37 @@
 			               )grupoAlvoKp
 			                left join encounter e on grupoAlvoKp.patient_id=e.patient_id 
 					      left join obs o on o.encounter_id=e.encounter_id
-					      where e.voided=0 and o.voided=0 and o.concept_id=165196 and e.encounter_type in(80,81)  and e.encounter_datetime=grupoAlvoKp.prep_consultation_date
+					      where e.encounter_datetime=grupoAlvoKp.prep_consultation_date and 
+					      e.voided=0 and o.voided=0 and o.concept_id=23703 and e.encounter_type in(80,81)  
 				          )grupoAlvoKp on grupoAlvoKp.patient_id=coorteFinalPrep.patient_id
 				          left join
 				          (
-				          select gravidaFinal.patient_id,
-			                      gravidaFinal.prep_consultation_data_gravida,
-			                      lactanteFinal.prep_consultation_data_lactante,
-						       if(lactanteFinal.prep_consultation_data_lactante is null,'Gravida', if(gravidaFinal.prep_consultation_data_gravida is null,'Lactante', if(gravidaFinal.prep_consultation_data_gravida>=lactanteFinal.prep_consultation_data_lactante,'Gravida','Lactante'))) decisao 
-
-							 from person p 
-							 inner join
-			                (
-			               select gravidaFinal.patient_id,max(gravidaFinal.prep_consultation_data_gravida) prep_consultation_data_gravida, 1 type 
-			               from
-			               (
-			               select gravida.patient_id,gravida.prep_consultation_data_gravida 
-			               from 
-			                (
-			                select p.patient_id, max(e.encounter_datetime) prep_consultation_data_gravida
-				                     from patient p 
-					                  inner join encounter e on p.patient_id=e.patient_id 
-					                  inner join obs o on o.encounter_id=e.encounter_id
-					                  where e.voided=0 
-					                  and o.voided=0 
-					                  and p.voided=0 
-					                  and e.encounter_type=80
-					                  and o.concept_id=165196 
-					                  and o.value_coded in(1982) 
-					                  and e.encounter_datetime<=:endDate 
-					                  and e.location_id=:location 
-				                   group by p.patient_id 
-			               )gravida
-			               left join encounter e on gravida.patient_id=e.patient_id 
-					     left join obs o on o.encounter_id=e.encounter_id
-					     where e.voided=0 and o.voided=0 and o.concept_id=165196 and e.encounter_type=80  and e.encounter_datetime=gravida.prep_consultation_data_gravida
-					     
-					     union
-
-					    select gravida.patient_id,gravida.prep_consultation_data_gravida 
-			               from 
-			                (
-			                select p.patient_id, max(e.encounter_datetime) prep_consultation_data_gravida
-				                     from patient p 
-					                  inner join encounter e on p.patient_id=e.patient_id 
-					                  inner join obs o on o.encounter_id=e.encounter_id
-					                  where e.voided=0 
-					                  and o.voided=0 
-					                  and p.voided=0 
-					                  and e.encounter_type=80
-					                  and o.concept_id=1982 
-					                  and o.value_coded=1065 
-					                  and e.encounter_datetime<=:endDate 
-					                  and e.location_id=:location 
-				                   group by p.patient_id 
-			               )gravida
-			               
-			               union
-
-			               select gravida.patient_id,gravida.prep_consultation_data_gravida 
-			               from 
-			                (
-			                select p.patient_id, max(e.encounter_datetime) prep_consultation_data_gravida
-				                     from patient p 
-					                  inner join encounter e on p.patient_id=e.patient_id 
-					                  inner join obs o on o.encounter_id=e.encounter_id
-					                  where e.voided=0 
-					                  and o.voided=0 
-					                  and p.voided=0 
-					                  and e.encounter_type=81
-					                  and o.concept_id=165223 
-					                  and o.value_coded=1982 
-					                  and e.encounter_datetime<=:endDate 
-					                  and e.location_id=:location 
-				                   group by p.patient_id 
-			               )gravida
-			               )gravidaFinal
-			                group by gravidaFinal.patient_id
-			               )gravidaFinal on gravidaFinal.patient_id=p.person_id
-			               left join
-			               (
-			               select lactanteFinal.patient_id,max(lactanteFinal.prep_consultation_data_lactante) prep_consultation_data_lactante, 2 type 
-			               from
-			               (
-			               select lactante.patient_id,lactante.prep_consultation_data_lactante 
-			               from 
-			                (
-			                select p.patient_id, max(e.encounter_datetime) prep_consultation_data_lactante
-				                     from patient p 
-					                  inner join encounter e on p.patient_id=e.patient_id 
-					                  inner join obs o on o.encounter_id=e.encounter_id
-					                  where e.voided=0 
-					                  and o.voided=0 
-					                  and p.voided=0 
-					                  and e.encounter_type=80
-					                  and o.concept_id=165196 
-					                  and o.value_coded=6332
-					                  and e.encounter_datetime<=:endDate 
-					                  and e.location_id=:location 
-				                   group by p.patient_id 
-			               )lactante
-			               left join encounter e on lactante.patient_id=e.patient_id 
-					     left join obs o on o.encounter_id=e.encounter_id
-					     where e.voided=0 and o.voided=0 and o.concept_id=165196 and e.encounter_type=80  and e.encounter_datetime=lactante.prep_consultation_data_lactante
-					     
-					     union
-
-					    select lactante.patient_id,lactante.prep_consultation_data_lactante 
-			               from 
-			                (
-			                select p.patient_id, max(e.encounter_datetime) prep_consultation_data_lactante
-				                     from patient p 
-					                  inner join encounter e on p.patient_id=e.patient_id 
-					                  inner join obs o on o.encounter_id=e.encounter_id
-					                  where e.voided=0 
-					                  and o.voided=0 
-					                  and p.voided=0 
-					                  and e.encounter_type=80
-					                  and o.concept_id=6332 
-					                  and o.value_coded=1065 
-					                  and e.encounter_datetime<=:endDate 
-					                  and e.location_id=:location 
-				                   group by p.patient_id 
-			               )lactante
-			               
-			               union
-
-			               select lactante.patient_id,lactante.prep_consultation_data_lactante 
-			               from 
-			                (
-			                select p.patient_id, max(e.encounter_datetime) prep_consultation_data_lactante
-				                     from patient p 
-					                  inner join encounter e on p.patient_id=e.patient_id 
-					                  inner join obs o on o.encounter_id=e.encounter_id
-					                  where e.voided=0 
-					                  and o.voided=0 
-					                  and p.voided=0 
-					                  and e.encounter_type=81
-					                  and o.concept_id=165223 
-					                  and o.value_coded=6332 
-					                  and e.encounter_datetime<=:endDate 
-					                  and e.location_id=:location
-				                   group by p.patient_id 
-			               )lactante
-			               )lactanteFinal
-			                group by lactanteFinal.patient_id
-			               )lactanteFinal on lactanteFinal.patient_id=p.person_id
+	select 	prep.patient_id,
+			if(g1.encounter_id is not null,'Grávida',
+				if(g2.encounter_id is not null,'Grávida',
+					if(g3.encounter_id is not null,'Grávida',
+						if(l1.encounter_id is not null,'Lactante',
+							if(l2.encounter_id is not null, 'Lactante',
+								if(l3.encounter_id is not null,'Lactante',null)))))) estado
+	from 
+		(
+			select 	p.patient_id,max(encounter_datetime) data_inicial_prep
+			from 	patient p 
+					inner join encounter e on e.patient_id=p.patient_id
+			where 	p.voided=0 and e.voided=0 and e.encounter_type in (80,81) and 
+					e.location_id=:location and	e.encounter_datetime<=:endDate
+			group by p.patient_id
+		) 	prep
+			inner join encounter e on e.patient_id=prep.patient_id
+			left join obs g1 on e.encounter_id=g1.encounter_id and g1.concept_id=165196 and g1.value_coded=1982 and g1.voided=0
+			left join obs g2 on e.encounter_id=g2.encounter_id and g2.concept_id=1982 and g2.value_coded=1065 and g2.voided=0
+			left join obs g3 on e.encounter_id=g3.encounter_id and g3.concept_id=165223 and g3.value_coded=1982 and g3.voided=0
+			left join obs l1 on e.encounter_id=l1.encounter_id and l1.concept_id=165196 and l1.value_coded=6332 and l1.voided=0
+			left join obs l2 on e.encounter_id=l2.encounter_id and l2.concept_id=6332 and l2.value_coded=1065 and l2.voided=0
+			left join obs l3 on e.encounter_id=l3.encounter_id and l3.concept_id=165223 and l3.value_coded=6332 and l3.voided=0
+			
+		where 	e.voided=0 and e.encounter_type in (80,81) and 
+				e.encounter_datetime=prep.data_inicial_prep and e.location_id=:location
 				          )gravidaLactante on gravidaLactante.patient_id=coorteFinalPrep.patient_id
 				          left join
 				          (
