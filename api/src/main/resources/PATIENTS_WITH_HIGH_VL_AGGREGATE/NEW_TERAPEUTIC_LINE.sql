@@ -121,7 +121,7 @@
 		inner join encounter e on p.patient_id=e.patient_id
 		inner join obs o on e.encounter_id=o.encounter_id
 		where 	p.voided=0 and e.voided=0 and o.voided=0 and e.encounter_type in (13,51) and
-		o.concept_id=856 and o.obs_datetime BETWEEN '2023-03-20' and :endDate and e.location_id=:location and o.value_numeric>1000
+		o.concept_id=856 and o.obs_datetime BETWEEN :startDate and :endDate and e.location_id=:location and o.value_numeric>1000
 		group by p.patient_id
 		) primeiraCV
 		inner join encounter e on e.patient_id=primeiraCV.patient_id
