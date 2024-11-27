@@ -7,14 +7,15 @@ import org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.CompositionCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
-import org.openmrs.module.reporting.definition.library.DocumentedDefinition;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class HighViralLoadCohortQueries {
+
   @Autowired private GenericCohortQueries genericCohorts;
+
   private static final String PATIENTS_WITH_HIGH_VL_AGGREGATE_FIRST_HIGH_VL =
       "PATIENTS_WITH_HIGH_VL_AGGREGATE/FIRST_HIGH_VL.sql";
   private static final String PATIENTS_WITH_HIGH_VL_AGGREGATE_FIRST_FC =
@@ -49,34 +50,33 @@ public class HighViralLoadCohortQueries {
       "PATIENTS_WITH_HIGH_VL_AGGREGATE/APSS0_AFTER_CV2.sql";
 
   private static final String APSS1_AFTER_CV2 =
-      "PATIENTS_WITH_HIGH_VL_AGGREGATE/APSS1_AFTER_CV2.sql.";
+      "PATIENTS_WITH_HIGH_VL_AGGREGATE/APSS1_AFTER_CV2.sql";
 
   private static final String APSS2_AFTER_CV2 =
-      "PATIENTS_WITH_HIGH_VL_AGGREGATE/APSS2_AFTER_CV2.sql.";
+      "PATIENTS_WITH_HIGH_VL_AGGREGATE/APSS2_AFTER_CV2.sql";
 
   private static final String APSS3_AFTER_CV2 =
-      "PATIENTS_WITH_HIGH_VL_AGGREGATE/APSS3_AFTER_CV2.sql.";
+      "PATIENTS_WITH_HIGH_VL_AGGREGATE/APSS3_AFTER_CV2.sql";
 
   private static final String THIRD_VL_REQUEST =
-      "PATIENTS_WITH_HIGH_VL_AGGREGATE/THIRD_VL_REQUEST.sql.";
+      "PATIENTS_WITH_HIGH_VL_AGGREGATE/THIRD_VL_REQUEST.sql";
 
   private static final String THIRD_VL_REPEAT =
-      "PATIENTS_WITH_HIGH_VL_AGGREGATE/THIRD_VL_REPEAT.sql.";
+      "PATIENTS_WITH_HIGH_VL_AGGREGATE/THIRD_VL_REPEAT.sql";
 
   private static final String THIRD_VL_RESULT_LAB_ELAB =
-      "PATIENTS_WITH_HIGH_VL_AGGREGATE/THIRD_VL_RESULT_LAB_ELAB.sql.";
+      "PATIENTS_WITH_HIGH_VL_AGGREGATE/THIRD_VL_RESULT_LAB_ELAB.sql";
 
-  private static final String THIRD_HIGH_VL = "PATIENTS_WITH_HIGH_VL_AGGREGATE/THIRD_HIGH_VL.sql.";
+  private static final String THIRD_HIGH_VL = "PATIENTS_WITH_HIGH_VL_AGGREGATE/THIRD_HIGH_VL.sql";
   private static final String THIRD_VL_NEW_TERAPEUTIC_LINE =
-      "PATIENTS_WITH_HIGH_VL_AGGREGATE/THIRD_VL_NEW_TERAPEUTIC_LINE.sql.";
+      "PATIENTS_WITH_HIGH_VL_AGGREGATE/THIRD_VL_NEW_TERAPEUTIC_LINE.sql";
 
   private static final String DIED_OR_TROUT_OR_IIT_SUSPEND =
-      "PATIENTS_WITH_HIGH_VL_AGGREGATE/DIED_OR_TROUT_OR_IIT_SUSPEND.sql.";
+      "PATIENTS_WITH_HIGH_VL_AGGREGATE/DIED_OR_TROUT_OR_IIT_SUSPEND.sql";
 
   private static final String THIRD_VL_TERAPEUTIC_LINE =
-      "PATIENTS_WITH_HIGH_VL_AGGREGATE/THIRD_VL_TERAPEUTIC_LINE.sql.";
+      "PATIENTS_WITH_HIGH_VL_AGGREGATE/THIRD_VL_TERAPEUTIC_LINE.sql";
 
-  @DocumentedDefinition(value = "getPatientsDiedOrTroutOrIITOrSuspend")
   public CohortDefinition getPatientsDiedOrTroutOrIITOrSuspend() {
 
     final SqlCohortDefinition definition = new SqlCohortDefinition();
