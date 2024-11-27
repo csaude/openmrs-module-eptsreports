@@ -1071,7 +1071,7 @@ public interface MQCategory15QueriesInterface {
             + "		inner join obs o on o.encounter_id=e.encounter_id "
             + "		where e.encounter_type=13 and o.concept_id in(856,1305) and p.voided=0 and e.voided=0 and o.voided=0 and e.location_id=:location "
             + "		) cvLab on f.patient_id=cvLab.patient_id "
-            + "		 where cvLab.encounter_datetime > f.encounter_datetime_pedido_2 and cvLab.encounter_datetime <= :endRevisionDate ";
+            + "		 where cvLab.encounter_datetime >= f.encounter_datetime_pedido_2 and cvLab.encounter_datetime <= :endRevisionDate ";
 
     public static final String findPatientsWithRequestOnLabFormCategory15OverThan1000 =
         "select f.patient_id from ( "
