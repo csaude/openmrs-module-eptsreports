@@ -6,6 +6,8 @@ import org.openmrs.module.eptsreports.reporting.utils.EptsQuerysUtils;
 import org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.CompositionCohortDefinition;
+import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
+import org.openmrs.module.reporting.definition.library.DocumentedDefinition;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -68,8 +70,26 @@ public class HighViralLoadCohortQueries {
   private static final String THIRD_VL_NEW_TERAPEUTIC_LINE =
       "PATIENTS_WITH_HIGH_VL_AGGREGATE/THIRD_VL_NEW_TERAPEUTIC_LINE.sql.";
 
+  private static final String DIED_OR_TROUT_OR_IIT_SUSPEND =
+      "PATIENTS_WITH_HIGH_VL_AGGREGATE/DIED_OR_TROUT_OR_IIT_SUSPEND.sql.";
+
   private static final String THIRD_VL_TERAPEUTIC_LINE =
       "PATIENTS_WITH_HIGH_VL_AGGREGATE/THIRD_VL_TERAPEUTIC_LINE.sql.";
+
+  @DocumentedDefinition(value = "getPatientsDiedOrTroutOrIITOrSuspend")
+  public CohortDefinition getPatientsDiedOrTroutOrIITOrSuspend() {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+    definition.setName("Patient Died B8");
+    definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
+
+    String query = EptsQuerysUtils.loadQuery(DIED_OR_TROUT_OR_IIT_SUSPEND);
+    definition.setQuery(query);
+
+    return definition;
+  }
 
   public CohortDefinition getFirstHighVl() {
     final CompositionCohortDefinition composition = new CompositionCohortDefinition();
@@ -88,7 +108,11 @@ public class HighViralLoadCohortQueries {
                 "HIGHVL", EptsQuerysUtils.loadQuery(PATIENTS_WITH_HIGH_VL_AGGREGATE_FIRST_HIGH_VL)),
             mappings));
 
-    composition.setCompositionString("HIGHVL");
+    composition.addSearch(
+        "DIED-TROUT-IIT-SUSPEND",
+        EptsReportUtils.map(getPatientsDiedOrTroutOrIITOrSuspend(), mappings));
+
+    composition.setCompositionString("HIGHVL NOT DIED-TROUT-IIT-SUSPEND");
 
     return composition;
   }
@@ -110,7 +134,11 @@ public class HighViralLoadCohortQueries {
                 "HIGHVLFC", EptsQuerysUtils.loadQuery(PATIENTS_WITH_HIGH_VL_AGGREGATE_FIRST_FC)),
             mappings));
 
-    composition.setCompositionString("HIGHVLFC");
+    composition.addSearch(
+        "DIED-TROUT-IIT-SUSPEND",
+        EptsReportUtils.map(getPatientsDiedOrTroutOrIITOrSuspend(), mappings));
+
+    composition.setCompositionString("HIGHVLFC NOT DIED-TROUT-IIT-SUSPEND");
 
     return composition;
   }
@@ -132,7 +160,11 @@ public class HighViralLoadCohortQueries {
                 "APSS0AFTERHIGHVL", EptsQuerysUtils.loadQuery(APSS0_AFTER_HIGH_VL)),
             mappings));
 
-    composition.setCompositionString("APSS0AFTERHIGHVL");
+    composition.addSearch(
+        "DIED-TROUT-IIT-SUSPEND",
+        EptsReportUtils.map(getPatientsDiedOrTroutOrIITOrSuspend(), mappings));
+
+    composition.setCompositionString("APSS0AFTERHIGHVL NOT DIED-TROUT-IIT-SUSPEND");
 
     return composition;
   }
@@ -154,7 +186,11 @@ public class HighViralLoadCohortQueries {
                 "APSS1AFTERHIGHVL", EptsQuerysUtils.loadQuery(APSS1_AFTER_HIGH_VL)),
             mappings));
 
-    composition.setCompositionString("APSS1AFTERHIGHVL");
+    composition.addSearch(
+        "DIED-TROUT-IIT-SUSPEND",
+        EptsReportUtils.map(getPatientsDiedOrTroutOrIITOrSuspend(), mappings));
+
+    composition.setCompositionString("APSS1AFTERHIGHVL NOT DIED-TROUT-IIT-SUSPEND");
 
     return composition;
   }
@@ -176,7 +212,11 @@ public class HighViralLoadCohortQueries {
                 "APSS2AFTERHIGHVL", EptsQuerysUtils.loadQuery(APSS2_AFTER_HIGH_VL)),
             mappings));
 
-    composition.setCompositionString("APSS2AFTERHIGHVL");
+    composition.addSearch(
+        "DIED-TROUT-IIT-SUSPEND",
+        EptsReportUtils.map(getPatientsDiedOrTroutOrIITOrSuspend(), mappings));
+
+    composition.setCompositionString("APSS2AFTERHIGHVL NOT DIED-TROUT-IIT-SUSPEND");
 
     return composition;
   }
@@ -198,7 +238,11 @@ public class HighViralLoadCohortQueries {
                 "APSS3AFTERHIGHVL", EptsQuerysUtils.loadQuery(APSS3_AFTER_HIGH_VL)),
             mappings));
 
-    composition.setCompositionString("APSS3AFTERHIGHVL");
+    composition.addSearch(
+        "DIED-TROUT-IIT-SUSPEND",
+        EptsReportUtils.map(getPatientsDiedOrTroutOrIITOrSuspend(), mappings));
+
+    composition.setCompositionString("APSS3AFTERHIGHVL NOT DIED-TROUT-IIT-SUSPEND");
 
     return composition;
   }
@@ -219,8 +263,11 @@ public class HighViralLoadCohortQueries {
             this.genericCohorts.generalSql(
                 "FCSECONDHIGHVL", EptsQuerysUtils.loadQuery(FC_SECOND_VL_REQUEST)),
             mappings));
+    composition.addSearch(
+        "DIED-TROUT-IIT-SUSPEND",
+        EptsReportUtils.map(getPatientsDiedOrTroutOrIITOrSuspend(), mappings));
 
-    composition.setCompositionString("FCSECONDHIGHVL");
+    composition.setCompositionString("FCSECONDHIGHVL NOT DIED-TROUT-IIT-SUSPEND");
 
     return composition;
   }
@@ -242,7 +289,11 @@ public class HighViralLoadCohortQueries {
                 "SECONDVLREPEAT", EptsQuerysUtils.loadQuery(REPEAT_SECOND_VL)),
             mappings));
 
-    composition.setCompositionString("FCSECONDHIGHVL");
+    composition.addSearch(
+        "DIED-TROUT-IIT-SUSPEND",
+        EptsReportUtils.map(getPatientsDiedOrTroutOrIITOrSuspend(), mappings));
+
+    composition.setCompositionString("FCSECONDHIGHVL NOT DIED-TROUT-IIT-SUSPEND");
 
     return composition;
   }
@@ -264,7 +315,11 @@ public class HighViralLoadCohortQueries {
                 "SECONDVLLABELAB", EptsQuerysUtils.loadQuery(SECOND_VL_RESULT_LAB_ELAB)),
             mappings));
 
-    composition.setCompositionString("SECONDVLLABELAB");
+    composition.addSearch(
+        "DIED-TROUT-IIT-SUSPEND",
+        EptsReportUtils.map(getPatientsDiedOrTroutOrIITOrSuspend(), mappings));
+
+    composition.setCompositionString("SECONDVLLABELAB NOT DIED-TROUT-IIT-SUSPEND");
 
     return composition;
   }
@@ -286,7 +341,11 @@ public class HighViralLoadCohortQueries {
                 "SECONDVLRESULT", EptsQuerysUtils.loadQuery(SECOND_VL_RESULT)),
             mappings));
 
-    composition.setCompositionString("SECONDVLRESULT");
+    composition.addSearch(
+        "DIED-TROUT-IIT-SUSPEND",
+        EptsReportUtils.map(getPatientsDiedOrTroutOrIITOrSuspend(), mappings));
+
+    composition.setCompositionString("SECONDVLRESULT NOT DIED-TROUT-IIT-SUSPEND");
 
     return composition;
   }
@@ -308,7 +367,11 @@ public class HighViralLoadCohortQueries {
                 "NEWTERAPEUTICLINE", EptsQuerysUtils.loadQuery(NEW_TERAPEUTIC_LINE)),
             mappings));
 
-    composition.setCompositionString("NEWTERAPEUTICLINE");
+    composition.addSearch(
+        "DIED-TROUT-IIT-SUSPEND",
+        EptsReportUtils.map(getPatientsDiedOrTroutOrIITOrSuspend(), mappings));
+
+    composition.setCompositionString("NEWTERAPEUTICLINE NOT DIED-TROUT-IIT-SUSPEND");
 
     return composition;
   }
@@ -330,7 +393,11 @@ public class HighViralLoadCohortQueries {
                 "TERAPEUTICLINE", EptsQuerysUtils.loadQuery(TERAPEUTIC_LINE)),
             mappings));
 
-    composition.setCompositionString("TERAPEUTICLINE");
+    composition.addSearch(
+        "DIED-TROUT-IIT-SUSPEND",
+        EptsReportUtils.map(getPatientsDiedOrTroutOrIITOrSuspend(), mappings));
+
+    composition.setCompositionString("TERAPEUTICLINE NOT DIED-TROUT-IIT-SUSPENDss");
 
     return composition;
   }
@@ -351,8 +418,11 @@ public class HighViralLoadCohortQueries {
             this.genericCohorts.generalSql(
                 "APSS0AFTERCV2", EptsQuerysUtils.loadQuery(APSS0_AFTER_CV2)),
             mappings));
+    composition.addSearch(
+        "DIED-TROUT-IIT-SUSPEND",
+        EptsReportUtils.map(getPatientsDiedOrTroutOrIITOrSuspend(), mappings));
 
-    composition.setCompositionString("APSS0AFTERCV2");
+    composition.setCompositionString("APSS0AFTERCV2 NOT DIED-TROUT-IIT-SUSPEND");
 
     return composition;
   }
@@ -374,7 +444,11 @@ public class HighViralLoadCohortQueries {
                 "APSS1AFTERCV2", EptsQuerysUtils.loadQuery(APSS1_AFTER_CV2)),
             mappings));
 
-    composition.setCompositionString("APSS1AFTERCV2");
+    composition.addSearch(
+        "DIED-TROUT-IIT-SUSPEND",
+        EptsReportUtils.map(getPatientsDiedOrTroutOrIITOrSuspend(), mappings));
+
+    composition.setCompositionString("APSS1AFTERCV2 NOT DIED-TROUT-IIT-SUSPEND");
 
     return composition;
   }
@@ -396,7 +470,11 @@ public class HighViralLoadCohortQueries {
                 "APSS2AFTERCV2", EptsQuerysUtils.loadQuery(APSS2_AFTER_CV2)),
             mappings));
 
-    composition.setCompositionString("APSS2AFTERCV2");
+    composition.addSearch(
+        "DIED-TROUT-IIT-SUSPEND",
+        EptsReportUtils.map(getPatientsDiedOrTroutOrIITOrSuspend(), mappings));
+
+    composition.setCompositionString("APSS2AFTERCV2 NOT DIED-TROUT-IIT-SUSPEND");
 
     return composition;
   }
@@ -418,7 +496,11 @@ public class HighViralLoadCohortQueries {
                 "APSS3AFTERCV2", EptsQuerysUtils.loadQuery(APSS3_AFTER_CV2)),
             mappings));
 
-    composition.setCompositionString("APSS3AFTERCV2");
+    composition.addSearch(
+        "DIED-TROUT-IIT-SUSPEND",
+        EptsReportUtils.map(getPatientsDiedOrTroutOrIITOrSuspend(), mappings));
+
+    composition.setCompositionString("APSS3AFTERCV2 NOT DIED-TROUT-IIT-SUSPEND");
 
     return composition;
   }
@@ -440,7 +522,11 @@ public class HighViralLoadCohortQueries {
                 "THIRDVLREQUEST", EptsQuerysUtils.loadQuery(THIRD_VL_REQUEST)),
             mappings));
 
-    composition.setCompositionString("THIRDVLREQUEST");
+    composition.addSearch(
+        "DIED-TROUT-IIT-SUSPEND",
+        EptsReportUtils.map(getPatientsDiedOrTroutOrIITOrSuspend(), mappings));
+
+    composition.setCompositionString("THIRDVLREQUEST NOT DIED-TROUT-IIT-SUSPEND");
 
     return composition;
   }
@@ -462,7 +548,11 @@ public class HighViralLoadCohortQueries {
                 "THIRDVLREPEAT", EptsQuerysUtils.loadQuery(THIRD_VL_REPEAT)),
             mappings));
 
-    composition.setCompositionString("THIRDVLREPEAT");
+    composition.addSearch(
+        "DIED-TROUT-IIT-SUSPEND",
+        EptsReportUtils.map(getPatientsDiedOrTroutOrIITOrSuspend(), mappings));
+
+    composition.setCompositionString("THIRDVLREPEAT NOT DIED-TROUT-IIT-SUSPEND");
 
     return composition;
   }
@@ -484,7 +574,11 @@ public class HighViralLoadCohortQueries {
                 "THIRDVLRESULTLABELAB", EptsQuerysUtils.loadQuery(THIRD_VL_RESULT_LAB_ELAB)),
             mappings));
 
-    composition.setCompositionString("THIRDVLRESULTLABELAB");
+    composition.addSearch(
+        "DIED-TROUT-IIT-SUSPEND",
+        EptsReportUtils.map(getPatientsDiedOrTroutOrIITOrSuspend(), mappings));
+
+    composition.setCompositionString("THIRDVLRESULTLABELAB NOT DIED-TROUT-IIT-SUSPEND");
 
     return composition;
   }
@@ -505,7 +599,11 @@ public class HighViralLoadCohortQueries {
             this.genericCohorts.generalSql("THIRDHIGHVL", EptsQuerysUtils.loadQuery(THIRD_HIGH_VL)),
             mappings));
 
-    composition.setCompositionString("THIRDHIGHVL");
+    composition.addSearch(
+        "DIED-TROUT-IIT-SUSPEND",
+        EptsReportUtils.map(getPatientsDiedOrTroutOrIITOrSuspend(), mappings));
+
+    composition.setCompositionString("THIRDHIGHVL NOT DIED-TROUT-IIT-SUSPEND");
 
     return composition;
   }
@@ -527,8 +625,11 @@ public class HighViralLoadCohortQueries {
                 "THIRDVLNEWTERAPEUTICLINE",
                 EptsQuerysUtils.loadQuery(THIRD_VL_NEW_TERAPEUTIC_LINE)),
             mappings));
+    composition.addSearch(
+        "DIED-TROUT-IIT-SUSPEND",
+        EptsReportUtils.map(getPatientsDiedOrTroutOrIITOrSuspend(), mappings));
 
-    composition.setCompositionString("THIRDVLNEWTERAPEUTICLINE");
+    composition.setCompositionString("THIRDVLNEWTERAPEUTICLINE NOT DIED-TROUT-IIT-SUSPEND");
 
     return composition;
   }
@@ -550,7 +651,11 @@ public class HighViralLoadCohortQueries {
                 "THIRDVLTERAPEUTICLINE", EptsQuerysUtils.loadQuery(THIRD_VL_TERAPEUTIC_LINE)),
             mappings));
 
-    composition.setCompositionString("THIRDVLTERAPEUTICLINE");
+    composition.addSearch(
+        "DIED-TROUT-IIT-SUSPEND",
+        EptsReportUtils.map(getPatientsDiedOrTroutOrIITOrSuspend(), mappings));
+
+    composition.setCompositionString("THIRDVLTERAPEUTICLINE NOT DIED-TROUT-IIT-SUSPEND");
 
     return composition;
   }
