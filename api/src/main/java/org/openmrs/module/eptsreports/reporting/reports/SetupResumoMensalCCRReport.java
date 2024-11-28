@@ -20,14 +20,16 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import org.openmrs.module.eptsreports.reporting.library.cohorts.GenericCohortQueries;
+import org.openmrs.module.eptsreports.reporting.library.datasets.DatimCodeDataSet;
 import org.openmrs.module.eptsreports.reporting.library.datasets.LocationDataSetDefinition;
-import org.openmrs.module.eptsreports.reporting.library.datasets.resumo.ResumoMensalDataSetDefinition;
-import org.openmrs.module.eptsreports.reporting.library.datasets.resumo.ResumoMensalEncounterDataSetDefinition;
+import org.openmrs.module.eptsreports.reporting.library.datasets.SismaCodeDataSet;
+import org.openmrs.module.eptsreports.reporting.library.datasets.resumo.ResumoMensalCCRDataSetDefinition;
 import org.openmrs.module.eptsreports.reporting.library.queries.BaseQueries;
-import org.openmrs.module.eptsreports.reporting.reports.manager.EptsPeriodIndicatorDataExportManager;
+import org.openmrs.module.eptsreports.reporting.reports.manager.EptsDataExportManager;
 import org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils;
 import org.openmrs.module.reporting.ReportingConstants;
 import org.openmrs.module.reporting.ReportingException;
+import org.openmrs.module.reporting.evaluation.parameter.Mapped;
 import org.openmrs.module.reporting.report.ReportDesign;
 import org.openmrs.module.reporting.report.definition.PeriodIndicatorReportDefinition;
 import org.openmrs.module.reporting.report.definition.ReportDefinition;
@@ -35,26 +37,35 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SetupResumoMensalCCRReport extends EptsPeriodIndicatorDataExportManager {
+public class SetupResumoMensalCCRReport extends EptsDataExportManager {
 
-  @Autowired private ResumoMensalDataSetDefinition resumoMensalDataSetDefinition;
-  @Autowired private ResumoMensalEncounterDataSetDefinition resumoMensalEncounterDataSetDefinition;
+  @Autowired private ResumoMensalCCRDataSetDefinition resumoMensalCCRDataSetDefinition;
 
   @Autowired protected GenericCohortQueries genericCohortQueries;
 
+  @Autowired private DatimCodeDataSet datimCodeDataSet;
+
+  @Autowired private SismaCodeDataSet sismaCodeDataSet;
+
   @Autowired
-  public SetupResumoMensalCCRReport(ResumoMensalDataSetDefinition resumoMensalDataSetDefinition) {
-    this.resumoMensalDataSetDefinition = resumoMensalDataSetDefinition;
+  public SetupResumoMensalCCRReport(
+      ResumoMensalCCRDataSetDefinition resumoMensalCCRDataSetDefinition) {
+    this.resumoMensalCCRDataSetDefinition = resumoMensalCCRDataSetDefinition;
   }
 
   @Override
-  public String getExcelDesignUuid() {
-    return "6204658e-abe0-11ef-8ffc-5f4156fe9ca4";
+  public String getVersion() {
+    return "1.0-SNAPSHOT";
   }
 
   @Override
   public String getUuid() {
-    return "5a5f5c4e-abe0-11ef-ab57-f3aa6c7a3d3d";
+    return "8c091cb2-ad98-11ef-afa3-e3a09a520dcb";
+  }
+
+  @Override
+  public String getExcelDesignUuid() {
+    return "8506e25a-ad98-11ef-bb90-53a791815cd9";
   }
 
   @Override
@@ -76,15 +87,19 @@ public class SetupResumoMensalCCRReport extends EptsPeriodIndicatorDataExportMan
     rd.setUuid(getUuid());
     rd.setName(getName());
     rd.setDescription(getDescription());
-    rd.addParameters(resumoMensalDataSetDefinition.getParameters());
+    rd.addParameters(resumoMensalCCRDataSetDefinition.getParameters());
 
     rd.addDataSetDefinition("HF", mapStraightThrough(new LocationDataSetDefinition()));
     rd.addDataSetDefinition(
-        "R", mapStraightThrough(resumoMensalDataSetDefinition.constructResumoMensalDataset()));
+        "R", mapStraightThrough(resumoMensalCCRDataSetDefinition.constructResumoMensalDataset()));
 
     rd.addDataSetDefinition(
-        "RE",
-        mapStraightThrough(resumoMensalEncounterDataSetDefinition.constructResumoMensalDataset()));
+        "D",
+        Mapped.mapStraightThrough(this.datimCodeDataSet.constructDataset(this.getParameters())));
+
+    rd.addDataSetDefinition(
+        "SC",
+        Mapped.mapStraightThrough(this.sismaCodeDataSet.constructDataset(this.getParameters())));
 
     rd.setBaseCohortDefinition(
         EptsReportUtils.map(
@@ -95,21 +110,12 @@ public class SetupResumoMensalCCRReport extends EptsPeriodIndicatorDataExportMan
   }
 
   @Override
-  public String getVersion() {
-    return "1.0-SNAPSHOT";
-  }
-
-  @Override
   public List<ReportDesign> constructReportDesigns(ReportDefinition reportDefinition) {
     ReportDesign reportDesign = null;
     try {
       reportDesign =
           createXlsReportDesign(
-              reportDefinition,
-              "Relatorio_Mensal.xls",
-              "Relatorio Mensal Report",
-              getExcelDesignUuid(),
-              null);
+              reportDefinition, "RM_CCR.xls", "Resumo Mensal de CCR", getExcelDesignUuid(), null);
       Properties props = new Properties();
       props.put("sortWeight", "5000");
       reportDesign.setProperties(props);

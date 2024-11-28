@@ -21,12 +21,13 @@ import org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.CompositionCohortDefinition;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ResumoMensalCCRCohortQueries {
 
-  private GenericCohortQueries genericCohortQueries;
+  @Autowired private GenericCohortQueries genericCohortQueries;
 
   /** Indicador 1: Total de 1as consultas */
   public CohortDefinition getChildrenWithFirstConsultationCCRDuringPeriodIndicator1() {
@@ -69,7 +70,7 @@ public class ResumoMensalCCRCohortQueries {
         "I2",
         EptsReportUtils.map(
             this.genericCohortQueries.generalSql(
-                "I2", ResumoMensalCCRQueries.getChildrenWithTbHivContactIndicator2()),
+                "I2", ResumoMensalCCRQueries.getChildrenWithXMotivoDeConsulta(1845)),
             mappings));
 
     definition.setCompositionString("I2");
@@ -93,7 +94,7 @@ public class ResumoMensalCCRCohortQueries {
         "DAG",
         EptsReportUtils.map(
             this.genericCohortQueries.generalSql(
-                "desnutricaoAguda", ResumoMensalCCRQueries.getChildrenWithAcuteMalNutrition()),
+                "desnutricaoAguda", ResumoMensalCCRQueries.getChildrenWithXMotivoDeConsulta(1844)),
             mappings));
 
     definition.addSearch(
@@ -101,7 +102,7 @@ public class ResumoMensalCCRCohortQueries {
         EptsReportUtils.map(
             this.genericCohortQueries.generalSql(
                 "desnutricaoAgudaModerada",
-                ResumoMensalCCRQueries.getChildrenWithModerateAcuteMalNutrition()),
+                ResumoMensalCCRQueries.getChildrenWithXAcuteMalNutrition(165497)),
             mappings));
 
     definition.setCompositionString("DAG AND DAGM");
@@ -125,7 +126,7 @@ public class ResumoMensalCCRCohortQueries {
         "DAG",
         EptsReportUtils.map(
             this.genericCohortQueries.generalSql(
-                "desnutricaoAguda", ResumoMensalCCRQueries.getChildrenWithAcuteMalNutrition()),
+                "desnutricaoAguda", ResumoMensalCCRQueries.getChildrenWithXMotivoDeConsulta(1844)),
             mappings));
 
     definition.addSearch(
@@ -133,7 +134,7 @@ public class ResumoMensalCCRCohortQueries {
         EptsReportUtils.map(
             this.genericCohortQueries.generalSql(
                 "desnutricaoAgudaGrave",
-                ResumoMensalCCRQueries.getChildrenWithSevereAcuteMalNutrition()),
+                ResumoMensalCCRQueries.getChildrenWithXAcuteMalNutrition(165496)),
             mappings));
 
     definition.setCompositionString("DAG AND DAGG");
@@ -157,8 +158,7 @@ public class ResumoMensalCCRCohortQueries {
         "I5",
         EptsReportUtils.map(
             this.genericCohortQueries.generalSql(
-                "desnutricaoAguda",
-                ResumoMensalCCRQueries.getChildrenWithExposureToHIVIndicator5()),
+                "desnutricaoAguda", ResumoMensalCCRQueries.getChildrenWithXMotivoDeConsulta(1586)),
             mappings));
 
     definition.setCompositionString("I5");
@@ -217,7 +217,7 @@ public class ResumoMensalCCRCohortQueries {
                 "INH", ResumoMensalCCRQueries.getChildrenWhoInitiatedINHTreatment()),
             mappings));
 
-    definition.setCompositionString("DI1 AND INH");
+    definition.setCompositionString("I1 AND INH");
 
     return definition;
   }
@@ -458,7 +458,7 @@ public class ResumoMensalCCRCohortQueries {
         "HIV",
         EptsReportUtils.map(
             this.genericCohortQueries.generalSql(
-                "HIV", ResumoMensalCCRQueries.getChildrenExposedAndTestedForHIV()),
+                "HIV", ResumoMensalCCRQueries.getChildrenWithXMotivoDeConsulta(1586)),
             mappings));
 
     definition.addSearch(
@@ -559,7 +559,7 @@ public class ResumoMensalCCRCohortQueries {
 
     final CompositionCohortDefinition definition = new CompositionCohortDefinition();
     definition.setName("ChildrenWithTbHivContact9MonthsAgoIndicator20");
-    final String mappings = "startDate=${startDate-10m},endDate=${endDate-9m},location=${location}";
+    final String mappings = "startDate=${startDate-8m},endDate=${endDate-8m},location=${location}";
 
     definition.setName("getChildrenWithTbHivContact9MonthsAgoIndicator20");
     definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
@@ -578,7 +578,7 @@ public class ResumoMensalCCRCohortQueries {
         "I2",
         EptsReportUtils.map(
             this.genericCohortQueries.generalSql(
-                "I2", ResumoMensalCCRQueries.getChildrenWithTbHivContactIndicator2()),
+                "I2", ResumoMensalCCRQueries.getChildrenWithXMotivoDeConsulta(1845)),
             mappings));
 
     definition.setCompositionString("I1 AND I2");
@@ -621,9 +621,9 @@ public class ResumoMensalCCRCohortQueries {
     definition.setName("getChildrenReferredToPNCTIndicator22");
     final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
     final String mappingsCcrResumo =
-        "startDate=${startDate-10m},endDate=${endDate-9m},location=${location}";
+        "startDate=${startDate-8m},endDate=${endDate-8m},location=${location}";
     final String mappingsCcrSeguimento =
-        "startDate=${startDate-10m},endDate=${endDate},location=${location}";
+        "startDate=${startDate-8m},endDate=${endDate},location=${location}";
 
     definition.setName("getChildrenReferredToPNCTIndicator22");
     definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
@@ -637,14 +637,15 @@ public class ResumoMensalCCRCohortQueries {
         "CCR-RESUMO",
         EptsReportUtils.map(
             this.genericCohortQueries.generalSql(
-                "CCR-RESUMO", ResumoMensalCCRQueries.getChildrenReferredToPNCT(92)),
+                "CCR-RESUMO", ResumoMensalCCRQueries.getChildrenTransferredToXCCRResumo(165483)),
             mappingsCcrResumo));
 
     definition.addSearch(
         "CCR-SEGUIMENTO",
         EptsReportUtils.map(
             this.genericCohortQueries.generalSql(
-                "CCR-SEGUIMENTO", ResumoMensalCCRQueries.getChildrenReferredToPNCT(93)),
+                "CCR-SEGUIMENTO",
+                ResumoMensalCCRQueries.getChildrenTransferredToXSeguimentoCCR(165483)),
             mappingsCcrSeguimento));
 
     definition.setCompositionString("I20 AND (CCR-RESUMO OR CCR-SEGUIMENTO)");
@@ -659,9 +660,9 @@ public class ResumoMensalCCRCohortQueries {
     definition.setName("getChildrenWhoAbandonedCCRIndicator23");
     final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
     final String mappingsCcrResumo =
-        "startDate=${startDate-10m},endDate=${endDate-9m},location=${location}";
+        "startDate=${startDate-8m},endDate=${endDate-8m},location=${location}";
     final String mappingsCcrSeguimento =
-        "startDate=${startDate-10m},endDate=${endDate},location=${location}";
+        "startDate=${startDate-8m},endDate=${endDate},location=${location}";
 
     definition.setName("getChildrenWhoAbandonedCCRIndicator23");
     definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
@@ -672,20 +673,21 @@ public class ResumoMensalCCRCohortQueries {
         "I20", EptsReportUtils.map(getChildrenWithTbHivContact9MonthsAgoIndicator20(), mappings));
 
     definition.addSearch(
-        "CCR-RESUMO",
+        "ABANDONO-RESUMO",
         EptsReportUtils.map(
             this.genericCohortQueries.generalSql(
-                "CCR-RESUMO", ResumoMensalCCRQueries.getChildrenWhoAbandonedCCR(92)),
+                "CCR-RESUMO", ResumoMensalCCRQueries.getChildrenTransferredToXCCRResumo(1707)),
             mappingsCcrResumo));
 
     definition.addSearch(
-        "CCR-SEGUIMENTO",
+        "ABANDONO-SEGUIMENTO",
         EptsReportUtils.map(
             this.genericCohortQueries.generalSql(
-                "CCR-SEGUIMENTO", ResumoMensalCCRQueries.getChildrenWhoAbandonedCCR(93)),
+                "CCR-SEGUIMENTO",
+                ResumoMensalCCRQueries.getChildrenTransferredToXSeguimentoCCR(1707)),
             mappingsCcrSeguimento));
 
-    definition.setCompositionString("I20 AND (CCR-RESUMO OR CCR-SEGUIMENTO)");
+    definition.setCompositionString("I20 AND (ABANDONO-RESUMO OR ABANDONO-SEGUIMENTO)");
 
     return definition;
   }
@@ -696,7 +698,7 @@ public class ResumoMensalCCRCohortQueries {
 
     final CompositionCohortDefinition definition = new CompositionCohortDefinition();
     definition.setName("getNumberOfChildrenWithModerateAcuteMalnutritionCoorte9MonthsIndicator24");
-    final String mappings = "startDate=${startDate-10m},endDate=${endDate-9m},location=${location}";
+    final String mappings = "startDate=${startDate-8m},endDate=${endDate-8m},location=${location}";
 
     definition.setName("getNumberOfChildrenWithModerateAcuteMalnutritionCoorte9MonthsIndicator24");
     definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
@@ -707,7 +709,7 @@ public class ResumoMensalCCRCohortQueries {
         "DAG",
         EptsReportUtils.map(
             this.genericCohortQueries.generalSql(
-                "desnutricaoAguda", ResumoMensalCCRQueries.getChildrenWithAcuteMalNutrition()),
+                "desnutricaoAguda", ResumoMensalCCRQueries.getChildrenWithXMotivoDeConsulta(1844)),
             mappings));
 
     definition.addSearch(
@@ -715,7 +717,7 @@ public class ResumoMensalCCRCohortQueries {
         EptsReportUtils.map(
             this.genericCohortQueries.generalSql(
                 "desnutricaoAgudaModerada",
-                ResumoMensalCCRQueries.getChildrenWithModerateAcuteMalNutrition()),
+                ResumoMensalCCRQueries.getChildrenWithXAcuteMalNutrition(165497)),
             mappings));
 
     definition.setCompositionString("DAG AND DAGM");
@@ -732,9 +734,9 @@ public class ResumoMensalCCRCohortQueries {
         "getNumberOfChildrenWithModerateAcuteMalnutritionCuredCoorte9MonthsIndicator25");
     final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
     final String mappingsCcrResumo =
-        "startDate=${startDate-10m},endDate=${endDate-9m},location=${location}";
+        "startDate=${startDate-8m},endDate=${endDate-8m},location=${location}";
     final String mappingsCcrSeguimento =
-        "startDate=${startDate-10m},endDate=${endDate},location=${location}";
+        "startDate=${startDate-8m},endDate=${endDate},location=${location}";
 
     definition.setName(
         "getNumberOfChildrenWithModerateAcuteMalnutritionCuredCoorte9MonthsIndicator25");
@@ -751,8 +753,7 @@ public class ResumoMensalCCRCohortQueries {
         "CCR-RESUMO",
         EptsReportUtils.map(
             this.genericCohortQueries.generalSql(
-                "CCR-RESUMO",
-                ResumoMensalCCRQueries.getChildrenTransferredToHealthyChildConsultation(92)),
+                "CCR-RESUMO", ResumoMensalCCRQueries.getChildrenTransferredToXCCRResumo(165485)),
             mappingsCcrResumo));
 
     definition.addSearch(
@@ -760,7 +761,7 @@ public class ResumoMensalCCRCohortQueries {
         EptsReportUtils.map(
             this.genericCohortQueries.generalSql(
                 "CCR-SEGUIMENTO",
-                ResumoMensalCCRQueries.getChildrenTransferredToHealthyChildConsultation(93)),
+                ResumoMensalCCRQueries.getChildrenTransferredToXSeguimentoCCR(165485)),
             mappingsCcrSeguimento));
 
     definition.setCompositionString("I24 AND (CCR-RESUMO OR CCR-SEGUIMENTO)");
@@ -777,9 +778,9 @@ public class ResumoMensalCCRCohortQueries {
         "getNumberOfChildrenWithModerateAcuteMalnutritionWhoAbandonedCCRCoorte9MonthsIndicator26");
     final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
     final String mappingsCcrResumo =
-        "startDate=${startDate-10m},endDate=${endDate-9m},location=${location}";
+        "startDate=${startDate-8m},endDate=${endDate-8m},location=${location}";
     final String mappingsCcrSeguimento =
-        "startDate=${startDate-10m},endDate=${endDate},location=${location}";
+        "startDate=${startDate-8m},endDate=${endDate},location=${location}";
 
     definition.setName(
         "getNumberOfChildrenWithModerateAcuteMalnutritionWhoAbandonedCCRCoorte9MonthsIndicator26");
@@ -793,20 +794,21 @@ public class ResumoMensalCCRCohortQueries {
             getNumberOfChildrenWithModerateAcuteMalnutritionCoorte9MonthsIndicator24(), mappings));
 
     definition.addSearch(
-        "CCR-RESUMO",
+        "ABANDONO-RESUMO",
         EptsReportUtils.map(
             this.genericCohortQueries.generalSql(
-                "CCR-RESUMO", ResumoMensalCCRQueries.getChildrenWhoAbandonedCCR(92)),
+                "CCR-RESUMO", ResumoMensalCCRQueries.getChildrenTransferredToXCCRResumo(1707)),
             mappingsCcrResumo));
 
     definition.addSearch(
-        "CCR-SEGUIMENTO",
+        "ABANDONO-SEGUIMENTO",
         EptsReportUtils.map(
             this.genericCohortQueries.generalSql(
-                "CCR-SEGUIMENTO", ResumoMensalCCRQueries.getChildrenWhoAbandonedCCR(93)),
+                "CCR-SEGUIMENTO",
+                ResumoMensalCCRQueries.getChildrenTransferredToXSeguimentoCCR(1707)),
             mappingsCcrSeguimento));
 
-    definition.setCompositionString("I24 AND (CCR-RESUMO OR CCR-SEGUIMENTO)");
+    definition.setCompositionString("I24 AND (ABANDONO-RESUMO OR ABANDONO-SEGUIMENTO)");
 
     return definition;
   }
@@ -816,7 +818,7 @@ public class ResumoMensalCCRCohortQueries {
 
     final CompositionCohortDefinition definition = new CompositionCohortDefinition();
     definition.setName("getNumberOfChildrenWithSevereAcuteMalnutritionCoorte9MonthsIndicator27");
-    final String mappings = "startDate=${startDate-10m},endDate=${endDate-9m},location=${location}";
+    final String mappings = "startDate=${startDate-8m},endDate=${endDate-8m},location=${location}";
 
     definition.setName("getNumberOfChildrenWithSevereAcuteMalnutritionCoorte9MonthsIndicator27");
     definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
@@ -827,7 +829,7 @@ public class ResumoMensalCCRCohortQueries {
         "DAG",
         EptsReportUtils.map(
             this.genericCohortQueries.generalSql(
-                "desnutricaoAguda", ResumoMensalCCRQueries.getChildrenWithAcuteMalNutrition()),
+                "desnutricaoAguda", ResumoMensalCCRQueries.getChildrenWithXMotivoDeConsulta(1844)),
             mappings));
 
     definition.addSearch(
@@ -835,7 +837,7 @@ public class ResumoMensalCCRCohortQueries {
         EptsReportUtils.map(
             this.genericCohortQueries.generalSql(
                 "desnutricaoAgudaGrave",
-                ResumoMensalCCRQueries.getChildrenWithSevereAcuteMalNutrition()),
+                ResumoMensalCCRQueries.getChildrenWithXAcuteMalNutrition(165496)),
             mappings));
 
     definition.setCompositionString("DAG AND DAGG");
@@ -852,7 +854,7 @@ public class ResumoMensalCCRCohortQueries {
         "getNumberOfChildrenWithDAGReferredForHospitalizationCoorte9MonthsIndicator28");
     final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
     final String mappingsCcrSeguimento =
-        "startDate=${startDate-10m},endDate=${endDate},location=${location}";
+        "startDate=${startDate-8m},endDate=${endDate},location=${location}";
 
     definition.setName(
         "getNumberOfChildrenWithDAGReferredForHospitalizationCoorte9MonthsIndicator28");
@@ -887,9 +889,9 @@ public class ResumoMensalCCRCohortQueries {
         "getNumberOfChildrenWithSevereAcuteMalnutritionCuredCoorte9MonthsIndicator29");
     final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
     final String mappingsCcrResumo =
-        "startDate=${startDate-10m},endDate=${endDate-9m},location=${location}";
+        "startDate=${startDate-8m},endDate=${endDate-8m},location=${location}";
     final String mappingsCcrSeguimento =
-        "startDate=${startDate-10m},endDate=${endDate},location=${location}";
+        "startDate=${startDate-8m},endDate=${endDate},location=${location}";
 
     definition.setName(
         "getNumberOfChildrenWithSevereAcuteMalnutritionCuredCoorte9MonthsIndicator29");
@@ -906,8 +908,7 @@ public class ResumoMensalCCRCohortQueries {
         "CCR-RESUMO",
         EptsReportUtils.map(
             this.genericCohortQueries.generalSql(
-                "CCR-RESUMO",
-                ResumoMensalCCRQueries.getChildrenTransferredToHealthyChildConsultation(92)),
+                "CCR-RESUMO", ResumoMensalCCRQueries.getChildrenTransferredToXCCRResumo(165485)),
             mappingsCcrResumo));
 
     definition.addSearch(
@@ -915,7 +916,7 @@ public class ResumoMensalCCRCohortQueries {
         EptsReportUtils.map(
             this.genericCohortQueries.generalSql(
                 "CCR-SEGUIMENTO",
-                ResumoMensalCCRQueries.getChildrenTransferredToHealthyChildConsultation(93)),
+                ResumoMensalCCRQueries.getChildrenTransferredToXSeguimentoCCR(165485)),
             mappingsCcrSeguimento));
 
     definition.setCompositionString("I27 AND (CCR-RESUMO OR CCR-SEGUIMENTO)");
@@ -932,9 +933,9 @@ public class ResumoMensalCCRCohortQueries {
         "getNumberOfChildrenWithSevereAcuteMalnutritionWhoAbandonedCCRCoorte9MonthsIndicator30");
     final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
     final String mappingsCcrResumo =
-        "startDate=${startDate-10m},endDate=${endDate-9m},location=${location}";
+        "startDate=${startDate-8m},endDate=${endDate-8m},location=${location}";
     final String mappingsCcrSeguimento =
-        "startDate=${startDate-10m},endDate=${endDate},location=${location}";
+        "startDate=${startDate-8m},endDate=${endDate},location=${location}";
 
     definition.setName(
         "getNumberOfChildrenWithSevereAcuteMalnutritionWhoAbandonedCCRCoorte9MonthsIndicator30");
@@ -951,14 +952,15 @@ public class ResumoMensalCCRCohortQueries {
         "CCR-RESUMO-ABANDONO",
         EptsReportUtils.map(
             this.genericCohortQueries.generalSql(
-                "CCR-RESUMO", ResumoMensalCCRQueries.getChildrenWhoAbandonedCCR(92)),
+                "CCR-RESUMO", ResumoMensalCCRQueries.getChildrenTransferredToXCCRResumo(1707)),
             mappingsCcrResumo));
 
     definition.addSearch(
         "CCR-SEGUIMENTO-ABANDONO",
         EptsReportUtils.map(
             this.genericCohortQueries.generalSql(
-                "CCR-SEGUIMENTO", ResumoMensalCCRQueries.getChildrenWhoAbandonedCCR(93)),
+                "CCR-SEGUIMENTO",
+                ResumoMensalCCRQueries.getChildrenTransferredToXSeguimentoCCR(1707)),
             mappingsCcrSeguimento));
 
     definition.setCompositionString("I27 AND (CCR-RESUMO-ABANDONO OR CCR-SEGUIMENTO-ABANDONO)");
@@ -975,9 +977,9 @@ public class ResumoMensalCCRCohortQueries {
         "getNumberOfChildrenWithSevereAcuteMalnutritionWhoDiedCCRCoorte9MonthsIndicator31");
     final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
     final String mappingsCcrResumo =
-        "startDate=${startDate-10m},endDate=${endDate-9m},location=${location}";
+        "startDate=${startDate-8m},endDate=${endDate-8m},location=${location}";
     final String mappingsCcrSeguimento =
-        "startDate=${startDate-10m},endDate=${endDate},location=${location}";
+        "startDate=${startDate-8m},endDate=${endDate},location=${location}";
 
     definition.setName(
         "getNumberOfChildrenWithSevereAcuteMalnutritionWhoDiedCCRCoorte9MonthsIndicator31");
@@ -994,7 +996,7 @@ public class ResumoMensalCCRCohortQueries {
         "CCR-RESUMO-OBITO",
         EptsReportUtils.map(
             this.genericCohortQueries.generalSql(
-                "CCR-RESUMO", ResumoMensalCCRQueries.getChildrenMarkedDeathOnFichaResumoCCR()),
+                "CCR-RESUMO", ResumoMensalCCRQueries.getChildrenTransferredToXCCRResumo(1366)),
             mappingsCcrResumo));
 
     definition.addSearch(
@@ -1002,7 +1004,7 @@ public class ResumoMensalCCRCohortQueries {
         EptsReportUtils.map(
             this.genericCohortQueries.generalSql(
                 "CCR-SEGUIMENTO",
-                ResumoMensalCCRQueries.getChildrenMarkedDeathOnFichaSeguimentoCCR()),
+                ResumoMensalCCRQueries.getChildrenTransferredToXSeguimentoCCR(1366)),
             mappingsCcrSeguimento));
 
     definition.setCompositionString("I27 AND (CCR-RESUMO-OBITO OR CCR-SEGUIMENTO-OBITO)");
@@ -1015,7 +1017,7 @@ public class ResumoMensalCCRCohortQueries {
 
     final CompositionCohortDefinition definition = new CompositionCohortDefinition();
     definition.setName("getChildrenWithExposureToHIVCoorte9MonthsIndicator32");
-    final String mappings = "startDate=${startDate-10m},endDate=${endDate-9m},location=${location}";
+    final String mappings = "startDate=${startDate-8m},endDate=${endDate-8m},location=${location}";
 
     definition.setName("getChildrenWithExposureToHIVCoorte9MonthsIndicator32");
     definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
@@ -1034,7 +1036,7 @@ public class ResumoMensalCCRCohortQueries {
         "I5",
         EptsReportUtils.map(
             this.genericCohortQueries.generalSql(
-                "I5", ResumoMensalCCRQueries.getChildrenWithExposureToHIVIndicator5()),
+                "I5", ResumoMensalCCRQueries.getChildrenWithXMotivoDeConsulta(1586)),
             mappings));
 
     definition.setCompositionString("I1 AND I5");
@@ -1049,7 +1051,7 @@ public class ResumoMensalCCRCohortQueries {
     definition.setName("getChildrenExposureToHIVCoorte9MonthsWithTheMotherInPTVIndicator33");
     final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
     final String mappingsCoorte9Months =
-        "startDate=${startDate-10m},endDate=${endDate-9m},location=${location}";
+        "startDate=${startDate-8m},endDate=${endDate-8m},location=${location}";
 
     definition.setName("getChildrenExposureToHIVCoorte9MonthsWithTheMotherInPTVIndicator33");
     definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
@@ -1086,7 +1088,7 @@ public class ResumoMensalCCRCohortQueries {
     definition.setName("getChildrenExposedToExclusiveBreastfeedingIndicator34");
     final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
     final String mappingsCoorte9Months =
-        "startDate=${startDate-10m},endDate=${endDate-9m},location=${location}";
+        "startDate=${startDate-8m},endDate=${endDate},location=${location}";
 
     definition.setName("getChildrenExposedToExclusiveBreastfeedingIndicator34");
     definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
@@ -1098,14 +1100,499 @@ public class ResumoMensalCCRCohortQueries {
         EptsReportUtils.map(getChildrenWithExposureToHIVCoorte9MonthsIndicator32(), mappings));
 
     definition.addSearch(
-        "AGE-5-MONTHS",
+        "EXCLUSIVO-5-MONTHS",
         EptsReportUtils.map(
             this.genericCohortQueries.generalSql(
                 "AGE",
-                ResumoMensalCCRQueries.getChildrenWithAleitamentoMaternoExclusivoInFichaCCR()),
+                ResumoMensalCCRQueries.getChildrenWithAleitamentoMaternoExclusivoInFichaCCR(
+                    5526, 1065)),
             mappingsCoorte9Months));
 
-    definition.setCompositionString("I32 AND AGE-5-MONTHS");
+    definition.setCompositionString("I32 AND EXCLUSIVO-5-MONTHS");
+
+    return definition;
+  }
+
+  /** Indicador 35 “Total de crianças expostas em Aleitamento Misto aos 5 meses” */
+  public CohortDefinition getChildrenExposedToMixedBreastfeedingIndicator35() {
+
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+    definition.setName("getChildrenExposedToExclusiveBreastfeedingIndicator34");
+    final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
+    final String mappingsCoorte9Months =
+        "startDate=${startDate-8m},endDate=${endDate},location=${location}";
+
+    definition.setName("getChildrenExposedToExclusiveBreastfeedingIndicator34");
+    definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("location", "location", Location.class));
+
+    definition.addSearch(
+        "I32",
+        EptsReportUtils.map(getChildrenWithExposureToHIVCoorte9MonthsIndicator32(), mappings));
+
+    definition.addSearch(
+        "MISTO-5-MONTHS",
+        EptsReportUtils.map(
+            this.genericCohortQueries.generalSql(
+                "AGE",
+                ResumoMensalCCRQueries.getChildrenWithAleitamentoMaternoExclusivoInFichaCCR(
+                    6046, 1065)),
+            mappingsCoorte9Months));
+
+    definition.setCompositionString("I32 AND MISTO-5-MONTHS");
+
+    return definition;
+  }
+
+  /** Indicador 36 “Total de crianças expostas que receberam ARV aos 5 meses” */
+  public CohortDefinition getChildrenExposedWhoReceivedARVIndicator36() {
+
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+    definition.setName("getChildrenExposedWhoReceivedARVIndicator36");
+    final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
+    final String mappingsCoorte9Months =
+        "startDate=${startDate-8m},endDate=${endDate},location=${location}";
+
+    definition.setName("getChildrenExposedWhoReceivedARVIndicator36");
+    definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("location", "location", Location.class));
+
+    definition.addSearch(
+        "I32",
+        EptsReportUtils.map(getChildrenWithExposureToHIVCoorte9MonthsIndicator32(), mappings));
+
+    definition.addSearch(
+        "NEVIRAPINA",
+        EptsReportUtils.map(
+            this.genericCohortQueries.generalSql(
+                "NEVIRAPINA",
+                ResumoMensalCCRQueries.getChildrenWithAleitamentoMaternoExclusivoInFichaCCR(
+                    631, 1065)),
+            mappingsCoorte9Months));
+
+    definition.addSearch(
+        "ZIDOVUDINA",
+        EptsReportUtils.map(
+            this.genericCohortQueries.generalSql(
+                "ZIDOVUDINA",
+                ResumoMensalCCRQueries.getChildrenWithAleitamentoMaternoExclusivoInFichaCCR(
+                    791, 1065)),
+            mappingsCoorte9Months));
+
+    definition.setCompositionString("I32 AND (NEVIRAPINA AND ZIDOVUDINA)");
+
+    return definition;
+  }
+
+  /** Indicador 37 “Total de PCR colhido <2 meses de idade” */
+  public CohortDefinition getTotalChildrenWhoReceivedPCRIndicator37() {
+
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+    definition.setName("getTotalChildrenWhoReceivedPCRIndicator37");
+    final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
+    final String mappingsCoorte9Months =
+        "startDate=${startDate-8m},endDate=${endDate},location=${location}";
+
+    definition.setName("getTotalChildrenWhoReceivedPCRIndicator37");
+    definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("location", "location", Location.class));
+
+    definition.addSearch(
+        "I32",
+        EptsReportUtils.map(getChildrenWithExposureToHIVCoorte9MonthsIndicator32(), mappings));
+
+    definition.addSearch(
+        "PCR-MENOR-2MONTHS",
+        EptsReportUtils.map(
+            this.genericCohortQueries.generalSql(
+                "PCR-MENOR-2MONTHS", ResumoMensalCCRQueries.getChildrenWithPCRCollected("< 2")),
+            mappingsCoorte9Months));
+
+    definition.setCompositionString("I32 AND PCR-MENOR-2MONTHS");
+
+    return definition;
+  }
+
+  /** Indicador 38 “Total de PCR colhido >=2 meses de idade” */
+  public CohortDefinition getTotalChildrenWhoReceivedPCRIndicator38() {
+
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+    definition.setName("getTotalChildrenWhoReceivedPCRIndicator38");
+    final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
+    final String mappingsCoorte9Months =
+        "startDate=${startDate-8m},endDate=${endDate},location=${location}";
+
+    definition.setName("getTotalChildrenWhoReceivedPCRIndicator38");
+    definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("location", "location", Location.class));
+
+    definition.addSearch(
+        "I32",
+        EptsReportUtils.map(getChildrenWithExposureToHIVCoorte9MonthsIndicator32(), mappings));
+
+    definition.addSearch(
+        "PCR-MAIOR-2MONTHS",
+        EptsReportUtils.map(
+            this.genericCohortQueries.generalSql(
+                "PCR-MAIOR-2MONTHS", ResumoMensalCCRQueries.getChildrenWithPCRCollected(">= 2")),
+            mappingsCoorte9Months));
+
+    definition.setCompositionString("I32 AND PCR-MAIOR-2MONTHS");
+
+    return definition;
+  }
+
+  /**
+   * Indicador 39 “Total de crianças com resultados PCR positivo <2 meses de idade” da seguinte
+   * forma:
+   */
+  public CohortDefinition getTotalChildrenWhoReceivedPCRResultPositiveIndicator39() {
+
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+    definition.setName("getTotalChildrenWhoReceivedPCRResultPositiveIndicator39");
+    final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
+    final String mappingsCoorte9Months =
+        "startDate=${startDate-8m},endDate=${endDate},location=${location}";
+
+    definition.setName("getTotalChildrenWhoReceivedPCRResultPositiveIndicator39");
+    definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("location", "location", Location.class));
+
+    definition.addSearch(
+        "I32",
+        EptsReportUtils.map(getChildrenWithExposureToHIVCoorte9MonthsIndicator32(), mappings));
+
+    definition.addSearch(
+        "PCRPOSIVITO-MENOR-2MONTHS",
+        EptsReportUtils.map(
+            this.genericCohortQueries.generalSql(
+                "PCRPOSIVITO-MENOR-2MONTHS",
+                ResumoMensalCCRQueries.getChildrenWithPCRResultPositive("< 2")),
+            mappingsCoorte9Months));
+
+    definition.setCompositionString("I32 AND PCRPOSIVITO-MENOR-2MONTHS");
+
+    return definition;
+  }
+
+  /** Indicador 40 “Total de crianças com resultados PCR positivo >= 2 meses de idade” */
+  public CohortDefinition getTotalChildrenWhoReceivedPCRResultPositiveIndicator40() {
+
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+    definition.setName("getTotalChildrenWhoReceivedPCRResultPositiveIndicator40");
+    final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
+    final String mappingsCoorte9Months =
+        "startDate=${startDate-8m},endDate=${endDate},location=${location}";
+
+    definition.setName("getTotalChildrenWhoReceivedPCRResultPositiveIndicator40");
+    definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("location", "location", Location.class));
+
+    definition.addSearch(
+        "I32",
+        EptsReportUtils.map(getChildrenWithExposureToHIVCoorte9MonthsIndicator32(), mappings));
+
+    definition.addSearch(
+        "PCRPOSIVITO-MAIOR-2MONTHS",
+        EptsReportUtils.map(
+            this.genericCohortQueries.generalSql(
+                "PCRPOSIVITO-MAIOR-2MONTHS",
+                ResumoMensalCCRQueries.getChildrenWithPCRResultPositive(">= 2")),
+            mappingsCoorte9Months));
+
+    definition.setCompositionString("I32 AND PCRPOSIVITO-MAIOR-2MONTHS");
+
+    return definition;
+  }
+
+  /** Indicador 41 “Total de crianças expostas” */
+  public CohortDefinition getChildrenWithExposureToHIVCoorte18MonthsIndicator41() {
+
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+    definition.setName("getChildrenWithExposureToHIVCoorte18MonthsIndicator41");
+    final String mappings =
+        "startDate=${startDate-17m},endDate=${endDate-17m},location=${location}";
+
+    definition.setName("getChildrenWithExposureToHIVCoorte18MonthsIndicator41");
+    definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("location", "location", Location.class));
+
+    definition.addSearch(
+        "I1",
+        EptsReportUtils.map(
+            this.genericCohortQueries.generalSql(
+                "I1",
+                ResumoMensalCCRQueries.getChildrenWithFirstConsultationCCRDuringPeriodIndicator1()),
+            mappings));
+
+    definition.addSearch(
+        "I5",
+        EptsReportUtils.map(
+            this.genericCohortQueries.generalSql(
+                "I5", ResumoMensalCCRQueries.getChildrenWithXMotivoDeConsulta(1586)),
+            mappings));
+
+    definition.setCompositionString("I1 AND I5");
+
+    return definition;
+  }
+
+  /** Indicador 42 “Total de crianças expostas com resultado definitivo de HIV positivo” */
+  public CohortDefinition
+      getChildrenWithExposureToHIVWithDefinitiveHIVResultPositiveCoorte18MonthsIndicator42() {
+
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+    definition.setName(
+        "getChildrenWithExposureToHIVWithDefinitiveHIVResultPositiveCoorte18MonthsIndicator42");
+    final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
+    final String mappingsCcrSeguimento =
+        "startDate=${startDate-17m},endDate=${endDate},location=${location}";
+
+    definition.setName(
+        "getChildrenWithExposureToHIVWithDefinitiveHIVResultPositiveCoorte18MonthsIndicator42");
+    definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("location", "location", Location.class));
+
+    definition.addSearch(
+        "I41",
+        EptsReportUtils.map(
+            this.getChildrenWithExposureToHIVCoorte18MonthsIndicator41(), mappings));
+
+    definition.addSearch(
+        "PCR-POSITIVO",
+        EptsReportUtils.map(
+            this.genericCohortQueries.generalSql(
+                "PCR", ResumoMensalCCRQueries.getChildrenWithPCROrHIVResult(1030, 703)),
+            mappingsCcrSeguimento));
+
+    definition.addSearch(
+        "HIV-POSITIVO",
+        EptsReportUtils.map(
+            this.genericCohortQueries.generalSql(
+                "HIV", ResumoMensalCCRQueries.getChildrenWithPCROrHIVResult(1040, 703)),
+            mappingsCcrSeguimento));
+
+    definition.setCompositionString("I41 AND (PCR-POSITIVO OR HIV-POSITIVO)");
+
+    return definition;
+  }
+
+  /** Indicador 43 “Total de crianças expostas com resultado definitivo de HIV negativo” */
+  public CohortDefinition
+      getChildrenWithExposureToHIVWithDefinitiveHIVResultNegativeCoorte18MonthsIndicator43() {
+
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+    definition.setName(
+        "getChildrenWithExposureToHIVWithDefinitiveHIVResultNegativeCoorte18MonthsIndicator43");
+    final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
+    final String mappingsCcrSeguimento =
+        "startDate=${startDate-17m},endDate=${endDate},location=${location}";
+
+    definition.setName(
+        "getChildrenWithExposureToHIVWithDefinitiveHIVResultNegativeCoorte18MonthsIndicator43");
+    definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("location", "location", Location.class));
+
+    definition.addSearch(
+        "I41",
+        EptsReportUtils.map(
+            this.getChildrenWithExposureToHIVCoorte18MonthsIndicator41(), mappings));
+
+    definition.addSearch(
+        "PCR-NEGATIVO",
+        EptsReportUtils.map(
+            this.genericCohortQueries.generalSql(
+                "PCR", ResumoMensalCCRQueries.getChildrenWithPCROrHIVResult(1030, 664)),
+            mappingsCcrSeguimento));
+
+    definition.addSearch(
+        "HIV-NEGATIVO",
+        EptsReportUtils.map(
+            this.genericCohortQueries.generalSql(
+                "HIV", ResumoMensalCCRQueries.getChildrenWithPCROrHIVResult(1040, 664)),
+            mappingsCcrSeguimento));
+
+    definition.setCompositionString("I41 AND (PCR-NEGATIVO OR HIV-NEGATIVO)");
+
+    return definition;
+  }
+
+  /** Indicador 44 “Total de crianças expostas transferidas para a Consulta Criança Sadia” */
+  public CohortDefinition getNumberOfChildrenExpousedAndCuredCoorte18MonthsIndicator44() {
+
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+    definition.setName("getNumberOfChildrenExpousedAndCuredCoorte18MonthsIndicator44");
+    final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
+    final String mappingsCcrResumo =
+        "startDate=${startDate-17m},endDate=${endDate-17m},location=${location}";
+    final String mappingsCcrSeguimento =
+        "startDate=${startDate-17m},endDate=${endDate},location=${location}";
+
+    definition.setName("getNumberOfChildrenExpousedAndCuredCoorte18MonthsIndicator44");
+    definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("location", "location", Location.class));
+
+    definition.addSearch(
+        "I41",
+        EptsReportUtils.map(
+            this.getChildrenWithExposureToHIVCoorte18MonthsIndicator41(), mappings));
+
+    definition.addSearch(
+        "CCR-RESUMO",
+        EptsReportUtils.map(
+            this.genericCohortQueries.generalSql(
+                "CCR-RESUMO", ResumoMensalCCRQueries.getChildrenTransferredToXCCRResumo(165485)),
+            mappingsCcrResumo));
+
+    definition.addSearch(
+        "CCR-SEGUIMENTO",
+        EptsReportUtils.map(
+            this.genericCohortQueries.generalSql(
+                "CCR-SEGUIMENTO",
+                ResumoMensalCCRQueries.getChildrenTransferredToXSeguimentoCCR(165485)),
+            mappingsCcrSeguimento));
+
+    definition.setCompositionString("I41 AND (CCR-RESUMO OR CCR-SEGUIMENTO)");
+
+    return definition;
+  }
+
+  /** Indicador 45 “Total de crianças expostas transferidas para as Consultas Integradas” */
+  public CohortDefinition
+      getNumberOfChildrenExpousedAndTransferredToIntegratedConsultationsCoorte18MonthsIndicator45() {
+
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+    definition.setName(
+        "getNumberOfChildrenExpousedAndTransferredToIntegratedConsultationsCoorte18MonthsIndicator45");
+    final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
+    final String mappingsCcrResumo =
+        "startDate=${startDate-17m},endDate=${endDate-17m},location=${location}";
+    final String mappingsCcrSeguimento =
+        "startDate=${startDate-17m},endDate=${endDate},location=${location}";
+
+    definition.setName(
+        "getNumberOfChildrenExpousedAndTransferredToIntegratedConsultationsCoorte18MonthsIndicator45");
+    definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("location", "location", Location.class));
+
+    definition.addSearch(
+        "I41",
+        EptsReportUtils.map(
+            this.getChildrenWithExposureToHIVCoorte18MonthsIndicator41(), mappings));
+
+    definition.addSearch(
+        "INTEGRADAS-RESUMO",
+        EptsReportUtils.map(
+            this.genericCohortQueries.generalSql(
+                "CCR-RESUMO", ResumoMensalCCRQueries.getChildrenTransferredToXCCRResumo(165484)),
+            mappingsCcrResumo));
+
+    definition.addSearch(
+        "INTEGRADAS-SEGUIMENTO",
+        EptsReportUtils.map(
+            this.genericCohortQueries.generalSql(
+                "CCR-SEGUIMENTO",
+                ResumoMensalCCRQueries.getChildrenTransferredToXSeguimentoCCR(165484)),
+            mappingsCcrSeguimento));
+
+    definition.setCompositionString("I41 AND (INTEGRADAS-RESUMO OR INTEGRADAS-SEGUIMENTO)");
+
+    return definition;
+  }
+
+  /** Indicador 46 “Total de crianças expostas que abandonaram” */
+  public CohortDefinition
+      getNumberOfChildrenExpousedAndRegisteredAsAbandonoCoorte18MonthsIndicator46() {
+
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+    definition.setName(
+        "getNumberOfChildrenExpousedAndRegisteredAsAbandonoCoorte18MonthsIndicator46");
+    final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
+    final String mappingsCcrResumo =
+        "startDate=${startDate-17m},endDate=${endDate-17m},location=${location}";
+    final String mappingsCcrSeguimento =
+        "startDate=${startDate-17m},endDate=${endDate},location=${location}";
+
+    definition.setName(
+        "getNumberOfChildrenExpousedAndRegisteredAsAbandonoCoorte18MonthsIndicator46");
+    definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("location", "location", Location.class));
+
+    definition.addSearch(
+        "I41",
+        EptsReportUtils.map(
+            this.getChildrenWithExposureToHIVCoorte18MonthsIndicator41(), mappings));
+
+    definition.addSearch(
+        "ABANDONO-RESUMO",
+        EptsReportUtils.map(
+            this.genericCohortQueries.generalSql(
+                "CCR-RESUMO", ResumoMensalCCRQueries.getChildrenTransferredToXCCRResumo(1707)),
+            mappingsCcrResumo));
+
+    definition.addSearch(
+        "ABANDONO-SEGUIMENTO",
+        EptsReportUtils.map(
+            this.genericCohortQueries.generalSql(
+                "CCR-SEGUIMENTO",
+                ResumoMensalCCRQueries.getChildrenTransferredToXSeguimentoCCR(1707)),
+            mappingsCcrSeguimento));
+
+    definition.setCompositionString("I41 AND (ABANDONO-RESUMO OR ABANDONO-SEGUIMENTO)");
+
+    return definition;
+  }
+
+  /** Indicador 47 “Total de crianças expostas que foram óbito” */
+  public CohortDefinition
+      getNumberOfChildrenExpousedAndRegisteredAsDeadCoorte18MonthsIndicator47() {
+
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+    definition.setName("getNumberOfChildrenExpousedAndRegisteredAsDeadCoorte18MonthsIndicator47");
+    final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
+    final String mappingsCcrResumo =
+        "startDate=${startDate-17m},endDate=${endDate-17m},location=${location}";
+    final String mappingsCcrSeguimento =
+        "startDate=${startDate-17m},endDate=${endDate},location=${location}";
+
+    definition.setName("getNumberOfChildrenExpousedAndRegisteredAsDeadCoorte18MonthsIndicator47");
+    definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("location", "location", Location.class));
+
+    definition.addSearch(
+        "I41",
+        EptsReportUtils.map(
+            this.getChildrenWithExposureToHIVCoorte18MonthsIndicator41(), mappings));
+
+    definition.addSearch(
+        "OBITO-RESUMO",
+        EptsReportUtils.map(
+            this.genericCohortQueries.generalSql(
+                "CCR-RESUMO", ResumoMensalCCRQueries.getChildrenTransferredToXCCRResumo(1366)),
+            mappingsCcrResumo));
+
+    definition.addSearch(
+        "OBITO-SEGUIMENTO",
+        EptsReportUtils.map(
+            this.genericCohortQueries.generalSql(
+                "CCR-SEGUIMENTO",
+                ResumoMensalCCRQueries.getChildrenTransferredToXSeguimentoCCR(1366)),
+            mappingsCcrSeguimento));
+
+    definition.setCompositionString("I41 AND (OBITO-RESUMO OR OBITO-SEGUIMENTO)");
 
     return definition;
   }

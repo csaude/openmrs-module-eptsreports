@@ -13,621 +13,684 @@
  */
 package org.openmrs.module.eptsreports.reporting.library.datasets.resumo;
 
-import static org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils.map;
 import static org.openmrs.module.reporting.evaluation.parameter.Mapped.mapStraightThrough;
 
-import org.openmrs.module.eptsreports.reporting.library.cohorts.ResumoMensalCohortQueries;
+import org.openmrs.module.eptsreports.reporting.library.cohorts.ResumoMensalCCRCohortQueries;
 import org.openmrs.module.eptsreports.reporting.library.datasets.BaseDataSet;
-import org.openmrs.module.eptsreports.reporting.library.dimensions.AgeDimensionCohortInterface;
-import org.openmrs.module.eptsreports.reporting.library.dimensions.EptsCommonDimension;
-import org.openmrs.module.eptsreports.reporting.library.disaggregations.ResumoMensalAandBdisaggregations;
 import org.openmrs.module.eptsreports.reporting.library.indicators.EptsGeneralIndicator;
-import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
 import org.openmrs.module.reporting.dataset.definition.CohortIndicatorDataSetDefinition;
 import org.openmrs.module.reporting.dataset.definition.DataSetDefinition;
 import org.openmrs.module.reporting.evaluation.parameter.Mapped;
 import org.openmrs.module.reporting.indicator.CohortIndicator;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ResumoMensalCCRDataSetDefinition extends BaseDataSet {
 
-  private EptsCommonDimension eptsCommonDimension;
+  @Autowired private EptsGeneralIndicator eptsGeneralIndicator;
 
-  private EptsGeneralIndicator eptsGeneralIndicator;
-
-  private ResumoMensalCohortQueries resumoMensalCohortQueries;
-
-  private ResumoMensalAandBdisaggregations resumoMensalAandBdisaggregations;
-
-  @Autowired
-  @Qualifier("commonAgeDimensionCohort")
-  private AgeDimensionCohortInterface ageDimensionCohort;
-
-  @Autowired
-  public ResumoMensalCCRDataSetDefinition(
-      EptsCommonDimension eptsCommonDimension,
-      EptsGeneralIndicator eptsGeneralIndicator,
-      ResumoMensalCohortQueries resumoMensalCohortQueries,
-      ResumoMensalAandBdisaggregations resumoMensalAandBdisaggregations) {
-    this.eptsCommonDimension = eptsCommonDimension;
-    this.eptsGeneralIndicator = eptsGeneralIndicator;
-    this.resumoMensalCohortQueries = resumoMensalCohortQueries;
-    this.resumoMensalAandBdisaggregations = resumoMensalAandBdisaggregations;
-  }
+  @Autowired ResumoMensalCCRCohortQueries resumoMensalCCRCohortQueries;
 
   public DataSetDefinition constructResumoMensalDataset() {
     CohortIndicatorDataSetDefinition dsd = new CohortIndicatorDataSetDefinition();
 
     dsd.setName("Resumo Mensal Data set B");
     dsd.addParameters(getParameters());
-    final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
-
-    dsd.addDimension("gender", map(eptsCommonDimension.gender(), ""));
-    dsd.addDimension(
-        "age", map(eptsCommonDimension.age(ageDimensionCohort), "effectiveDate=${endDate}"));
-
-    // indicators for section A1
-    addRow(
-        dsd,
-        "A1TC",
-        "Patients under 15 years",
-        getNumberOfPatientsWhoInitiatedPreTarvByEndOfPreviousMonthA1(),
-        resumoMensalAandBdisaggregations.getUnder14YearsColumns());
-
-    addRow(
-        dsd,
-        "A1TA",
-        "Patients over 15 years - adults",
-        getNumberOfPatientsWhoInitiatedPreTarvByEndOfPreviousMonthA1(),
-        resumoMensalAandBdisaggregations.getAdultPatients());
 
     dsd.addColumn(
-        "A1TP",
-        "Total patients - Total Geral",
-        getNumberOfPatientsWhoInitiatedPreTarvByEndOfPreviousMonthA1(),
+        "I1",
+        "Total de 1as consultas",
+        getChildrenWithFirstConsultationCCRDuringPeriodIndicator1(),
         "");
 
-    addRow(
-        dsd,
-        "A1TAD",
-        "Adolescentes patients",
-        getNumberOfPatientsWhoInitiatedPreTarvByEndOfPreviousMonthA1(),
-        resumoMensalAandBdisaggregations.getAdolescentesColumns());
-
-    // Indicators for A2
-
-    addRow(
-        dsd,
-        "A2TC",
-        "Patients under 15 years",
-        getPatientsWhoInitiatedPreTarvAtAfacilityDuringCurrentMonthA2(),
-        resumoMensalAandBdisaggregations.getUnder14YearsColumns());
-
-    addRow(
-        dsd,
-        "A2TA",
-        "Patients over 15 years - adults",
-        getPatientsWhoInitiatedPreTarvAtAfacilityDuringCurrentMonthA2(),
-        resumoMensalAandBdisaggregations.getAdultPatients());
-
     dsd.addColumn(
-        "A2TP",
-        "Total patients - Total Geral",
-        getPatientsWhoInitiatedPreTarvAtAfacilityDuringCurrentMonthA2(),
+        "I2",
+        "Total de crianças com contacto com tuberculose",
+        getChildrenWithTbHivContactIndicator2(),
         "");
 
-    addRow(
-        dsd,
-        "A2TAD",
-        "Adolescentes patients",
-        getPatientsWhoInitiatedPreTarvAtAfacilityDuringCurrentMonthA2(),
-        resumoMensalAandBdisaggregations.getAdolescentesColumns());
-
-    // Indicators for A3
-    addRow(
-        dsd,
-        "A3TC",
-        "Patients under 15 years",
-        getSumOfA1AndA2(),
-        resumoMensalAandBdisaggregations.getUnder14YearsColumns());
-
-    addRow(
-        dsd,
-        "A3TA",
-        "Patients over 15 years - adults",
-        getSumOfA1AndA2(),
-        resumoMensalAandBdisaggregations.getAdultPatients());
-
-    dsd.addColumn("A3TP", "Total patients - Total Geral", getSumOfA1AndA2(), "");
-
-    addRow(
-        dsd,
-        "A3TAD",
-        "Adolescentes patients",
-        getSumOfA1AndA2(),
-        resumoMensalAandBdisaggregations.getAdolescentesColumns());
-
-    // indicators for section B1
-    addRow(
-        dsd,
-        "B1TC",
-        "Patients under 15 years",
-        getPatientsWhoInitiatedTarvAtThisFacilityDuringCurrentMonthB1(),
-        resumoMensalAandBdisaggregations.getUnder14YearsColumns());
-
-    addRow(
-        dsd,
-        "B1TA",
-        "Patients over 15 years - adults",
-        getPatientsWhoInitiatedTarvAtThisFacilityDuringCurrentMonthB1(),
-        resumoMensalAandBdisaggregations.getAdultPatients());
-
     dsd.addColumn(
-        "B1TP",
-        "Total patients - Total Geral",
-        getPatientsWhoInitiatedTarvAtThisFacilityDuringCurrentMonthB1(),
+        "I3",
+        "Total de crianças com desnutrição aguda moderada",
+        getNumberOfChildrenWithModerateAcuteMalnutritionIndicator3(),
         "");
 
-    addRow(
-        dsd,
-        "B1TAD",
-        "Adolescentes patients",
-        getPatientsWhoInitiatedTarvAtThisFacilityDuringCurrentMonthB1(),
-        resumoMensalAandBdisaggregations.getAdolescentesColumns());
-
-    // B2 indicators start here
-    addRow(
-        dsd,
-        "B2TC",
-        "Patients under 15 years",
-        getNumberOfPatientsTransferredInFromOtherHealthFacilitiesDuringCurrentMonthB2(),
-        resumoMensalAandBdisaggregations.getUnder14YearsColumns());
-
-    addRow(
-        dsd,
-        "B2TA",
-        "Patients over 15 years - adults",
-        getNumberOfPatientsTransferredInFromOtherHealthFacilitiesDuringCurrentMonthB2(),
-        resumoMensalAandBdisaggregations.getAdultPatients());
-
     dsd.addColumn(
-        "B2TP",
-        "Total patients - Total Geral",
-        getNumberOfPatientsTransferredInFromOtherHealthFacilitiesDuringCurrentMonthB2(),
+        "I4",
+        "Total de crianças com desnutrição aguda grave",
+        getNumberOfChildrenWithSevereAcuteMalnutritionIndicator4(),
         "");
 
-    addRow(
-        dsd,
-        "B2TAD",
-        "Adolescentes patients",
-        getNumberOfPatientsTransferredInFromOtherHealthFacilitiesDuringCurrentMonthB2(),
-        resumoMensalAandBdisaggregations.getAdolescentesColumns());
-
-    // B3 indicators
-
-    addRow(
-        dsd,
-        "B3TC",
-        "Patients under 15 years",
-        getSumB3(),
-        resumoMensalAandBdisaggregations.getUnder14YearsColumns());
-
-    addRow(
-        dsd,
-        "B3TA",
-        "Patients over 15 years - adults",
-        getSumB3(),
-        resumoMensalAandBdisaggregations.getAdultPatients());
-
-    dsd.addColumn("B3TP", "Total patients - Total Geral", getSumB3(), "");
-
-    addRow(
-        dsd,
-        "B3TAD",
-        "Adolescentes patients",
-        getSumB3(),
-        resumoMensalAandBdisaggregations.getAdolescentesColumns());
-
-    // B5 indicators
-    addRow(
-        dsd,
-        "B5TC",
-        "Patients under 15 years",
-        getNumberOfPatientsTransferredOutFromOtherHealthFacilitiesDuringCurrentMonthB5(),
-        resumoMensalAandBdisaggregations.getUnder14YearsColumns());
-
-    addRow(
-        dsd,
-        "B5TA",
-        "Patients over 15 years - adults",
-        getNumberOfPatientsTransferredOutFromOtherHealthFacilitiesDuringCurrentMonthB5(),
-        resumoMensalAandBdisaggregations.getAdultPatients());
-
     dsd.addColumn(
-        "B5TP",
-        "Total patients - Total Geral",
-        getNumberOfPatientsTransferredOutFromOtherHealthFacilitiesDuringCurrentMonthB5(),
+        "I5",
+        "Total de crianças com exposição ao HIV",
+        getChildrenWithExposureToHIVIndicator5(),
         "");
 
-    addRow(
-        dsd,
-        "B5TAD",
-        "Adolescentes patients",
-        getNumberOfPatientsTransferredOutFromOtherHealthFacilitiesDuringCurrentMonthB5(),
-        resumoMensalAandBdisaggregations.getAdolescentesColumns());
-
-    // B6 indicators
-    addRow(
-        dsd,
-        "B6TC",
-        "Patients under 15 years",
-        getPatientsWhoSuspendTratmentB6(),
-        resumoMensalAandBdisaggregations.getUnder14YearsColumns());
-
-    addRow(
-        dsd,
-        "B6TA",
-        "Patients over 15 years - adults",
-        getPatientsWhoSuspendTratmentB6(),
-        resumoMensalAandBdisaggregations.getAdultPatients());
-
-    dsd.addColumn("B6TP", "Total patients - Total Geral", getPatientsWhoSuspendTratmentB6(), "");
-
-    addRow(
-        dsd,
-        "B6TAD",
-        "Adolescentes patients",
-        getPatientsWhoSuspendTratmentB6(),
-        resumoMensalAandBdisaggregations.getAdolescentesColumns());
-
-    // B7 indicators
-    addRow(
-        dsd,
-        "B7TC",
-        "Patients under 15 years",
-        getPatientsWhoAbandonedTratmentUpB7(),
-        resumoMensalAandBdisaggregations.getUnder14YearsColumns());
-
-    addRow(
-        dsd,
-        "B7TA",
-        "Patients over 15 years - adults",
-        getPatientsWhoAbandonedTratmentUpB7(),
-        resumoMensalAandBdisaggregations.getAdultPatients());
+    dsd.addColumn(
+        "I6",
+        "Total de crianças com outra condição de Risco",
+        getChildrenWithOtherRiskConditionIndicator6(),
+        "");
 
     dsd.addColumn(
-        "B7TP", "Total patients - Total Geral", getPatientsWhoAbandonedTratmentUpB7(), "");
-
-    addRow(
-        dsd,
-        "B7TAD",
-        "Adolescentes patients",
-        getPatientsWhoAbandonedTratmentUpB7(),
-        resumoMensalAandBdisaggregations.getAdolescentesColumns());
-
-    // B8 indicators
-    addRow(
-        dsd,
-        "B8TC",
-        "Patients under 15 years",
-        getPatientsWhoDiedTratmentB8(),
-        resumoMensalAandBdisaggregations.getUnder14YearsColumns());
-
-    addRow(
-        dsd,
-        "B8TA",
-        "Patients over 15 years - adults",
-        getPatientsWhoDiedTratmentB8(),
-        resumoMensalAandBdisaggregations.getAdultPatients());
-
-    dsd.addColumn("B8TP", "Total patients - Total Geral", getPatientsWhoDiedTratmentB8(), "");
-
-    addRow(
-        dsd,
-        "B8TAD",
-        "Adolescentes patients",
-        getPatientsWhoDiedTratmentB8(),
-        resumoMensalAandBdisaggregations.getAdolescentesColumns());
-
-    // B9 indicators
-    addRow(
-        dsd,
-        "B9TC",
-        "Patients under 15 years",
-        getSumPatientsB9(),
-        resumoMensalAandBdisaggregations.getUnder14YearsColumns());
-
-    addRow(
-        dsd,
-        "B9TA",
-        "Patients over 15 years - adults",
-        getSumPatientsB9(),
-        resumoMensalAandBdisaggregations.getAdultPatients());
-
-    dsd.addColumn("B9TP", "Total patients - Total Geral", getSumPatientsB9(), "");
-
-    addRow(
-        dsd,
-        "B9TAD",
-        "Adolescentes patients",
-        getSumPatientsB9(),
-        resumoMensalAandBdisaggregations.getAdolescentesColumns());
-
-    // B10 indicators
-    addRow(
-        dsd,
-        "B10TC",
-        "Patients under 15 years",
-        getTxNewEndDateB10(),
-        resumoMensalAandBdisaggregations.getUnder14YearsColumns());
-
-    addRow(
-        dsd,
-        "B10TA",
-        "Patients over 15 years - adults",
-        getTxNewEndDateB10(),
-        resumoMensalAandBdisaggregations.getAdultPatients());
-
-    dsd.addColumn("B10TP", "Total patients - Total Geral", getTxNewEndDateB10(), "");
-
-    addRow(
-        dsd,
-        "B10TAD",
-        "Adolescentes patients",
-        getTxNewEndDateB10(),
-        resumoMensalAandBdisaggregations.getAdolescentesColumns());
-
-    // B12 indicators
-    addRow(
-        dsd,
-        "B12TC",
-        "Patients under 15 years",
-        getPatientsWhoAreCurrentlyEnrolledOnARTB12(),
-        resumoMensalAandBdisaggregations.getUnder14YearsColumns());
-
-    addRow(
-        dsd,
-        "B12TA",
-        "Patients over 15 years - adults",
-        getPatientsWhoAreCurrentlyEnrolledOnARTB12(),
-        resumoMensalAandBdisaggregations.getAdultPatients());
+        "I7",
+        "Total de crianças que iniciaram Isoniazida na CCR",
+        getNumberOfChildrenWhoInitiatedINHTreatmentIndicator7(),
+        "");
 
     dsd.addColumn(
-        "B12TP", "Total patients - Total Geral", getPatientsWhoAreCurrentlyEnrolledOnARTB12(), "");
+        "I8", "Total de crianças que receberam ATPU", getNumberOfChildrenWhithATPUIndicator8(), "");
 
-    addRow(
-        dsd,
-        "B12TAD",
-        "Adolescentes patients",
-        getPatientsWhoAreCurrentlyEnrolledOnARTB12(),
-        resumoMensalAandBdisaggregations.getAdolescentesColumns());
-
-    // B13 indicators
     dsd.addColumn(
-        "B13TP", "Total patients - Total Geral", getPatientsWhoAreCurrentlyEnrolledOnARTB13(), "");
+        "I9",
+        "Total de  crianças que receberam CSB/suplemento nutricional",
+        getNumberOfChildrenWhoReceivedCSBIndicator9(),
+        "");
 
-    addRow(
-        dsd,
-        "B13TC",
-        "Patients under 15 years",
-        getPatientsWhoAreCurrentlyEnrolledOnARTB13(),
-        resumoMensalAandBdisaggregations.getUnder14YearsColumns());
-
-    addRow(
-        dsd,
-        "B13TA",
-        "Patients over 15 years - adults",
-        getPatientsWhoAreCurrentlyEnrolledOnARTB13(),
-        resumoMensalAandBdisaggregations.getAdultPatients());
-
-    addRow(
-        dsd,
-        "B13TAD",
-        "Adolescentes patients",
-        getPatientsWhoAreCurrentlyEnrolledOnARTB13(),
-        resumoMensalAandBdisaggregations.getAdolescentesColumns());
-
-    // C1, C2, C3 indicators
-    dsd.addColumn("C1TC", "Total patients - Total Geral", findPatientWhoHaveTbSymthomsC1(), "");
-    dsd.addColumn("C2TC", "Total patients - Total Geral", getPatientsWhoMarkedINHC2A2(), "");
-    dsd.addColumn("C3TC", "Total patients - Total Geral", getPatientsWhoMarkedTbActiveC3A2(), "");
-
-    // E1 indicators
-
-    addRow(
-        dsd,
-        "E1",
-        "Annual Notification",
-        map(
-            eptsGeneralIndicator.getIndicator(
-                "E1",
-                map(
-                    resumoMensalCohortQueries
-                        .findPatientsWhoAreCurrentlyEnrolledOnArtMOHWithRequestForVLE1(),
-                    mappings)),
-            mappings),
-        resumoMensalAandBdisaggregations.disAggForE());
-
-    // E2
-    addRow(
-        dsd,
-        "E2",
-        "Annual Notification",
-        map(
-            eptsGeneralIndicator.getIndicator(
-                "E2",
-                map(
-                    resumoMensalCohortQueries
-                        .findPatientsWhoAreCurrentlyEnrolledOnArtMOHWithVLResultE2(),
-                    mappings)),
-            mappings),
-        resumoMensalAandBdisaggregations.disAggForE());
-
-    // E3
-    addRow(
-        dsd,
-        "E3",
-        "Annual Notification",
-        map(
-            eptsGeneralIndicator.getIndicator(
-                "E3",
-                map(resumoMensalCohortQueries.findPatientWithVlResulLessThan1000E3(), mappings)),
-            mappings),
-        resumoMensalAandBdisaggregations.disAggForE());
-
-    // F3
     dsd.addColumn(
-        "F3",
-        "Number of patients who had at least one clinical appointment during the year",
-        map(
-            eptsGeneralIndicator.getIndicator(
-                "F3",
-                map(
-                    resumoMensalCohortQueries
-                        .getNumberOfPatientsWithAtLeastOneClinicalAppointmentDuringTheYearF3(),
-                    mappings)),
-            mappings),
+        "I10",
+        "Total de crianças que iniciaram CTZ  < 2 meses de idade",
+        getNumberOfChildrenWhoInitiatedCTZTreatmentIndicator10(),
+        "");
+
+    dsd.addColumn(
+        "I11",
+        "Total de crianças que iniciaram CTZ  ≥ 2 meses de idade",
+        getNumberOfChildrenWhoInitiatedCTZTreatmentIndicator11(),
+        "");
+
+    dsd.addColumn(
+        "I12",
+        "Total de 1º PCR colhido < 2 meses de idade",
+        getNumberOfChildrenWhithTheFirstPCRCollectedIndicator12(),
+        "");
+
+    dsd.addColumn(
+        "I13",
+        "Total de 1º PCR colhido ≥ 2 meses de idade",
+        getNumberOfChildrenWhithTheFirstPCRCollectedIndicator13(),
+        "");
+
+    dsd.addColumn(
+        "I14",
+        "Total de crianças expostas ≥9 meses testadas com Teste Rápido de HIV",
+        getNumberOfChildrenExposedIndicator14(),
+        "");
+
+    dsd.addColumn(
+        "I15",
+        "Total de crianças não expostas ao HIV testadas com Teste Rápido de HIV",
+        getNumberOfChildrenNotExposedToHIVTestedIndicator15(),
+        "");
+
+    dsd.addColumn(
+        "I16",
+        "Total de crianças não expostas ao HIV, testadas com Teste Rápido que tiveram resultado positivo",
+        getNumberOfChildrenNotExposedToHIVTestedWithTestResultPositiveIndicator16(),
+        "");
+
+    dsd.addColumn(
+        "I20",
+        "Total de crianças com contacto com TB",
+        getChildrenWithTbHivContact9MonthsAgoIndicator20(),
+        "");
+
+    dsd.addColumn(
+        "I21",
+        "Total de crianças que completaram Isoniazida",
+        getChildrenWhoCompletedINHTreatmentCoorte9MonthsIndicator21(),
+        "");
+
+    dsd.addColumn(
+        "I22", "Total de crianças referidas para PNCT", getChildrenReferredToPNCTIndicator22(), "");
+
+    dsd.addColumn(
+        "I23", "Total de crianças que abandonaram", getChildrenWhoAbandonedCCRIndicator23(), "");
+
+    dsd.addColumn(
+        "I24",
+        "Total de crianças com DAM",
+        getNumberOfChildrenWithModerateAcuteMalnutritionCoorte9MonthsIndicator24(),
+        "");
+
+    dsd.addColumn(
+        "I25",
+        "Total de crianças com DAM recuperadas",
+        getNumberOfChildrenWithModerateAcuteMalnutritionCuredCoorte9MonthsIndicator25(),
+        "");
+
+    dsd.addColumn(
+        "I26",
+        "Total de crianças com DAM que abandonaram",
+        getNumberOfChildrenWithModerateAcuteMalnutritionWhoAbandonedCCRCoorte9MonthsIndicator26(),
+        "");
+
+    dsd.addColumn(
+        "I27",
+        "Total de crianças com com DAG",
+        getNumberOfChildrenWithSevereAcuteMalnutritionCoorte9MonthsIndicator27(),
+        "");
+
+    dsd.addColumn(
+        "I28",
+        "Total de crianças com DAG que foram referidas para internamento",
+        getNumberOfChildrenWithDAGReferredForHospitalizationCoorte9MonthsIndicator28(),
+        "");
+
+    dsd.addColumn(
+        "I29",
+        "Total de crianças com DAG recuperadas",
+        getNumberOfChildrenWithSevereAcuteMalnutritionCuredCoorte9MonthsIndicator29(),
+        "");
+
+    dsd.addColumn(
+        "I30",
+        "Total de crianças com DAG que abandonaram",
+        getNumberOfChildrenWithSevereAcuteMalnutritionWhoAbandonedCCRCoorte9MonthsIndicator30(),
+        "");
+
+    dsd.addColumn(
+        "I31",
+        "Total de crianças com DAG que foram óbito",
+        getNumberOfChildrenWithSevereAcuteMalnutritionWhoDiedCCRCoorte9MonthsIndicator31(),
+        "");
+
+    dsd.addColumn(
+        "I32",
+        "Total de crianças expostas",
+        getChildrenWithExposureToHIVCoorte9MonthsIndicator32(),
+        "");
+
+    dsd.addColumn(
+        "I33",
+        "Total de crianças expostas com 5 meses de idade e com mãe em TARV",
+        getChildrenExposureToHIVCoorte9MonthsWithTheMotherInPTVIndicator33(),
+        "");
+
+    dsd.addColumn(
+        "I34",
+        "Total de  crianças expostas com aleitamento materno exclusivo aos 5 meses",
+        getChildrenExposedToExclusiveBreastfeedingIndicator34(),
+        "");
+
+    dsd.addColumn(
+        "I35",
+        "Total de crianças expostas em Aleitamento Misto aos 5 meses",
+        getChildrenExposedToMixedBreastfeedingIndicator35(),
+        "");
+
+    dsd.addColumn(
+        "I36",
+        "Total de crianças expostas que receberam ARV aos 5 meses",
+        getChildrenExposedWhoReceivedARVIndicator36(),
+        "");
+
+    dsd.addColumn(
+        "I37",
+        "Total de PCR colhido <2 meses de idade",
+        getTotalChildrenWhoReceivedPCRIndicator37(),
+        "");
+
+    dsd.addColumn(
+        "I38",
+        "Total de PCR colhido ≥2 meses de idade",
+        getTotalChildrenWhoReceivedPCRIndicator38(),
+        "");
+
+    dsd.addColumn(
+        "I39",
+        "Total de crianças com resultados PCR positivo <2 meses de idade ",
+        getTotalChildrenWhoReceivedPCRResultPositiveIndicator39(),
+        "");
+
+    dsd.addColumn(
+        "I40",
+        "Total de crianças com resultados PCR positivo ≥2 meses de idade",
+        getTotalChildrenWhoReceivedPCRResultPositiveIndicator40(),
+        "");
+
+    dsd.addColumn(
+        "I41",
+        "Total de crianças expostas",
+        getChildrenWithExposureToHIVCoorte18MonthsIndicator41(),
+        "");
+
+    dsd.addColumn(
+        "I42",
+        "Total de crianças expostas com resultado definitivo de HIV positivo",
+        getChildrenWithExposureToHIVWithDefinitiveHIVResultPositiveCoorte18MonthsIndicator42(),
+        "");
+
+    dsd.addColumn(
+        "I43",
+        "Total de crianças expostas com resultado definitivo de HIV negativo",
+        getChildrenWithExposureToHIVWithDefinitiveHIVResultNegativeCoorte18MonthsIndicator43(),
+        "");
+
+    dsd.addColumn(
+        "I44",
+        "Total de crianças expostas transferidas para a Consulta Criança Sadia",
+        getNumberOfChildrenExpousedAndCuredCoorte18MonthsIndicator44(),
+        "");
+
+    dsd.addColumn(
+        "I45",
+        "Total de crianças expostas transferidas para as Consultas Integradas",
+        getNumberOfChildrenExpousedAndTransferredToIntegratedConsultationsCoorte18MonthsIndicator45(),
+        "");
+
+    dsd.addColumn(
+        "I46",
+        "Total de crianças expostas que abandonaram",
+        getNumberOfChildrenExpousedAndRegisteredAsAbandonoCoorte18MonthsIndicator46(),
+        "");
+
+    dsd.addColumn(
+        "I47",
+        "Total de crianças expostas que foram óbito",
+        getNumberOfChildrenExpousedAndRegisteredAsDeadCoorte18MonthsIndicator47(),
         "");
 
     return dsd;
   }
 
-  private Mapped<CohortIndicator> getSumOfA1AndA2() {
+  private Mapped<CohortIndicator> getChildrenWithFirstConsultationCCRDuringPeriodIndicator1() {
     return mapStraightThrough(
         eptsGeneralIndicator.getIndicator(
-            "A1 and A2", mapStraightThrough(resumoMensalCohortQueries.getSumOfA1AndA2())));
+            "I1",
+            mapStraightThrough(
+                resumoMensalCCRCohortQueries
+                    .getChildrenWithFirstConsultationCCRDuringPeriodIndicator1())));
   }
 
-  private Mapped<CohortIndicator> getPatientsWhoInitiatedPreTarvAtAfacilityDuringCurrentMonthA2() {
+  private Mapped<CohortIndicator> getChildrenWithTbHivContactIndicator2() {
     return mapStraightThrough(
         eptsGeneralIndicator.getIndicator(
-            "A2",
+            "I2",
             mapStraightThrough(
-                resumoMensalCohortQueries
-                    .getPatientsWhoInitiatedPreTarvAtAfacilityDuringCurrentMonthA2())));
+                resumoMensalCCRCohortQueries.getChildrenWithTbHivContactIndicator2())));
   }
 
-  private Mapped<CohortIndicator> getNumberOfPatientsWhoInitiatedPreTarvByEndOfPreviousMonthA1() {
+  private Mapped<CohortIndicator> getNumberOfChildrenWithModerateAcuteMalnutritionIndicator3() {
     return mapStraightThrough(
         eptsGeneralIndicator.getIndicator(
-            "A1",
+            "I3",
             mapStraightThrough(
-                resumoMensalCohortQueries
-                    .getNumberOfPatientsWhoInitiatedPreTarvByEndOfPreviousMonthA1())));
+                resumoMensalCCRCohortQueries
+                    .getNumberOfChildrenWithModerateAcuteMalnutritionIndicator3())));
   }
 
-  private Mapped<CohortIndicator> getPatientsWhoInitiatedTarvAtThisFacilityDuringCurrentMonthB1() {
+  private Mapped<CohortIndicator> getNumberOfChildrenWithSevereAcuteMalnutritionIndicator4() {
     return mapStraightThrough(
         eptsGeneralIndicator.getIndicator(
-            "Tx New For Month",
+            "I4",
             mapStraightThrough(
-                resumoMensalCohortQueries
-                    .getPatientsWhoInitiatedTarvAtThisFacilityDuringCurrentMonthB1())));
+                resumoMensalCCRCohortQueries
+                    .getNumberOfChildrenWithSevereAcuteMalnutritionIndicator4())));
+  }
+
+  private Mapped<CohortIndicator> getChildrenWithExposureToHIVIndicator5() {
+    return mapStraightThrough(
+        eptsGeneralIndicator.getIndicator(
+            "I5",
+            mapStraightThrough(
+                resumoMensalCCRCohortQueries.getChildrenWithExposureToHIVIndicator5())));
+  }
+
+  private Mapped<CohortIndicator> getChildrenWithOtherRiskConditionIndicator6() {
+    return mapStraightThrough(
+        eptsGeneralIndicator.getIndicator(
+            "I6",
+            mapStraightThrough(
+                resumoMensalCCRCohortQueries.getChildrenWithOtherRiskConditionIndicator6())));
+  }
+
+  private Mapped<CohortIndicator> getNumberOfChildrenWhoInitiatedINHTreatmentIndicator7() {
+    return mapStraightThrough(
+        eptsGeneralIndicator.getIndicator(
+            "I7",
+            mapStraightThrough(
+                resumoMensalCCRCohortQueries
+                    .getNumberOfChildrenWhoInitiatedINHTreatmentIndicator7())));
+  }
+
+  private Mapped<CohortIndicator> getNumberOfChildrenWhithATPUIndicator8() {
+    return mapStraightThrough(
+        eptsGeneralIndicator.getIndicator(
+            "I8",
+            mapStraightThrough(
+                resumoMensalCCRCohortQueries.getNumberOfChildrenWhithATPUIndicator8())));
+  }
+
+  private Mapped<CohortIndicator> getNumberOfChildrenWhoReceivedCSBIndicator9() {
+    return mapStraightThrough(
+        eptsGeneralIndicator.getIndicator(
+            "I9",
+            mapStraightThrough(
+                resumoMensalCCRCohortQueries.getNumberOfChildrenWhoReceivedCSBIndicator9())));
+  }
+
+  private Mapped<CohortIndicator> getNumberOfChildrenWhoInitiatedCTZTreatmentIndicator10() {
+    return mapStraightThrough(
+        eptsGeneralIndicator.getIndicator(
+            "I10",
+            mapStraightThrough(
+                resumoMensalCCRCohortQueries
+                    .getNumberOfChildrenWhoInitiatedCTZTreatmentIndicator10())));
+  }
+
+  private Mapped<CohortIndicator> getNumberOfChildrenWhoInitiatedCTZTreatmentIndicator11() {
+    return mapStraightThrough(
+        eptsGeneralIndicator.getIndicator(
+            "I11",
+            mapStraightThrough(
+                resumoMensalCCRCohortQueries
+                    .getNumberOfChildrenWhoInitiatedCTZTreatmentIndicator11())));
+  }
+
+  private Mapped<CohortIndicator> getNumberOfChildrenWhithTheFirstPCRCollectedIndicator12() {
+    return mapStraightThrough(
+        eptsGeneralIndicator.getIndicator(
+            "I12",
+            mapStraightThrough(
+                resumoMensalCCRCohortQueries
+                    .getNumberOfChildrenWhithTheFirstPCRCollectedIndicator12())));
+  }
+
+  private Mapped<CohortIndicator> getNumberOfChildrenWhithTheFirstPCRCollectedIndicator13() {
+    return mapStraightThrough(
+        eptsGeneralIndicator.getIndicator(
+            "I13",
+            mapStraightThrough(
+                resumoMensalCCRCohortQueries
+                    .getNumberOfChildrenWhithTheFirstPCRCollectedIndicator13())));
+  }
+
+  private Mapped<CohortIndicator> getNumberOfChildrenExposedIndicator14() {
+    return mapStraightThrough(
+        eptsGeneralIndicator.getIndicator(
+            "I14",
+            mapStraightThrough(
+                resumoMensalCCRCohortQueries.getNumberOfChildrenExposedIndicator14())));
+  }
+
+  private Mapped<CohortIndicator> getNumberOfChildrenNotExposedToHIVTestedIndicator15() {
+    return mapStraightThrough(
+        eptsGeneralIndicator.getIndicator(
+            "I15",
+            mapStraightThrough(
+                resumoMensalCCRCohortQueries
+                    .getNumberOfChildrenNotExposedToHIVTestedIndicator15())));
   }
 
   private Mapped<CohortIndicator>
-      getNumberOfPatientsTransferredInFromOtherHealthFacilitiesDuringCurrentMonthB2() {
+      getNumberOfChildrenNotExposedToHIVTestedWithTestResultPositiveIndicator16() {
     return mapStraightThrough(
         eptsGeneralIndicator.getIndicator(
-            "Tx New For End Date",
+            "I16",
             mapStraightThrough(
-                resumoMensalCohortQueries
-                    .getNumberOfPatientsTransferredInFromOtherHealthFacilitiesDuringCurrentMonthB2())));
+                resumoMensalCCRCohortQueries
+                    .getNumberOfChildrenNotExposedToHIVTestedWithTestResultPositiveIndicator16())));
   }
 
-  private Mapped<CohortIndicator> getSumB3() {
+  private Mapped<CohortIndicator> getChildrenWithTbHivContact9MonthsAgoIndicator20() {
     return mapStraightThrough(
         eptsGeneralIndicator.getIndicator(
-            "B3", mapStraightThrough(resumoMensalCohortQueries.getSumB3())));
+            "I20",
+            mapStraightThrough(
+                resumoMensalCCRCohortQueries.getChildrenWithTbHivContact9MonthsAgoIndicator20())));
+  }
+
+  private Mapped<CohortIndicator> getChildrenWhoCompletedINHTreatmentCoorte9MonthsIndicator21() {
+    return mapStraightThrough(
+        eptsGeneralIndicator.getIndicator(
+            "I21",
+            mapStraightThrough(
+                resumoMensalCCRCohortQueries
+                    .getChildrenWhoCompletedINHTreatmentCoorte9MonthsIndicator21())));
+  }
+
+  private Mapped<CohortIndicator> getChildrenReferredToPNCTIndicator22() {
+    return mapStraightThrough(
+        eptsGeneralIndicator.getIndicator(
+            "I22",
+            mapStraightThrough(
+                resumoMensalCCRCohortQueries.getChildrenReferredToPNCTIndicator22())));
+  }
+
+  private Mapped<CohortIndicator> getChildrenWhoAbandonedCCRIndicator23() {
+    return mapStraightThrough(
+        eptsGeneralIndicator.getIndicator(
+            "I23",
+            mapStraightThrough(
+                resumoMensalCCRCohortQueries.getChildrenWhoAbandonedCCRIndicator23())));
   }
 
   private Mapped<CohortIndicator>
-      getNumberOfPatientsTransferredOutFromOtherHealthFacilitiesDuringCurrentMonthB5() {
-    String name = "Patients transferred out during the current month";
-    String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
-    CohortDefinition cohort = resumoMensalCohortQueries.getTrfOutB5();
-    CohortIndicator indicator = eptsGeneralIndicator.getIndicator(name, map(cohort, mappings));
-    return mapStraightThrough(indicator);
+      getNumberOfChildrenWithModerateAcuteMalnutritionCoorte9MonthsIndicator24() {
+    return mapStraightThrough(
+        eptsGeneralIndicator.getIndicator(
+            "I24",
+            mapStraightThrough(
+                resumoMensalCCRCohortQueries
+                    .getNumberOfChildrenWithModerateAcuteMalnutritionCoorte9MonthsIndicator24())));
   }
 
-  private Mapped<CohortIndicator> getPatientsWhoSuspendTratmentB6() {
-    String name = "Patients transferred out during the current month";
-    String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
-    CohortDefinition cohort = resumoMensalCohortQueries.getSuspendB6();
-    return mapStraightThrough(eptsGeneralIndicator.getIndicator(name, map(cohort, mappings)));
+  private Mapped<CohortIndicator>
+      getNumberOfChildrenWithModerateAcuteMalnutritionCuredCoorte9MonthsIndicator25() {
+    return mapStraightThrough(
+        eptsGeneralIndicator.getIndicator(
+            "I25",
+            mapStraightThrough(
+                resumoMensalCCRCohortQueries
+                    .getNumberOfChildrenWithModerateAcuteMalnutritionCuredCoorte9MonthsIndicator25())));
   }
 
-  private Mapped<CohortIndicator> getPatientsWhoAbandonedTratmentUpB7() {
-    String name = "Patients who abandoned the ART during the current month";
-    String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
-    Mapped<CohortDefinition> cohort =
-        map(resumoMensalCohortQueries.getPatientsWhoAbandonedTratmentUpB7(), mappings);
-    return mapStraightThrough(eptsGeneralIndicator.getIndicator(name, cohort));
+  private Mapped<CohortIndicator>
+      getNumberOfChildrenWithModerateAcuteMalnutritionWhoAbandonedCCRCoorte9MonthsIndicator26() {
+    return mapStraightThrough(
+        eptsGeneralIndicator.getIndicator(
+            "I26",
+            mapStraightThrough(
+                resumoMensalCCRCohortQueries
+                    .getNumberOfChildrenWithModerateAcuteMalnutritionWhoAbandonedCCRCoorte9MonthsIndicator26())));
   }
 
-  private Mapped<CohortIndicator> getPatientsWhoDiedTratmentB8() {
-    String name = "Patients who abandoned the ART during the current month";
-    String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
-    Mapped<CohortDefinition> cohort = map(resumoMensalCohortQueries.getDiedB8(), mappings);
-    return mapStraightThrough(eptsGeneralIndicator.getIndicator(name, cohort));
+  private Mapped<CohortIndicator>
+      getNumberOfChildrenWithSevereAcuteMalnutritionCoorte9MonthsIndicator27() {
+    return mapStraightThrough(
+        eptsGeneralIndicator.getIndicator(
+            "I27",
+            mapStraightThrough(
+                resumoMensalCCRCohortQueries
+                    .getNumberOfChildrenWithSevereAcuteMalnutritionCoorte9MonthsIndicator27())));
   }
 
-  private Mapped<CohortIndicator> getSumPatientsB9() {
-    String name = "Patients who abandoned the ART during the current month";
-    String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
-    Mapped<CohortDefinition> cohort = map(resumoMensalCohortQueries.getSumPatientsB9(), mappings);
-    return mapStraightThrough(eptsGeneralIndicator.getIndicator(name, cohort));
+  private Mapped<CohortIndicator>
+      getNumberOfChildrenWithDAGReferredForHospitalizationCoorte9MonthsIndicator28() {
+    return mapStraightThrough(
+        eptsGeneralIndicator.getIndicator(
+            "I28",
+            mapStraightThrough(
+                resumoMensalCCRCohortQueries
+                    .getNumberOfChildrenWithDAGReferredForHospitalizationCoorte9MonthsIndicator28())));
   }
 
-  private Mapped<CohortIndicator> getTxNewEndDateB10() {
-    String name = "Patients who abandoned the ART during the current month";
-    String mappings = "startDate=${startDate},location=${location}";
-    Mapped<CohortDefinition> cohort = map(resumoMensalCohortQueries.getTxNewEndDateB10(), mappings);
-    return mapStraightThrough(eptsGeneralIndicator.getIndicator(name, cohort));
+  private Mapped<CohortIndicator>
+      getNumberOfChildrenWithSevereAcuteMalnutritionCuredCoorte9MonthsIndicator29() {
+    return mapStraightThrough(
+        eptsGeneralIndicator.getIndicator(
+            "I29",
+            mapStraightThrough(
+                resumoMensalCCRCohortQueries
+                    .getNumberOfChildrenWithSevereAcuteMalnutritionCuredCoorte9MonthsIndicator29())));
   }
 
-  public Mapped<CohortIndicator> getPatientsWhoAreCurrentlyEnrolledOnARTB12() {
-    String name = "Patients who abandoned the ART during the current month";
-    String mappings = "startDate=${startDate},location=${location}";
-    Mapped<CohortDefinition> cohort =
-        map(
-            resumoMensalCohortQueries.findPatientsWhoAreCurrentlyEnrolledOnArtMOHLastMonthB12(),
-            mappings);
-    return mapStraightThrough(eptsGeneralIndicator.getIndicator(name, cohort));
+  private Mapped<CohortIndicator>
+      getNumberOfChildrenWithSevereAcuteMalnutritionWhoAbandonedCCRCoorte9MonthsIndicator30() {
+    return mapStraightThrough(
+        eptsGeneralIndicator.getIndicator(
+            "I30",
+            mapStraightThrough(
+                resumoMensalCCRCohortQueries
+                    .getNumberOfChildrenWithSevereAcuteMalnutritionWhoAbandonedCCRCoorte9MonthsIndicator30())));
   }
 
-  private Mapped<CohortIndicator> getPatientsWhoAreCurrentlyEnrolledOnARTB13() {
-    String name = "Patients who abandoned the ART during the current month";
-    final String mappings = "endDate=${endDate},location=${location}";
-    Mapped<CohortDefinition> cohort =
-        map(resumoMensalCohortQueries.findPatientsWhoAreCurrentlyEnrolledOnArtMOHB13(), mappings);
-    return mapStraightThrough(eptsGeneralIndicator.getIndicator(name, cohort));
+  private Mapped<CohortIndicator>
+      getNumberOfChildrenWithSevereAcuteMalnutritionWhoDiedCCRCoorte9MonthsIndicator31() {
+    return mapStraightThrough(
+        eptsGeneralIndicator.getIndicator(
+            "I31",
+            mapStraightThrough(
+                resumoMensalCCRCohortQueries
+                    .getNumberOfChildrenWithSevereAcuteMalnutritionWhoDiedCCRCoorte9MonthsIndicator31())));
   }
 
-  private Mapped<CohortIndicator> findPatientWhoHaveTbSymthomsC1() {
-    String name = "Patients who abandoned the ART during the current month";
-    final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
-    Mapped<CohortDefinition> cohort =
-        map(resumoMensalCohortQueries.findPatientWhoHaveTbSymthomsC1(), mappings);
-    return mapStraightThrough(eptsGeneralIndicator.getIndicator(name, cohort));
+  private Mapped<CohortIndicator> getChildrenWithExposureToHIVCoorte9MonthsIndicator32() {
+    return mapStraightThrough(
+        eptsGeneralIndicator.getIndicator(
+            "I32",
+            mapStraightThrough(
+                resumoMensalCCRCohortQueries
+                    .getChildrenWithExposureToHIVCoorte9MonthsIndicator32())));
   }
 
-  private Mapped<CohortIndicator> getPatientsWhoMarkedINHC2A2() {
-    String name = "Patients who abandoned the ART during the current month";
-    final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
-    Mapped<CohortDefinition> cohort =
-        map(resumoMensalCohortQueries.getPatientsWhoMarkedINHC2A2(), mappings);
-    return mapStraightThrough(eptsGeneralIndicator.getIndicator(name, cohort));
+  private Mapped<CohortIndicator>
+      getChildrenExposureToHIVCoorte9MonthsWithTheMotherInPTVIndicator33() {
+    return mapStraightThrough(
+        eptsGeneralIndicator.getIndicator(
+            "I33",
+            mapStraightThrough(
+                resumoMensalCCRCohortQueries
+                    .getChildrenExposureToHIVCoorte9MonthsWithTheMotherInPTVIndicator33())));
   }
 
-  private Mapped<CohortIndicator> getPatientsWhoMarkedTbActiveC3A2() {
-    String name = "Patients who abandoned the ART during the current month";
-    final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
-    Mapped<CohortDefinition> cohort =
-        map(resumoMensalCohortQueries.getPatientsWhoMarkedTbActiveC3A2(), mappings);
-    return mapStraightThrough(eptsGeneralIndicator.getIndicator(name, cohort));
+  private Mapped<CohortIndicator> getChildrenExposedToExclusiveBreastfeedingIndicator34() {
+    return mapStraightThrough(
+        eptsGeneralIndicator.getIndicator(
+            "I34",
+            mapStraightThrough(
+                resumoMensalCCRCohortQueries
+                    .getChildrenExposedToExclusiveBreastfeedingIndicator34())));
+  }
+
+  private Mapped<CohortIndicator> getChildrenExposedToMixedBreastfeedingIndicator35() {
+    return mapStraightThrough(
+        eptsGeneralIndicator.getIndicator(
+            "I35",
+            mapStraightThrough(
+                resumoMensalCCRCohortQueries.getChildrenExposedToMixedBreastfeedingIndicator35())));
+  }
+
+  private Mapped<CohortIndicator> getChildrenExposedWhoReceivedARVIndicator36() {
+    return mapStraightThrough(
+        eptsGeneralIndicator.getIndicator(
+            "I36",
+            mapStraightThrough(
+                resumoMensalCCRCohortQueries.getChildrenExposedWhoReceivedARVIndicator36())));
+  }
+
+  private Mapped<CohortIndicator> getTotalChildrenWhoReceivedPCRIndicator37() {
+    return mapStraightThrough(
+        eptsGeneralIndicator.getIndicator(
+            "I37",
+            mapStraightThrough(
+                resumoMensalCCRCohortQueries.getTotalChildrenWhoReceivedPCRIndicator37())));
+  }
+
+  private Mapped<CohortIndicator> getTotalChildrenWhoReceivedPCRIndicator38() {
+    return mapStraightThrough(
+        eptsGeneralIndicator.getIndicator(
+            "I38",
+            mapStraightThrough(
+                resumoMensalCCRCohortQueries.getTotalChildrenWhoReceivedPCRIndicator38())));
+  }
+
+  private Mapped<CohortIndicator> getTotalChildrenWhoReceivedPCRResultPositiveIndicator39() {
+    return mapStraightThrough(
+        eptsGeneralIndicator.getIndicator(
+            "I39",
+            mapStraightThrough(
+                resumoMensalCCRCohortQueries
+                    .getTotalChildrenWhoReceivedPCRResultPositiveIndicator39())));
+  }
+
+  private Mapped<CohortIndicator> getTotalChildrenWhoReceivedPCRResultPositiveIndicator40() {
+    return mapStraightThrough(
+        eptsGeneralIndicator.getIndicator(
+            "I40",
+            mapStraightThrough(
+                resumoMensalCCRCohortQueries
+                    .getTotalChildrenWhoReceivedPCRResultPositiveIndicator40())));
+  }
+
+  private Mapped<CohortIndicator> getChildrenWithExposureToHIVCoorte18MonthsIndicator41() {
+    return mapStraightThrough(
+        eptsGeneralIndicator.getIndicator(
+            "I41",
+            mapStraightThrough(
+                resumoMensalCCRCohortQueries
+                    .getChildrenWithExposureToHIVCoorte18MonthsIndicator41())));
+  }
+
+  private Mapped<CohortIndicator>
+      getChildrenWithExposureToHIVWithDefinitiveHIVResultPositiveCoorte18MonthsIndicator42() {
+    return mapStraightThrough(
+        eptsGeneralIndicator.getIndicator(
+            "I42",
+            mapStraightThrough(
+                resumoMensalCCRCohortQueries
+                    .getChildrenWithExposureToHIVWithDefinitiveHIVResultPositiveCoorte18MonthsIndicator42())));
+  }
+
+  private Mapped<CohortIndicator>
+      getChildrenWithExposureToHIVWithDefinitiveHIVResultNegativeCoorte18MonthsIndicator43() {
+    return mapStraightThrough(
+        eptsGeneralIndicator.getIndicator(
+            "I43",
+            mapStraightThrough(
+                resumoMensalCCRCohortQueries
+                    .getChildrenWithExposureToHIVWithDefinitiveHIVResultNegativeCoorte18MonthsIndicator43())));
+  }
+
+  private Mapped<CohortIndicator> getNumberOfChildrenExpousedAndCuredCoorte18MonthsIndicator44() {
+    return mapStraightThrough(
+        eptsGeneralIndicator.getIndicator(
+            "I44",
+            mapStraightThrough(
+                resumoMensalCCRCohortQueries
+                    .getNumberOfChildrenExpousedAndCuredCoorte18MonthsIndicator44())));
+  }
+
+  private Mapped<CohortIndicator>
+      getNumberOfChildrenExpousedAndTransferredToIntegratedConsultationsCoorte18MonthsIndicator45() {
+    return mapStraightThrough(
+        eptsGeneralIndicator.getIndicator(
+            "I45",
+            mapStraightThrough(
+                resumoMensalCCRCohortQueries
+                    .getNumberOfChildrenExpousedAndTransferredToIntegratedConsultationsCoorte18MonthsIndicator45())));
+  }
+
+  private Mapped<CohortIndicator>
+      getNumberOfChildrenExpousedAndRegisteredAsAbandonoCoorte18MonthsIndicator46() {
+    return mapStraightThrough(
+        eptsGeneralIndicator.getIndicator(
+            "I46",
+            mapStraightThrough(
+                resumoMensalCCRCohortQueries
+                    .getNumberOfChildrenExpousedAndRegisteredAsAbandonoCoorte18MonthsIndicator46())));
+  }
+
+  private Mapped<CohortIndicator>
+      getNumberOfChildrenExpousedAndRegisteredAsDeadCoorte18MonthsIndicator47() {
+    return mapStraightThrough(
+        eptsGeneralIndicator.getIndicator(
+            "I47",
+            mapStraightThrough(
+                resumoMensalCCRCohortQueries
+                    .getNumberOfChildrenExpousedAndRegisteredAsDeadCoorte18MonthsIndicator47())));
   }
 }
