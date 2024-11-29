@@ -200,7 +200,6 @@
 				                  and e.encounter_type=6
 				                  and o.concept_id=856 
 				                  and e.location_id=:location
-				                  
 				                  and o.voided=0 
 				                  )cv 
 				                  group by cv.patient_id
@@ -210,7 +209,7 @@
 				                  WHERE e.encounter_type=6 and e.voided=0 and o.voided=0 and ((o.concept_id=856 and o.value_numeric>1000)) and date(o.obs_datetime)=date(cv.data_resultado) 
 				                  group by cv.patient_id
 				                  )cv
-                                      left join
+                                  left join
 				                  (
 				                    select p.patient_id,o.obs_datetime data_cd4,o.value_numeric valor
 				                    from patient p   
@@ -271,7 +270,7 @@
 				              and o.voided = 0
 				              and  o.concept_id in(856,1305)
 				              and  o.obs_datetime<=:endDate
-				              and e.encounter_type in(6,13,51) 
+				              and e.encounter_type in(13,51) 
 				              and e.location_id=:location 
 				              order by o.obs_datetime desc
 				             ) cvAnterior on cvAnterior.patient_id=ultimoCV.patient_id
