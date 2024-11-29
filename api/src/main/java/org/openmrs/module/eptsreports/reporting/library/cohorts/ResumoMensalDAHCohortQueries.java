@@ -1495,11 +1495,18 @@ public class ResumoMensalDAHCohortQueries {
     if (disagregationType == ARTSituation.NEW_ENROLLED) {
 
       definition.addSearch(
+          "I8-NEW",
+          EptsReportUtils.map(
+              this.getNumberOfPatientsRequestingCD4ScreeningDuringThePeriodI8(
+                  ARTSituation.NEW_ENROLLED),
+              mappings));
+
+      definition.addSearch(
           "RF26",
           EptsReportUtils.map(
               this.findPatientsWhoAreNovosIniciosTarvIndicator10Untill9RF26(), mappings));
 
-      composition = "SEGUIMENTO-DAH AND SK AND RF26";
+      composition = "SEGUIMENTO-DAH AND SK AND RF26 AND I8-NEW";
 
     } else if (disagregationType == ARTSituation.RESTART) {
 
@@ -1508,7 +1515,13 @@ public class ResumoMensalDAHCohortQueries {
           EptsReportUtils.map(
               this.findPatientsWhoAreReiniciosTarvIndicator10Until19RF27(), mappings));
 
-      composition = "SEGUIMENTO-DAH AND SK AND RF27";
+      definition.addSearch(
+          "I8-RESTART",
+          EptsReportUtils.map(
+              this.getNumberOfPatientsRequestingCD4ScreeningDuringThePeriodI8(ARTSituation.RESTART),
+              mappings));
+
+      composition = "SEGUIMENTO-DAH AND SK AND RF27 AND I8-RESTART";
 
     } else if (disagregationType == ARTSituation.ACTIVE) {
 
@@ -1517,18 +1530,38 @@ public class ResumoMensalDAHCohortQueries {
           EptsReportUtils.map(
               this.findPatientsWhoAreActiveInTarvIndicator10Untill19RF28(), mappings));
 
-      composition = "SEGUIMENTO-DAH AND SK AND RF28";
+      definition.addSearch(
+          "I8-ACTIVE",
+          EptsReportUtils.map(
+              this.getNumberOfPatientsRequestingCD4ScreeningDuringThePeriodI8(ARTSituation.ACTIVE),
+              mappings));
+
+      composition = "SEGUIMENTO-DAH AND SK AND RF28 AND I8-ACTIVE";
 
     } else if (disagregationType == ARTSituation.PREGNANT) {
 
       definition.addSearch(
           "PREGNANT", EptsReportUtils.map(this.getNumberOfPatientsWhoArePregnantRF29(), mappings));
 
-      composition = "SEGUIMENTO-DAH AND SK AND PREGNANT";
+      definition.addSearch(
+          "I8-PREGNANT",
+          EptsReportUtils.map(
+              this.getNumberOfPatientsRequestingCD4ScreeningDuringThePeriodI8(
+                  ARTSituation.PREGNANT),
+              mappings));
+
+      composition = "SEGUIMENTO-DAH AND SK AND PREGNANT AND I8-PREGNANT";
 
     } else if (disagregationType == ARTSituation.SEGUIMENTO_DAH) {
 
-      composition = "SEGUIMENTO-DAH AND SK";
+      definition.addSearch(
+          "I8-SEGUIMENTO-DAH",
+          EptsReportUtils.map(
+              this.getNumberOfPatientsRequestingCD4ScreeningDuringThePeriodI8(
+                  ARTSituation.SEGUIMENTO_DAH),
+              mappings));
+
+      composition = "SEGUIMENTO-DAH AND SK AND I8-SEGUIMENTO-DAH";
     }
 
     definition.setCompositionString(composition);
@@ -1576,7 +1609,14 @@ public class ResumoMensalDAHCohortQueries {
           EptsReportUtils.map(
               this.findPatientsWhoAreNovosIniciosTarvIndicator10Untill9RF26(), mappings));
 
-      composition = "SEGUIMENTO-DAH AND QUIMIOTHERAPHY AND RF26";
+      definition.addSearch(
+          "I8-NEW",
+          EptsReportUtils.map(
+              this.getNumberOfPatientsRequestingCD4ScreeningDuringThePeriodI8(
+                  ARTSituation.NEW_ENROLLED),
+              mappings));
+
+      composition = "SEGUIMENTO-DAH AND QUIMIOTHERAPHY AND RF26 AND I8-NEW";
 
     } else if (disagregationType == ARTSituation.RESTART) {
 
@@ -1585,7 +1625,13 @@ public class ResumoMensalDAHCohortQueries {
           EptsReportUtils.map(
               this.findPatientsWhoAreReiniciosTarvIndicator10Until19RF27(), mappings));
 
-      composition = "SEGUIMENTO-DAH AND QUIMIOTHERAPHY AND RF27";
+      definition.addSearch(
+          "I8-RESTART",
+          EptsReportUtils.map(
+              this.getNumberOfPatientsRequestingCD4ScreeningDuringThePeriodI8(ARTSituation.RESTART),
+              mappings));
+
+      composition = "SEGUIMENTO-DAH AND QUIMIOTHERAPHY AND RF27 AND I8-RESTART";
 
     } else if (disagregationType == ARTSituation.ACTIVE) {
 
@@ -1594,18 +1640,38 @@ public class ResumoMensalDAHCohortQueries {
           EptsReportUtils.map(
               this.findPatientsWhoAreActiveInTarvIndicator10Untill19RF28(), mappings));
 
-      composition = "SEGUIMENTO-DAH AND QUIMIOTHERAPHY AND RF28";
+      definition.addSearch(
+          "I8-ACTIVE",
+          EptsReportUtils.map(
+              this.getNumberOfPatientsRequestingCD4ScreeningDuringThePeriodI8(ARTSituation.ACTIVE),
+              mappings));
+
+      composition = "SEGUIMENTO-DAH AND QUIMIOTHERAPHY AND RF28 AND I8-ACTIVE";
 
     } else if (disagregationType == ARTSituation.PREGNANT) {
 
       definition.addSearch(
           "PREGNANT", EptsReportUtils.map(this.getNumberOfPatientsWhoArePregnantRF29(), mappings));
 
-      composition = "SEGUIMENTO-DAH AND QUIMIOTHERAPHY AND PREGNANT";
+      definition.addSearch(
+          "I8-PREGNANT",
+          EptsReportUtils.map(
+              this.getNumberOfPatientsRequestingCD4ScreeningDuringThePeriodI8(
+                  ARTSituation.PREGNANT),
+              mappings));
+
+      composition = "SEGUIMENTO-DAH AND QUIMIOTHERAPHY AND PREGNANT AND I8-PREGNANT";
 
     } else if (disagregationType == ARTSituation.SEGUIMENTO_DAH) {
 
-      composition = "SEGUIMENTO-DAH AND QUIMIOTHERAPHY";
+      definition.addSearch(
+          "I8-SEGUIMENTO-DAH",
+          EptsReportUtils.map(
+              this.getNumberOfPatientsRequestingCD4ScreeningDuringThePeriodI8(
+                  ARTSituation.SEGUIMENTO_DAH),
+              mappings));
+
+      composition = "SEGUIMENTO-DAH AND QUIMIOTHERAPHY AND I8-SEGUIMENTO-DAH";
     }
 
     definition.setCompositionString(composition);
