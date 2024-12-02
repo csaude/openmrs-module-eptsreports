@@ -1,5 +1,5 @@
 									select coorteFinalPrep.patient_id
-									from (
+				            from (
         					select coorteFinal.patient_id, coorteFinal.prep_consultation_date,coorteFinal.data_proximo 
 				            from 
 				            (
@@ -86,7 +86,13 @@
 
 				            left join
 				            (
-			               select grupoAlvo.patient_id,grupoAlvo.prep_consultation_date,o.value_coded  from 
+				             select tmp.patient_id, 
+		                       MAX(CASE WHEN tmp.value_coded = 165287 then tmp.value_coded END) as ADOLESCENTE_JOVENS, 
+		                       MAX(CASE WHEN tmp.value_coded = 1902 then tmp.value_coded END) as MILITAR_POLICÍA,
+		                       MAX(CASE WHEN tmp.value_coded = 1908 then tmp.value_coded END) as MINEIRO,
+		                       MAX(CASE WHEN tmp.value_coded = 1903 then tmp.value_coded END) as MOTORISTA,
+		                       MAX(CASE WHEN tmp.value_coded = 1995 then tmp.value_coded END) as SERODISCORDANTES from (
+					         select grupoAlvo.patient_id,grupoAlvo.prep_consultation_date,o.value_coded  from 
 			                (
 			                select p.patient_id, max(e.encounter_datetime) prep_consultation_date
 				                     from patient p 
@@ -101,13 +107,21 @@
 					                  and e.location_id=:location 
 				                   group by p.patient_id 
 			               )grupoAlvo
-			                left join encounter e on grupoAlvo.patient_id=e.patient_id 
-					      left join obs o on o.encounter_id=e.encounter_id
+			                inner join encounter e on grupoAlvo.patient_id=e.patient_id 
+					      inner join obs o on o.encounter_id=e.encounter_id
 					      where e.voided=0 and o.voided=0 and o.concept_id=165196 and o.value_coded in (165287,1902,1908,1903,1995) and e.encounter_type=80  and e.encounter_datetime=grupoAlvo.prep_consultation_date
+						) tmp group by tmp.patient_id
 				          )grupoAlvo on grupoAlvo.patient_id=coorteFinalPrep.patient_id
 				          left join
 				          (
-				         select grupoAlvoKp.patient_id,grupoAlvoKp.prep_consultation_date, o.value_coded  from 
+			         select tmp.patient_id, 
+				     	   MAX(CASE WHEN tmp.value_coded = 20426 then tmp.value_coded END) as PRISAO, 
+		                       MAX(CASE WHEN tmp.value_coded = 1377 then tmp.value_coded END) as HSH, 
+		                       MAX(CASE WHEN tmp.value_coded = 165205 then tmp.value_coded END) as TG,
+		                       MAX(CASE WHEN tmp.value_coded = 1901 then tmp.value_coded END) as TS,
+		                       MAX(CASE WHEN tmp.value_coded = 20454 then tmp.value_coded END) as PID,
+		                       MAX(CASE WHEN tmp.value_coded = 5622 then tmp.value_coded END) as OUTRO from (
+				         select grupoAlvoKp.patient_id,grupoAlvoKp.prep_consultation_date,o.value_coded  from 
 			                (
 			                select p.patient_id, max(e.encounter_datetime) prep_consultation_date
 				                     from patient p 
@@ -124,8 +138,8 @@
 			               )grupoAlvoKp
 			                left join encounter e on grupoAlvoKp.patient_id=e.patient_id 
 					      left join obs o on o.encounter_id=e.encounter_id
-					      where e.encounter_datetime=grupoAlvoKp.prep_consultation_date and 
-					      e.voided=0 and o.voided=0 and o.concept_id=23703 and e.encounter_type in(80,81)  
+					      where e.voided=0 and o.voided=0 and o.concept_id=23703 and e.encounter_type in(80,81)  and e.encounter_datetime=grupoAlvoKp.prep_consultation_date
+					      )tmp group by tmp.patient_id
 				          )grupoAlvoKp on grupoAlvoKp.patient_id=coorteFinalPrep.patient_id
 				          left join
 				          (
@@ -158,7 +172,17 @@
 				          )gravidaLactante on gravidaLactante.patient_id=coorteFinalPrep.patient_id
 				          left join
 				          (
-				           select sector.patient_id,sector.prep_consultation_date,o.value_coded  from 
+						select sector.patient_id,
+						case 
+							       when ISNULL(sector.value_coded) then '' 
+							       when sector.value_coded = 1987 then 'SAAJ'
+							       when sector.value_coded = 23873 then 'Triagem Adulto'
+							       when sector.value_coded = 165206 then 'Consultas integradas'
+							       when sector.value_coded = 1978 then 'CPN'
+							       when sector.value_coded = 5483 then 'CPF'
+							       when sector.value_coded = 23913 then 'Outro'   
+							       end AS SECTOR from (
+				       select sector.patient_id,sector.prep_consultation_date,o.value_coded  from 
 			                (
 			                select p.patient_id, max(e.encounter_datetime) prep_consultation_date
 				                     from patient p 
@@ -175,6 +199,7 @@
 			               )sector
 			                left join encounter e on sector.patient_id=e.patient_id 
 					      left join obs o on o.encounter_id=e.encounter_id
-					      where e.voided=0 and o.voided=0 and o.concept_id=165291 and e.encounter_type=80 and e.encounter_datetime=sector.prep_consultation_date
+					      where e.voided=0 and o.voided=0 and o.concept_id=165291 and e.encounter_type=80  and e.encounter_datetime=sector.prep_consultation_date
+						)sector
 				          )sector on sector.patient_id=coorteFinalPrep.patient_id
 				          group by coorteFinalPrep.patient_id   
