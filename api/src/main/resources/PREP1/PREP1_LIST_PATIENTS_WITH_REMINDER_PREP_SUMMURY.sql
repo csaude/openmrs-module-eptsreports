@@ -192,7 +192,17 @@
 				          )gravidaLactante on gravidaLactante.patient_id=coorteFinalPrep.patient_id
 				          left join
 				          (
-				           select sector.patient_id,sector.prep_consultation_date,o.value_coded  from 
+						select sector.patient_id,
+						case 
+							       when ISNULL(sector.value_coded) then '' 
+							       when sector.value_coded = 1987 then 'SAAJ'
+							       when sector.value_coded = 23873 then 'Triagem Adulto'
+							       when sector.value_coded = 165206 then 'Consultas integradas'
+							       when sector.value_coded = 1978 then 'CPN'
+							       when sector.value_coded = 5483 then 'CPF'
+							       when sector.value_coded = 23913 then 'Outro'   
+							       end AS SECTOR from (
+				       select sector.patient_id,sector.prep_consultation_date,o.value_coded  from 
 			                (
 			                select p.patient_id, max(e.encounter_datetime) prep_consultation_date
 				                     from patient p 
@@ -210,5 +220,6 @@
 			                left join encounter e on sector.patient_id=e.patient_id 
 					      left join obs o on o.encounter_id=e.encounter_id
 					      where e.voided=0 and o.voided=0 and o.concept_id=165291 and e.encounter_type=80  and e.encounter_datetime=sector.prep_consultation_date
+						)sector
 				          )sector on sector.patient_id=coorteFinalPrep.patient_id
 				          group by coorteFinalPrep.patient_id
