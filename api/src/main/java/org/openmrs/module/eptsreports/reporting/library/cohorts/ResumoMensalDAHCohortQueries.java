@@ -321,8 +321,7 @@ public class ResumoMensalDAHCohortQueries {
         EptsReportUtils.map(
             this.findPatientsWhoAreNovosIniciosTarvIndicator8And9RF26_1(), mappings));
 
-    // definition.setCompositionString("B3 NOT (PREGNANT OR RF26-1)");
-    definition.setCompositionString("B3");
+    definition.setCompositionString("B3 NOT (PREGNANT OR RF26-1)");
 
     return definition;
   }
