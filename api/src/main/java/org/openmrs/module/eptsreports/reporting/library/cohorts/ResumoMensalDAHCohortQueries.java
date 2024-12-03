@@ -321,7 +321,8 @@ public class ResumoMensalDAHCohortQueries {
         EptsReportUtils.map(
             this.findPatientsWhoAreNovosIniciosTarvIndicator8And9RF26_1(), mappings));
 
-    definition.setCompositionString("B3 NOT (PREGNANT OR RF26-1)");
+    // definition.setCompositionString("B3 NOT (PREGNANT OR RF26-1)");
+    definition.setCompositionString("B3");
 
     return definition;
   }
@@ -1826,11 +1827,11 @@ public class ResumoMensalDAHCohortQueries {
     String mappings = "";
 
     if (periodo == PeriodoAbandono.PRIMEIRO) {
-      mappings = "endDate=${startDate-5m-1d},location=${location}";
+      mappings = "endDate=${startDate-6m-1d},location=${location}";
     } else if (periodo == PeriodoAbandono.SEGUNDO) {
-      mappings = "endDate=${startDate-4m-1d},location=${location}";
+      mappings = "endDate=${startDate-5m-1d},location=${location}";
     } else if (periodo == PeriodoAbandono.TERCEIRO) {
-      mappings = "endDate=${startDate-3m-1d},location=${location}";
+      mappings = "endDate=${startDate-4m-1d},location=${location}";
     }
 
     definition.addSearch(
