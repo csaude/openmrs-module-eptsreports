@@ -96,7 +96,7 @@ from person per
 						inner join obs o on o.encounter_id=e.encounter_id 
 				where 	p.voided=0 and e.voided=0 and e.encounter_type=6 and 
 						e.location_id=:location and o.concept_id=1982 and o.value_coded=1065 and 
-						e.encounter_datetime BETWEEN date_add(:endDate, interval -15 month) and date_add(:endDate, interval -3 month)
+						e.encounter_datetime BETWEEN date_add(:endDate, interval -21 month) and :endDate
 				group by p.patient_id
 				
 				union 
@@ -111,7 +111,7 @@ from person per
 				select 	pp.patient_id,pp.date_enrolled data_gravida 
 				from 	patient_program pp                                                                                                                                                                          
 				where 	pp.program_id=8 and pp.voided=0 and  
-						pp.date_enrolled between date_add(:endDate, interval -15 month) and date_add(:endDate, interval -3 month) and 
+						pp.date_enrolled between date_add(:endDate, interval -21 MONTH) and :endDate and 
 						pp.location_id=:location                                                                                                
 			
 				union
@@ -131,7 +131,7 @@ from person per
 						inner join obs o on e.encounter_id=o.encounter_id                                                                                                                                                                                               
 						inner join obs obsART on e.encounter_id=obsART.encounter_id                                                                                                                                                                                     
 				where 	p.voided=0 and e.voided=0 and o.voided=0 and o.concept_id=1982 and o.value_coded=1065 and  
-						e.encounter_type=53 and obsART.value_datetime between date_add(:endDate, interval -15 month) and date_add(:endDate, interval -3 month) and 
+						e.encounter_type=53 and obsART.value_datetime between date_add(:endDate, interval -21 MONTH) and :endDate and 
 						e.location_id=:location and  obsART.concept_id=1190 and obsART.voided=0                                                                               
 
 				union
@@ -148,7 +148,7 @@ from person per
 						inner join encounter e on p.patient_id=e.patient_id                                                                                                                                                                                                 
 						inner join obs o on e.encounter_id=o.encounter_id                                                                                                                                                                        
 				where 	p.voided=0 and e.voided=0 and o.voided=0 and o.concept_id=1982 and o.value_coded = 1065 and  e.encounter_type=51 and                                                                                                     
-						e.encounter_datetime between date_add(:endDate, interval -15 month) and date_add(:endDate, interval -3 month) and e.location_id=:location 
+						e.encounter_datetime between date_add(:endDate, interval -21 MONTH) and :endDate and e.location_id=:location 
 				group by p.patient_id
 			) gravida 
 			group by gravida.patient_id
@@ -240,7 +240,7 @@ from person per
 						inner join encounter e on p.patient_id=e.patient_id                                                                                                                                                                                             
 						inner join obs o on e.encounter_id=o.encounter_id                                                                                                                                                                                               
 				where 	p.voided=0 and e.voided=0 and o.voided=0 and concept_id=6332 and value_coded=1065 and  
-						e.encounter_type=6 and e.encounter_datetime between date_add(:endDate, interval -15 month) and date_add(:endDate, interval -3 month) and :endDate and 
+						e.encounter_type=6 and e.encounter_datetime between date_add(:endDate, interval -30 MONTH) and :endDate and 
 						e.location_id=:location 
 				group by p.patient_id
 				
@@ -262,7 +262,7 @@ from person per
 								inner join patient_program pg on p.patient_id=pg.patient_id 
 								inner join patient_state ps on pg.patient_program_id=ps.patient_program_id 
 						where 	pg.voided=0 and ps.voided=0 and p.voided=0 and 
-								pg.program_id=8 and ps.start_date BETWEEN date_add(:endDate, interval -15 month) and date_add(:endDate, interval -3 month) and :endDate and pg.location_id=:location 
+								pg.program_id=8 and ps.start_date BETWEEN date_add(:endDate, interval -30 month) and :endDate and pg.location_id=:location 
 						group by p.patient_id 
 					) maxEstado 
 					inner join patient_program pg2 on pg2.patient_id=maxEstado.patient_id 
@@ -286,7 +286,7 @@ from person per
 						inner join obs obsART on e.encounter_id=obsART.encounter_id                                                                                                                                                                                     
 				where 	p.voided=0 and e.voided=0 and o.voided=0 and o.concept_id=6332 and o.value_coded=1065 and  
 						e.encounter_type=53 and e.location_id=:location and 
-						obsART.value_datetime between date_add(:endDate, interval -15 month) and date_add(:endDate, interval -3 month) and :endDate and  
+						obsART.value_datetime between date_add(:endDate, interval -30 MONTH) and :endDate and  
 						obsART.concept_id=1190 and obsART.voided=0 
 
 				union 
@@ -303,7 +303,7 @@ from person per
 						inner join obs o on e.encounter_id=o.encounter_id    																																									
 				where 	p.voided=0 and e.voided=0 and o.voided=0 and  
 						o.concept_id=6332 and o.value_coded = 1065 and  e.encounter_type=51  and 
-						e.encounter_datetime between date_add(:endDate, interval -15 month) and date_add(:endDate, interval -3 month) and :endDate and e.location_id=:location  
+						e.encounter_datetime between date_add(:endDate, interval -30 MONTH) and :endDate and e.location_id=:location  
 				) lactante 
 				group by lactante.patient_id
 		)lactante_final on inicio_real.patient_id=lactante_final.patient_id
