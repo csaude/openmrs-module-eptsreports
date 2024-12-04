@@ -122,7 +122,7 @@
 			           )C2 on C2.patient_id=p.person_id
 			           left join
 			           (
-					  	select C3.patient_id,3 criteria from 
+					  		select C3.patient_id,3 criteria from 
 			          (
 		                 select final.* from
 		                 (
@@ -155,7 +155,7 @@
 			                  )cv
 			                  left join encounter e on e.patient_id=cv.patient_id
 			                  left join obs o on o.encounter_id=e.encounter_id
-			                  WHERE e.encounter_type=6 and e.voided=0 and o.voided=0 and ((o.concept_id=856 and o.value_numeric>1000)) and date(o.obs_datetime)=date(cv.data_resultado)
+			                  WHERE e.encounter_type=6 and e.voided=0 and o.voided=0 and ((o.concept_id=856 and o.value_numeric>1000)) and date(e.encounter_datetime)=date(cv.data_resultado)
 			                  group by cv.patient_id
 			                  )ultimoCV
 			                  left join 
@@ -178,7 +178,7 @@
 				             )C3
 				            left join encounter e on C3.patient_id = e.patient_id   
 			                 left join obs o on o.encounter_id = e.encounter_id   
-			                  WHERE e.encounter_type=6 and ((o.concept_id=856 and o.value_numeric>1000)) and date(o.obs_datetime)=date(C3.data_resultado_anterior) and e.voided=0 and o.voided=0
+			                  WHERE e.encounter_type=6 and ((o.concept_id=856 and o.value_numeric>1000)) and date(e.encounter_datetime)=date(C3.data_resultado_anterior) and e.voided=0 and o.voided=0
 			                  group by patient_id
 			                  )C3
 			                  left join
@@ -188,7 +188,7 @@
 			                   (
 			                     select cv.patient_id,cv.data_resultado,o.value_numeric resultado from 
 			                     (
-					           select cv.patient_id,max(cv.data_resultado) data_resultado
+					            select cv.patient_id,max(cv.data_resultado) data_resultado
 					            from (
 					             select p.patient_id,e.encounter_datetime data_resultado
 				                  from patient p   
@@ -206,7 +206,7 @@
 				                  )cv
 				                  left join encounter e on e.patient_id=cv.patient_id
 				                  left join obs o on o.encounter_id=e.encounter_id
-				                  WHERE e.encounter_type=6 and e.voided=0 and o.voided=0 and ((o.concept_id=856 and o.value_numeric>1000)) and date(o.obs_datetime)=date(cv.data_resultado) 
+				                  WHERE e.encounter_type=6 and e.voided=0 and o.voided=0 and ((o.concept_id=856 and o.value_numeric>1000)) and date(e.encounter_datetime)=date(cv.data_resultado) 
 				                  group by cv.patient_id
 				                  )cv
                                   left join
@@ -219,7 +219,7 @@
 				                    and e.voided = 0  
 				                    and o.voided = 0     
 				                    and  o.concept_id in(1695,730,165515) 
-				                    and e.encounter_type in(6,13,51) 
+				                    and e.encounter_type in(6) 
 				                    and e.location_id=:location 
 				                   )cd4 on cd4.patient_id=cv.patient_id
 				                    where cd4.data_cd4 BETWEEN cv.data_resultado and CURDATE()
@@ -256,7 +256,7 @@
 			                  )cv
 			                  left join encounter e on e.patient_id=cv.patient_id
 			                  left join obs o on o.encounter_id=e.encounter_id
-			                  WHERE e.encounter_type in(13,51) and e.voided=0 and o.voided=0 and ((o.concept_id=856 and o.value_numeric>1000)) and date(o.obs_datetime)=date(cv.data_resultado) 
+			                  WHERE e.encounter_type in(13,51) and e.voided=0 and o.voided=0 and ((o.concept_id=856 and o.value_numeric>1000)) and date(e.encounter_datetime)=date(cv.data_resultado) 
 			                  group by cv.patient_id
 			                  )ultimoCV
 			                  left join 
@@ -279,7 +279,7 @@
 				             )C3
 				            left join encounter e on C3.patient_id = e.patient_id   
 			                 left join obs o on o.encounter_id = e.encounter_id   
-			                  WHERE e.encounter_type in(13,51) and ((o.concept_id=856 and o.value_numeric>1000)) and date(o.obs_datetime)=date(C3.data_resultado_anterior) and e.voided=0 and o.voided=0
+			                  WHERE e.encounter_type in(13,51) and ((o.concept_id=856 and o.value_numeric>1000)) and date(e.encounter_datetime)=date(C3.data_resultado_anterior) and e.voided=0 and o.voided=0
 			                  group by patient_id
 			                  )C3
 			                  left join
@@ -307,7 +307,7 @@
 				                  )cv
 				                  left join encounter e on e.patient_id=cv.patient_id
 				                  left join obs o on o.encounter_id=e.encounter_id
-				                  WHERE e.encounter_type in(13,51) and e.voided=0 and o.voided=0 and ((o.concept_id=856 and o.value_numeric>1000)) and date(o.obs_datetime)=date(cv.data_resultado)
+				                  WHERE e.encounter_type in(13,51) and e.voided=0 and o.voided=0 and ((o.concept_id=856 and o.value_numeric>1000)) and date(e.encounter_datetime)=date(cv.data_resultado)
 				                  group by cv.patient_id
 				                  )cv
                                 left join
@@ -320,7 +320,7 @@
 				                    and e.voided = 0  
 				                    and o.voided = 0     
 				                    and  o.concept_id in(1695,730,165515) 
-				                    and e.encounter_type in(6,13,51) 
+				                    and e.encounter_type in(6) 
 				                    and e.location_id=:location 
 				                   )cd4 on cd4.patient_id=cv.patient_id
 				                    where cd4.data_cd4 BETWEEN cv.data_resultado and CURDATE()
