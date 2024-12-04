@@ -19,7 +19,7 @@
 		                               IF(ISNULL(grupoAlvoKp.PID), 'N', 'S') AS PID,
 		                               IF(ISNULL(grupoAlvoKp.OUTRO), 'N', 'S') AS OUTRO,
 				                   gravidaLactante.estado GRAVIDA_LATANTE,
-				                   GROUP_CONCAT(sector.SECTOR order by sector.patient_id ) AS SECTOR
+				                   GROUP_CONCAT(distinct sector.SECTOR order by sector.patient_id ) AS SECTOR
 				            from (
         					select coorteFinal.patient_id, coorteFinal.prep_consultation_date,coorteFinal.data_proximo 
 				            from 
