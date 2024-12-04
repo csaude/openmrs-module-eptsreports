@@ -375,7 +375,48 @@
             ) levantamentoRecepcao on elegivelAColheitaCV.patient_id=levantamentoRecepcao.patient_id 
             left join 
             ( 
-            	select distinct maxCargaViral.patient_id,maxCargaViral.data_carga,if(o.concept_id=856,if(o.value_numeric<=0,'Indetectavel',o.value_numeric),'Indetectavel') valor_carga 
+            	select distinct maxCargaViral.patient_id,maxCargaViral.data_carga,IF(ISNULL(o.value_numeric), IF(ISNULL(o.value_coded), 'N/A', 
+ case 
+                                    o.value_coded 
+                                    when 
+                                       1306
+                                    then 
+                                       'Nivel baixo de detecção' 
+                                    when 
+                                       1304 
+                                    then 
+                                       'MA QUALIDADE DA AMOSTRA' 
+                                    when 
+                                       23814 
+                                    then 
+                                       'Indetectável' 
+                                    when 
+                                       23905 
+                                    then 
+                                       '< 10' 
+                                    when 
+                                       23906 
+                                    then 
+                                       '< 20' 
+                                    when 
+                                       23907 
+                                    then 
+                                       '< 40' 
+                                    when 
+                                       23908 
+                                    then 
+                                       '< 400' 
+                                    when 
+                                       23904 
+                                    then 
+                                       '< 839' 
+                                    when 
+                                       165331 
+                                    then 
+                                       CONCAT('<', ' ',o.comments) 
+                                    else 
+                                       null 
+                                 end), o.value_numeric) AS valor_carga
             	from 
             	( 
             		Select 	p.patient_id,max(e.encounter_datetime) data_carga 
