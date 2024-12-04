@@ -62,6 +62,11 @@ public class PatientWithHighViralLoadDataSet extends BaseDataSet {
             "highVlFC",
             EptsReportUtils.map(this.highViralLoadCohortQueries.getFCWithSecondHighVl(), mappings));
 
+    final CohortIndicator secondVlRepeat =
+        this.eptsGeneralIndicator.getIndicator(
+            "highVlFC",
+            EptsReportUtils.map(this.highViralLoadCohortQueries.getSecondRepeatVl(), mappings));
+
     final CohortIndicator secondVlLabElab =
         this.eptsGeneralIndicator.getIndicator(
             "highVlFC",
@@ -76,6 +81,11 @@ public class PatientWithHighViralLoadDataSet extends BaseDataSet {
         this.eptsGeneralIndicator.getIndicator(
             "highVlFC",
             EptsReportUtils.map(this.highViralLoadCohortQueries.getNewTerapeuticLine(), mappings));
+
+    final CohortIndicator terapeuticLine =
+        this.eptsGeneralIndicator.getIndicator(
+            "highVlFC",
+            EptsReportUtils.map(this.highViralLoadCohortQueries.getTerapeuticLine(), mappings));
 
     final CohortIndicator newApss0AfterCV2 =
         this.eptsGeneralIndicator.getIndicator(
@@ -169,7 +179,7 @@ public class PatientWithHighViralLoadDataSet extends BaseDataSet {
     dataSetDefinition.addColumn(
         "SECOND_VL_REPEAT",
         "Colheita de Repetição da 2ª CV",
-        EptsReportUtils.map(secondFchighVl, mappings),
+        EptsReportUtils.map(secondVlRepeat, mappings),
         "");
 
     dataSetDefinition.addColumn(
@@ -193,7 +203,7 @@ public class PatientWithHighViralLoadDataSet extends BaseDataSet {
     dataSetDefinition.addColumn(
         "TERAPEUTIC_LINE",
         "Nova LINHA Terapêutica",
-        EptsReportUtils.map(newTerapeuticLine, mappings),
+        EptsReportUtils.map(terapeuticLine, mappings),
         "");
 
     dataSetDefinition.addColumn(

@@ -32,6 +32,7 @@ public class HighViralLoadCohortQueries {
 
   private static final String REPEAT_SECOND_VL =
       "PATIENTS_WITH_HIGH_VL_AGGREGATE/REPEAT_SECOND_VL.sql";
+
   private static final String SECOND_VL_RESULT_LAB_ELAB =
       "PATIENTS_WITH_HIGH_VL_AGGREGATE/SECOND_VL_RESULT_LAB_ELAB.sql";
 
@@ -243,7 +244,7 @@ public class HighViralLoadCohortQueries {
                 "SECONDVLREPEAT", EptsQuerysUtils.loadQuery(REPEAT_SECOND_VL)),
             mappings));
 
-    composition.setCompositionString("FCSECONDHIGHVL");
+    composition.setCompositionString("SECONDVLREPEAT");
 
     return composition;
   }
