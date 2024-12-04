@@ -8,7 +8,7 @@
 						if(C4.patient_id is not null,4,
 						if(C5.patient_id is not null,5,
 						if(C6.patient_id is not null,6,null)))))) criteria
-						from person p
+					     from person p
 						left join
 						(
 			               SELECT C1.patient_id, 1 criteria FROM  
@@ -122,7 +122,7 @@
 			           )C2 on C2.patient_id=p.person_id
 			           left join
 			           (
-					  		select C3.patient_id,3 criteria from 
+			        	          	select C3.patient_id,3 criteria from 
 			          (
 		                 select final.* from
 		                 (
@@ -178,7 +178,7 @@
 				             )C3
 				            left join encounter e on C3.patient_id = e.patient_id   
 			                 left join obs o on o.encounter_id = e.encounter_id   
-			                  WHERE e.encounter_type=6 and ((o.concept_id=856 and o.value_numeric>1000)) and date(e.encounter_datetime)=date(C3.data_resultado_anterior) and e.voided=0 and o.voided=0
+			                  WHERE e.encounter_type=6 and ((o.concept_id=856 and o.value_numeric>1000)) and date(o.obs_datetime)=date(C3.data_resultado_anterior) and e.voided=0 and o.voided=0
 			                  group by patient_id
 			                  )C3
 			                  left join
@@ -206,7 +206,7 @@
 				                  )cv
 				                  left join encounter e on e.patient_id=cv.patient_id
 				                  left join obs o on o.encounter_id=e.encounter_id
-				                  WHERE e.encounter_type=6 and e.voided=0 and o.voided=0 and ((o.concept_id=856 and o.value_numeric>1000)) and date(e.encounter_datetime)=date(cv.data_resultado) 
+				                  WHERE e.encounter_type=6 and e.voided=0 and o.voided=0 and ((o.concept_id=856 and o.value_numeric>1000)) and date(o.obs_datetime)=date(cv.data_resultado) 
 				                  group by cv.patient_id
 				                  )cv
                                   left join
@@ -279,7 +279,7 @@
 				             )C3
 				            left join encounter e on C3.patient_id = e.patient_id   
 			                 left join obs o on o.encounter_id = e.encounter_id   
-			                  WHERE e.encounter_type in(13,51) and ((o.concept_id=856 and o.value_numeric>1000)) and date(e.encounter_datetime)=date(C3.data_resultado_anterior) and e.voided=0 and o.voided=0
+			                  WHERE e.encounter_type in(13,51) and ((o.concept_id=856 and o.value_numeric>1000)) and date(o.obs_datetime)=date(C3.data_resultado_anterior) and e.voided=0 and o.voided=0
 			                  group by patient_id
 			                  )C3
 			                  left join
@@ -307,7 +307,7 @@
 				                  )cv
 				                  left join encounter e on e.patient_id=cv.patient_id
 				                  left join obs o on o.encounter_id=e.encounter_id
-				                  WHERE e.encounter_type in(13,51) and e.voided=0 and o.voided=0 and ((o.concept_id=856 and o.value_numeric>1000)) and date(e.encounter_datetime)=date(cv.data_resultado)
+				                  WHERE e.encounter_type in(13,51) and e.voided=0 and o.voided=0 and ((o.concept_id=856 and o.value_numeric>1000)) and date(o.obs_datetime)=date(cv.data_resultado)
 				                  group by cv.patient_id
 				                  )cv
                                 left join
@@ -471,7 +471,7 @@
 			                   and o.value_numeric<30
 			                   group by p.patient_id 
 			                   )CD4Percentual
-			                   union
+			                  union
 			                  select CD4SemiQuantitativo.patient_id,CD4SemiQuantitativo.data_cd4,CD4SemiQuantitativo.cd4
 			                  from 
 			                  ( 
@@ -526,7 +526,7 @@
 			                     and o.value_numeric<30
 			                     group by p.patient_id 
 			                     )CD4Percentual
-			                      union
+			                    union
 			                  select CD4SemiQuantitativo.patient_id,CD4SemiQuantitativo.data_cd4,CD4SemiQuantitativo.cd4
 			                  from 
 			                  ( 
