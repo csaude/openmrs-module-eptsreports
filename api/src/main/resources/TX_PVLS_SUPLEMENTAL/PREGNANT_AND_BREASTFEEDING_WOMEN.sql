@@ -94,7 +94,7 @@ from person per
 				from 	patient p 
 						inner join encounter e on e.patient_id=p.patient_id
 						inner join obs o on o.encounter_id=e.encounter_id 
-				where 	p.voided=0 and e.voided=0 and e.encounter_type=6 and 
+				where 	p.voided=0 and e.voided=0 and e.encounter_type=6 and o.voided=0 and
 						e.location_id=:location and o.concept_id=1982 and o.value_coded=1065 and 
 						e.encounter_datetime BETWEEN date_add(:endDate, interval -21 month) and :endDate
 				group by p.patient_id
