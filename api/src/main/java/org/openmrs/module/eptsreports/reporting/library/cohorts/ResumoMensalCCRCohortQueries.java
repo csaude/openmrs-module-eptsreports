@@ -1181,7 +1181,7 @@ public class ResumoMensalCCRCohortQueries {
                     791, 1065)),
             mappingsCoorte9Months));
 
-    definition.setCompositionString("I32 AND (NEVIRAPINA AND ZIDOVUDINA)");
+    definition.setCompositionString("I32 AND (NEVIRAPINA OR ZIDOVUDINA)");
 
     return definition;
   }

@@ -532,7 +532,7 @@ public class ResumoMensalCCRQueries {
             + "             and o.voided=0 "
             + "             and p.voided=0 "
             + "             and e.encounter_type = 93 "
-            + "             and o.concept_id=1040 "
+            + "             and o.concept_id=1030 "
             + "    		   and o.value_coded = 703 "
             + "             and o.obs_datetime between :startDate and :endDate "
             + "             and e.location_id=:location "
