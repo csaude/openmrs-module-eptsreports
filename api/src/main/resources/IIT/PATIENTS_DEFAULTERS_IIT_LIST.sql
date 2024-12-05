@@ -563,60 +563,58 @@
                          ) tb on tb.patient_id=coorte12meses_final.patient_id                              
                          left join                                                                                                                                                                                                                                                                                      
                          (                                                                                                                                                                                                                                                                                              
-	                       select  maxConsent.patient_id,
-	                               maxConsent.dataConsentimento,
-	                               obsAssinatura.value_datetime,
-	                               maxConsent.encounter_id,
-	                               if(o.value_coded=1065,'S','N') consente                                                                                                                                                                                 
+	                         select final.*, 
+                                    obsAssinatura.value_datetime,
+                                    if(final.dataConsentimento is not null and final.value_coded=1065 and obsAssinatura.value_datetime is not null,'S',
+                                    if(final.dataConsentimento is not null and final.value_coded=1066 and obsAssinatura.value_datetime is not null,'N', null)) as consente
+                             from 
+                             (
+	                         select  maxConsent.patient_id,maxConsent.dataConsentimento,o.value_coded, e.encounter_id
 	                         from                                                                                                                                                                                                                                                                                     
 	                         (                                                                                                                                                                                                                                                                                        
-	                           select p.patient_id,max(e.encounter_datetime) dataConsentimento,e.encounter_id                                                                                                                                                                                          
+	                           select p.patient_id,max(e.encounter_datetime) dataConsentimento                                                                                                                                                                                          
 	                           from  patient p                                                                                                                                                                                                                                                                  
 	                               inner join encounter e on p.patient_id=e.patient_id                                                                                                                                                                                                  
 	                               inner join obs o on o.encounter_id=e.encounter_id                                                                                                                                                                                                          
 	                           where   p.voided=0 and e.voided=0 and o.voided=0 and                                                                                                                                                                                                           
-	                               e.encounter_datetime<=curdate() and e.encounter_type=35 and e.location_id=:location and o.concept_id=6306                                                                                                                                                
+	                               e.encounter_datetime<=curdate() and e.encounter_type=35 and e.location_id=:location and o.concept_id=6306                                                                                                                                            
 	                           group by p.patient_id                                                                                                                                                                                                                                                            
-	                         )maxConsent                                                                                                                                                                                                                                                                              
-	                         inner join encounter e on e.patient_id=maxConsent.patient_id                                                                                                                                                                                                     
-	                         inner join obs o on o.encounter_id=e.encounter_id
-	                         inner join obs obsAssinatura on   obsAssinatura.encounter_id=e.encounter_id                                                                                                                                                                                                              
-	                         where e.voided=0 and o.voided=0 and                                                                                                                                                                                                                                          
-	                             e.encounter_type=35 and e.location_id=:location                                                                                                                                                                                                          
-	                             and o.concept_id=6306 
-	                             and obsAssinatura.concept_id=23775
-	                             and obsAssinatura.voided=0
-	                             and obsAssinatura.value_datetime<=curdate()
-	                                                                                                                                                                                                                                                                                
+	                         )maxConsent 
+	                         left join encounter e on e.patient_id=maxConsent.patient_id
+	                         left join obs o on o.encounter_id=e.encounter_id
+	                         where e.voided=0 and o.voided=0 and e.encounter_type=35 and o.concept_id=6306 and o.value_coded in(1065,1066) and o.obs_datetime=maxConsent.dataConsentimento
+	                         )final
+	                         left join encounter e on e.patient_id=final.patient_id
+	                         left join obs obsAssinatura on   obsAssinatura.encounter_id=e.encounter_id 
+	                          where e.voided=0  and e.encounter_type=35 and e.location_id=:location and obsAssinatura.concept_id=23775 and obsAssinatura.voided=0 and e.encounter_datetime<=curdate()<=curdate()  and  e.encounter_datetime=final.dataConsentimento                                                                                                                                                                                                   
                          ) consentimentoPaciente on coorte12meses_final.patient_id = consentimentoPaciente.patient_id                                                                                                                                                               
                          left join                                                                                                                                                                                                                                                                                      
                          (                                                                                                                                                                                                                                                                                              
-                       select  maxConsent.patient_id,
-                               maxConsent.dataConsentimento,
-                               obsAssinatura.value_datetime,
-                               maxConsent.encounter_id,
-                               if(o.value_coded=1065,'S','N') consente                                                                                                                                                                                 
-                         from                                                                                                                                                                                                                                                                                     
-                         (                                                                                                                                                                                                                                                                                        
-                           select p.patient_id,max(e.encounter_datetime) dataConsentimento,e.encounter_id                                                                                                                                                                                          
-                           from  patient p                                                                                                                                                                                                                                                                  
-                               inner join encounter e on p.patient_id=e.patient_id                                                                                                                                                                                                  
-                               inner join obs o on o.encounter_id=e.encounter_id                                                                                                                                                                                                          
-                           where   p.voided=0 and e.voided=0 and o.voided=0 and                                                                                                                                                                                                           
-                               e.encounter_datetime<=curdate() and e.encounter_type=35 and e.location_id=:location and o.concept_id=6177                                                                                                                                                
-                           group by p.patient_id                                                                                                                                                                                                                                                            
-                         )maxConsent                                                                                                                                                                                                                                                                              
-                         inner join encounter e on e.patient_id=maxConsent.patient_id                                                                                                                                                                                                     
-                         inner join obs o on o.encounter_id=e.encounter_id
-                         inner join obs obsAssinatura on   obsAssinatura.encounter_id=e.encounter_id                                                                                                                                                                                                              
-                         where e.voided=0 and o.voided=0 and                                                                                                                                                                                                                                          
-                             e.encounter_type=35 and e.location_id=:location                                                                                                                                                                                                           
-                             and o.concept_id=6177 
-                             and obsAssinatura.concept_id=23776
-                             and obsAssinatura.voided=0
-                             and obsAssinatura.value_datetime<=curdate()
+                             select final.*, 
+                                    obsAssinatura.value_datetime,
+                                    if(final.dataConsentimento is not null and final.value_coded=1065 and obsAssinatura.value_datetime is not null,'S',
+                                    if(final.dataConsentimento is not null and final.value_coded=1066 and obsAssinatura.value_datetime is not null,'N', null)) as consente
+                             from 
+                             (
+	                         select  maxConsent.patient_id,maxConsent.dataConsentimento,o.value_coded, e.encounter_id
+	                         from                                                                                                                                                                                                                                                                                     
+	                         (                                                                                                                                                                                                                                                                                        
+	                           select p.patient_id,max(e.encounter_datetime) dataConsentimento                                                                                                                                                                                          
+	                           from  patient p                                                                                                                                                                                                                                                                  
+	                               inner join encounter e on p.patient_id=e.patient_id                                                                                                                                                                                                  
+	                               inner join obs o on o.encounter_id=e.encounter_id                                                                                                                                                                                                          
+	                           where   p.voided=0 and e.voided=0 and o.voided=0 and                                                                                                                                                                                                           
+	                               e.encounter_datetime<=curdate() and e.encounter_type=35 and e.location_id=:location and o.concept_id=6177                                                                                                                                            
+	                           group by p.patient_id                                                                                                                                                                                                                                                            
+	                         )maxConsent 
+	                         left join encounter e on e.patient_id=maxConsent.patient_id
+	                         left join obs o on o.encounter_id=e.encounter_id
+	                         where e.voided=0 and o.voided=0 and e.encounter_type=35 and o.concept_id=6177 and o.value_coded in(1065,1066) and o.obs_datetime=maxConsent.dataConsentimento
+	                         )final
+	                         left join encounter e on e.patient_id=final.patient_id
+	                         left join obs obsAssinatura on   obsAssinatura.encounter_id=e.encounter_id 
+	                          where e.voided=0  and e.encounter_type=35 and e.location_id=:location and obsAssinatura.concept_id=23776 and obsAssinatura.voided=0 and e.encounter_datetime<=curdate()<=curdate()  and  e.encounter_datetime=final.dataConsentimento
                          ) consentimentoConfidente on coorte12meses_final.patient_id = consentimentoConfidente.patient_id                                   
-                                                       
                          left join                               
                          (                              
                           
