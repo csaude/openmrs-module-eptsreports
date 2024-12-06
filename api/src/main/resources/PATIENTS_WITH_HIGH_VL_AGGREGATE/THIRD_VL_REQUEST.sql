@@ -356,7 +356,7 @@ from
 						e.encounter_type=6 and o.concept_id=23722 and  o.value_coded = 856 and e.location_id=:location 
 			) consultaClinicaPedidoCV2 on consultaClinicaPedidoCV2.patient_id=HVL_FR31.patient_id and 
 				consultaClinicaPedidoCV2.dataConsultaClinicaPedidoCV2 between HVL_FR31.dataConsultaApss2CV2 and :endDate
-				where consultaClinicaPedidoCV2.dataConsultaClinicaPedidoCV2 is not null and HVL_FR31.dataConsultaApss2CV2 is not null and HVL_FR31.dataConsultaApss2CV3
+				where consultaClinicaPedidoCV2.dataConsultaClinicaPedidoCV2 is not null and HVL_FR31.dataConsultaApss2CV2 is not null and HVL_FR31.dataConsultaApss2CV3 and HVL_FR31.dataApssAvaliarAdesao is not null
 				
 			group by HVL_FR31.patient_id
 			)HVL_FR31

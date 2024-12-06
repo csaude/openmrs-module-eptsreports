@@ -427,6 +427,6 @@ select
 						e.encounter_datetime <=:endDate and e.location_id=:location 
 			) consultaClinicaParaMudancaLinhaCV2 on  consultaClinicaParaMudancaLinhaCV2.patient_id = HVL_FR35.patient_id and 
 				consultaClinicaParaMudancaLinhaCV2.dataConsultaClinicaParaMudancaLinhaCV2 between HVL_FR35.dataResultadoTerceiraCV and :endDate
-				where HVL_FR35.dataResultadoTerceiraCV is not null and consultaClinicaParaMudancaLinhaCV2.dataConsultaClinicaParaMudancaLinhaCV2 is not null
+				where HVL_FR35.dataResultadoTerceiraCV is not null and consultaClinicaParaMudancaLinhaCV2.dataConsultaClinicaParaMudancaLinhaCV2 is not null and   HVL_FR35.dataApssAvaliarAdesao is not null
 				group by HVL_FR35.patient_id
 		)HVL_FR35
