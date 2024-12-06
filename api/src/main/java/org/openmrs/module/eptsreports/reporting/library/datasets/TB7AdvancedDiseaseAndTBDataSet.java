@@ -35,7 +35,7 @@ public class TB7AdvancedDiseaseAndTBDataSet extends BaseDataSet {
         new CohortIndicatorDataSetDefinition();
     final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
 
-    dataSetDefinition.setName("TX_PVLS Data Set");
+    dataSetDefinition.setName("TB7 Data Set");
 
     dataSetDefinition.addParameters(this.getParameters());
 

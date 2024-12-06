@@ -193,6 +193,8 @@ public class TB7AdvancedDiseaseAndTBCohortQueries {
     definition.addParameter(new Parameter("endDate", "End Date", Date.class));
     definition.addParameter(new Parameter("location", "location", Location.class));
 
+    final String mappings = "startDate=${endDate-2m+1d},endDate=${endDate-1m},location=${location}";
+
     definition.addSearch(
         "IMMUNO-SUPRR-AND-TBLAM",
         Mapped.mapStraightThrough(
@@ -200,7 +202,12 @@ public class TB7AdvancedDiseaseAndTBCohortQueries {
                 .getNumberOfClientsWithCd4ResultDuringInclusionPeriodIndicatorCascade2WithTBLAMResults()));
 
     definition.addSearch(
-        "POSITIVE-RESULTS", Mapped.mapStraightThrough(this.findPatientsWithPositiveTBLAMResults()));
+        "POSITIVE-RESULTS",
+        EptsReportUtils.map(
+            this.genericCohortQueries.generalSql(
+                "Clients with Negative TBLAM Results during the inclusion period",
+                TB7AdvancedDiseaseQueries.QUERY.findPatientsWithPositiveTBLAMResults),
+            mappings));
 
     definition.setCompositionString("IMMUNO-SUPRR-AND-TBLAM and POSITIVE-RESULTS");
 
