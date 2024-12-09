@@ -1492,21 +1492,21 @@ public class ResumoMensalDAHCohortQueries {
                     .getNumberOfPatientsWithNewSKDiagnosticAndQuimiotheraphyIndicationDuringPeriod18()),
             mappingsCoorte4Months));
 
-    if (disagregationType == ARTSituation.NEW_ENROLLED) {
+    definition.addSearch(
+        "I8-SEGUIMENTO-DAH",
+        EptsReportUtils.map(
+            this.getNumberOfPatientsRequestingCD4ScreeningDuringThePeriodI8(
+                ARTSituation.SEGUIMENTO_DAH),
+            mappings));
 
-      definition.addSearch(
-          "I8-NEW",
-          EptsReportUtils.map(
-              this.getNumberOfPatientsRequestingCD4ScreeningDuringThePeriodI8(
-                  ARTSituation.NEW_ENROLLED),
-              mappings));
+    if (disagregationType == ARTSituation.NEW_ENROLLED) {
 
       definition.addSearch(
           "RF26",
           EptsReportUtils.map(
               this.findPatientsWhoAreNovosIniciosTarvIndicator10Untill9RF26(), mappings));
 
-      composition = "SEGUIMENTO-DAH AND SK AND RF26 AND I8-NEW";
+      composition = "SEGUIMENTO-DAH AND SK AND RF26 AND I8-SEGUIMENTO-DAH";
 
     } else if (disagregationType == ARTSituation.RESTART) {
 
@@ -1515,13 +1515,7 @@ public class ResumoMensalDAHCohortQueries {
           EptsReportUtils.map(
               this.findPatientsWhoAreReiniciosTarvIndicator10Until19RF27(), mappings));
 
-      definition.addSearch(
-          "I8-RESTART",
-          EptsReportUtils.map(
-              this.getNumberOfPatientsRequestingCD4ScreeningDuringThePeriodI8(ARTSituation.RESTART),
-              mappings));
-
-      composition = "SEGUIMENTO-DAH AND SK AND RF27 AND I8-RESTART";
+      composition = "SEGUIMENTO-DAH AND SK AND RF27 AND I8-SEGUIMENTO-DAH";
 
     } else if (disagregationType == ARTSituation.ACTIVE) {
 
@@ -1530,36 +1524,16 @@ public class ResumoMensalDAHCohortQueries {
           EptsReportUtils.map(
               this.findPatientsWhoAreActiveInTarvIndicator10Untill19RF28(), mappings));
 
-      definition.addSearch(
-          "I8-ACTIVE",
-          EptsReportUtils.map(
-              this.getNumberOfPatientsRequestingCD4ScreeningDuringThePeriodI8(ARTSituation.ACTIVE),
-              mappings));
-
-      composition = "SEGUIMENTO-DAH AND SK AND RF28 AND I8-ACTIVE";
+      composition = "SEGUIMENTO-DAH AND SK AND RF28 AND I8-SEGUIMENTO-DAH";
 
     } else if (disagregationType == ARTSituation.PREGNANT) {
 
       definition.addSearch(
           "PREGNANT", EptsReportUtils.map(this.getNumberOfPatientsWhoArePregnantRF29(), mappings));
 
-      definition.addSearch(
-          "I8-PREGNANT",
-          EptsReportUtils.map(
-              this.getNumberOfPatientsRequestingCD4ScreeningDuringThePeriodI8(
-                  ARTSituation.PREGNANT),
-              mappings));
-
-      composition = "SEGUIMENTO-DAH AND SK AND PREGNANT AND I8-PREGNANT";
+      composition = "SEGUIMENTO-DAH AND SK AND PREGNANT AND I8-SEGUIMENTO-DAH";
 
     } else if (disagregationType == ARTSituation.SEGUIMENTO_DAH) {
-
-      definition.addSearch(
-          "I8-SEGUIMENTO-DAH",
-          EptsReportUtils.map(
-              this.getNumberOfPatientsRequestingCD4ScreeningDuringThePeriodI8(
-                  ARTSituation.SEGUIMENTO_DAH),
-              mappings));
 
       composition = "SEGUIMENTO-DAH AND SK AND I8-SEGUIMENTO-DAH";
     }
@@ -1602,6 +1576,13 @@ public class ResumoMensalDAHCohortQueries {
                     MCCTreatment.QUIMIOTHERAPHY_CICLE_ONE)),
             mappingsCoorte4Months));
 
+    definition.addSearch(
+        "I8-SEGUIMENTO-DAH",
+        EptsReportUtils.map(
+            this.getNumberOfPatientsRequestingCD4ScreeningDuringThePeriodI8(
+                ARTSituation.SEGUIMENTO_DAH),
+            mappings));
+
     if (disagregationType == ARTSituation.NEW_ENROLLED) {
 
       definition.addSearch(
@@ -1609,14 +1590,7 @@ public class ResumoMensalDAHCohortQueries {
           EptsReportUtils.map(
               this.findPatientsWhoAreNovosIniciosTarvIndicator10Untill9RF26(), mappings));
 
-      definition.addSearch(
-          "I8-NEW",
-          EptsReportUtils.map(
-              this.getNumberOfPatientsRequestingCD4ScreeningDuringThePeriodI8(
-                  ARTSituation.NEW_ENROLLED),
-              mappings));
-
-      composition = "SEGUIMENTO-DAH AND QUIMIOTHERAPHY AND RF26 AND I8-NEW";
+      composition = "SEGUIMENTO-DAH AND QUIMIOTHERAPHY AND RF26 AND I8-SEGUIMENTO-DAH";
 
     } else if (disagregationType == ARTSituation.RESTART) {
 
@@ -1625,13 +1599,7 @@ public class ResumoMensalDAHCohortQueries {
           EptsReportUtils.map(
               this.findPatientsWhoAreReiniciosTarvIndicator10Until19RF27(), mappings));
 
-      definition.addSearch(
-          "I8-RESTART",
-          EptsReportUtils.map(
-              this.getNumberOfPatientsRequestingCD4ScreeningDuringThePeriodI8(ARTSituation.RESTART),
-              mappings));
-
-      composition = "SEGUIMENTO-DAH AND QUIMIOTHERAPHY AND RF27 AND I8-RESTART";
+      composition = "SEGUIMENTO-DAH AND QUIMIOTHERAPHY AND RF27 AND I8-SEGUIMENTO-DAH";
 
     } else if (disagregationType == ARTSituation.ACTIVE) {
 
@@ -1640,36 +1608,16 @@ public class ResumoMensalDAHCohortQueries {
           EptsReportUtils.map(
               this.findPatientsWhoAreActiveInTarvIndicator10Untill19RF28(), mappings));
 
-      definition.addSearch(
-          "I8-ACTIVE",
-          EptsReportUtils.map(
-              this.getNumberOfPatientsRequestingCD4ScreeningDuringThePeriodI8(ARTSituation.ACTIVE),
-              mappings));
-
-      composition = "SEGUIMENTO-DAH AND QUIMIOTHERAPHY AND RF28 AND I8-ACTIVE";
+      composition = "SEGUIMENTO-DAH AND QUIMIOTHERAPHY AND RF28 AND I8-SEGUIMENTO-DAH";
 
     } else if (disagregationType == ARTSituation.PREGNANT) {
 
       definition.addSearch(
           "PREGNANT", EptsReportUtils.map(this.getNumberOfPatientsWhoArePregnantRF29(), mappings));
 
-      definition.addSearch(
-          "I8-PREGNANT",
-          EptsReportUtils.map(
-              this.getNumberOfPatientsRequestingCD4ScreeningDuringThePeriodI8(
-                  ARTSituation.PREGNANT),
-              mappings));
-
-      composition = "SEGUIMENTO-DAH AND QUIMIOTHERAPHY AND PREGNANT AND I8-PREGNANT";
+      composition = "SEGUIMENTO-DAH AND QUIMIOTHERAPHY AND PREGNANT AND I8-SEGUIMENTO-DAH";
 
     } else if (disagregationType == ARTSituation.SEGUIMENTO_DAH) {
-
-      definition.addSearch(
-          "I8-SEGUIMENTO-DAH",
-          EptsReportUtils.map(
-              this.getNumberOfPatientsRequestingCD4ScreeningDuringThePeriodI8(
-                  ARTSituation.SEGUIMENTO_DAH),
-              mappings));
 
       composition = "SEGUIMENTO-DAH AND QUIMIOTHERAPHY AND I8-SEGUIMENTO-DAH";
     }
