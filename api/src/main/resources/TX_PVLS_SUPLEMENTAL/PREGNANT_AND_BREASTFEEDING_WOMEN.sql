@@ -153,7 +153,7 @@ from person per
 			) gravida 
 			group by gravida.patient_id
 		) gravida_final on inicio_real.patient_id=gravida_final.patient_id
-		where timestampdiff(day,inicio_real.data_inicio,gravida_final.data_gravida)>90
+		where timestampdiff(day,inicio_real.data_inicio,gravida_final.data_gravida)>=90
 	) gravida on p.patient_id=gravida.patient_id
 	left join 
 	(			
@@ -307,7 +307,7 @@ from person per
 				) lactante 
 				group by lactante.patient_id
 		)lactante_final on inicio_real.patient_id=lactante_final.patient_id
-		where timestampdiff(day,inicio_real.data_inicio,lactante_final.data_parto)>90
+		where timestampdiff(day,inicio_real.data_inicio,lactante_final.data_parto)>=90
 	) lactante on p.patient_id=lactante.patient_id
 	where per.gender='F' and (gravida.patient_id is not null or lactante.patient_id is not null)
 ) txpvlssuplement
