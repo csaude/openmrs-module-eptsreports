@@ -1070,7 +1070,7 @@
 				                INNER JOIN obs obsTrans ON e.encounter_id=obsTrans.encounter_id AND obsTrans.voided=0 AND obsTrans.concept_id=1369 AND obsTrans.value_coded=1065 
 				                INNER JOIN obs obsData ON e.encounter_id=obsData.encounter_id AND obsData.voided=0 AND obsData.concept_id=23891 
 				                WHERE p.voided=0 AND e.voided=0 AND e.encounter_type=53 and obsData.value_datetime<=:endDate
-				                AND e.location_id=:location and p.patient_id=20301
+				                AND e.location_id=:location 
 				                GROUP BY p.patient_id 
 				                union
 				                select max_estado.patient_id, max_estado.data_estado as data_transferencia
