@@ -416,7 +416,7 @@ public interface MQCategory15QueriesInterface {
 
     public static final String findPatientsOnDMCWhoOnDTAndHaveTwoRequestVLAndVLOnLabForm =
         "select result.patient_id from  ( "
-            + "        select f.patient_id,f.data_mdc, final.encounter_datetime_pedido_1, cvSegundoPedido.encounter_datetime encounter_datetime_pedido_2 from "
+            + "        select f.patient_id,f.data_mdc, final.encounter_datetime_pedido_1, min(cvSegundoPedido.encounter_datetime) encounter_datetime_pedido_2 from "
             + "        ( "
             + "        select f.patient_id, max(data_mdc) data_mdc from ( "
             + "            select p.patient_id,max(e.encounter_datetime) as data_mdc from patient p "
