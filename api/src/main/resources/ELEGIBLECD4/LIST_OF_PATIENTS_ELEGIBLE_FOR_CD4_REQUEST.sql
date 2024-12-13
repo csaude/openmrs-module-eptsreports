@@ -6,6 +6,8 @@
                  if(inicio.data_inicio is not null,DATE_FORMAT(DATE(inicio.data_inicio), '%d/%m/%Y'),'N/A')  as data_inicio,
                  floor(datediff(:endDate,p.birthdate)/365) as idade_actual,
                  if(transferedIn.patient_id is not null,'Sim','Não') transfered_in,
+                 --transferedIn.patient_id,
+                 --transferedIn.data_transferencia,
                  if(gravida_real.data_gravida is null and lactante_real.data_parto is null, 'Não',if(gravida_real.data_gravida is null, 'Lactante', if(lactante_real.data_parto is null,'Grávida', if(max(lactante_real.data_parto)>max(gravida_real.data_gravida),'Lactante','Grávida')))) gravida_lactante,
 				 max_fila.data_fila,
 				 max_fila.data_proximo_lev,
@@ -1062,8 +1064,11 @@
 		                 )inicio on inicio.patient_id=coorteFinal.patient_id 
 		                 left join
 		                 (
-		             
-		                  SELECT tr.patient_id, tr.data_transferencia from  
+		             	  SELECT p.person_id,tr.patient_id,tr.data_transferencia from 
+		                        person p
+		                        left join
+		                        (
+		                        SELECT tr.patient_id,tr.data_transferencia  as data_transferencia from  
 				              (
 				                SELECT p.patient_id, obsData.value_datetime as data_transferencia from patient p  
 				                INNER JOIN encounter e ON p.patient_id=e.patient_id  
@@ -1099,6 +1104,8 @@
 							inner join patient_program pp on pp.patient_program_id = ps.patient_program_id         
 						where ps.state = 29
 		                 )tr
+		                 )tr on tr.patient_id=p.person_id
+		                 
 		                 )transferedIn on transferedIn.patient_id=coorteFinal.patient_id
 	                      inner join person p on p.person_id=coorteFinal.patient_id        
 	                      left join  
@@ -1234,19 +1241,6 @@
 						                  and  e.encounter_datetime <= :endDate
 						                  and  e.encounter_type=6
 						                  and  e.location_id=:location 
-						                  union
-						                  select p.patient_id,o.obs_datetime data_resultado
-						                  from patient p   
-						                  inner join encounter e on p.patient_id = e.patient_id   
-						                  inner join obs o on o.encounter_id = e.encounter_id   
-						                  where p.voided = 0 
-						                  and e.voided = 0  
-						                  and o.voided = 0
-						                  and  o.concept_id in (1695,730,165515)
-						                  and  o.obs_datetime <= :endDate
-						                  and e.encounter_type in(53,90)
-						                  and o.obs_datetime<=:endDate
-						                  and e.location_id=:location 
 						                  )cd4
 						                  group by cd4.patient_id
 						                  )cd4
@@ -1271,18 +1265,6 @@
 						                  and  e.encounter_datetime <= :endDate
 						                  and  e.encounter_type in(13,51)
 						                  and  e.location_id=:location 
-						                  union
-						                  select p.patient_id,o.obs_datetime data_resultado
-						                  from patient p   
-						                  inner join encounter e on p.patient_id = e.patient_id   
-						                  inner join obs o on o.encounter_id = e.encounter_id   
-						                  where p.voided = 0 
-						                  and e.voided = 0  
-						                  and o.voided = 0
-						                  and  o.concept_id in (1695,730,165515)
-						                  and  o.obs_datetime <= :endDate
-						                  and e.encounter_type in(53,90)
-						                  and e.location_id=:location 
 						                  )cd4
 						                  group by cd4.patient_id
 						                  )cd4
@@ -1441,7 +1423,10 @@
 											when 6783 then 'Estomatite ulcerativa necrotizante' 
 											when 5334 then 'Candidíase oral' 
 										end as motivoEstadioClinico, tipoEstadio 
-									from( 
+									from (
+									    select final.patient_id,min(final.encounter_datetime) encounter_datetime,final.value_coded,final.tipoEstadio 
+									    from
+									    (
 								   		select estadio4.patient_id, estadio4.encounter_datetime,o.value_coded, 4 as tipoEstadio 
 								   		from( 
 								   			select p.patient_id,e.encounter_datetime encounter_datetime 
@@ -1471,6 +1456,7 @@
 											inner join encounter e on e.patient_id = estadio3.patient_id 
 											inner join obs o on o.encounter_id = e.encounter_id and o.obs_datetime = estadio3.encounter_datetime 
 										where e.voided = 0 and o.voided = 0 and o.value_coded in (5018, 5945, 42, 3, 43, 60, 126, 6783, 5334) 
+										 )final group by final.patient_id
 										)estadiamentoClinico order by estadiamentoClinico.patient_id, estadiamentoClinico.encounter_datetime 
 									)estadiamentoClinico group by estadiamentoClinico.patient_id 
 								)estadiamentoClinico on estadiamentoClinico.patient_id = coorteFinal.patient_id 
@@ -1738,7 +1724,7 @@
 											 )final
 							                  left join encounter e on e.patient_id=final.patient_id
 							                  left join obs o on o.encounter_id=e.encounter_id
-							                  WHERE e.encounter_type in(13,51) and o.concept_id=1305 and e.voided=0 and o.voided=0  and o.obs_datetime=final.data_resultado
+							                  WHERE e.encounter_type in(13,51) and o.concept_id=1305 and e.voided=0 and o.voided=0  and date(o.obs_datetime)=date(final.data_resultado)
 							                  )final order by final.data_resultado desc
 							                   )f
 								 )ultimoCVLAB  on ultimoCVLAB.patient_id=coorteFinal.patient_id
@@ -1819,7 +1805,7 @@
 											 )final
 							                  left join encounter e on e.patient_id=final.patient_id
 							                  left join obs o on o.encounter_id=e.encounter_id
-							                  WHERE e.encounter_type in(13,51) and o.concept_id=1305 and e.voided=0 and o.voided=0  and o.obs_datetime=final.data_resultado
+							                  WHERE e.encounter_type in(13,51) and o.concept_id=1305 and e.voided=0 and o.voided=0  and date(o.obs_datetime)=date(final.data_resultado)
 							                  )final order by final.data_resultado desc
 							                  )f group by patient_id order by data_resultado desc
 							                  )lastCV 
