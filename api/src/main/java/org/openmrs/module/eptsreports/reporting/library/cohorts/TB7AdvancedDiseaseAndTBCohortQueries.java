@@ -985,31 +985,7 @@ public class TB7AdvancedDiseaseAndTBCohortQueries {
         String.format(
             EptsQuerysUtils.loadQuery(
                 TB7AdvancedDiseaseQueries.QUERY
-                    .FIND_PATIENTS_WITH_SEVERE_IMMUNOSUPPRESSION_WITH_TBLAM_GRADE_LEVEL),
-            PositivityLevel.NO_GRADE.getValue(),
-            PositivityLevel.NO_GRADE.getValue(),
-            PositivityLevel.NO_GRADE.getValue(),
-            StringUtils.join(
-                Arrays.asList(
-                    PositivityLevel.GRADE_FOUR.getValue(),
-                    PositivityLevel.GRADE_THREE.getValue(),
-                    PositivityLevel.GRADE_TWO.getValue(),
-                    PositivityLevel.GRADE_ONE.getValue()),
-                ","),
-            StringUtils.join(
-                Arrays.asList(
-                    PositivityLevel.GRADE_FOUR.getValue(),
-                    PositivityLevel.GRADE_THREE.getValue(),
-                    PositivityLevel.GRADE_TWO.getValue(),
-                    PositivityLevel.GRADE_ONE.getValue()),
-                ","),
-            StringUtils.join(
-                Arrays.asList(
-                    PositivityLevel.GRADE_FOUR.getValue(),
-                    PositivityLevel.GRADE_THREE.getValue(),
-                    PositivityLevel.GRADE_TWO.getValue(),
-                    PositivityLevel.GRADE_ONE.getValue()),
-                ","));
+                    .FIND_PATIENTS_WITH_SEVERE_IMMUNOSUPPRESSION_WITH_TBLAM_ZERO_GRADE_LEVEL));
 
     definition.addSearch(
         "POSITIVE-TBLAM-RESULTS",
@@ -1020,7 +996,28 @@ public class TB7AdvancedDiseaseAndTBCohortQueries {
                 query),
             mappings));
 
-    definition.setCompositionString("POSITIVE-TBLAM-RESULTS");
+    definition.addSearch(
+        "GRADE4",
+        EptsReportUtils.map(
+            this.getNumberOfClientsWithGradeFourLevelPositiveTBLAMResults(), mappings));
+
+    definition.addSearch(
+        "GRADE3",
+        EptsReportUtils.map(
+            this.getNumberOfClientsWithGradeThreeLevelPositiveTBLAMResults(), mappings));
+
+    definition.addSearch(
+        "GRADE2",
+        EptsReportUtils.map(
+            this.getNumberOfClientsWithGradeTwoLevelPositiveTBLAMResults(), mappings));
+
+    definition.addSearch(
+        "GRADE1",
+        EptsReportUtils.map(
+            this.getNumberOfClientsWithGradeOneLevelPositiveTBLAMResults(), mappings));
+
+    definition.setCompositionString(
+        "POSITIVE-TBLAM-RESULTS NOT (GRADE4 OR GRADE3 OR GRADE2 OR GRADE1)");
 
     return definition;
   }

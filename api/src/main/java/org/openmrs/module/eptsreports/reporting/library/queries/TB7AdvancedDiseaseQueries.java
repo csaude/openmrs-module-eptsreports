@@ -51,6 +51,10 @@ public interface TB7AdvancedDiseaseQueries {
     public static final String FIND_PATIENTS_WITH_SEVERE_IMMUNOSUPPRESSION_WITH_TBLAM_GRADE_LEVEL =
         "TB7/PATIENTS_WITH_SEVERE_IMMUNOSUPPRESSION_WITH_GRADE_LEVEL.sql";
 
+    public static final String
+        FIND_PATIENTS_WITH_SEVERE_IMMUNOSUPPRESSION_WITH_TBLAM_ZERO_GRADE_LEVEL =
+            "TB7/PATIENTS_WITH_SEVERE_IMMUNOSUPPRESSION_WITH_ZERO_GRADE_LEVEL.sql";
+
     public enum PositivityLevel {
       NO_GRADE(null),
 
