@@ -17,7 +17,7 @@
 			     case 
 	             when coorteFinal.criteria = 1 then 'C1– CD4 Inicial - Novo Início TARV' 
 	             when coorteFinal.criteria = 2 then 'C2– CD4 Inicial - Reinício TARV' 
-	             when coorteFinal.criteria = 3 then 'C3– CV Alta' 
+	             when coorteFinal.criteria =:location then 'C3– CV Alta' 
 	             when coorteFinal.criteria = 4 then 'C4– Estadiamento Clínico III ou IV' 
 	             when coorteFinal.criteria = 5 then 'C5– CD4 de Seguimento'
 	             when coorteFinal.criteria = 6 then 'C6– Mulher Grávida'
@@ -42,9 +42,9 @@
 		         when estadiamentoClinico.tipoEstadio=4 then 'Estadio IV' 
 		         when ISNULL(estadiamentoClinico.tipoEstadio) then 'N/A' 
 		         end as tipo_estadio, 
-		         @motivoIndice := 1 + LENGTH(estadiamentoClinico.motivoEstadio) - LENGTH(REPLACE(estadiamentoClinico.motivoEstadio, ',', '')) AS motivoIndice, 
-		         IF(ISNULL(SUBSTRING_INDEX(estadiamentoClinico.motivoEstadio, ',', 1)), 'N/A', SUBSTRING_INDEX(estadiamentoClinico.motivoEstadio, ',', 1)) AS motivoEstadio1, 
-		         IF(IF(@motivoIndice > 1, SUBSTRING_INDEX(SUBSTRING_INDEX(estadiamentoClinico.motivoEstadio, ',', 2), ',', -1), '') = '', 'N/A', IF(@motivoIndice > 1, SUBSTRING_INDEX(SUBSTRING_INDEX(estadiamentoClinico.motivoEstadio, ',', 2), ',', -1), '')) AS motivoEstadio2,
+		         @motivoIndice := 1 + LENGTH(estadiamentoClinicoFinal.motivoEstadio) - LENGTH(REPLACE(estadiamentoClinicoFinal.motivoEstadio, ',', '')) AS motivoIndice, 
+		         IF(ISNULL(SUBSTRING_INDEX(estadiamentoClinicoFinal.motivoEstadio, ',', 1)), 'N/A', SUBSTRING_INDEX(estadiamentoClinicoFinal.motivoEstadio, ',', 1)) AS motivoEstadio1, 
+		         IF(IF(@motivoIndice > 1, SUBSTRING_INDEX(SUBSTRING_INDEX(estadiamentoClinicoFinal.motivoEstadio, ',', 2), ',', -1), '') = '', 'N/A', IF(@motivoIndice > 1, SUBSTRING_INDEX(SUBSTRING_INDEX(estadiamentoClinicoFinal.motivoEstadio, ',', 2), ',', -1), '')) AS motivoEstadio2,
 		         
 		         if(ultimoCV.data_ultimo_resultado_cv is not null,DATE_FORMAT(DATE(ultimoCV.data_ultimo_resultado_cv), '%d/%m/%Y'),'N/A')  as data_ultimo_resultado_cv,
 		         if(ultimoCV.resultado_cv is not null,ultimoCV.resultado_cv,'N/A')  as resultado_cv,
@@ -1064,22 +1064,8 @@
 		                 )inicio on inicio.patient_id=coorteFinal.patient_id 
 		                 left join
 		                 (
-		             	  SELECT p.person_id,tr.patient_id,tr.data_transferencia from 
-		                        person p
-		                        left join
-		                        (
-		                        SELECT tr.patient_id,tr.data_transferencia  as data_transferencia from  
-				              (
-				                SELECT p.patient_id, obsData.value_datetime as data_transferencia from patient p  
-				                INNER JOIN encounter e ON p.patient_id=e.patient_id  
-				                INNER JOIN obs obsTrans ON e.encounter_id=obsTrans.encounter_id AND obsTrans.voided=0 AND obsTrans.concept_id=1369 AND obsTrans.value_coded=1065 
-				                INNER JOIN obs obsData ON e.encounter_id=obsData.encounter_id AND obsData.voided=0 AND obsData.concept_id=23891 
-				                WHERE p.voided=0 AND e.voided=0 AND e.encounter_type=53 and obsData.value_datetime<=:endDate
-				                AND e.location_id=:location 
-				                GROUP BY p.patient_id 
-				                union
-				                select max_estado.patient_id, max_estado.data_estado as data_transferencia
-						      from(                                                                
+			             select max_estado.patient_id, max_estado.data_estado 
+						from(                                                                
 							
 							select max_estado.*
 							from(
@@ -1087,25 +1073,23 @@
 								select pp.patient_id, ps.patient_state_id, ps.state, max_estado.data_estado
 								from(
 									
-									select pg.patient_id, max(ps.start_date) data_estado                                                                                          
+									select pg.patient_id, min(ps.start_date) data_estado                                                                                          
 									from patient p                                                                                                               
 											inner join patient_program pg on p.patient_id = pg.patient_id                                                               
 									  	inner join patient_state ps on pg.patient_program_id = ps.patient_program_id                                                
 									where pg.voided=0 and ps.voided=0 and p.voided=0 and pg.program_id = 2                                    
-										and ps.start_date <= :endDate  and pg.location_id=:location group by pg.patient_id 
+										and ps.start_date <= :endDate  and pg.location_id =:location 
+										group by pg.patient_id 
 								)max_estado
 									inner join patient_program pp on pp.patient_id = max_estado.patient_id
 								 	inner join patient_state ps on ps.patient_program_id = pp.patient_program_id and ps.start_date = max_estado.data_estado  
-						  		where pp.program_id = 2 and pp.voided = 0 and ps.voided = 0 and pp.location_id=:location 
+						  		where pp.program_id = 2 and pp.voided = 0 and ps.voided = 0 and pp.location_id =  3 
 						    			group by pp.patient_id, ps.patient_state_id  order by pp.patient_id, ps.patient_state_id desc         
 						  	)max_estado group by max_estado.patient_id                                        
 						) max_estado                                                                                                                        
 							inner join patient_state ps on ps.patient_state_id =max_estado.patient_state_id  
 							inner join patient_program pp on pp.patient_program_id = ps.patient_program_id         
 						where ps.state = 29
-		                 )tr
-		                 )tr on tr.patient_id=p.person_id
-		                 
 		                 )transferedIn on transferedIn.patient_id=coorteFinal.patient_id
 	                      inner join person p on p.person_id=coorteFinal.patient_id        
 	                      left join  
@@ -1225,7 +1209,8 @@
 		                      )cd4 on cd4.patient_id=coorteFinal.patient_id
 		                      left join
 		                      (
-		                             select cd4.patient_id,cd4.data_resultado_cd4 data_resultado_cd4,o.value_numeric valor_cd4  
+		                      
+		                             select cd4.patient_id,cd4.data_resultado_cd4 data_resultado_cd4,o.value_numeric valor_cd4 ,o.encounter_id 
 					                 from 
 					                 (
 						              select cd4.patient_id,max(cd4.data_resultado) data_resultado_cd4
@@ -1240,12 +1225,13 @@
 						                  and  o.concept_id in (1695,730,165515)
 						                  and  e.encounter_datetime <= :endDate
 						                  and  e.encounter_type=6
-						                  and  e.location_id=:location 
+						                  and  e.location_id=:location
 						                  )cd4
 						                  group by cd4.patient_id
 						                  )cd4
-						                  left join obs o on o.person_id=cd4.patient_id 
-						                  where o.concept_id in (1695,730,165515) and cd4.data_resultado_cd4=o.obs_datetime and o.voided=0
+						                  left join encounter e on e.patient_id=cd4.patient_id
+						                  left join obs o on o.encounter_id=e.encounter_id 
+						                  where o.concept_id in (1695,730,165515) and cd4.data_resultado_cd4=o.obs_datetime and o.voided=0 and e.encounter_type=6
 		                      )ultimoCD4 on ultimoCD4.patient_id=coorteFinal.patient_id
 		                       left join
 		                      (
@@ -1268,8 +1254,9 @@
 						                  )cd4
 						                  group by cd4.patient_id
 						                  )cd4
-						                  left join obs o on o.person_id=cd4.patient_id 
-						                  where o.concept_id in (1695,730,165515) and cd4.data_resultado_cd4=o.obs_datetime and o.voided=0
+						                  left join encounter e on e.patient_id=cd4.patient_id
+						                  left join obs o on o.encounter_id=e.encounter_id 
+						                  where o.concept_id in (1695,730,165515) and cd4.data_resultado_cd4=o.obs_datetime and o.voided=0 and e.encounter_type in(13,51)
 		                      )ultimoCD4LAB on ultimoCD4LAB.patient_id=coorteFinal.patient_id
 		                      left join
 		                      (
@@ -1460,6 +1447,87 @@
 										)estadiamentoClinico order by estadiamentoClinico.patient_id, estadiamentoClinico.encounter_datetime 
 									)estadiamentoClinico group by estadiamentoClinico.patient_id 
 								)estadiamentoClinico on estadiamentoClinico.patient_id = coorteFinal.patient_id 
+								left join
+								(
+								select patient_id, encounter_datetime, group_concat(motivoEstadioClinico) motivoEstadio, tipoEstadio 
+								from( 
+									select estadiamentoClinico.patient_id, encounter_datetime encounter_datetime, 
+										case estadiamentoClinico.value_coded 
+											when 14656 then 'Caquexia' 
+											when 7180 then 'Toxoplasmose' 
+											when 6990 then 'Doença pelo HIV resultando encefalopatia' 
+											when 5344 then 'Herpes simples> 1 mês ou viisceral' 
+											when 5340 then 'Candidíase esofágica' 
+											when 1294 then 'Miningite cryptococal' 
+											when 5042 then 'Tuberculose extrapulmonar' 
+											when 507 then 'Sarcoma de Kaposi (SK)' 
+											when 1570 then 'Cancro do colo do útero' 
+											when 60 then 'Menigite, NSA' 
+											when 5018 then 'Diarreia Crónica' 
+											when 5945 then 'Febre' 
+											when 42 then 'Tuberculose Pulmonar' 
+											when 3 then 'Anemia' 
+											when 43 then 'Pneumonia' 
+											when 126 then 'Gengivite' 
+											when 6783 then 'Estomatite ulcerativa necrotizante' 
+											when 5334 then 'Candidíase oral' 
+											when 14656 then 'Caquexia' 
+											when 7180 then 'Toxoplasmose' 
+											when 6990 then 'Doença pelo HIV resultando encefalopatia' 
+											when 5344 then 'Herpes simples> 1 mês ou viisceral' 
+											when 5340 then 'Candidíase esofágica' 
+											when 1294 then 'Miningite cryptococal' 
+											when 5042 then 'Tuberculose extrapulmonar' 
+											when 507 then 'Sarcoma de Kaposi' 
+											when 1570 then 'Cancro do colo do útero' 
+											when 60 then 'Menigite, NSA' 
+											when 5018 then 'Diarréia Crónica > 1 Mês' 
+											when 5945 then 'Febre' 
+											when 42 then 'Tuberculose Pulmonar' 
+											when 3 then 'Anemia' 
+											when 43 then 'Pneumonia' 
+											when 126 then 'Gengivite' 
+											when 6783 then 'Estomatite ulcerativa necrotizante' 
+											when 5334 then 'Candidíase oral' 
+										end as motivoEstadioClinico, tipoEstadio 
+									from (
+									    select final.patient_id,final.encounter_datetime encounter_datetime,final.value_coded,final.tipoEstadio 
+									    from
+									    (
+								   		select estadio4.patient_id, estadio4.encounter_datetime,o.value_coded, 4 as tipoEstadio 
+								   		from( 
+								   			select p.patient_id,e.encounter_datetime encounter_datetime 
+								   			from patient p 
+												inner join encounter e on p.patient_id=e.patient_id 
+												inner join obs o on o.encounter_id=e.encounter_id 
+											where e.encounter_type = 6 and e.voided=0 and o.voided=0 and p.voided=0 and o.concept_id=1406 and e.location_id=:location 
+												and o.obs_datetime <= :endDate 
+												--group by p.patient_id 
+										) estadio4 
+											inner join encounter e on e.patient_id = estadio4.patient_id 
+											inner join obs o on o.encounter_id = e.encounter_id and o.obs_datetime = estadio4.encounter_datetime 
+										where e.voided = 0 and o.voided = 0 and o.value_coded in (14656, 7180, 6990, 5344, 5340, 1294, 5042, 507, 1570, 60) 
+								
+										union 
+										
+										select estadio3.patient_id, estadio3.encounter_datetime,o.value_coded, 3 as tipoEstadio 
+										from( 
+								   			select p.patient_id,e.encounter_datetime encounter_datetime 
+								   			from patient p 
+												inner join encounter e on p.patient_id=e.patient_id 
+												inner join obs o on o.encounter_id=e.encounter_id 
+											where e.encounter_type = 6 and e.voided=0 and o.voided=0 and p.voided=0 and o.concept_id=1406 and e.location_id=:location 
+												and o.obs_datetime <= :endDate 
+												--group by p.patient_id 
+										) estadio3 
+											inner join encounter e on e.patient_id = estadio3.patient_id 
+											inner join obs o on o.encounter_id = e.encounter_id and o.obs_datetime = estadio3.encounter_datetime 
+										where e.voided = 0 and o.voided = 0 and o.value_coded in (5018, 5945, 42, 3, 43, 60, 126, 6783, 5334) 
+										 )final 
+										)estadiamentoClinico order by estadiamentoClinico.patient_id, estadiamentoClinico.encounter_datetime 
+									)estadiamentoClinico group by estadiamentoClinico.patient_id 
+								)estadiamentoClinicoFinal on estadiamentoClinicoFinal.patient_id=coorteFinal.patient_id
+								
 								left join
 								(
 								   	    select  f.patient_id,
