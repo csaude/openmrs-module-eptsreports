@@ -381,6 +381,7 @@ from
                               cv_quantitativa.value_numeric 
                            from
                               (
+                              select * from (
                                  SELECT
                                     pat.patient_id,
                                     enc.encounter_datetime encounter_datetime,
@@ -399,15 +400,18 @@ from
                                     pat.voided = 0 
                                     AND enc.voided = 0 
                                     AND ob.voided = 0 
-                                    AND enc.location_id = :location 
+                                    AND enc.location_id =:location 
                                     AND enc.encounter_datetime BETWEEN :startDate AND :startDate + interval 1 month - interval 1 day 
                                     AND ob.concept_id in 
                                     (
                                        856,
                                        1305 
                                     )
-                                    AND enc.encounter_type = 6 
-                                    AND pat.patient_id not in 
+                                    AND enc.encounter_type = 6
+                                    group by pat.patient_id
+                                    order by enc.encounter_datetime asc 
+                                    ) cv
+                                    where cv.patient_id not in 
                                     (
                                        SELECT
                                           p.patient_id 
@@ -436,7 +440,7 @@ from
                                                    pat.voided = 0 
                                                    AND enc.voided = 0 
                                                    AND ob.voided = 0 
-                                                   AND enc.location_id = :location 
+                                                   AND enc.location_id =:location 
                                                    AND enc.encounter_datetime BETWEEN :startDate AND :startDate + interval 1 month - interval 1 day 
                                                    AND ob.concept_id in 
                                                    (
@@ -451,7 +455,7 @@ from
                                           p.voided = 0 
                                           AND e.voided = 0 
                                           AND o.voided = 0 
-                                          AND e.location_id = :location 
+                                          AND e.location_id =:location 
                                           AND e.encounter_datetime BETWEEN if(MONTH(:startDate) = 12 && DAY(:startDate) = 21, :startDate, CONCAT(YEAR(:startDate) - 1, '-12', '-21')) AND 
                                           (
                                              :startDate - interval 1 day 
@@ -509,17 +513,19 @@ from
                                     then
                                        'MENOR QUE 839 COPIAS/ML' 
                                     else
-                                       null 
+                                    CONCAT('<', ' ',cv_qualitativo.comments)
                                  end
-, 'N/A') valor_qualitativo 
+,'N/A') valor_qualitativo 
                               from
                                  (
+                                 select * from (
                                     SELECT
                                        pat.patient_id,
                                        enc.encounter_datetime encounter_datetime,
                                        ob.concept_id,
                                        ob.value_coded,
-                                       ob.value_numeric 
+                                       ob.value_numeric,
+                                       ob.comments 
                                     FROM
                                        patient pat 
                                        JOIN
@@ -532,7 +538,7 @@ from
                                        pat.voided = 0 
                                        AND enc.voided = 0 
                                        AND ob.voided = 0 
-                                       AND enc.location_id = :location 
+                                       AND enc.location_id =:location 
                                        AND enc.encounter_datetime BETWEEN :startDate AND :startDate + interval 1 month - interval 1 day 
                                        AND ob.concept_id in 
                                        (
@@ -540,7 +546,10 @@ from
                                           1305 
                                        )
                                        AND enc.encounter_type = 6 
-                                       AND pat.patient_id not in 
+                                       group by pat.patient_id
+                                       order by enc.encounter_datetime asc
+                                       ) cv 
+                                       where cv.patient_id not in 
                                        (
                                           SELECT
                                              p.patient_id 
@@ -569,7 +578,7 @@ from
                                                       pat.voided = 0 
                                                       AND enc.voided = 0 
                                                       AND ob.voided = 0 
-                                                      AND enc.location_id = :location 
+                                                      AND enc.location_id =:location 
                                                       AND enc.encounter_datetime BETWEEN :startDate AND :startDate + interval 1 month - interval 1 day 
                                                       AND ob.concept_id 
                                                       AND enc.encounter_type = 6 
@@ -580,7 +589,7 @@ from
                                              p.voided = 0 
                                              AND e.voided = 0 
                                              AND o.voided = 0 
-                                             AND e.location_id = :location 
+                                             AND e.location_id =:location 
                                              AND e.encounter_datetime BETWEEN if(MONTH(:startDate) = 12 && DAY(:startDate) = 21, :startDate, CONCAT(YEAR(:startDate) - 1, '-12', '-21')) AND 
                                              (
                                                 :startDate - interval 1 day 
@@ -975,6 +984,7 @@ from
                               cv_quantitativa.value_numeric 
                            from
                               (
+                              select * from (
                                  SELECT
                                     pat.patient_id,
                                     enc.encounter_datetime encounter_datetime,
@@ -993,15 +1003,18 @@ from
                                     pat.voided = 0 
                                     AND enc.voided = 0 
                                     AND ob.voided = 0 
-                                    AND enc.location_id = :location 
+                                    AND enc.location_id =:location 
                                     AND enc.encounter_datetime BETWEEN :startDate + interval 1 month AND :startDate + interval 2 month - interval 1 day 
                                     AND ob.concept_id in 
                                     (
                                        856,
                                        1305 
                                     )
-                                    AND enc.encounter_type = 6 
-                                    AND pat.patient_id not in 
+                                    AND enc.encounter_type = 6
+                                    group by pat.patient_id
+                                    order by enc.encounter_datetime asc
+                                    ) cv
+                                    where cv.patient_id not in 
                                     (
                                        SELECT
                                           p.patient_id 
@@ -1030,7 +1043,7 @@ from
                                                    pat.voided = 0 
                                                    AND enc.voided = 0 
                                                    AND ob.voided = 0 
-                                                   AND enc.location_id = :location 
+                                                   AND enc.location_id =:location 
                                                    AND enc.encounter_datetime BETWEEN :startDate + interval 1 month AND :startDate + interval 2 month - interval 1 day 
                                                    AND ob.concept_id in 
                                                    (
@@ -1045,7 +1058,7 @@ from
                                           p.voided = 0 
                                           AND e.voided = 0 
                                           AND o.voided = 0 
-                                          AND e.location_id = :location 
+                                          AND e.location_id =:location 
                                           AND e.encounter_datetime BETWEEN if(MONTH(:startDate + interval 1 month) = 12 && DAY(:startDate + interval 1 month) = 21, :startDate + interval 1 month, CONCAT(YEAR(:startDate + interval 1 month) - 1, '-12', '-21')) AND 
                                           (
 (:startDate + interval 1 month) - interval 1 day 
@@ -1103,17 +1116,19 @@ from
                                     then
                                        'MENOR QUE 839 COPIAS/ML' 
                                     else
-                                       null 
+                                    CONCAT('<', ' ',cv_qualitativo.comments)
                                  end
 , 'N/A') valor_qualitativo 
                               from
                                  (
+                                 select * from (
                                     SELECT
                                        pat.patient_id,
                                        enc.encounter_datetime encounter_datetime,
                                        ob.concept_id,
                                        ob.value_coded,
-                                       ob.value_numeric 
+                                       ob.value_numeric,
+                                       ob.comments
                                     FROM
                                        patient pat 
                                        JOIN
@@ -1126,7 +1141,7 @@ from
                                        pat.voided = 0 
                                        AND enc.voided = 0 
                                        AND ob.voided = 0 
-                                       AND enc.location_id = :location 
+                                       AND enc.location_id =:location 
                                        AND enc.encounter_datetime BETWEEN :startDate + interval 1 month AND :startDate + interval 2 month - interval 1 day 
                                        AND ob.concept_id in 
                                        (
@@ -1134,7 +1149,10 @@ from
                                           1305 
                                        )
                                        AND enc.encounter_type = 6 
-                                       AND pat.patient_id not in 
+                                       group by pat.patient_id
+                                       order by enc.encounter_datetime asc
+                                       ) cv
+                                       where cv.patient_id not in 
                                        (
                                           SELECT
                                              p.patient_id 
@@ -1163,7 +1181,7 @@ from
                                                       pat.voided = 0 
                                                       AND enc.voided = 0 
                                                       AND ob.voided = 0 
-                                                      AND enc.location_id = :location 
+                                                      AND enc.location_id =:location 
                                                       AND enc.encounter_datetime BETWEEN :startDate + interval 1 month AND :startDate + interval 2 month - interval 1 day 
                                                       AND ob.concept_id in 
                                                       (
@@ -1178,7 +1196,7 @@ from
                                              p.voided = 0 
                                              AND e.voided = 0 
                                              AND o.voided = 0 
-                                             AND e.location_id = :location 
+                                             AND e.location_id =:location 
                                              AND e.encounter_datetime BETWEEN if(MONTH(:startDate + interval 1 month) = 12 && DAY(:startDate + interval 1 month) = 21, :startDate + interval 1 month, CONCAT(YEAR(:startDate + interval 1 month) - 1, '-12', '-21')) AND 
                                              (
 (:startDate + interval 1 month) - interval 1 day 
@@ -1574,6 +1592,7 @@ from
                               cv_quantitativa.value_numeric 
                            from
                               (
+                              select * from (
                                  SELECT
                                     pat.patient_id,
                                     enc.encounter_datetime encounter_datetime,
@@ -1592,7 +1611,7 @@ from
                                     pat.voided = 0 
                                     AND enc.voided = 0 
                                     AND ob.voided = 0 
-                                    AND enc.location_id = :location 
+                                    AND enc.location_id =:location 
                                     AND enc.encounter_datetime BETWEEN :startDate + interval 2 month AND :endDate 
                                     AND ob.concept_id in 
                                     (
@@ -1600,7 +1619,10 @@ from
                                        1305 
                                     )
                                     AND enc.encounter_type = 6 
-                                    AND pat.patient_id not in 
+                                    group by pat.patient_id
+                                    order by enc.encounter_datetime asc
+                                    ) cv
+                                    where cv.patient_id not in 
                                     (
                                        SELECT
                                           p.patient_id 
@@ -1629,7 +1651,7 @@ from
                                                    pat.voided = 0 
                                                    AND enc.voided = 0 
                                                    AND ob.voided = 0 
-                                                   AND enc.location_id = :location 
+                                                   AND enc.location_id =:location 
                                                    AND enc.encounter_datetime BETWEEN :startDate + interval 2 month AND :endDate 
                                                    AND ob.concept_id in 
                                                    (
@@ -1644,7 +1666,7 @@ from
                                           p.voided = 0 
                                           AND e.voided = 0 
                                           AND o.voided = 0 
-                                          AND e.location_id = :location 
+                                          AND e.location_id =:location 
                                           AND e.encounter_datetime BETWEEN if(MONTH(:startDate + interval 2 month) = 12 && DAY(:startDate + interval 2 month) = 21, :startDate + interval 2 month, CONCAT(YEAR(:startDate + interval 2 month) - 1, '-12', '-21')) AND 
                                           (
 (:startDate + interval 2 month) - interval 1 day 
@@ -1702,17 +1724,19 @@ from
                                     then
                                        'MENOR QUE 839 COPIAS/ML' 
                                     else
-                                       null 
+                                    CONCAT('<', ' ',cv_qualitativo.comments) 
                                  end
 , 'N/A') valor_qualitativo 
                               from
                                  (
+                                 select * from (
                                     SELECT
                                        pat.patient_id,
                                        enc.encounter_datetime encounter_datetime,
                                        ob.concept_id,
                                        ob.value_coded,
-                                       ob.value_numeric 
+                                       ob.value_numeric,
+                                       ob.comments
                                     FROM
                                        patient pat 
                                        JOIN
@@ -1725,7 +1749,7 @@ from
                                        pat.voided = 0 
                                        AND enc.voided = 0 
                                        AND ob.voided = 0 
-                                       AND enc.location_id = :location 
+                                       AND enc.location_id =:location 
                                        AND enc.encounter_datetime BETWEEN :startDate + interval 2 month AND :endDate 
                                        AND ob.concept_id in 
                                        (
@@ -1733,7 +1757,10 @@ from
                                           1305 
                                        )
                                        AND enc.encounter_type = 6 
-                                       AND pat.patient_id not in 
+                                       group by pat.patient_id 
+                                       order by enc.encounter_datetime asc
+                                       ) cv 
+                                       where cv.patient_id not in 
                                        (
                                           SELECT
                                              p.patient_id 
@@ -1762,7 +1789,7 @@ from
                                                       pat.voided = 0 
                                                       AND enc.voided = 0 
                                                       AND ob.voided = 0 
-                                                      AND enc.location_id = :location 
+                                                      AND enc.location_id =:location 
                                                       AND enc.encounter_datetime BETWEEN :startDate + interval 2 month AND :endDate 
                                                       AND ob.concept_id in 
                                                       (
@@ -1777,7 +1804,7 @@ from
                                              p.voided = 0 
                                              AND e.voided = 0 
                                              AND o.voided = 0 
-                                             AND e.location_id = :location 
+                                             AND e.location_id =:location 
                                              AND e.encounter_datetime BETWEEN if(MONTH(:startDate + interval 2 month) = 12 && DAY(:startDate + interval 2 month) = 21, :startDate + interval 2 month, CONCAT(YEAR(:startDate + interval 2 month) - 1, '-12', '-21')) AND 
                                              (
 (:startDate + interval 2 month) - interval 1 day 
@@ -1872,7 +1899,7 @@ from
                   and o.concept_id = 1255 
                   and o.value_coded = 1256 
                   and e.encounter_datetime <= :endDate 
-                  and e.location_id = :location 
+                  and e.location_id =:location 
                group by
                   p.patient_id 
                union
@@ -1905,7 +1932,7 @@ from
                   and o.concept_id = 1190 
                   and o.value_datetime is not null 
                   and o.value_datetime <= :endDate 
-                  and e.location_id = :location 
+                  and e.location_id =:location 
                group by
                   p.patient_id 
                union
@@ -1926,7 +1953,7 @@ from
                   and pe.voided = 0 
                   and program_id = 2 
                   and date_enrolled <= :endDate 
-                  and location_id = :location 
+                  and location_id =:location 
                group by
                   pg.patient_id 
                union
@@ -1947,7 +1974,7 @@ from
                   and e.encounter_type = 18 
                   AND e.voided = 0 
                   and e.encounter_datetime <= :endDate 
-                  and e.location_id = :location 
+                  and e.location_id =:location 
                GROUP BY
                   p.patient_id 
                union
@@ -1974,7 +2001,7 @@ from
                   and o.concept_id = 23866 
                   and o.value_datetime is not null 
                   and o.value_datetime <= :endDate 
-                  and e.location_id = :location 
+                  and e.location_id =:location 
                group by
                   p.patient_id 
             )

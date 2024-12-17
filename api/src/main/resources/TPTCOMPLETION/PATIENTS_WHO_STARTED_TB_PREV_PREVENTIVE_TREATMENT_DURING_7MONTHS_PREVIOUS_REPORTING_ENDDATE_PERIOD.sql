@@ -10,7 +10,7 @@ from (
 			inner join obs estadoProfilaxia on estadoProfilaxia.encounter_id = e.encounter_id
 		where p.voided=0 and e.voided=0  and profilaxia3HP.voided = 0 and estadoProfilaxia.voided = 0  
 			and  profilaxia3HP.concept_id = 23985  and profilaxia3HP.value_coded = 23954 and estadoProfilaxia.concept_id=165308 and estadoProfilaxia.value_coded = 1256 
-			and e.encounter_type in (6,9,53) and e.location_id=:location and estadoProfilaxia.obs_datetime between (:endDate - interval 7 month) and :endDate
+			and e.encounter_type in (6,9,53) and e.location_id=:location and estadoProfilaxia.obs_datetime >= (:endDate - interval 210 day) and estadoProfilaxia.obs_datetime < :endDate
 		group by p.patient_id 
 				
 		union
@@ -20,7 +20,7 @@ from (
 		select p.patient_id,min(outrasPrescricoesDT3HP.obs_datetime) data_inicio_tpi  from patient p 
 			inner join encounter e on p.patient_id = e.patient_id 
 			inner join obs outrasPrescricoesDT3HP on outrasPrescricoesDT3HP.encounter_id = e.encounter_id 
-		where p.voided=0 and e.voided=0  and outrasPrescricoesDT3HP.voided=0 and outrasPrescricoesDT3HP.obs_datetime between (:endDate - interval 7 month) and :endDate
+		where p.voided=0 and e.voided=0  and outrasPrescricoesDT3HP.voided=0 and outrasPrescricoesDT3HP.obs_datetime >= (:endDate - interval 210 day) and outrasPrescricoesDT3HP.obs_datetime < :endDate
 			 and outrasPrescricoesDT3HP.concept_id=1719 and outrasPrescricoesDT3HP.value_coded=165307 and e.encounter_type in (6)  and e.location_id=:location 
 		group by p.patient_id  
 		
@@ -37,7 +37,7 @@ from (
 			inner join encounter e on p.patient_id=e.patient_id																				 			 
 			inner join obs regime3HP on regime3HP.encounter_id=e.encounter_id		 																					 
 			inner join obs seguimentoTPT on seguimentoTPT.encounter_id=e.encounter_id																	 
-		where e.voided=0 and p.voided=0 and seguimentoTPT.obs_datetime between (:endDate - interval 7 month) and :endDate	 			 
+		where e.voided=0 and p.voided=0 and seguimentoTPT.obs_datetime >= (:endDate - interval 210 day) and seguimentoTPT.obs_datetime < :endDate	 			 
 			and regime3HP.voided=0 and regime3HP.concept_id=23985 and regime3HP.value_coded in (23954,23984) and e.encounter_type=60 and  e.location_id=:location	  			 
 			and seguimentoTPT.voided =0 and seguimentoTPT.concept_id =23987 and seguimentoTPT.value_coded in (1256,1705) 								 
 		group by p.patient_id
@@ -66,7 +66,7 @@ from (
 		 				inner join encounter e on p.patient_id=e.patient_id																				 
 		 				inner join obs regime3HP on regime3HP.encounter_id=e.encounter_id	 																			 
 		 				inner join obs seguimentoTPT on seguimentoTPT.encounter_id=e.encounter_id														 
-		 			where e.voided=0 and p.voided=0 and seguimentoTPT.obs_datetime between (:endDate - interval 7 month) and :endDate	 
+		 			where e.voided=0 and p.voided=0 and seguimentoTPT.obs_datetime >= (:endDate - interval 210 day) and seguimentoTPT.obs_datetime < :endDate	 
 		 				and regime3HP.voided=0 and regime3HP.concept_id=23985 and regime3HP.value_coded in (23954,23984) and e.encounter_type=60 and  e.location_id=:location	 
 		 				and seguimentoTPT.voided =0 and seguimentoTPT.concept_id =23987 and seguimentoTPT.value_coded in (1257,1267) 					 
 		 			group by p.patient_id
@@ -80,7 +80,7 @@ from (
 							and seguimentoTPT.concept_id =23987  																						
 							and seguimentoTPT.value_coded in(1256,1257,1705,1267)  																		
 							and seguimentoTPT.voided =0)							 
-					where e.voided=0 and p.voided=0 and regime3HP.obs_datetime between (:endDate - interval 7 month) and :endDate	         
+					where e.voided=0 and p.voided=0 and regime3HP.obs_datetime >= (:endDate - interval 210 day) and regime3HP.obs_datetime < :endDate	         
 						and regime3HP.voided=0 and regime3HP.concept_id=23985 and regime3HP.value_coded in (23954,23984) and e.encounter_type=60 and  e.location_id=:location	 	     
 						and seguimentoTPT.obs_id is null					 
 					group by p.patient_id	 																													 
@@ -130,7 +130,7 @@ from (
 				inner join obs obsInicioINH on obsInicioINH.encounter_id = e.encounter_id 
 			where e.voided=0 and p.voided=0 and o.voided=0 and e.encounter_type in (6,9,53)and o.concept_id=23985 and o.value_coded=656
 				and obsInicioINH.concept_id=165308 and obsInicioINH.value_coded=1256 and obsInicioINH.voided=0
-				and obsInicioINH.obs_datetime between (:endDate - interval 7 month) and :endDate and  e.location_id=:location
+				and obsInicioINH.obs_datetime >= (:endDate - interval 210 day) and obsInicioINH.obs_datetime < :endDate and  e.location_id=:location
 				group by p.patient_id
 			
 			union	
@@ -146,7 +146,7 @@ from (
 				inner join encounter e on p.patient_id=e.patient_id																				 
 				inner join obs o on o.encounter_id=e.encounter_id	 																			 
 				inner join obs seguimentoTPT on seguimentoTPT.encounter_id=e.encounter_id														 
-			where e.voided=0 and p.voided=0 and seguimentoTPT.obs_datetime between (:endDate - interval 7 month) and :endDate 
+			where e.voided=0 and p.voided=0 and seguimentoTPT.obs_datetime >= (:endDate - interval 210 day) and seguimentoTPT.obs_datetime < :endDate 
 				and seguimentoTPT.voided =0 and seguimentoTPT.concept_id = 23987 and seguimentoTPT.value_coded in (1256,1705)	 						 
 				and o.voided=0 and o.concept_id=23985 and o.value_coded in (656,23982) and e.encounter_type=60 and  e.location_id=:location		 
 				group by p.patient_id	 																											 
@@ -179,7 +179,7 @@ from (
 							inner join encounter e on p.patient_id=e.patient_id																				 
 							inner join obs o on o.encounter_id=e.encounter_id	 																			 
 							inner join obs seguimentoTPT on seguimentoTPT.encounter_id=e.encounter_id														 
-						where e.voided=0 and p.voided=0 and seguimentoTPT.obs_datetime between (:endDate - interval 7 month) and :endDate  
+						where e.voided=0 and p.voided=0 and seguimentoTPT.obs_datetime >= (:endDate - interval 210 day) and seguimentoTPT.obs_datetime < :endDate  
 							and seguimentoTPT.voided =0 and seguimentoTPT.concept_id =23987 and seguimentoTPT.value_coded in (1257)	 						 
 							and o.voided=0 and o.concept_id=23985 and o.value_coded in (656,23982) and e.encounter_type=60 and  e.location_id=:location		 
 							group by p.patient_id	 
@@ -191,7 +191,7 @@ from (
 							and seguimentoTPT.concept_id =23987  																						
 							and seguimentoTPT.value_coded in(1256,1257,1705,1267)  																		
 							and seguimentoTPT.voided =0)						 
-						where e.voided=0 and p.voided=0 and seguimentoTPT.obs_datetime between (:endDate - interval 7 month) and :endDate  
+						where e.voided=0 and p.voided=0 and seguimentoTPT.obs_datetime >= (:endDate - interval 210 day) and seguimentoTPT.obs_datetime < :endDate  
 							and o.voided=0 and o.concept_id=23985 and o.value_coded in (656,23982) and e.encounter_type=60 and  e.location_id=:location      
 							and seguimentoTPT.obs_id is null 	         
 							group by p.patient_id
@@ -215,7 +215,7 @@ from (
 				      	and obsInicioINH.obs_datetime between (:endDate - interval 20 month) and :endDate and  e.location_id=:location
 				)
 				inicioAnterior on inicioAnterior.patient_id=inicio.patient_id  																		 
-					and inicioAnterior.data_inicio_tpi between (inicio.data_inicio_tpi - INTERVAL 7 MONTH) and (inicio.data_inicio_tpi - INTERVAL 1 day) 
+					and inicioAnterior.data_inicio_tpi between (inicio.data_inicio_tpi - INTERVAL 210 day) and (inicio.data_inicio_tpi - INTERVAL 1 day) 
 				where inicioAnterior.patient_id is null	
 	  		)
 	 	) 

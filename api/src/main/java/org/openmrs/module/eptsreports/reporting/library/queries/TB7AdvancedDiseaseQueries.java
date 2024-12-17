@@ -51,6 +51,10 @@ public interface TB7AdvancedDiseaseQueries {
     public static final String FIND_PATIENTS_WITH_SEVERE_IMMUNOSUPPRESSION_WITH_TBLAM_GRADE_LEVEL =
         "TB7/PATIENTS_WITH_SEVERE_IMMUNOSUPPRESSION_WITH_GRADE_LEVEL.sql";
 
+    public static final String
+        FIND_PATIENTS_WITH_SEVERE_IMMUNOSUPPRESSION_WITH_TBLAM_ZERO_GRADE_LEVEL =
+            "TB7/PATIENTS_WITH_SEVERE_IMMUNOSUPPRESSION_WITH_ZERO_GRADE_LEVEL.sql";
+
     public enum PositivityLevel {
       NO_GRADE(null),
 
@@ -74,10 +78,11 @@ public interface TB7AdvancedDiseaseQueries {
     }
 
     public static String findPatientsWithHighViralLoad =
-        "select penultimaCV.patient_id from ( "
+        "select penultimaCV.patient_id from "
+            + "( "
             + " select ultima_cv.patient_id, max(date(o.obs_datetime)) dataPenultimaCV "
             + "from( "
-            + "	select p.patient_id ,min(o.obs_datetime) data_cv "
+            + "	select p.patient_id ,max(date(o.obs_datetime)) data_cv "
             + "	from patient p "
             + "		inner join encounter e on p.patient_id=e.patient_id "
             + "		inner join obs o on e.encounter_id=o.encounter_id "
@@ -88,7 +93,7 @@ public interface TB7AdvancedDiseaseQueries {
             + "inner join encounter e on ultima_cv.patient_id=e.patient_id "
             + "		inner join obs o on e.encounter_id=o.encounter_id "
             + "		where e.voided=0 and o.voided=0 and concept_id in (856,1305) and  e.encounter_type in (13,51) "
-            + "	and o.obs_datetime < ultima_cv.data_cv and e.location_id=:location "
+            + "	and date(o.obs_datetime) < ultima_cv.data_cv and e.location_id=:location "
             + "	group by ultima_cv.patient_id "
             + "	) penultimaCV "
             + "	inner join encounter e on penultimaCV.patient_id=e.patient_id "
@@ -262,6 +267,23 @@ public interface TB7AdvancedDiseaseQueries {
             + "  inner join encounter e on e.patient_id=p.patient_id                                                                                         "
             + "  inner join obs o on o.encounter_id=e.encounter_id                                                                                           "
             + "where p.voided=0 and  e.voided=0 and e.encounter_type in (6, 13, 51) and o.concept_id=23951 and o.value_coded is not null  and o.voided=0 "
+            + "  and e.location_id=:location and e.encounter_datetime between :startDate and :endDate                                                  "
+            + "union                                                                                                                                       "
+            + "                                                                                                                                            "
+            + "select p.patient_id                                                                                                                         "
+            + "from patient p                                                                                                                           "
+            + "  inner join encounter e on e.patient_id=p.patient_id                                                                                         "
+            + "  inner join obs o on o.encounter_id=e.encounter_id                                                                                           "
+            + "where p.voided=0 and  e.voided=0 and e.encounter_type = 90 and o.concept_id=23951 and o.value_coded in (703, 664)  and o.voided=0         "
+            + "  and  e.location_id=:location and o.obs_datetime between :startDate and :endDate                                                       ";
+
+    public static final String findPatientsWithTBLAMResultsByreportGenereationDate =
+        "																						"
+            + "select p.patient_id                                                                                                                         "
+            + "from patient p                                                                                                                           "
+            + "  inner join encounter e on e.patient_id=p.patient_id                                                                                         "
+            + "  inner join obs o on o.encounter_id=e.encounter_id                                                                                           "
+            + "where p.voided=0 and  e.voided=0 and e.encounter_type in (6, 13, 51) and o.concept_id=23951 and o.value_coded is not null  and o.voided=0 "
             + "  and e.location_id=:location and e.encounter_datetime between :endDate and CURDATE()                                                  "
             + "union                                                                                                                                       "
             + "                                                                                                                                            "
@@ -270,7 +292,7 @@ public interface TB7AdvancedDiseaseQueries {
             + "  inner join encounter e on e.patient_id=p.patient_id                                                                                         "
             + "  inner join obs o on o.encounter_id=e.encounter_id                                                                                           "
             + "where p.voided=0 and  e.voided=0 and e.encounter_type = 90 and o.concept_id=23951 and o.value_coded in (703, 664)  and o.voided=0         "
-            + "  and  e.location_id=:location and e.encounter_datetime between :endDate and CURDATE()                                                      ";
+            + "  and  e.location_id=:location and o.obs_datetime between :endDate and CURDATE()                                                       ";
 
     public static final String findPatientsWithNegativeTBLAMResults =
         "																							"
@@ -294,6 +316,19 @@ public interface TB7AdvancedDiseaseQueries {
             + "    and  e.location_id= :location and e.encounter_datetime between  :startDate and date_add(:endDate, interval 33 day)                                              "
             + ") positive_tb_lam on negative_tb_lam.patient_id = positive_tb_lam.patient_id                                                              "
             + "where positive_tb_lam.patient_id is null                                                                                                  ";
+
+    public static final String findPatientsWithPositiveTBLAMResults =
+        "																							"
+            + "select positive_tb_lam.patient_id                                                                                                         "
+            + "from(                                                                                                                                     "
+            + "                                                                                                                                          "
+            + "  select p.patient_id                                                                                                                     "
+            + "  from patient p                                                                                                                          "
+            + "    inner join encounter e on e.patient_id=p.patient_id                                                                                   "
+            + "    inner join obs o on o.encounter_id=e.encounter_id                                                                                     "
+            + "  where p.voided=0 and  e.voided=0 and e.encounter_type in (6, 13, 51, 90) and o.concept_id=23951 and o.value_coded = 703  and o.voided=0 "
+            + "    and  e.location_id= :location and e.encounter_datetime between  :startDate and date_add(:endDate, interval 33 day)                                              "
+            + ")positive_tb_lam                                                                                                                          ";
 
     public static final String eValuatePatientsCheckingGenExpertTest =
         "																							"

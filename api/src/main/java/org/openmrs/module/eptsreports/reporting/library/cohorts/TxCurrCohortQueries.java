@@ -15,8 +15,9 @@ import java.util.Date;
 import org.openmrs.Location;
 import org.openmrs.module.eptsreports.reporting.library.queries.TxCurrQueries;
 import org.openmrs.module.eptsreports.reporting.library.queries.TxCurrQueries.QUERY.DispensationIntervalType;
-import org.openmrs.module.eptsreports.reporting.utils.EptsQuerysUtils;
 import org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils;
+import org.openmrs.module.eptsreports.reporting.utils.TxCurrColumnsQuantity;
+import org.openmrs.module.eptsreports.reporting.utils.TxCurrQuery;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.CompositionCohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
@@ -28,9 +29,6 @@ import org.springframework.stereotype.Component;
 /** Defines all of the TxCurrCohortQueries we want to expose for EPTS */
 @Component
 public class TxCurrCohortQueries {
-
-  private static final String FIND_PATIENTS_WHO_ARE_CURRENTLY_ENROLLED_ON_ART =
-      "TX_CURR/PATIENTS_WHO_ARE_CURRENTLY_ENROLLED_ON_ART.sql";
 
   @Autowired private GenericCohortQueries genericCohorts;
 
@@ -50,7 +48,7 @@ public class TxCurrCohortQueries {
         EptsReportUtils.map(
             this.genericCohorts.generalSql(
                 "Finding patients who are currently enrolled on ART",
-                EptsQuerysUtils.loadQuery(FIND_PATIENTS_WHO_ARE_CURRENTLY_ENROLLED_ON_ART)),
+                TxCurrQuery.findPatientsInTxCurr(TxCurrColumnsQuantity.PATIENT_ID)),
             mappings));
 
     definition.setCompositionString("TXCURR");

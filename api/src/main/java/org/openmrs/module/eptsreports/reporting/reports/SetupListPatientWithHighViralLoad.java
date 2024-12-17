@@ -8,6 +8,7 @@ import java.util.Properties;
 import org.openmrs.module.eptsreports.reporting.library.cohorts.GenericCohortQueries;
 import org.openmrs.module.eptsreports.reporting.library.datasets.DatimCodeDataSet;
 import org.openmrs.module.eptsreports.reporting.library.datasets.ListPatientWithHighViralLoadDataSet;
+import org.openmrs.module.eptsreports.reporting.library.datasets.PatientWithHighViralLoadDataSet;
 import org.openmrs.module.eptsreports.reporting.library.datasets.SismaCodeDataSet;
 import org.openmrs.module.eptsreports.reporting.library.queries.BaseQueries;
 import org.openmrs.module.eptsreports.reporting.reports.manager.EptsDataExportManager;
@@ -27,6 +28,7 @@ public class SetupListPatientWithHighViralLoad extends EptsDataExportManager {
   @Autowired private GenericCohortQueries genericCohortQueries;
 
   @Autowired private ListPatientWithHighViralLoadDataSet listPatientWithHighViralLoadDataSet;
+  @Autowired private PatientWithHighViralLoadDataSet patientWithHighViralLoadDataSet;
 
   @Autowired private DatimCodeDataSet datimCodeDataset;
   @Autowired private SismaCodeDataSet sismaCodeDataset;
@@ -69,6 +71,10 @@ public class SetupListPatientWithHighViralLoad extends EptsDataExportManager {
             listPatientWithHighViralLoadDataSet.constructDataset(getParameters())));
 
     rd.addDataSetDefinition(
+        "HVL",
+        Mapped.mapStraightThrough(this.patientWithHighViralLoadDataSet.constructHighVlDataset()));
+
+    rd.addDataSetDefinition(
         "D",
         Mapped.mapStraightThrough(this.datimCodeDataset.constructDataset(this.getParameters())));
 
@@ -109,7 +115,7 @@ public class SetupListPatientWithHighViralLoad extends EptsDataExportManager {
 
       Properties props = new Properties();
       props.put(
-          "repeatingSections", "sheet:1,row:12,dataset:PHVL | sheet:2,row:10,dataset:PHVLCURRWEEK");
+          "repeatingSections", "sheet:1,row:13,dataset:PHVL | sheet:2,row:10,dataset:PHVLCURRWEEK");
       props.put("sortWeight", "5000");
       reportDesign.setProperties(props);
     } catch (IOException e) {
