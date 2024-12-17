@@ -14,37 +14,25 @@ public class ListOfPatientsElegibleToCD4RequestQueries {
 
     switch (criteria) {
       case C1:
-        query =
-            query
-                + "where final.criteria=1 and saidas.patient_id is null group by final.patient_id  ";
+        query = query + "where final.criteria=1  group by final.patient_id  ";
         break;
 
       case C2:
-        query =
-            query
-                + "where final.criteria=2 and saidas.patient_id is null group by final.patient_id  ";
+        query = query + "where final.criteria=2  group by final.patient_id  ";
         break;
 
       case C3:
-        query =
-            query
-                + "where final.criteria=3 and saidas.patient_id is null group by final.patient_id  ";
+        query = query + "where final.criteria=3  group by final.patient_id  ";
         break;
 
       case C4:
-        query =
-            query
-                + "where final.criteria=4 and saidas.patient_id is null group by final.patient_id  ";
+        query = query + "where final.criteria=4  group by final.patient_id  ";
         break;
       case C5:
-        query =
-            query
-                + "where final.criteria=5 and saidas.patient_id is null group by final.patient_id  ";
+        query = query + "where final.criteria=5  group by final.patient_id  ";
         break;
       case C6:
-        query =
-            query
-                + "where final.criteria=6 and saidas.patient_id is null group by final.patient_id  ";
+        query = query + "where final.criteria=6  group by final.patient_id  ";
         break;
 
       default:
