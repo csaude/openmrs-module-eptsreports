@@ -1083,7 +1083,7 @@
 								)max_estado
 									inner join patient_program pp on pp.patient_id = max_estado.patient_id
 								 	inner join patient_state ps on ps.patient_program_id = pp.patient_program_id and ps.start_date = max_estado.data_estado  
-						  		where pp.program_id = 2 and pp.voided = 0 and ps.voided = 0 and pp.location_id =  3 
+						  		where pp.program_id = 2 and pp.voided = 0 and ps.voided = 0 and pp.location_id=:location 
 						    			group by pp.patient_id, ps.patient_state_id  order by pp.patient_id, ps.patient_state_id desc         
 						  	)max_estado group by max_estado.patient_id                                        
 						) max_estado                                                                                                                        
