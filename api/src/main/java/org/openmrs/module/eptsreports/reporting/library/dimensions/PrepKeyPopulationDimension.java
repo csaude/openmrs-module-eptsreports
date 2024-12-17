@@ -98,6 +98,27 @@ public class PrepKeyPopulationDimension {
     return dimension;
   }
 
+  public CohortDefinitionDimension findPatientsWhoAreMenSexWorker() {
+    final CohortDefinitionDimension dimension = new CohortDefinitionDimension();
+
+    dimension.setName("Sex worker patients");
+    dimension.addParameter(new Parameter("startDate", "Start Date", Date.class));
+    dimension.addParameter(new Parameter("endDate", "End Date", Date.class));
+    dimension.addParameter(new Parameter("location", "location", Location.class));
+
+    final String mappings = "startDate=${startDate},endDate=${endDate},location=${location}";
+
+    dimension.addCohortDefinition(
+        "men-sex-worker",
+        EptsReportUtils.map(
+            this.genericCohortQueries.generalSql(
+                "men-sex-worker",
+                PrepKeyPopQuery.findPatientsWhoAreKeyPop(KeyPopType.MEN_SEXWORKER)),
+            mappings));
+
+    return dimension;
+  }
+
   public CohortDefinitionDimension findPatientsWhoAreTransGender() {
     final CohortDefinitionDimension dimension = new CohortDefinitionDimension();
 

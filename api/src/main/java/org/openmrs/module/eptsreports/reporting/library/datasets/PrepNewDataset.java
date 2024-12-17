@@ -136,6 +136,11 @@ public class PrepNewDataset extends BaseDataSet {
             this.prepKeyPopulationDimension.findPatientsWhoAreSexWorker(), mappings));
 
     dataSetDefinition.addDimension(
+        "men-sex-worker",
+        EptsReportUtils.map(
+            this.prepKeyPopulationDimension.findPatientsWhoAreMenSexWorker(), mappings));
+
+    dataSetDefinition.addDimension(
         "transgender",
         EptsReportUtils.map(
             this.prepKeyPopulationDimension.findPatientsWhoAreTransGender(), mappings));
@@ -195,9 +200,15 @@ public class PrepNewDataset extends BaseDataSet {
 
     dataSetDefinition.addColumn(
         "PREP-N-FSW",
-        "Sex Worker",
+        "Female Sex Worker",
         EptsReportUtils.map(clientsNewlyEnrolledInPrepIndicator, mappings),
         "gender=F|sex-worker=sex-worker");
+
+    dataSetDefinition.addColumn(
+        "PREP-N-MSW",
+        "Men Sex Worker",
+        EptsReportUtils.map(clientsNewlyEnrolledInPrepIndicator, mappings),
+        "gender=M|men-sex-worker=men-sex-worker");
 
     dataSetDefinition.addColumn(
         "PREP-N-TG",
