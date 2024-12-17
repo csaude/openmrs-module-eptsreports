@@ -54,7 +54,7 @@ public class SetupListPatientsDefaultersIIT extends EptsDataExportManager {
 
   @Override
   public String getDescription() {
-    return "LISTA DE PACIENTES FALTOSOS OU ABANDONOS AO TARV";
+    return "Lista De Pacientes Faltosos Ou Abandonos Ao Tarv";
   }
 
   @Override
@@ -66,15 +66,15 @@ public class SetupListPatientsDefaultersIIT extends EptsDataExportManager {
     rd.setParameters(this.getParameters());
 
     rd.addDataSetDefinition(
+        "DEFAULTERIIT",
+        Mapped.mapStraightThrough(
+            listPatientsDefaultersIITDataSet.constructDataset(this.getParameters())));
+
+    rd.addDataSetDefinition(
         "DEFAULTERIITTOTAL",
         Mapped.mapStraightThrough(
             this.listPatientsDefaultersIITDataSet.getTotalDefaultersIITDataset(
                 this.getParameters())));
-
-    rd.addDataSetDefinition(
-        "DEFAULTERIIT",
-        Mapped.mapStraightThrough(
-            listPatientsDefaultersIITDataSet.constructDataset(this.getParameters())));
 
     rd.addDataSetDefinition(
         "D",
