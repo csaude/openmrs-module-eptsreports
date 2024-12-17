@@ -13,6 +13,5 @@ public enum KeyPopType {
   BREASTFEEDING,
   PREGNANT,
   YOUTHS,
-  OTHER,
-  MEN_SEXWORKER
+  OTHER
 }

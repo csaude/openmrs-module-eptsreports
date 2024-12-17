@@ -236,15 +236,7 @@ public class PrepKeyPopQuery {
         break;
 
       case SEXWORKER:
-        query =
-            query
-                + "inner join person pe on pe.person_id=finalkptable.patient_id where value_coded=1901 and pe.gender = 'F' ";
-        break;
-
-      case MEN_SEXWORKER:
-        query =
-            query
-                + "inner join person pe on pe.person_id=finalkptable.patient_id where value_coded=1901 and pe.gender = 'M' ";
+        query = query + "where value_coded=1901 ";
         break;
 
       case DRUGUSER:
