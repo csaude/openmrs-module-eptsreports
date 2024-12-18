@@ -1,551 +1,694 @@
-  select patient_id from (
- select inicio_inh.patient_id                                                                                                               
- from                                                                                                                                                
-     (  
-	     select p.patient_id, estadoProfilaxia.obs_datetime data_inicio_inh 
-		from patient p 
-			inner join encounter e on p.patient_id = e.patient_id 
-			inner join obs profilaxiaINH on profilaxiaINH.encounter_id = e.encounter_id 
-			inner join obs estadoProfilaxia on estadoProfilaxia.encounter_id = e.encounter_id
-		where p.voided = 0 and e.voided = 0  and profilaxiaINH.voided = 0 and estadoProfilaxia.voided = 0  
-			and  profilaxiaINH.concept_id = 23985  and profilaxiaINH.value_coded = 656 and estadoProfilaxia.concept_id = 165308 and estadoProfilaxia.value_coded = 1256 
-			and e.encounter_type in (6,9,53) and e.location_id=:location and estadoProfilaxia.obs_datetime < :endDate
+select  fimINH.patient_id
+from(
+	select fimINH.patient_id, max(fimINH.data_fim_INH)
+	from (
+		select inicio_INH.patient_id, fimINH.data_fim_INH
+		from (
+		
+				/*
+				   ● Patients who have (Última profilaxia TPT with value “Isoniazida (INH)” and
+						Data de Fim da Profilaxia TPTselected) until reporting end date registered
+						in Ficha Resumo - Mastercard and at least 173 days apart from the INH start
+						date or
+					
+					● Patients who have Profilaxia TPT with the value “Isoniazida (INH)” with
+						Data Fim marked “Profilaxia com INH – TPI (Data Fim)” until reporting end
+						date marked in Ficha de Seguimento and at least 173 days apart from the
+						INH start date or
+						
+					● Patients who have Profilaxia (INH) with the value “Fim (F)” or (Profilaxia
+						TPT with the value “Isoniazida (INH)” and Estado da Profilaxia with the
+						value “Fim (F)” marked in Ficha Clínica -– Mastercard and at least 173 days
+						apart from the INH start date or
+				 */
+		
+			select inicio_INH.patient_id,inicio_INH.data_inicio_INH data_inicio_INH 
+			from (
+					select p.patient_id,obsInicioINH.obs_datetime data_inicio_INH 
+					from patient p 
+						inner join encounter e on p.patient_id = e.patient_id 
+						inner join obs o on o.encounter_id = e.encounter_id 
+						inner join obs obsInicioINH on obsInicioINH.encounter_id = e.encounter_id 
+					where e.voided=0 and p.voided=0 and o.voided=0 and e.encounter_type in (6,9,53)and o.concept_id=23985 and o.value_coded=656
+						and obsInicioINH.concept_id=165308 and obsInicioINH.value_coded=1256 and obsInicioINH.voided=0
+						and obsInicioINH.obs_datetime <:endDate and  e.location_id=:location
+					
+					union	
+					
+					select p.patient_id,seguimentoTPT.obs_datetime data_inicio_INH	
+					from	patient p													 
+						inner join encounter e on p.patient_id=e.patient_id																				 
+						inner join obs o on o.encounter_id=e.encounter_id	 																			 
+						inner join obs seguimentoTPT on seguimentoTPT.encounter_id=e.encounter_id														 
+					where e.voided=0 and p.voided=0 and seguimentoTPT.obs_datetime <:endDate   
+						and seguimentoTPT.voided =0 and seguimentoTPT.concept_id = 23987 and seguimentoTPT.value_coded in (1256,1705)	 						 
+						and o.voided=0 and o.concept_id=23985 and o.value_coded in (656,23982) and e.encounter_type=60 and  e.location_id=:location		 
+		 																											 
+					union
+					(	select inicio.patient_id, inicio.data_inicio_INH
+						from (
+								select p.patient_id,min(seguimentoTPT.obs_datetime) data_inicio_INH	
+								from	patient p													 
+									inner join encounter e on p.patient_id=e.patient_id																				 
+									inner join obs o on o.encounter_id=e.encounter_id	 																			 
+									inner join obs seguimentoTPT on seguimentoTPT.encounter_id=e.encounter_id														 
+								where e.voided=0 and p.voided=0 and seguimentoTPT.obs_datetime <:endDate   
+									and seguimentoTPT.voided =0 and seguimentoTPT.concept_id =23987 and seguimentoTPT.value_coded in (1257)	 						 
+									and o.voided=0 and o.concept_id=23985 and o.value_coded in (656,23982) and e.encounter_type=60 and  e.location_id=:location		 
+									group by p.patient_id	 
+								union
+								select p.patient_id,min(seguimentoTPT.obs_datetime) data_inicio_INH	from	patient p													         
+									inner join encounter e on p.patient_id=e.patient_id																				 
+									inner join obs o on o.encounter_id=e.encounter_id																				 
+									left join obs seguimentoTPT on (e.encounter_id =seguimentoTPT.encounter_id	 													
+									and seguimentoTPT.concept_id =23987  																						
+									and seguimentoTPT.value_coded in(1256,1257,1705,1267)  																		
+									and seguimentoTPT.voided =0)						 
+								where e.voided=0 and p.voided=0 and seguimentoTPT.obs_datetime <:endDate   
+									and o.voided=0 and o.concept_id=23985 and o.value_coded in (656,23982) and e.encounter_type=60 and  e.location_id=:location      
+									and seguimentoTPT.obs_id is null 	         
+									group by p.patient_id
+							)
+				 		inicio
+						left join
+						(
+							select p.patient_id,o.obs_datetime data_inicio_INH 
+							from patient p																 
+								inner join encounter e on p.patient_id=e.patient_id																				 
+								inner join obs o on o.encounter_id=e.encounter_id																				 
+							where e.voided=0 and p.voided=0 and o.obs_datetime <:endDate  
+								and o.voided=0 and o.concept_id=23985 and o.value_coded in (656,23982) and e.encounter_type=60 and  e.location_id=:location
+							union
+							select p.patient_id,obsInicioINH.obs_datetime data_inicio_INH from patient p 
+						     	inner join encounter e on p.patient_id = e.patient_id 
+						        	inner join obs o on o.encounter_id = e.encounter_id 
+						        	inner join obs obsInicioINH on obsInicioINH.encounter_id = e.encounter_id 
+						     where e.voided=0 and p.voided=0 and o.voided=0 and e.encounter_type in (6,9,53) and o.concept_id=23985 and o.value_coded=656
+						      	and obsInicioINH.concept_id=165308 and obsInicioINH.value_coded=1256 and obsInicioINH.voided=0
+						      	and obsInicioINH.obs_datetime <:endDate and  e.location_id=:location
+						)
+						inicioAnterior on inicioAnterior.patient_id=inicio.patient_id  																		 
+							and inicioAnterior.data_inicio_INH between (inicio.data_inicio_INH - INTERVAL 7 MONTH) and (inicio.data_inicio_INH - INTERVAL 1 day) 
+						where inicioAnterior.patient_id is null	
+			  		)
+			 	) 
+			inicio_INH 
+		) inicio_INH
+		inner join 
+		(  
+			select p.patient_id,estadoFIM.obs_datetime data_fim_INH 
+			from patient p 
+				inner join encounter e on p.patient_id = e.patient_id 
+				inner join obs profilaxiaINH on profilaxiaINH.encounter_id = e.encounter_id 
+				inner join obs estadoFIM on estadoFIM.encounter_id = e.encounter_id 
+			where e.voided=0 and p.voided=0 and profilaxiaINH.voided=0 and e.encounter_type in (6,9,53)and profilaxiaINH.concept_id=23985 and profilaxiaINH.value_coded=656
+				and estadoFIM.concept_id=165308 and estadoFIM.value_coded=1267 and estadoFIM.voided=0
+				and estadoFIM.obs_datetime <=:endDate  and  e.location_id=:location	
+		) fimINH on fimINH.patient_id = inicio_INH.patient_id and fimINH.data_fim_INH between inicio_INH.data_inicio_INH + interval 173 day and inicio_INH.data_inicio_INH + interval 365 day
+		
 		union
-	     
-	     select p.patient_id, e.encounter_datetime data_inicio_inh                                                                                   
-	      from patient p                                                                                                                              
-	          inner join encounter e on p.patient_id = e.patient_id                                                                                     
-	          inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id = e.encounter_id                                                                                       
-	          inner join obs seguimentoTPT on seguimentoTPT.encounter_id = e.encounter_id                                                               
-	      where e.voided=0 and p.voided = 0 and e.encounter_datetime < :endDate and e.location_id=:location                                             
-	          and seguimentoTPT.voided = 0 and seguimentoTPT.concept_id = 23987 and seguimentoTPT.value_coded in (1256,1705)                            
-	          and regimeIsoniazida.voided = 0 and regimeIsoniazida.concept_id = 23985 and regimeIsoniazida.value_coded in (656,23982) and e.encounter_type=60                                          
-	      
-	      union                                                                                                                                       
-	      
-	      select inicio.patient_id, inicio.data_inicio_inh                                                                                        
-	      from                                                                                                                                    
-	          (  select p.patient_id, e.encounter_datetime data_inicio_inh                                                                       
-	              from patient p                                                                                                                  
-	                  inner join encounter e on p.patient_id=e.patient_id                                                                         
-	                  inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id=e.encounter_id                                                                           
-	                  inner join obs seguimentoTPT on seguimentoTPT.encounter_id=e.encounter_id                                                   
-	              where e.voided=0 and p.voided=0 and regimeIsoniazida.voided=0 and regimeIsoniazida.concept_id=23985 and regimeIsoniazida.value_coded in (656,23982) and e.encounter_type=60  
-	                  and seguimentoTPT.voided =0 and seguimentoTPT.concept_id =23987 and seguimentoTPT.value_coded in (1257)                     
-	                  and e.encounter_datetime < :endDate and e.location_id=:location                                                             
-	              
-	              union                                                                                                                           
-	              
-	              select p.patient_id, e.encounter_datetime data_inicio_inh                                                                       
-	              from patient p                                                                                                                  
-	                  inner join encounter e on p.patient_id=e.patient_id                                                                         
-	                  inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id=e.encounter_id                                                                           
-	                   left join obs seguimentoTPT on (e.encounter_id =seguimentoTPT.encounter_id and seguimentoTPT.concept_id =23987 and seguimentoTPT.value_coded in(1256,1257,1705,1267) and seguimentoTPT.voided =0) 
-	              where e.voided=0 and p.voided=0 and regimeIsoniazida.voided=0 and regimeIsoniazida.concept_id=23985 and regimeIsoniazida.value_coded in (656,23982) and e.encounter_type=60  
-	                  and e.encounter_datetime < :endDate and e.location_id=:location and seguimentoTPT.obs_id is null                            
-	          ) inicio                                                                                                                                  
-	      left join                                                                                                                               
-	          ( 
-	          	select p.patient_id, e.encounter_datetime data_inicio_inh                                                                       
-	             from patient p                                                                                                                  
-	                  inner join encounter e on p.patient_id=e.patient_id                                                                         
-	                  inner join obs o on o.encounter_id=e.encounter_id                                                                           
-	             where e.voided=0 and p.voided=0 and o.voided=0 and o.concept_id=23985 and o.value_coded in (656,23982) and e.encounter_type=60  
-	                  and e.encounter_datetime < :endDate and e.location_id=:location       
-	          	
-	             union
-	
-			select p.patient_id, estadoProfilaxia.obs_datetime data_inicio_inh 
-			from patient p 
-				inner join encounter e on p.patient_id = e.patient_id 
-				inner join obs profilaxiaINH on profilaxiaINH.encounter_id = e.encounter_id 
-				inner join obs estadoProfilaxia on estadoProfilaxia.encounter_id = e.encounter_id
-			where p.voided = 0 and e.voided = 0  and profilaxiaINH.voided = 0 and estadoProfilaxia.voided = 0  
-				and  profilaxiaINH.concept_id = 23985  and profilaxiaINH.value_coded = 656 and estadoProfilaxia.concept_id = 165308 and estadoProfilaxia.value_coded = 1256 
-				and e.encounter_type in (6,9,53) and e.location_id=:location and estadoProfilaxia.obs_datetime < :endDate
-				--group by p.patient_id,estadoProfilaxia.obs_datetime
-	
-	          ) inicioAnterior                                                                                                                          
-	          on inicio.patient_id = inicioAnterior.patient_id
-	          	and inicioAnterior.data_inicio_inh between (inicio.data_inicio_inh - INTERVAL 7 MONTH) and (inicio.data_inicio_inh - INTERVAL 1 day)                                                                                     
-	            where inicioAnterior.patient_id is null             
-         
-      ) inicio_inh                                                                                                                                         
-	inner join        																																
-	(  		
-		select p.patient_id, estadoProfilaxia.obs_datetime data_final_inh 
-		from patient p 
-			inner join encounter e on p.patient_id = e.patient_id 
-			inner join obs profilaxiaINH on profilaxiaINH.encounter_id = e.encounter_id 
-			inner join obs estadoProfilaxia on estadoProfilaxia.encounter_id = e.encounter_id
-		where p.voided = 0 and e.voided = 0  and profilaxiaINH.voided = 0 and estadoProfilaxia.voided = 0  
-			and  profilaxiaINH.concept_id = 23985  and profilaxiaINH.value_coded = 656 and estadoProfilaxia.concept_id = 165308 and estadoProfilaxia.value_coded = 1267 
-			and e.encounter_type in (6,9,53) and e.location_id=:location and estadoProfilaxia.obs_datetime <= :endDate																															
-	) termino_inh  																																	
-		on inicio_inh.patient_id=termino_inh.patient_id      																						
-	where termino_inh.data_final_inh between  (inicio_inh.data_inicio_inh + interval 173 day) and (inicio_inh.data_inicio_inh + interval 365 day ) 
+		
+		/*
+		 *	 At least 5 consultations registered on Ficha Clínica or Ficha de
+			Seguimento (Adulto or Pediatria) with INH (Profilaxia INH=
+			Início/Continua) or (Profilaxia com INH-TPI = Yes) or (Profilaxia
+			TPT=” Isoniazida (INH)” and Estado da
+			Profilaxia=”Início(I)/Continua( C)”) until a 7-month period after
+			the INH Start Date (not including the INH Start Date)
+		 * 
+		 * */
 
-union	
+	select inicio_INH.patient_id, inicio_INH.data_fim_INH from (
+       select distinct inicio_INH.patient_id,fimINH.data_fim_INH, fimINH.encounter_id
+		from(
+			select inicio_INH.patient_id,inicio_INH.data_inicio_INH data_inicio_INH 
+			from (
+					select p.patient_id,obsInicioINH.obs_datetime data_inicio_INH 
+					from patient p 
+						inner join encounter e on p.patient_id = e.patient_id 
+						inner join obs o on o.encounter_id = e.encounter_id 
+						inner join obs obsInicioINH on obsInicioINH.encounter_id = e.encounter_id 
+					where e.voided=0 and p.voided=0 and o.voided=0 and e.encounter_type in (6,9,53)and o.concept_id=23985 and o.value_coded=656
+						and obsInicioINH.concept_id=165308 and obsInicioINH.value_coded=1256 and obsInicioINH.voided=0
+						and obsInicioINH.obs_datetime <:endDate and  e.location_id=:location
 
-select inicio_inh.patient_id                                                                                                               
-from (  
-	  select p.patient_id, estadoProfilaxia.obs_datetime data_inicio_inh 
-		from patient p 
-			inner join encounter e on p.patient_id = e.patient_id 
-			inner join obs profilaxiaINH on profilaxiaINH.encounter_id = e.encounter_id 
-			inner join obs estadoProfilaxia on estadoProfilaxia.encounter_id = e.encounter_id
-		where p.voided = 0 and e.voided = 0  and profilaxiaINH.voided = 0 and estadoProfilaxia.voided = 0  
-			and  profilaxiaINH.concept_id = 23985  and profilaxiaINH.value_coded = 656 and estadoProfilaxia.concept_id = 165308 and estadoProfilaxia.value_coded = 1256 
-			and e.encounter_type in (6,9,53) and e.location_id=:location and estadoProfilaxia.obs_datetime < :endDate
-   ) inicio_inh 
-   inner join        																																
-	(  select p.patient_id, estadoProfilaxia.obs_datetime data_final_inh,e.encounter_id
-		from patient p 
-			inner join encounter e on p.patient_id = e.patient_id 
-			inner join obs profilaxiaINH on profilaxiaINH.encounter_id = e.encounter_id 
-			inner join obs estadoProfilaxia on estadoProfilaxia.encounter_id = e.encounter_id
-		where p.voided = 0 and e.voided = 0  and profilaxiaINH.voided = 0 and estadoProfilaxia.voided = 0  
-			and  profilaxiaINH.concept_id = 23985  and profilaxiaINH.value_coded = 656 and estadoProfilaxia.concept_id = 165308 and estadoProfilaxia.value_coded in (1256,1257)
-			and e.encounter_type in (6,9) and e.location_id=:location and estadoProfilaxia.obs_datetime <= :endDate																																		
-	) termino_inh  																																	
-		on inicio_inh.patient_id=termino_inh.patient_id 
-	where termino_inh.data_final_inh between (inicio_inh.data_inicio_inh + INTERVAL 1 DAY) and (inicio_inh.data_inicio_inh + INTERVAL 7 MONTH)
-	 group by inicio_inh.patient_id,inicio_inh.data_inicio_inh having count(distinct termino_inh.encounter_id) >= 5
-   
-union
-
-select inicio_inh.patient_id 
-from(
-    select p.patient_id, estadoProfilaxia.obs_datetime data_inicio_inh 
-		from patient p 
-			inner join encounter e on p.patient_id = e.patient_id 
-			inner join obs profilaxiaINH on profilaxiaINH.encounter_id = e.encounter_id 
-			inner join obs estadoProfilaxia on estadoProfilaxia.encounter_id = e.encounter_id
-		where p.voided = 0 and e.voided = 0  and profilaxiaINH.voided = 0 and estadoProfilaxia.voided = 0  
-			and  profilaxiaINH.concept_id = 23985  and profilaxiaINH.value_coded = 656 and estadoProfilaxia.concept_id = 165308 and estadoProfilaxia.value_coded = 1256 
-			and e.encounter_type in (6,9,53) and e.location_id=:location and estadoProfilaxia.obs_datetime < :endDate
-)inicio_inh 
-inner join
-(
-	 select distinct p.patient_id, estadoProfilaxia.obs_datetime data_final_inh,e.encounter_id 
-		from patient p 
-			inner join encounter e on p.patient_id = e.patient_id 
-			inner join obs profilaxiaINH on profilaxiaINH.encounter_id = e.encounter_id 
-			inner join obs estadoProfilaxia on estadoProfilaxia.encounter_id = e.encounter_id
-			inner join obs outraPrescricaoDTINH on e.encounter_id=outraPrescricaoDTINH.encounter_id
-		where p.voided = 0 and e.voided = 0  and profilaxiaINH.voided = 0 and estadoProfilaxia.voided = 0 and outraPrescricaoDTINH.voided=0  
-			and  profilaxiaINH.concept_id = 23985  and profilaxiaINH.value_coded = 656 and estadoProfilaxia.concept_id = 165308 and estadoProfilaxia.value_coded in (1256,1257)
-			and outraPrescricaoDTINH.concept_id=1719 and outraPrescricaoDTINH.value_coded=23955
-			and e.encounter_type in (6,9) and e.location_id=:location and estadoProfilaxia.obs_datetime <= :endDate			
-)
-consultasINH on inicio_inh.patient_id = consultasINH.patient_id
-where consultasINH.data_final_inh between inicio_inh.data_inicio_inh and (inicio_inh.data_inicio_inh + INTERVAL 5 MONTH)
-group by inicio_inh.patient_id,inicio_inh.data_inicio_inh having count(distinct consultasINH.encounter_id) >= 2
-
-union
-
-select consultasSemDTINH.patient_id 
-from (
-select inicio_inh.patient_id,data_inicio_inh 
-from(
-     select p.patient_id, estadoProfilaxia.obs_datetime data_inicio_inh 
-		from patient p 
-			inner join encounter e on p.patient_id = e.patient_id 
-			inner join obs profilaxiaINH on profilaxiaINH.encounter_id = e.encounter_id 
-			inner join obs estadoProfilaxia on estadoProfilaxia.encounter_id = e.encounter_id
-		where p.voided = 0 and e.voided = 0  and profilaxiaINH.voided = 0 and estadoProfilaxia.voided = 0  
-			and  profilaxiaINH.concept_id = 23985  and profilaxiaINH.value_coded = 656 and estadoProfilaxia.concept_id = 165308 and estadoProfilaxia.value_coded = 1256 
-			and e.encounter_type in (6,9,53) and e.location_id=:location and estadoProfilaxia.obs_datetime < :endDate
- )inicio_inh 
- inner join
-(
-   	select p.patient_id, estadoProfilaxia.obs_datetime data_final_inh,e.encounter_id 
-	from patient p 
-		inner join encounter e on p.patient_id = e.patient_id 
-		inner join obs profilaxiaINH on profilaxiaINH.encounter_id = e.encounter_id 
-		inner join obs estadoProfilaxia on estadoProfilaxia.encounter_id = e.encounter_id
-	where p.voided = 0 and e.voided = 0  and profilaxiaINH.voided = 0 and estadoProfilaxia.voided = 0  
-		and  profilaxiaINH.concept_id = 23985  and profilaxiaINH.value_coded = 656 and estadoProfilaxia.concept_id = 165308 and estadoProfilaxia.value_coded  in (1256, 1257) 
-		and e.encounter_type in (6,9) and e.location_id=:location and estadoProfilaxia.obs_datetime <= :endDate
-)
-consultasSemDTINH on inicio_inh.patient_id = consultasSemDTINH.patient_id
-where consultasSemDTINH.data_final_inh between inicio_inh.data_inicio_inh and (inicio_inh.data_inicio_inh + INTERVAL 7 MONTH)
-    group by inicio_inh.patient_id,inicio_inh.data_inicio_inh having count(distinct consultasSemDTINH.encounter_id)>=3 
-  ) 
- consultasSemDTINH
- inner join
- (
-
-     select p.patient_id, estadoProfilaxia.obs_datetime data_final_inh,e.encounter_id 
-     from patient p 
-     	inner join encounter e on p.patient_id = e.patient_id 
-	  	inner join obs profilaxiaINH on profilaxiaINH.encounter_id = e.encounter_id 
-	  	inner join obs estadoProfilaxia on estadoProfilaxia.encounter_id = e.encounter_id 
-	  	inner join obs outraPrescricaoDTINH on e.encounter_id=outraPrescricaoDTINH.encounter_id
-	where p.voided = 0 and e.voided = 0 and profilaxiaINH.voided = 0 and estadoProfilaxia.voided = 0 and outraPrescricaoDTINH.voided=0
-		and e.encounter_type in(6,9) and profilaxiaINH.concept_id = 23985 and profilaxiaINH.value_coded = 656 and estadoProfilaxia.concept_id = 165308 and estadoProfilaxia.value_coded in (1256, 1257)
-	     and outraPrescricaoDTINH.concept_id=1719 and outraPrescricaoDTINH.value_coded=23955
-	     and e.encounter_datetime <= :endDate and e.location_id=:location   
-    )
-consultasComDTINH on consultasSemDTINH.patient_id = consultasComDTINH.patient_id
-where consultasComDTINH.data_final_inh between consultasSemDTINH.data_inicio_inh and (consultasSemDTINH.data_inicio_inh + INTERVAL 7 MONTH)
-    group by consultasSemDTINH.patient_id,consultasSemDTINH.data_inicio_inh having count(distinct consultasComDTINH.encounter_id)>=1
-  
-union
-
-select inicio_inh.patient_id                                                                                                               
-from                                                                                                                                                
-     (  
-          select p.patient_id, e.encounter_datetime data_inicio_inh                                                                                   
-	      from patient p                                                                                                                              
-	          inner join encounter e on p.patient_id = e.patient_id                                                                                     
-	          inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id = e.encounter_id                                                                                       
-	          inner join obs seguimentoTPT on seguimentoTPT.encounter_id = e.encounter_id                                                               
-	      where e.voided=0 and p.voided = 0 and e.encounter_datetime < :endDate and e.location_id=:location                                             
-	          and seguimentoTPT.voided = 0 and seguimentoTPT.concept_id = 23987 and seguimentoTPT.value_coded in (1256,1705)                            
-	          and regimeIsoniazida.voided = 0 and regimeIsoniazida.concept_id = 23985 and regimeIsoniazida.value_coded in (656,23982) and e.encounter_type=60                                          
-	      
-	      union                                                                                                                                       
-	      
-	      select inicio.patient_id, inicio.data_inicio_inh                                                                                        
-	      from                                                                                                                                    
-	          (  select p.patient_id, e.encounter_datetime data_inicio_inh                                                                       
-	              from patient p                                                                                                                  
-	                  inner join encounter e on p.patient_id=e.patient_id                                                                         
-	                  inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id=e.encounter_id                                                                           
-	                  inner join obs seguimentoTPT on seguimentoTPT.encounter_id=e.encounter_id                                                   
-	              where e.voided=0 and p.voided=0 and regimeIsoniazida.voided=0 and regimeIsoniazida.concept_id=23985 and regimeIsoniazida.value_coded in (656,23982) and e.encounter_type=60  
-	                  and seguimentoTPT.voided =0 and seguimentoTPT.concept_id =23987 and seguimentoTPT.value_coded in (1257)                     
-	                  and e.encounter_datetime < :endDate and e.location_id=:location                                                             
-	              
-	              union                                                                                                                           
-	              
-	              select p.patient_id, e.encounter_datetime data_inicio_inh                                                                       
-	              from patient p                                                                                                                  
-	                  inner join encounter e on p.patient_id=e.patient_id                                                                         
-	                  inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id=e.encounter_id                                                                           
-	                   left join obs seguimentoTPT on (e.encounter_id =seguimentoTPT.encounter_id and seguimentoTPT.concept_id =23987 and seguimentoTPT.value_coded in(1256,1257,1705,1267) and seguimentoTPT.voided =0) 
-	              where e.voided=0 and p.voided=0 and regimeIsoniazida.voided=0 and regimeIsoniazida.concept_id=23985 and regimeIsoniazida.value_coded in (656,23982) and e.encounter_type=60  
-	                  and e.encounter_datetime < :endDate and e.location_id=:location and seguimentoTPT.obs_id is null                            
-	          ) inicio                                                                                                                                  
-	      left join                                                                                                                               
-	          ( 
-	          	select p.patient_id, e.encounter_datetime data_inicio_inh                                                                       
-	             from patient p                                                                                                                  
-	                  inner join encounter e on p.patient_id=e.patient_id                                                                         
-	                  inner join obs o on o.encounter_id=e.encounter_id                                                                           
-	             where e.voided=0 and p.voided=0 and o.voided=0 and o.concept_id=23985 and o.value_coded in (656,23982) and e.encounter_type=60  
-	                  and e.encounter_datetime < :endDate and e.location_id=:location       
-	          	
-	             union
-	
-			select p.patient_id, estadoProfilaxia.obs_datetime data_inicio_inh 
-			from patient p 
-				inner join encounter e on p.patient_id = e.patient_id 
-				inner join obs profilaxiaINH on profilaxiaINH.encounter_id = e.encounter_id 
-				inner join obs estadoProfilaxia on estadoProfilaxia.encounter_id = e.encounter_id
-			where p.voided = 0 and e.voided = 0  and profilaxiaINH.voided = 0 and estadoProfilaxia.voided = 0  
-				and  profilaxiaINH.concept_id = 23985  and profilaxiaINH.value_coded = 656 and estadoProfilaxia.concept_id = 165308 and estadoProfilaxia.value_coded = 1256 
-				and e.encounter_type in (6,9,53) and e.location_id=:location and estadoProfilaxia.obs_datetime < :endDate
-				--group by p.patient_id,estadoProfilaxia.obs_datetime
-	
-	          ) inicioAnterior                                                                                                                          
-	          on inicio.patient_id = inicioAnterior.patient_id
-	          	and inicioAnterior.data_inicio_inh between (inicio.data_inicio_inh - INTERVAL 7 MONTH) and (inicio.data_inicio_inh - INTERVAL 1 day)                                                                                     
-	            where inicioAnterior.patient_id is null                                                                                              
-      ) inicio_inh   
-	inner join encounter e on e.patient_id=inicio_inh.patient_id      
-	inner join obs obsDTINH on e.encounter_id=obsDTINH.encounter_id            
-	inner join obs obsLevTPI on e.encounter_id=obsLevTPI.encounter_id 
-where e.voided=0 and obsDTINH.voided=0 and obsLevTPI.voided=0 and e.encounter_type = 60      
-      and obsDTINH.concept_id=23986 and obsDTINH.value_coded=1098  and obsLevTPI.concept_id=23985 and obsLevTPI.value_coded in (656,23982)  
-      and e.encounter_datetime between inicio_inh.data_inicio_inh and (inicio_inh.data_inicio_inh + INTERVAL 7 MONTH) and e.encounter_datetime < :endDate and e.location_id=:location  
-      group by inicio_inh.patient_id,inicio_inh.data_inicio_inh having count(distinct e.encounter_id)>=6  
-
-union
-
- select inicio_inh.patient_id                                                                                                             
- from                                                                                                                                                
-     (  
-         select p.patient_id, e.encounter_datetime data_inicio_inh                                                                                   
-	      from patient p                                                                                                                              
-	          inner join encounter e on p.patient_id = e.patient_id                                                                                     
-	          inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id = e.encounter_id                                                                                       
-	          inner join obs seguimentoTPT on seguimentoTPT.encounter_id = e.encounter_id                                                               
-	      where e.voided=0 and p.voided = 0 and e.encounter_datetime < :endDate and e.location_id=:location                                             
-	          and seguimentoTPT.voided = 0 and seguimentoTPT.concept_id = 23987 and seguimentoTPT.value_coded in (1256,1705)                            
-	          and regimeIsoniazida.voided = 0 and regimeIsoniazida.concept_id = 23985 and regimeIsoniazida.value_coded in (656,23982) and e.encounter_type=60                                          
-	      
-	      union                                                                                                                                       
-	      
-	      select inicio.patient_id, inicio.data_inicio_inh                                                                                        
-	      from                                                                                                                                    
-	          (  select p.patient_id, e.encounter_datetime data_inicio_inh                                                                       
-	              from patient p                                                                                                                  
-	                  inner join encounter e on p.patient_id=e.patient_id                                                                         
-	                  inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id=e.encounter_id                                                                           
-	                  inner join obs seguimentoTPT on seguimentoTPT.encounter_id=e.encounter_id                                                   
-	              where e.voided=0 and p.voided=0 and regimeIsoniazida.voided=0 and regimeIsoniazida.concept_id=23985 and regimeIsoniazida.value_coded in (656,23982) and e.encounter_type=60  
-	                  and seguimentoTPT.voided =0 and seguimentoTPT.concept_id =23987 and seguimentoTPT.value_coded in (1257)                     
-	                  and e.encounter_datetime < :endDate and e.location_id=:location                                                             
-	              
-	              union                                                                                                                           
-	              
-	              select p.patient_id, e.encounter_datetime data_inicio_inh                                                                       
-	              from patient p                                                                                                                  
-	                  inner join encounter e on p.patient_id=e.patient_id                                                                         
-	                  inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id=e.encounter_id                                                                           
-	                   left join obs seguimentoTPT on (e.encounter_id =seguimentoTPT.encounter_id and seguimentoTPT.concept_id =23987 and seguimentoTPT.value_coded in(1256,1257,1705,1267) and seguimentoTPT.voided =0) 
-	              where e.voided=0 and p.voided=0 and regimeIsoniazida.voided=0 and regimeIsoniazida.concept_id=23985 and regimeIsoniazida.value_coded in (656,23982) and e.encounter_type=60  
-	                  and e.encounter_datetime < :endDate and e.location_id=:location and seguimentoTPT.obs_id is null                            
-	          ) inicio                                                                                                                                  
-	      left join                                                                                                                               
-	          ( 
-	          	select p.patient_id, e.encounter_datetime data_inicio_inh                                                                       
-	             from patient p                                                                                                                  
-	                  inner join encounter e on p.patient_id=e.patient_id                                                                         
-	                  inner join obs o on o.encounter_id=e.encounter_id                                                                           
-	             where e.voided=0 and p.voided=0 and o.voided=0 and o.concept_id=23985 and o.value_coded in (656,23982) and e.encounter_type=60  
-	                  and e.encounter_datetime < :endDate and e.location_id=:location       
-	          	
-	             union
-	
-			select p.patient_id, estadoProfilaxia.obs_datetime data_inicio_inh 
-			from patient p 
-				inner join encounter e on p.patient_id = e.patient_id 
-				inner join obs profilaxiaINH on profilaxiaINH.encounter_id = e.encounter_id 
-				inner join obs estadoProfilaxia on estadoProfilaxia.encounter_id = e.encounter_id
-			where p.voided = 0 and e.voided = 0  and profilaxiaINH.voided = 0 and estadoProfilaxia.voided = 0  
-				and  profilaxiaINH.concept_id = 23985  and profilaxiaINH.value_coded = 656 and estadoProfilaxia.concept_id = 165308 and estadoProfilaxia.value_coded = 1256 
-				and e.encounter_type in (6,9,53) and e.location_id=:location and estadoProfilaxia.obs_datetime < :endDate
-	
-	          ) inicioAnterior                                                                                                                          
-	          on inicio.patient_id = inicioAnterior.patient_id
-	          	and inicioAnterior.data_inicio_inh between (inicio.data_inicio_inh - INTERVAL 7 MONTH) and (inicio.data_inicio_inh - INTERVAL 1 day)                                                                                     
-	            where inicioAnterior.patient_id is null                                                                                   
-      ) inicio_inh  
+			 	) 
+			inicio_INH 
+		) inicio_INH
 		inner join 
 		(
+			select 	p.patient_id, estadoProfilaxia.obs_datetime data_fim_INH,e.encounter_id	 																
+			from 	patient p														 			  															
+					inner join encounter e on p.patient_id=e.patient_id																				 		
+					inner join obs profilaxiaINH on profilaxiaINH.encounter_id=e.encounter_id		 																				
+					inner join obs estadoProfilaxia on estadoProfilaxia.encounter_id=e.encounter_id																
+			where 	e.voided=0 and p.voided=0 and estadoProfilaxia.obs_datetime <=:endDate 			  									
+					and profilaxiaINH.voided=0 and profilaxiaINH.concept_id=23985 and profilaxiaINH.value_coded in (656,23982) and e.encounter_type in (6,9) and  e.location_id=:location	  		
+					and estadoProfilaxia.voided =0 and estadoProfilaxia.concept_id =165308 and estadoProfilaxia.value_coded in (1256,1257)			
+			
+		) fimINH on fimINH.patient_id=inicio_INH.patient_id
+		where fimINH.data_fim_INH BETWEEN (inicio_INH.data_inicio_INH +interval 1 day) and (inicio_INH.data_inicio_INH + interval 7 month)
+		) inicio_INH
+		group by inicio_INH.patient_id
+		HAVING count(inicio_INH.encounter_id)>=5
 		
- 			select patient_id, data_inicio_inh, count(data_fim_INH) from (
-			select fim.patient_id,inicio_inh.data_inicio_inh,data_fim_INH from (
-			select p.patient_id,e.encounter_datetime data_fim_INH, e.encounter_id																		
+		union
+		 
+		/*
+		 * 		At least 6 FILT with INH Mensal (Regime de TPT=
+				Isoniazida/’Isoniazida + Piridoxina’ and Tipo de Dispensa =
+				Mensal) until a 7-month period from the INH Start Date (including
+				the INH Start Date) or
+				
+				At least 2 FILT with DT-INH (Regime de TPT= Isoniazida/’Isoniazida
+				+ Piridoxina’ and Tipo de Dispensa = Trimestral) until a 5-month
+				period from the Start Date (including the INH Start Date):
+		 * */
+		select fimINHFilt.patient_id, data_fim_INH
+		from 
+		(select 	inicio_INH.patient_id,
+				data_inicio_INH,
+				e.encounter_datetime data_fim_INH,
+				COUNT(DISTINCT CASE WHEN dispensa.value_coded = 1098 THEN encounter_datetime END) mensal,
+				COUNT(DISTINCT CASE WHEN dispensa.value_coded = 23720 THEN encounter_datetime END) trimestral
+		from 
+		(
+			select inicio_INH.patient_id,min(inicio_INH.data_inicio_INH) data_inicio_INH 
+			from (
+					select p.patient_id,min(obsInicioINH.obs_datetime) data_inicio_INH 
+					from patient p 
+						inner join encounter e on p.patient_id = e.patient_id 
+						inner join obs o on o.encounter_id = e.encounter_id 
+						inner join obs obsInicioINH on obsInicioINH.encounter_id = e.encounter_id 
+					where e.voided=0 and p.voided=0 and o.voided=0 and e.encounter_type in (6,9,53)and o.concept_id=23985 and o.value_coded=656
+						and obsInicioINH.concept_id=165308 and obsInicioINH.value_coded=1256 and obsInicioINH.voided=0
+						and obsInicioINH.obs_datetime <:endDate and  e.location_id=:location
+						group by p.patient_id
+					
+					union	
+					
+					select p.patient_id,min(seguimentoTPT.obs_datetime) data_inicio_INH	
+					from	patient p													 
+						inner join encounter e on p.patient_id=e.patient_id																				 
+						inner join obs o on o.encounter_id=e.encounter_id	 																			 
+						inner join obs seguimentoTPT on seguimentoTPT.encounter_id=e.encounter_id														 
+					where e.voided=0 and p.voided=0 and seguimentoTPT.obs_datetime <:endDate   
+						and seguimentoTPT.voided =0 and seguimentoTPT.concept_id = 23987 and seguimentoTPT.value_coded in (1256,1705)	 						 
+						and o.voided=0 and o.concept_id=23985 and o.value_coded in (656,23982) and e.encounter_type=60 and  e.location_id=:location		 
+						group by p.patient_id	 																											 
+					union
+					(	select inicio.patient_id, inicio.data_inicio_INH
+						from (
+								select p.patient_id,min(seguimentoTPT.obs_datetime) data_inicio_INH	
+								from	patient p													 
+									inner join encounter e on p.patient_id=e.patient_id																				 
+									inner join obs o on o.encounter_id=e.encounter_id	 																			 
+									inner join obs seguimentoTPT on seguimentoTPT.encounter_id=e.encounter_id														 
+								where e.voided=0 and p.voided=0 and seguimentoTPT.obs_datetime <:endDate   
+									and seguimentoTPT.voided =0 and seguimentoTPT.concept_id =23987 and seguimentoTPT.value_coded in (1257)	 						 
+									and o.voided=0 and o.concept_id=23985 and o.value_coded in (656,23982) and e.encounter_type=60 and  e.location_id=:location		 
+									group by p.patient_id	 
+								union
+								select p.patient_id,min(seguimentoTPT.obs_datetime) data_inicio_INH	from	patient p													         
+									inner join encounter e on p.patient_id=e.patient_id																				 
+									inner join obs o on o.encounter_id=e.encounter_id																				 
+									left join obs seguimentoTPT on (e.encounter_id =seguimentoTPT.encounter_id	 													
+									and seguimentoTPT.concept_id =23987  																						
+									and seguimentoTPT.value_coded in(1256,1257,1705,1267)  																		
+									and seguimentoTPT.voided =0)						 
+								where e.voided=0 and p.voided=0 and seguimentoTPT.obs_datetime <:endDate   
+									and o.voided=0 and o.concept_id=23985 and o.value_coded in (656,23982) and e.encounter_type=60 and  e.location_id=:location      
+									and seguimentoTPT.obs_id is null 	         
+									group by p.patient_id
+							)
+				 		inicio
+						left join
+						(
+							select p.patient_id,o.obs_datetime data_inicio_INH 
+							from patient p																 
+								inner join encounter e on p.patient_id=e.patient_id																				 
+								inner join obs o on o.encounter_id=e.encounter_id																				 
+							where e.voided=0 and p.voided=0 and o.obs_datetime <:endDate  
+								and o.voided=0 and o.concept_id=23985 and o.value_coded in (656,23982) and e.encounter_type=60 and  e.location_id=:location
+							union
+							select p.patient_id,obsInicioINH.obs_datetime data_inicio_INH from patient p 
+						     	inner join encounter e on p.patient_id = e.patient_id 
+						        	inner join obs o on o.encounter_id = e.encounter_id 
+						        	inner join obs obsInicioINH on obsInicioINH.encounter_id = e.encounter_id 
+						     where e.voided=0 and p.voided=0 and o.voided=0 and e.encounter_type in (6,9,53) and o.concept_id=23985 and o.value_coded=656
+						      	and obsInicioINH.concept_id=165308 and obsInicioINH.value_coded=1256 and obsInicioINH.voided=0
+						      	and obsInicioINH.obs_datetime <:endDate and  e.location_id=:location
+						)
+						inicioAnterior on inicioAnterior.patient_id=inicio.patient_id  																		 
+							and inicioAnterior.data_inicio_INH between (inicio.data_inicio_INH - INTERVAL 7 MONTH) and (inicio.data_inicio_INH - INTERVAL 1 day) 
+						where inicioAnterior.patient_id is null	
+			  		)
+			 	) 
+			inicio_INH group by inicio_INH.patient_id
+		) inicio_INH			
+		inner join encounter e on inicio_INH.patient_id=e.patient_id 
+		inner join obs regime on regime.encounter_id=e.encounter_id 
+		inner join obs dispensa on dispensa.encounter_id=e.encounter_id
+		where e.voided=0 and e.encounter_datetime BETWEEN inicio_INH.data_inicio_INH and  if(dispensa.value_coded=1098,(inicio_INH.data_inicio_INH +interval 7 month),(inicio_INH.data_inicio_INH +interval 5 month)) and  
+					e.encounter_type=60 and e.location_id=:location and regime.voided=0 and 
+					regime.concept_id=23985 and regime.value_coded in (656,23982) and 
+					dispensa.voided=0 and dispensa.concept_id=23986 and dispensa.value_coded in (1098,23720)
+		group by inicio_INH.patient_id
+		) fimINHFilt
+		where mensal>=6 or trimestral>=2
+		
+		union
+		
+		/*
+					At least 2 consultations registered on Ficha Clínica with DT-INH
+					(Profilaxia INH = Início/Continua and Outras Prescrições = DT-INH)
+					or (Profilaxia TPT=”Isoniazida (INH)” and Estado da
+					Profilaxia=“Início(I)/Continua( C) ” and Outras Prescrições = DT-
+					INH ) until a 5-month period from the INH Start Date (including
+					the INH Start Date)
+		 * */
+		select inicio_INH.patient_id, DTINH.data_fim_INH
+		from(
+			select inicio_INH.patient_id,min(inicio_INH.data_inicio_INH) data_inicio_INH 
+			from (
+					select p.patient_id,min(obsInicioINH.obs_datetime) data_inicio_INH 
+					from patient p 
+						inner join encounter e on p.patient_id = e.patient_id 
+						inner join obs o on o.encounter_id = e.encounter_id 
+						inner join obs obsInicioINH on obsInicioINH.encounter_id = e.encounter_id 
+					where e.voided=0 and p.voided=0 and o.voided=0 and e.encounter_type in (6,9,53)and o.concept_id=23985 and o.value_coded=656
+						and obsInicioINH.concept_id=165308 and obsInicioINH.value_coded=1256 and obsInicioINH.voided=0
+						and obsInicioINH.obs_datetime<:endDate  and  e.location_id=:location
+						group by p.patient_id
+					
+					union	
+					
+					select p.patient_id,min(seguimentoTPT.obs_datetime) data_inicio_INH	
+					from	patient p													 
+						inner join encounter e on p.patient_id=e.patient_id																				 
+						inner join obs o on o.encounter_id=e.encounter_id	 																			 
+						inner join obs seguimentoTPT on seguimentoTPT.encounter_id=e.encounter_id														 
+					where e.voided=0 and p.voided=0 and seguimentoTPT.obs_datetime <:endDate   
+						and seguimentoTPT.voided =0 and seguimentoTPT.concept_id = 23987 and seguimentoTPT.value_coded in (1256,1705)	 						 
+						and o.voided=0 and o.concept_id=23985 and o.value_coded in (656,23982) and e.encounter_type=60 and  e.location_id=:location		 
+						group by p.patient_id	 																											 
+					union
+					(	select inicio.patient_id, inicio.data_inicio_INH
+						from (
+								select p.patient_id,min(seguimentoTPT.obs_datetime) data_inicio_INH	
+								from	patient p													 
+									inner join encounter e on p.patient_id=e.patient_id																				 
+									inner join obs o on o.encounter_id=e.encounter_id	 																			 
+									inner join obs seguimentoTPT on seguimentoTPT.encounter_id=e.encounter_id														 
+								where e.voided=0 and p.voided=0 and seguimentoTPT.obs_datetime <:endDate   
+									and seguimentoTPT.voided =0 and seguimentoTPT.concept_id =23987 and seguimentoTPT.value_coded in (1257)	 						 
+									and o.voided=0 and o.concept_id=23985 and o.value_coded in (656,23982) and e.encounter_type=60 and  e.location_id=:location		 
+									group by p.patient_id	 
+								union
+								select p.patient_id,min(seguimentoTPT.obs_datetime) data_inicio_INH	from	patient p													         
+									inner join encounter e on p.patient_id=e.patient_id																				 
+									inner join obs o on o.encounter_id=e.encounter_id																				 
+									left join obs seguimentoTPT on (e.encounter_id =seguimentoTPT.encounter_id	 													
+									and seguimentoTPT.concept_id =23987  																						
+									and seguimentoTPT.value_coded in(1256,1257,1705,1267)  																		
+									and seguimentoTPT.voided =0)						 
+								where e.voided=0 and p.voided=0 and seguimentoTPT.obs_datetime <:endDate   
+									and o.voided=0 and o.concept_id=23985 and o.value_coded in (656,23982) and e.encounter_type=60 and  e.location_id=:location      
+									and seguimentoTPT.obs_id is null 	         
+									group by p.patient_id
+							)
+				 		inicio
+						left join
+						(
+							select p.patient_id,o.obs_datetime data_inicio_INH 
+							from patient p																 
+								inner join encounter e on p.patient_id=e.patient_id																				 
+								inner join obs o on o.encounter_id=e.encounter_id																				 
+							where e.voided=0 and p.voided=0 and o.obs_datetime <:endDate  
+								and o.voided=0 and o.concept_id=23985 and o.value_coded in (656,23982) and e.encounter_type=60 and  e.location_id=:location
+							union
+							select p.patient_id,obsInicioINH.obs_datetime data_inicio_INH from patient p 
+						     	inner join encounter e on p.patient_id = e.patient_id 
+						        	inner join obs o on o.encounter_id = e.encounter_id 
+						        	inner join obs obsInicioINH on obsInicioINH.encounter_id = e.encounter_id 
+						     where e.voided=0 and p.voided=0 and o.voided=0 and e.encounter_type in (6,9,53) and o.concept_id=23985 and o.value_coded=656
+						      	and obsInicioINH.concept_id=165308 and obsInicioINH.value_coded=1256 and obsInicioINH.voided=0
+						      	and obsInicioINH.obs_datetime <:endDate and  e.location_id=:location
+						)
+						inicioAnterior on inicioAnterior.patient_id=inicio.patient_id  																		 
+							and inicioAnterior.data_inicio_INH between (inicio.data_inicio_INH - INTERVAL 7 MONTH) and (inicio.data_inicio_INH - INTERVAL 1 day) 
+						where inicioAnterior.patient_id is null	
+			  		)
+			 	) 
+			inicio_INH group by inicio_INH.patient_id
+		) inicio_INH
+		inner join 
+		(
+			select p.patient_id,estadoProfilaxia.obs_datetime data_fim_INH, e.encounter_id																		
+			from	patient p														 			  															
+				inner join encounter e on p.patient_id=e.patient_id
+				inner join obs profilaxiaINH on profilaxiaINH.encounter_id = e.encounter_id																			 		
+				inner join obs estadoProfilaxia on estadoProfilaxia.encounter_id=e.encounter_id
+				inner join obs obsDTINH on obsDTINH.encounter_id=e.encounter_id	
+			where e.voided=0 and p.voided=0 and estadoProfilaxia.obs_datetime <=:endDate 
+				and profilaxiaINH.concept_id = 23985 and profilaxiaINH.value_coded = 656 and profilaxiaINH.voided = 0
+				and estadoProfilaxia.voided=0 and estadoProfilaxia.concept_id=165308 and estadoProfilaxia.value_coded in (1256,1257)
+				and obsDTINH.voided=0 and obsDTINH.concept_id=1719 and obsDTINH.value_coded=23955 and e.encounter_type=6 and  e.location_id=:location	  		
+		) DTINH on DTINH.patient_id=inicio_INH.patient_id
+		where DTINH.data_fim_INH BETWEEN inicio_INH.data_inicio_INH and (inicio_INH.data_inicio_INH + interval 5 month)
+		group by inicio_INH.patient_id
+		having count(DTINH.encounter_id)>=2
+		
+		union
+		
+			/*	At least 2 FILT with DT-INH (Regime de TPT= Isoniazida/’Isoniazida + Piridoxina’ 
+                and Tipo de Dispensa = Trimestral) until a 5-month period from the Start Date 
+                (including the INH Start Date) */
+		
+		select inicio_INH.patient_id, DTINH.data_fim_INH
+		from(
+			select inicio_INH.patient_id,inicio_INH.data_inicio_INH data_inicio_INH 
+			from (
+					select p.patient_id,obsInicioINH.obs_datetime data_inicio_INH 
+					from patient p 
+						inner join encounter e on p.patient_id = e.patient_id 
+						inner join obs o on o.encounter_id = e.encounter_id 
+						inner join obs obsInicioINH on obsInicioINH.encounter_id = e.encounter_id 
+					where e.voided=0 and p.voided=0 and o.voided=0 and e.encounter_type in (6,9,53)and o.concept_id=23985 and o.value_coded=656
+						and obsInicioINH.concept_id=165308 and obsInicioINH.value_coded=1256 and obsInicioINH.voided=0
+						and obsInicioINH.obs_datetime <:endDate and  e.location_id=:location
+					
+					union	
+					
+					select p.patient_id,seguimentoTPT.obs_datetime data_inicio_INH	
+					from	patient p													 
+						inner join encounter e on p.patient_id=e.patient_id																				 
+						inner join obs o on o.encounter_id=e.encounter_id	 																			 
+						inner join obs seguimentoTPT on seguimentoTPT.encounter_id=e.encounter_id														 
+					where e.voided=0 and p.voided=0 and seguimentoTPT.obs_datetime <:endDate   
+						and seguimentoTPT.voided =0 and seguimentoTPT.concept_id = 23987 and seguimentoTPT.value_coded in (1256,1705)	 						 
+						and o.voided=0 and o.concept_id=23985 and o.value_coded in (656,23982) and e.encounter_type=60 and  e.location_id=:location		 																											 
+					
+					union
+					
+					(select inicio.patient_id, inicio.data_inicio_INH
+						from ( 
+								select p.patient_id,min(seguimentoTPT.obs_datetime) data_inicio_INH
+								from	patient p													 
+									inner join encounter e on p.patient_id=e.patient_id																				 
+									inner join obs o on o.encounter_id=e.encounter_id	 																			 
+									inner join obs seguimentoTPT on seguimentoTPT.encounter_id=e.encounter_id														 
+								where e.voided=0 and p.voided=0 and seguimentoTPT.obs_datetime <:endDate   
+									and seguimentoTPT.voided =0 and seguimentoTPT.concept_id =23987 and seguimentoTPT.value_coded in (1257)	 						 
+									and o.voided=0 and o.concept_id=23985 and o.value_coded in (656,23982) and e.encounter_type=60 and  e.location_id=:location		 
+									group by p.patient_id	 
+								union
+								select p.patient_id,min(seguimentoTPT.obs_datetime) data_inicio_INH	from	patient p													         
+									inner join encounter e on p.patient_id=e.patient_id																				 
+									inner join obs o on o.encounter_id=e.encounter_id																				 
+									left join obs seguimentoTPT on (e.encounter_id =seguimentoTPT.encounter_id	 													
+									and seguimentoTPT.concept_id =23987  																						
+									and seguimentoTPT.value_coded in(1256,1257,1705,1267)  																		
+									and seguimentoTPT.voided =0)						 
+								where e.voided=0 and p.voided=0 and seguimentoTPT.obs_datetime <:endDate   
+									and o.voided=0 and o.concept_id=23985 and o.value_coded in (656,23982) and e.encounter_type=60 and  e.location_id=:location      
+									and seguimentoTPT.obs_id is null 	         
+									group by p.patient_id
+							)
+				 		inicio
+						left join
+						(
+							select p.patient_id,o.obs_datetime data_inicio_INH 
+							from patient p																 
+								inner join encounter e on p.patient_id=e.patient_id																				 
+								inner join obs o on o.encounter_id=e.encounter_id																				 
+							where e.voided=0 and p.voided=0 and o.obs_datetime <:endDate  
+								and o.voided=0 and o.concept_id=23985 and o.value_coded in (656,23982) and e.encounter_type=60 and  e.location_id=:location
+							union
+							select p.patient_id,obsInicioINH.obs_datetime data_inicio_INH from patient p 
+						     	inner join encounter e on p.patient_id = e.patient_id 
+						        	inner join obs o on o.encounter_id = e.encounter_id 
+						        	inner join obs obsInicioINH on obsInicioINH.encounter_id = e.encounter_id 
+						     where e.voided=0 and p.voided=0 and o.voided=0 and e.encounter_type in (6,9,53) and o.concept_id=23985 and o.value_coded=656
+						      	and obsInicioINH.concept_id=165308 and obsInicioINH.value_coded=1256 and obsInicioINH.voided=0 
+						      	and obsInicioINH.obs_datetime <:endDate and  e.location_id=:location
+						)
+						inicioAnterior on inicioAnterior.patient_id=inicio.patient_id  																		 
+							and inicioAnterior.data_inicio_INH between (inicio.data_inicio_INH - INTERVAL 7 MONTH) and (inicio.data_inicio_INH - INTERVAL 1 day) 
+						where inicioAnterior.patient_id is null	
+			  		)
+			 	) 
+			inicio_INH 
+		) inicio_INH
+		inner join 
+		(
+			select p.patient_id,e.encounter_datetime data_fim_INH,e.encounter_id																		
 			from	patient p														 			  															
 				inner join encounter e on p.patient_id=e.patient_id
 				inner join obs regimeTPT on regimeTPT.encounter_id = e.encounter_id																			 		
 				inner join obs tipoDispensa on tipoDispensa.encounter_id=e.encounter_id
-				where regimeTPT.concept_id=23985 and regimeTPT.value_coded in(656,23982) and tipoDispensa.concept_id=23986 and tipoDispensa.value_coded=23720
-				and p.voided=0 and e.voided=0 and regimeTPT.voided=0 and tipoDispensa.voided=0 and e.encounter_datetime<=:endDate  and e.location_id=:location
-				and e.encounter_type = 60
-				)fim left join(
+				where e.encounter_type=60 and regimeTPT.concept_id=23985 and regimeTPT.value_coded in(656,23982) and tipoDispensa.concept_id=23986 and tipoDispensa.value_coded=23720
+				and p.voided=0 and e.voided=0 and regimeTPT.voided=0 and tipoDispensa.voided=0 and e.encounter_datetime <=:endDate 
 
- select distinct inicio_inh.patient_id,data_inicio_inh                                                                                     
- from                                                                                                                                                
-     (  
-         select p.patient_id, e.encounter_datetime data_inicio_inh                                                                                   
-	      from patient p                                                                                                                              
-	          inner join encounter e on p.patient_id = e.patient_id                                                                                     
-	          inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id = e.encounter_id                                                                                       
-	          inner join obs seguimentoTPT on seguimentoTPT.encounter_id = e.encounter_id                                                               
-	      where e.voided=0 and p.voided = 0 and e.encounter_datetime < :endDate and e.location_id=:location                                             
-	          and seguimentoTPT.voided = 0 and seguimentoTPT.concept_id = 23987 and seguimentoTPT.value_coded in (1256,1705)                            
-	          and regimeIsoniazida.voided = 0 and regimeIsoniazida.concept_id = 23985 and regimeIsoniazida.value_coded in (656,23982) and e.encounter_type=60                                          
-	      
-	      union                                                                                                                                       
-	      
-	      select inicio.patient_id, inicio.data_inicio_inh                                                                                        
-	      from                                                                                                                                    
-	          (  select p.patient_id, e.encounter_datetime data_inicio_inh                                                                       
-	              from patient p                                                                                                                  
-	                  inner join encounter e on p.patient_id=e.patient_id                                                                         
-	                  inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id=e.encounter_id                                                                           
-	                  inner join obs seguimentoTPT on seguimentoTPT.encounter_id=e.encounter_id                                                   
-	              where e.voided=0 and p.voided=0 and regimeIsoniazida.voided=0 and regimeIsoniazida.concept_id=23985 and regimeIsoniazida.value_coded in (656,23982) and e.encounter_type=60  
-	                  and seguimentoTPT.voided =0 and seguimentoTPT.concept_id =23987 and seguimentoTPT.value_coded in (1257)                     
-	                  and e.encounter_datetime < :endDate and e.location_id=:location                                                             
-	              
-	              union                                                                                                                           
-	              
-	              select p.patient_id, e.encounter_datetime data_inicio_inh                                                                       
-	              from patient p                                                                                                                  
-	                  inner join encounter e on p.patient_id=e.patient_id                                                                         
-	                  inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id=e.encounter_id                                                                           
-	                   left join obs seguimentoTPT on (e.encounter_id =seguimentoTPT.encounter_id and seguimentoTPT.concept_id =23987 and seguimentoTPT.value_coded in(1256,1257,1705,1267) and seguimentoTPT.voided =0) 
-	              where e.voided=0 and p.voided=0 and regimeIsoniazida.voided=0 and regimeIsoniazida.concept_id=23985 and regimeIsoniazida.value_coded in (656,23982) and e.encounter_type=60  
-	                  and e.encounter_datetime < :endDate and e.location_id=:location and seguimentoTPT.obs_id is null                            
-	          ) inicio                                                                                                                                  
-	      left join                                                                                                                               
-	          ( 
-	          	select p.patient_id, e.encounter_datetime data_inicio_inh                                                                       
-	             from patient p                                                                                                                  
-	                  inner join encounter e on p.patient_id=e.patient_id                                                                         
-	                  inner join obs o on o.encounter_id=e.encounter_id                                                                           
-	             where e.voided=0 and p.voided=0 and o.voided=0 and o.concept_id=23985 and o.value_coded in (656,23982) and e.encounter_type=60  
-	                  and e.encounter_datetime < :endDate and e.location_id=:location       
-	          	
-	             union
-	
-			select p.patient_id, estadoProfilaxia.obs_datetime data_inicio_inh 
-			from patient p 
-				inner join encounter e on p.patient_id = e.patient_id 
-				inner join obs profilaxiaINH on profilaxiaINH.encounter_id = e.encounter_id 
-				inner join obs estadoProfilaxia on estadoProfilaxia.encounter_id = e.encounter_id
-			where p.voided = 0 and e.voided = 0  and profilaxiaINH.voided = 0 and estadoProfilaxia.voided = 0  
-				and  profilaxiaINH.concept_id = 23985  and profilaxiaINH.value_coded = 656 and estadoProfilaxia.concept_id = 165308 and estadoProfilaxia.value_coded = 1256 
-				and e.encounter_type in (6,9,53) and e.location_id=:location and estadoProfilaxia.obs_datetime < :endDate
-	          ) inicioAnterior                                                                                                                          
-	          on inicio.patient_id = inicioAnterior.patient_id
-	          	and inicioAnterior.data_inicio_inh between (inicio.data_inicio_inh - INTERVAL 7 MONTH) and (inicio.data_inicio_inh - INTERVAL 1 day)                                                                                     
-	            where inicioAnterior.patient_id is null                                                                                   
-      ) inicio_inh 
-      ) inicio_inh on inicio_inh.patient_id = fim.patient_id
-      where data_fim_INH BETWEEN inicio_inh.data_inicio_inh and (inicio_inh.data_inicio_inh + INTERVAL 5 MONTH)
-      ) inicio_fim group by patient_id, data_inicio_inh
-      having count(data_fim_INH) >= 2 
-		) DTINH_FIM on DTINH_FIM.patient_id = inicio_inh.patient_id
-		group by inicio_inh.patient_id
-
-union               
-
- select inicio_inh.patient_id                                                                                                                
- from                                                                                                                                                
-     (  
- select inicio_inh.patient_id,inicio_inh.encounter_id_inicio                                                                                                         
- from                                                                                                                                                
-     (  
-        select p.patient_id, e.encounter_datetime data_inicio_inh, e.encounter_id  encounter_id_inicio                                                                                 
-	      from patient p                                                                                                                              
-	          inner join encounter e on p.patient_id = e.patient_id                                                                                     
-	          inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id = e.encounter_id                                                                                       
-	          inner join obs seguimentoTPT on seguimentoTPT.encounter_id = e.encounter_id                                                               
-	      where e.voided=0 and p.voided = 0 and e.encounter_datetime < :endDate and e.location_id=:location                                             
-	          and seguimentoTPT.voided = 0 and seguimentoTPT.concept_id = 23987 and seguimentoTPT.value_coded in (1256,1705)                            
-	          and regimeIsoniazida.voided = 0 and regimeIsoniazida.concept_id = 23985 and regimeIsoniazida.value_coded in (656,23982) and e.encounter_type=60                                          
-	      
-	      union                                                                                                                                       
-	      
-	      select inicio.patient_id, inicio.data_inicio_inh, inicio.encounter_id_inicio                                                                                       
-	      from                                                                                                                                    
-	          (  select p.patient_id, e.encounter_datetime data_inicio_inh,e.encounter_id  encounter_id_inicio                                                                       
-	              from patient p                                                                                                                  
-	                  inner join encounter e on p.patient_id=e.patient_id                                                                         
-	                  inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id=e.encounter_id                                                                           
-	                  inner join obs seguimentoTPT on seguimentoTPT.encounter_id=e.encounter_id                                                   
-	              where e.voided=0 and p.voided=0 and regimeIsoniazida.voided=0 and regimeIsoniazida.concept_id=23985 and regimeIsoniazida.value_coded in (656,23982) and e.encounter_type=60  
-	                  and seguimentoTPT.voided =0 and seguimentoTPT.concept_id =23987 and seguimentoTPT.value_coded in (1257)                     
-	                  and e.encounter_datetime < :endDate and e.location_id=:location                                                             
-	              
-	              union                                                                                                                           
-	              
-	              select p.patient_id, e.encounter_datetime data_inicio_inh, e.encounter_id  encounter_id_inicio                                                                       
-	              from patient p                                                                                                                  
-	                  inner join encounter e on p.patient_id=e.patient_id                                                                         
-	                  inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id=e.encounter_id                                                                           
-	                   left join obs seguimentoTPT on (e.encounter_id =seguimentoTPT.encounter_id and seguimentoTPT.concept_id =23987 and seguimentoTPT.value_coded in(1256,1257,1705,1267) and seguimentoTPT.voided =0) 
-	              where e.voided=0 and p.voided=0 and regimeIsoniazida.voided=0 and regimeIsoniazida.concept_id=23985 and regimeIsoniazida.value_coded in (656,23982) and e.encounter_type=60  
-	                  and e.encounter_datetime < :endDate and e.location_id=:location and seguimentoTPT.obs_id is null                            
-	          ) inicio                                                                                                                                  
-	      left join                                                                                                                               
-	          ( 
-	          	select p.patient_id, e.encounter_datetime data_inicio_inh                                                                       
-	             from patient p                                                                                                                  
-	                  inner join encounter e on p.patient_id=e.patient_id                                                                         
-	                  inner join obs o on o.encounter_id=e.encounter_id                                                                           
-	             where e.voided=0 and p.voided=0 and o.voided=0 and o.concept_id=23985 and o.value_coded in (656,23982) and e.encounter_type=60  
-	                  and e.encounter_datetime < :endDate and e.location_id=:location       
-	          	
-	             union
-	
-			select p.patient_id, estadoProfilaxia.obs_datetime data_inicio_inh 
-			from patient p 
-				inner join encounter e on p.patient_id = e.patient_id 
-				inner join obs profilaxiaINH on profilaxiaINH.encounter_id = e.encounter_id 
-				inner join obs estadoProfilaxia on estadoProfilaxia.encounter_id = e.encounter_id
-			where p.voided = 0 and e.voided = 0  and profilaxiaINH.voided = 0 and estadoProfilaxia.voided = 0  
-				and  profilaxiaINH.concept_id = 23985  and profilaxiaINH.value_coded = 656 and estadoProfilaxia.concept_id = 165308 and estadoProfilaxia.value_coded = 1256 
-				and e.encounter_type in (6,9,53) and e.location_id=:location and estadoProfilaxia.obs_datetime < :endDate
-	
-	          ) inicioAnterior                                                                                                                          
-	          on inicio.patient_id = inicioAnterior.patient_id
-	          	and inicioAnterior.data_inicio_inh between (inicio.data_inicio_inh - INTERVAL 7 MONTH) and (inicio.data_inicio_inh - INTERVAL 1 day)                                                                                     
-	            where inicioAnterior.patient_id is null                                                                                
-      ) inicio_inh 
-			inner join encounter e on e.patient_id=inicio_inh.patient_id               
-			inner join obs obsDTINH on e.encounter_id=obsDTINH.encounter_id      
-			inner join obs obsLevTPI on e.encounter_id=obsLevTPI.encounter_id          
-		where e.voided=0 and obsDTINH.voided=0 and obsLevTPI.voided=0 and e.encounter_type in (60)  
-			and obsDTINH.concept_id=23986 and obsDTINH.value_coded=1098  and obsLevTPI.concept_id=23985 and obsLevTPI.value_coded in (656,23982)  
-			and e.encounter_datetime between inicio_inh.data_inicio_inh and (inicio_inh.data_inicio_inh + INTERVAL 7 MONTH) and e.encounter_datetime < :endDate and e.location_id=:location  
-			group by inicio_inh.patient_id,inicio_inh.data_inicio_inh having count(distinct e.encounter_id)>=3         
-)inicio_inh
-inner join     
-(
-	 select  inicio_inh.patient_id,data_inicio_inh,inicio_inh.encounter_id_inicio  encounter_id_inicio                                                                                                              
- 	from                                                                                                                                                
-     (  
-         select p.patient_id, e.encounter_datetime data_inicio_inh, e.encounter_id  encounter_id_inicio                                                                                   
-	      from patient p                                                                                                                              
-	          inner join encounter e on p.patient_id = e.patient_id                                                                                     
-	          inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id = e.encounter_id                                                                                       
-	          inner join obs seguimentoTPT on seguimentoTPT.encounter_id = e.encounter_id                                                               
-	      where e.voided=0 and p.voided = 0 and e.encounter_datetime < :endDate and e.location_id=:location                                             
-	          and seguimentoTPT.voided = 0 and seguimentoTPT.concept_id = 23987 and seguimentoTPT.value_coded in (1256,1705)                            
-	          and regimeIsoniazida.voided = 0 and regimeIsoniazida.concept_id = 23985 and regimeIsoniazida.value_coded in (656,23982) and e.encounter_type=60                                          
-	      
-	      union                                                                                                                                       
-	      
-	      select inicio.patient_id, inicio.data_inicio_inh, inicio.encounter_id_inicio  encounter_id_inicio                                                                                        
-	      from                                                                                                                                    
-	          (  select p.patient_id, e.encounter_datetime data_inicio_inh, e.encounter_id  encounter_id_inicio                                                                       
-	              from patient p                                                                                                                  
-	                  inner join encounter e on p.patient_id=e.patient_id                                                                         
-	                  inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id=e.encounter_id                                                                           
-	                  inner join obs seguimentoTPT on seguimentoTPT.encounter_id=e.encounter_id                                                   
-	              where e.voided=0 and p.voided=0 and regimeIsoniazida.voided=0 and regimeIsoniazida.concept_id=23985 and regimeIsoniazida.value_coded in (656,23982) and e.encounter_type=60  
-	                  and seguimentoTPT.voided =0 and seguimentoTPT.concept_id =23987 and seguimentoTPT.value_coded in (1257)                     
-	                  and e.encounter_datetime < :endDate and e.location_id=:location                                                             
-	              
-	              union                                                                                                                           
-	              
-	              select p.patient_id, e.encounter_datetime data_inicio_inh, e.encounter_id  encounter_id_inicio                                                                       
-	              from patient p                                                                                                                  
-	                  inner join encounter e on p.patient_id=e.patient_id                                                                         
-	                  inner join obs regimeIsoniazida on regimeIsoniazida.encounter_id=e.encounter_id                                                                           
-	                   left join obs seguimentoTPT on (e.encounter_id =seguimentoTPT.encounter_id and seguimentoTPT.concept_id =23987 and seguimentoTPT.value_coded in(1256,1257,1705,1267) and seguimentoTPT.voided =0) 
-	              where e.voided=0 and p.voided=0 and regimeIsoniazida.voided=0 and regimeIsoniazida.concept_id=23985 and regimeIsoniazida.value_coded in (656,23982) and e.encounter_type=60  
-	                  and e.encounter_datetime < :endDate and e.location_id=:location and seguimentoTPT.obs_id is null                            
-	          ) inicio                                                                                                                                  
-	      left join                                                                                                                               
-	          ( 
-	          	select p.patient_id, e.encounter_datetime data_inicio_inh                                                                       
-	             from patient p                                                                                                                  
-	                  inner join encounter e on p.patient_id=e.patient_id                                                                         
-	                  inner join obs o on o.encounter_id=e.encounter_id                                                                           
-	             where e.voided=0 and p.voided=0 and o.voided=0 and o.concept_id=23985 and o.value_coded in (656,23982) and e.encounter_type=60  
-	                  and e.encounter_datetime < :endDate and e.location_id=:location       
-	          	
-	             union
-	
-			select p.patient_id, estadoProfilaxia.obs_datetime data_inicio_inh 
-			from patient p 
-				inner join encounter e on p.patient_id = e.patient_id 
-				inner join obs profilaxiaINH on profilaxiaINH.encounter_id = e.encounter_id 
-				inner join obs estadoProfilaxia on estadoProfilaxia.encounter_id = e.encounter_id
-			where p.voided = 0 and e.voided = 0  and profilaxiaINH.voided = 0 and estadoProfilaxia.voided = 0  
-				and  profilaxiaINH.concept_id = 23985  and profilaxiaINH.value_coded = 656 and estadoProfilaxia.concept_id = 165308 and estadoProfilaxia.value_coded = 1256 
-				and e.encounter_type in (6,9,53) and e.location_id=:location and estadoProfilaxia.obs_datetime < :endDate
-	          ) inicioAnterior                                                                                                                          
-	          on inicio.patient_id = inicioAnterior.patient_id
-	          	and inicioAnterior.data_inicio_inh between (inicio.data_inicio_inh - INTERVAL 7 MONTH) and (inicio.data_inicio_inh - INTERVAL 1 day)                                                                                     
-	            where inicioAnterior.patient_id is null                                                                                                      
-      ) inicio_inh 
-		inner join encounter e on e.patient_id=inicio_inh.patient_id               
-		inner join obs obsDTINH on e.encounter_id=obsDTINH.encounter_id      
-		inner join obs obsLevTPI on e.encounter_id=obsLevTPI.encounter_id          
-	where e.voided=0 and obsDTINH.voided=0 and obsLevTPI.voided=0 and e.encounter_type in (60)  
-	  and obsDTINH.concept_id=23986 and obsDTINH.value_coded=23720  and obsLevTPI.concept_id=23985 and obsLevTPI.value_coded in (656,23982)  
-	  and e.encounter_datetime between inicio_inh.data_inicio_inh and (inicio_inh.data_inicio_inh + INTERVAL 7 MONTH) and e.encounter_datetime <= :endDate and e.location_id=:location  
-	  group by inicio_inh.patient_id,inicio_inh.data_inicio_inh having count(distinct e.encounter_id)>=1 
-) inicio_inh_dt on inicio_inh_dt.patient_id = inicio_inh.patient_id 
-where inicio_inh.encounter_id_inicio=inicio_inh_dt.encounter_id_inicio
-) final group by patient_id
+		) DTINH on DTINH.patient_id=inicio_INH.patient_id
+		where DTINH.data_fim_INH BETWEEN inicio_INH.data_inicio_INH and (inicio_INH.data_inicio_INH + interval 5 month) 
+		group by inicio_INH.patient_id
+		 having count(DTINH.encounter_id)>=2
+		
+		union
+		
+		/*
+			At least 3 consultations registered on Ficha Clínica with INH
+			((Profilaxia INH= (Início or Continua)) or (Profilaxia TPT=”
+			Isoniazida (INH)” and Estado da Profilaxia=”Início(I)/Continua( C)”)
+			+ 1 Ficha Clínica com DT-INH ((Profilaxia INH = Início/Continua
+			and Outras Prescrições = DT-INH) or (Profilaxia TPT=”Isoniazida
+			(INH)” and Estado da Profilaxia=“Início(I)/Continua( C)” and
+			Outras Prescrições = DT-INH ) until a 7-month period from the INH
+			Start Date (including INH Start Date) or
+		 * */
+		select startAndDT.patient_id, startAndDT.data_fim_INH
+		from(
+		select inicio_INH.patient_id, data_inicio_INH, DTINH.data_fim_INH
+		from(
+			select inicio_INH.patient_id,min(inicio_INH.data_inicio_INH) data_inicio_INH 
+			from (
+					select p.patient_id,min(obsInicioINH.obs_datetime) data_inicio_INH 
+					from patient p 
+						inner join encounter e on p.patient_id = e.patient_id 
+						inner join obs o on o.encounter_id = e.encounter_id 
+						inner join obs obsInicioINH on obsInicioINH.encounter_id = e.encounter_id 
+					where e.voided=0 and p.voided=0 and o.voided=0 and e.encounter_type in (6,9,53)and o.concept_id=23985 and o.value_coded=656
+						and obsInicioINH.concept_id=165308 and obsInicioINH.value_coded=1256 and obsInicioINH.voided=0
+						and obsInicioINH.obs_datetime <:endDate and  e.location_id=:location
+						group by p.patient_id
+					
+					union	
+					
+					select p.patient_id,min(seguimentoTPT.obs_datetime) data_inicio_INH	
+					from	patient p													 
+						inner join encounter e on p.patient_id=e.patient_id																				 
+						inner join obs o on o.encounter_id=e.encounter_id	 																			 
+						inner join obs seguimentoTPT on seguimentoTPT.encounter_id=e.encounter_id														 
+					where e.voided=0 and p.voided=0 and seguimentoTPT.obs_datetime <:endDate   
+						and seguimentoTPT.voided =0 and seguimentoTPT.concept_id = 23987 and seguimentoTPT.value_coded in (1256,1705)	 						 
+						and o.voided=0 and o.concept_id=23985 and o.value_coded in (656,23982) and e.encounter_type=60 and  e.location_id=:location		 
+						group by p.patient_id	 																											 
+					union
+					(	select inicio.patient_id, inicio.data_inicio_INH
+						from (
+								select p.patient_id,min(seguimentoTPT.obs_datetime) data_inicio_INH	
+								from	patient p													 
+									inner join encounter e on p.patient_id=e.patient_id																				 
+									inner join obs o on o.encounter_id=e.encounter_id	 																			 
+									inner join obs seguimentoTPT on seguimentoTPT.encounter_id=e.encounter_id														 
+								where e.voided=0 and p.voided=0 and seguimentoTPT.obs_datetime <:endDate   
+									and seguimentoTPT.voided =0 and seguimentoTPT.concept_id =23987 and seguimentoTPT.value_coded in (1257)	 						 
+									and o.voided=0 and o.concept_id=23985 and o.value_coded in (656,23982) and e.encounter_type=60 and  e.location_id=:location		 
+									group by p.patient_id	 
+								union
+								select p.patient_id,min(seguimentoTPT.obs_datetime) data_inicio_INH	from	patient p													         
+									inner join encounter e on p.patient_id=e.patient_id																				 
+									inner join obs o on o.encounter_id=e.encounter_id																				 
+									left join obs seguimentoTPT on (e.encounter_id =seguimentoTPT.encounter_id	 													
+									and seguimentoTPT.concept_id =23987  																						
+									and seguimentoTPT.value_coded in(1256,1257,1705,1267)  																		
+									and seguimentoTPT.voided =0)						 
+								where e.voided=0 and p.voided=0 and seguimentoTPT.obs_datetime <:endDate   
+									and o.voided=0 and o.concept_id=23985 and o.value_coded in (656,23982) and e.encounter_type=60 and  e.location_id=:location      
+									and seguimentoTPT.obs_id is null 	         
+									group by p.patient_id
+							)
+				 		inicio
+						left join
+						(
+							select p.patient_id,o.obs_datetime data_inicio_INH 
+							from patient p																 
+								inner join encounter e on p.patient_id=e.patient_id																				 
+								inner join obs o on o.encounter_id=e.encounter_id																				 
+							where e.voided=0 and p.voided=0 and o.obs_datetime<:endDate  
+								and o.voided=0 and o.concept_id=23985 and o.value_coded in (656,23982) and e.encounter_type=60 and  e.location_id=:location
+							union
+							select p.patient_id,obsInicioINH.obs_datetime data_inicio_INH from patient p 
+						     	inner join encounter e on p.patient_id = e.patient_id 
+						        	inner join obs o on o.encounter_id = e.encounter_id 
+						        	inner join obs obsInicioINH on obsInicioINH.encounter_id = e.encounter_id 
+						     where e.voided=0 and p.voided=0 and o.voided=0 and e.encounter_type in (6,9,53) and o.concept_id=23985 and o.value_coded=656
+						      	and obsInicioINH.concept_id=165308 and obsInicioINH.value_coded=1256 and obsInicioINH.voided=0
+						      	and obsInicioINH.obs_datetime <:endDate and  e.location_id=:location
+						)
+						inicioAnterior on inicioAnterior.patient_id=inicio.patient_id  																		 
+							and inicioAnterior.data_inicio_INH between (inicio.data_inicio_INH - INTERVAL 7 MONTH) and (inicio.data_inicio_INH - INTERVAL 1 day) 
+						where inicioAnterior.patient_id is null	
+			  		)
+			 	) 
+			inicio_INH group by inicio_INH.patient_id
+		) inicio_INH
+		inner join 
+		(
+			select p.patient_id,estadoProfilaxia.obs_datetime data_fim_INH,e.encounter_id																		
+			from	patient p														 			  															
+				inner join encounter e on p.patient_id=e.patient_id
+				inner join obs profilaxiaINH on profilaxiaINH.encounter_id = e.encounter_id																			 		
+				inner join obs estadoProfilaxia on estadoProfilaxia.encounter_id=e.encounter_id
+			where e.voided=0 and p.voided=0 and estadoProfilaxia.obs_datetime <:endDate 
+				and profilaxiaINH.concept_id = 23985 and profilaxiaINH.value_coded = 656 and profilaxiaINH.voided = 0
+				and estadoProfilaxia.voided=0 and estadoProfilaxia.concept_id=165308 and estadoProfilaxia.value_coded in (1256,1257)
+				and e.encounter_type=6 and  e.location_id=:location	  
+		) DTINH on DTINH.patient_id=inicio_INH.patient_id
+		where DTINH.data_fim_INH BETWEEN inicio_INH.data_inicio_INH and (inicio_INH.data_inicio_INH +interval 7 month)
+		group by inicio_INH.patient_id
+		having count(DTINH.encounter_id)>=:location
+		
+		) startAndDT
+		inner join
+		(
+			select p.patient_id,estadoProfilaxia.obs_datetime data_fim_INH																		
+			from	patient p														 			  															
+				inner join encounter e on p.patient_id=e.patient_id
+				inner join obs profilaxiaINH on profilaxiaINH.encounter_id = e.encounter_id																			 		
+				inner join obs estadoProfilaxia on estadoProfilaxia.encounter_id=e.encounter_id
+				inner join obs obsDTINH on obsDTINH.encounter_id=e.encounter_id	
+			where e.voided=0 and p.voided=0 and estadoProfilaxia.obs_datetime <=:endDate 
+				and profilaxiaINH.concept_id = 23985 and profilaxiaINH.value_coded = 656 and profilaxiaINH.voided = 0
+				and estadoProfilaxia.voided=0 and estadoProfilaxia.concept_id=165308 and estadoProfilaxia.value_coded in (1256,1257)
+				and obsDTINH.voided=0 and obsDTINH.concept_id=1719 and obsDTINH.value_coded=23955 and e.encounter_type=6 and  e.location_id=:location	  
+		) dt on startAndDT.patient_id=dt.patient_id 
+		where dt.data_fim_INH BETWEEN startAndDT.data_inicio_INH and (startAndDT.data_inicio_INH + interval 7 month)
+		
+		union
+		
+		/*
+					At least 3 FILT with INH Mensal (Regime de TPT=
+					Isoniazida/’Isoniazida + Piridoxina’ and Tipo de Dispensa =
+					Mensal) + 1 FILT with DT-INH (Regime de TPT=
+					Isoniazida/’Isoniazida + Piridoxina’ and Tipo de Dispensa =
+					Trimestral) until a 7-month period from the INH Start Date
+					(including INH Start Date)
+		 * */
+		select startAndDT.patient_id, startAndDT.data_fim_INH
+		from (
+		select inicio_INH.patient_id, data_inicio_INH, DTINH.data_fim_INH
+		from(
+			select inicio_INH.patient_id,min(inicio_INH.data_inicio_INH) data_inicio_INH 
+			from (
+					select p.patient_id,min(obsInicioINH.obs_datetime) data_inicio_INH 
+					from patient p 
+						inner join encounter e on p.patient_id = e.patient_id 
+						inner join obs o on o.encounter_id = e.encounter_id 
+						inner join obs obsInicioINH on obsInicioINH.encounter_id = e.encounter_id 
+					where e.voided=0 and p.voided=0 and o.voided=0 and e.encounter_type in (6,9,53)and o.concept_id=23985 and o.value_coded=656
+						and obsInicioINH.concept_id=165308 and obsInicioINH.value_coded=1256 and obsInicioINH.voided=0
+						and obsInicioINH.obs_datetime <:endDate and  e.location_id=:location
+						group by p.patient_id
+					
+					union	
+					
+					select p.patient_id,min(seguimentoTPT.obs_datetime) data_inicio_INH	
+					from	patient p													 
+						inner join encounter e on p.patient_id=e.patient_id																				 
+						inner join obs o on o.encounter_id=e.encounter_id	 																			 
+						inner join obs seguimentoTPT on seguimentoTPT.encounter_id=e.encounter_id														 
+					where e.voided=0 and p.voided=0 and seguimentoTPT.obs_datetime <:endDate   
+						and seguimentoTPT.voided =0 and seguimentoTPT.concept_id = 23987 and seguimentoTPT.value_coded in (1256,1705)	 						 
+						and o.voided=0 and o.concept_id=23985 and o.value_coded in (656,23982) and e.encounter_type=60 and  e.location_id=:location		 
+						group by p.patient_id	 																											 
+					union
+					(	select inicio.patient_id, inicio.data_inicio_INH
+						from (
+								select p.patient_id,min(seguimentoTPT.obs_datetime) data_inicio_INH	
+								from	patient p													 
+									inner join encounter e on p.patient_id=e.patient_id																				 
+									inner join obs o on o.encounter_id=e.encounter_id	 																			 
+									inner join obs seguimentoTPT on seguimentoTPT.encounter_id=e.encounter_id														 
+								where e.voided=0 and p.voided=0 and seguimentoTPT.obs_datetime <:endDate   
+									and seguimentoTPT.voided =0 and seguimentoTPT.concept_id =23987 and seguimentoTPT.value_coded in (1257)	 						 
+									and o.voided=0 and o.concept_id=23985 and o.value_coded in (656,23982) and e.encounter_type=60 and  e.location_id=:location		 
+									group by p.patient_id	 
+								union
+								select p.patient_id,min(seguimentoTPT.obs_datetime) data_inicio_INH	from	patient p													         
+									inner join encounter e on p.patient_id=e.patient_id																				 
+									inner join obs o on o.encounter_id=e.encounter_id																				 
+									left join obs seguimentoTPT on (e.encounter_id =seguimentoTPT.encounter_id	 													
+									and seguimentoTPT.concept_id =23987  																						
+									and seguimentoTPT.value_coded in(1256,1257,1705,1267)  																		
+									and seguimentoTPT.voided =0)						 
+								where e.voided=0 and p.voided=0 and seguimentoTPT.obs_datetime <:endDate   
+									and o.voided=0 and o.concept_id=23985 and o.value_coded in (656,23982) and e.encounter_type=60 and  e.location_id=:location      
+									and seguimentoTPT.obs_id is null 	         
+									group by p.patient_id
+							)
+				 		inicio
+						left join
+						(
+							select p.patient_id,o.obs_datetime data_inicio_INH 
+							from patient p																 
+								inner join encounter e on p.patient_id=e.patient_id																				 
+								inner join obs o on o.encounter_id=e.encounter_id																				 
+							where e.voided=0 and p.voided=0 and o.obs_datetime <:endDate
+								and o.voided=0 and o.concept_id=23985 and o.value_coded in (656,23982) and e.encounter_type=60 and  e.location_id=:location
+							union
+							select p.patient_id,obsInicioINH.obs_datetime data_inicio_INH from patient p 
+						     	inner join encounter e on p.patient_id = e.patient_id 
+						        	inner join obs o on o.encounter_id = e.encounter_id 
+						        	inner join obs obsInicioINH on obsInicioINH.encounter_id = e.encounter_id 
+						     where e.voided=0 and p.voided=0 and o.voided=0 and e.encounter_type in (6,9,53) and o.concept_id=23985 and o.value_coded=656
+						      	and obsInicioINH.concept_id=165308 and obsInicioINH.value_coded=1256 and obsInicioINH.voided=0
+						      	and obsInicioINH.obs_datetime <:endDate and  e.location_id=:location
+						)
+						inicioAnterior on inicioAnterior.patient_id=inicio.patient_id  																		 
+							and inicioAnterior.data_inicio_INH between (inicio.data_inicio_INH - INTERVAL 7 MONTH) and (inicio.data_inicio_INH - INTERVAL 1 day) 
+						where inicioAnterior.patient_id is null	
+			  		)
+			 	) 
+			inicio_INH group by inicio_INH.patient_id
+		) inicio_INH
+		inner join 
+		(
+			select 	p.patient_id, e.encounter_datetime data_fim_INH, e.encounter_id																		
+			from 	patient p														 			  															
+					inner join encounter e on p.patient_id=e.patient_id																				 		
+					inner join obs obsInh on obsInh.encounter_id=e.encounter_id		 																				
+					inner join obs dispensaMensal on dispensaMensal.encounter_id=e.encounter_id																
+			where 	e.voided=0 and p.voided=0 and e.encounter_datetime <:endDate	 			  									
+					and obsInh.voided=0 and obsInh.concept_id=23985 and obsInh.value_coded in (656,23982) and e.encounter_type=60 and  e.location_id=:location	  		
+					and dispensaMensal.voided =0 and dispensaMensal.concept_id =23986 and dispensaMensal.value_coded=1098 							
+		) DTINH on DTINH.patient_id=inicio_INH.patient_id
+		where DTINH.data_fim_INH BETWEEN inicio_INH.data_inicio_INH and (inicio_INH.data_inicio_INH + interval 7 month)
+		group by inicio_INH.patient_id
+		having count(DTINH.encounter_id)>=:location
+		) startAndDT
+		inner join
+		(
+			select 	p.patient_id, e.encounter_datetime  data_fim_INH																		
+			from 	patient p														 			  															
+					inner join encounter e on p.patient_id=e.patient_id																			 		
+					inner join obs obsInh on obsInh.encounter_id=e.encounter_id		 																				
+					inner join obs dispensaMensal on dispensaMensal.encounter_id=e.encounter_id																
+			where 	e.voided=0 and p.voided=0 and e.encounter_datetime <=:endDate	 			  									
+					and obsInh.voided=0 and obsInh.concept_id=23985 and obsInh.value_coded in (656,23982) and e.encounter_type=60 and  e.location_id=:location	  		
+					and dispensaMensal.voided =0 and dispensaMensal.concept_id =23986 and dispensaMensal.value_coded=23720
+		) dt on startAndDT.patient_id=dt.patient_id 
+		where dt.data_fim_INH BETWEEN startAndDT.data_inicio_INH and (startAndDT.data_inicio_INH + interval 7 month)
+	) fimINH group by fimINH.patient_id
+) fimINH

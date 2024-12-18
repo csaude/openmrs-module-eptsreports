@@ -28,6 +28,7 @@ import org.openmrs.module.eptsreports.reporting.library.datasets.TxCurrDataset;
 import org.openmrs.module.eptsreports.reporting.library.datasets.TxMlDataset;
 import org.openmrs.module.eptsreports.reporting.library.datasets.TxNewDataset;
 import org.openmrs.module.eptsreports.reporting.library.datasets.TxPvlsDataset;
+import org.openmrs.module.eptsreports.reporting.library.datasets.TxPvlsSuplementalDataSet;
 import org.openmrs.module.eptsreports.reporting.library.datasets.TxRttDataset;
 import org.openmrs.module.eptsreports.reporting.library.queries.BaseQueries;
 import org.openmrs.module.eptsreports.reporting.reports.manager.EptsDataExportManager;
@@ -62,6 +63,8 @@ public class SetupMERQuarterly extends EptsDataExportManager {
 
   @Autowired private PMTCTHEIDataSet pmtctheiDataSet;
 
+  @Autowired private TxPvlsSuplementalDataSet txPvlsSuplementalDataSet;
+
   @Autowired protected GenericCohortQueries genericCohortQueries;
   @Autowired private DatimCodeDataSet datimCodeDataSet;
 
@@ -82,12 +85,12 @@ public class SetupMERQuarterly extends EptsDataExportManager {
 
   @Override
   public String getName() {
-    return "PEPFAR MER 2.7 Quarterly";
+    return "PEPFAR MER 2.8 Quarterly";
   }
 
   @Override
   public String getDescription() {
-    return "PEPFAR MER 2.7 Quarterly";
+    return "PEPFAR MER 2.8 Quarterly";
   }
 
   @Override
@@ -130,6 +133,11 @@ public class SetupMERQuarterly extends EptsDataExportManager {
         "PMTCT_HEI", Mapped.mapStraightThrough(this.pmtctheiDataSet.constructPMTCTHEIDataset()));
 
     reportDefinition.addDataSetDefinition(
+        "T-S",
+        Mapped.mapStraightThrough(
+            this.txPvlsSuplementalDataSet.constructTxPvlsSupplementalDataset()));
+
+    reportDefinition.addDataSetDefinition(
         "D",
         Mapped.mapStraightThrough(this.datimCodeDataSet.constructDataset(this.getParameters())));
 
@@ -149,8 +157,8 @@ public class SetupMERQuarterly extends EptsDataExportManager {
       reportDesign =
           this.createXlsReportDesign(
               reportDefinition,
-              "PEPFAR_MER_2.7_Quarterly.xls",
-              "PEPFAR MER 2.7 Quarterly",
+              "PEPFAR_MER_2.8_Quarterly.xls",
+              "PEPFAR MER 2.8 Quarterly",
               this.getExcelDesignUuid(),
               null);
       final Properties props = new Properties();

@@ -1,5 +1,7 @@
 package org.openmrs.module.eptsreports.reporting.calculation.generic;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -38,7 +40,10 @@ public class TxRttNextFilaUntilEndDateCalculation extends BaseFghCalculation {
 
     for (Integer patientId : lastFilaCalculationResult.keySet()) {
       CalculationResult calculationResult = lastFilaCalculationResult.get(patientId);
-      Date lastDateFila = (Date) (calculationResult != null ? calculationResult.getValue() : null);
+
+      Object object = (calculationResult != null ? calculationResult.getValue() : null);
+      LocalDateTime localDateTime = (LocalDateTime) object;
+      Date lastDateFila = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
 
       List<Date[]> allObsNextFila = resutls.get(patientId);
 
