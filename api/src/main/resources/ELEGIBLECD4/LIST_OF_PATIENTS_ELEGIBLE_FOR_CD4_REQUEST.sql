@@ -1686,7 +1686,7 @@
 							                  )lastCV 
 							                  left join encounter e on e.patient_id=lastCV.patient_id
 							                  left join obs o on o.encounter_id=e.encounter_id
-							                  where e.voided=0 and o.voided=0 and e.encounter_type=6 and date(e.encounter_datetime) < date_sub(date(lastCV.data_ultimo_resultado_cv), interval 3 month) and o.concept_id in(856,1305)
+							                  where e.voided=0 and o.voided=0 and e.encounter_type=6 and date(e.encounter_datetime) < date_sub(date(lastCV.data_ultimo_resultado_cv), interval 3 month) and o.concept_id in(856,1305) and e.location_id=:location
 							                  group by lastCV.patient_id
 							                  )finalCV
 							                  left join
@@ -1887,7 +1887,7 @@
 							                  )lastCV 
 							                  left join encounter e on e.patient_id=lastCV.patient_id
 							                  left join obs o on o.encounter_id=e.encounter_id
-							                  where e.voided=0 and o.voided=0 and e.encounter_type in(13,51) and e.encounter_datetime < date_sub(lastCV.data_ultimo_resultado_cv, interval 3 month) and o.concept_id in(856,1305)
+							                  where e.voided=0 and o.voided=0 and e.encounter_type in(13,51) and e.encounter_datetime < date_sub(lastCV.data_ultimo_resultado_cv, interval 3 month) and o.concept_id in(856,1305) and o.location_id=:location
 							                  group by lastCV.patient_id
 							                  )finalCV
 							                  left join
