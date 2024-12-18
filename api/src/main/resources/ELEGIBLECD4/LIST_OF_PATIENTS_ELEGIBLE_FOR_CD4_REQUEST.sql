@@ -6,8 +6,6 @@
                  if(inicio.data_inicio is not null,DATE_FORMAT(DATE(inicio.data_inicio), '%d/%m/%Y'),'N/A')  as data_inicio,
                  floor(datediff(:endDate,p.birthdate)/365) as idade_actual,
                  if(transferedIn.patient_id is not null,'Sim','Não') transfered_in,
-                 --transferedIn.patient_id,
-                 --transferedIn.data_transferencia,
                  if(gravida_real.data_gravida is null and lactante_real.data_parto is null, 'Não',if(gravida_real.data_gravida is null, 'Lactante', if(lactante_real.data_parto is null,'Grávida', if(max(lactante_real.data_parto)>max(gravida_real.data_gravida),'Lactante','Grávida')))) gravida_lactante,
 				 max_fila.data_fila,
 				 max_fila.data_proximo_lev,
@@ -1064,7 +1062,17 @@
 		                 )inicio on inicio.patient_id=coorteFinal.patient_id 
 		                 left join
 		                 (
-			             select max_estado.patient_id, max_estado.data_estado 
+		                  SELECT p.patient_id, obsData.value_datetime as data_estado from patient p  
+				          INNER JOIN encounter e ON p.patient_id=e.patient_id  
+				          INNER JOIN obs obsTrans ON e.encounter_id=obsTrans.encounter_id AND obsTrans.voided=0 AND obsTrans.concept_id=1369 AND obsTrans.value_coded=1065 
+				          INNER JOIN obs obsData ON e.encounter_id=obsData.encounter_id AND obsData.voided=0 AND obsData.concept_id=23891 
+				          WHERE p.voided=0 AND e.voided=0 AND e.encounter_type=53 and obsData.value_datetime<=:endDate
+				          AND e.location_id=:location 
+				          GROUP BY p.patient_id 
+				        
+				        union
+			            
+				        select max_estado.patient_id, max_estado.data_estado 
 						from(                                                                
 							
 							select max_estado.*
@@ -1090,7 +1098,7 @@
 							inner join patient_state ps on ps.patient_state_id =max_estado.patient_state_id  
 							inner join patient_program pp on pp.patient_program_id = ps.patient_program_id         
 						where ps.state = 29
-		                 )transferedIn on transferedIn.patient_id=coorteFinal.patient_id
+						)transferedIn on transferedIn.patient_id=coorteFinal.patient_id
 	                      inner join person p on p.person_id=coorteFinal.patient_id        
 	                      left join  
 	                      (   select pad1.* 
@@ -1678,7 +1686,7 @@
 							                  )lastCV 
 							                  left join encounter e on e.patient_id=lastCV.patient_id
 							                  left join obs o on o.encounter_id=e.encounter_id
-							                  where e.voided=0 and o.voided=0 and e.encounter_type=6 and date(e.encounter_datetime) < date_sub(date(lastCV.data_ultimo_resultado_cv), interval 3 month) and o.concept_id in(856,1305)
+							                  where e.voided=0 and o.voided=0 and e.encounter_type=6 and date(e.encounter_datetime) < date_sub(date(lastCV.data_ultimo_resultado_cv), interval 3 month) and o.concept_id in(856,1305) and o.location_id=:location
 							                  group by lastCV.patient_id
 							                  )finalCV
 							                  left join
@@ -1879,7 +1887,7 @@
 							                  )lastCV 
 							                  left join encounter e on e.patient_id=lastCV.patient_id
 							                  left join obs o on o.encounter_id=e.encounter_id
-							                  where e.voided=0 and o.voided=0 and e.encounter_type in(13,51) and e.encounter_datetime < date_sub(lastCV.data_ultimo_resultado_cv, interval 3 month) and o.concept_id in(856,1305)
+							                  where e.voided=0 and o.voided=0 and e.encounter_type in(13,51) and e.encounter_datetime < date_sub(lastCV.data_ultimo_resultado_cv, interval 3 month) and o.concept_id in(856,1305) and o.location_id=:location
 							                  group by lastCV.patient_id
 							                  )finalCV
 							                  left join
@@ -1912,7 +1920,7 @@
 												 and  e.encounter_datetime<=:endDate
 												 and  e.location_id=:location 
 												 union
-										           select p.patient_id,o.obs_datetime data_resultado_anterior, o.value_numeric as resultado_anterior,o.comments
+										           select p.patient_id,e.encounter_datetime data_resultado_anterior, o.value_numeric as resultado_anterior,o.comments
 										                from patient p   
 										              inner join encounter e on p.patient_id = e.patient_id   
 										              inner join obs o on o.encounter_id = e.encounter_id   
@@ -1920,7 +1928,7 @@
 										              and e.voided = 0  
 										              and o.voided = 0
 										              and  o.concept_id=856
-										              and  o.obs_datetime<=:endDate
+										              and  e.encounter_datetime<=:endDate
 										              and e.encounter_type in(13,51) 
 										              and e.location_id=:location 
 									              )final
