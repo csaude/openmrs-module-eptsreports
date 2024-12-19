@@ -29,7 +29,7 @@ from person per
 					inner join obs o on o.encounter_id=e.encounter_id
 			where 	e.voided=0 and o.voided=0 and p.voided=0 and 
 					e.encounter_type in (18,6,9) and o.concept_id=1255 and o.value_coded=1256 and 
-					e.encounter_datetime > '0000-00-00 00:00' and e.encounter_datetime<=:endDate and e.location_id=:location
+					e.encounter_datetime > '0001-01-01 00:00:00' and e.encounter_datetime<=:endDate and e.location_id=:location
 			group by p.patient_id
 
 			union
@@ -41,7 +41,7 @@ from person per
 					inner join obs o on e.encounter_id=o.encounter_id
 			where 	p.voided=0 and e.voided=0 and o.voided=0 and e.encounter_type in (18,6,9,53) and 
 					o.concept_id=1190 and o.value_datetime is not null and 
-					o.value_datetime > '0000-00-00 00:00' and  o.value_datetime<=:endDate and e.location_id=:location
+					o.value_datetime > '0001-01-01 00:00:00' and  o.value_datetime<=:endDate and e.location_id=:location
 			group by p.patient_id
 
 			union
@@ -49,7 +49,7 @@ from person per
 			/*Patients enrolled in ART Program: OpenMRS Program*/
 			select 	pg.patient_id,min(date_enrolled) data_inicio
 			from 	patient p inner join patient_program pg on p.patient_id=pg.patient_id
-			where 	pg.voided=0 and p.voided=0 and program_id=2 and date_enrolled > '0000-00-00 00:00' and date_enrolled<=:endDate and location_id=:location
+			where 	pg.voided=0 and p.voided=0 and program_id=2 and date_enrolled > '0001-01-01 00:00:00' and date_enrolled<=:endDate and location_id=:location
 			group by pg.patient_id
 			
 			union
@@ -59,7 +59,7 @@ from person per
 			  SELECT 	e.patient_id, MIN(e.encounter_datetime) AS data_inicio 
 			  FROM 		patient p
 						inner join encounter e on p.patient_id=e.patient_id
-			  WHERE		p.voided=0 and e.encounter_type=18 AND e.voided=0 and e.encounter_datetime > '0000-00-00 00:00' and e.encounter_datetime<=:endDate and e.location_id=:location
+			  WHERE		p.voided=0 and e.encounter_type=18 AND e.voided=0 and e.encounter_datetime > '0001-01-01 00:00:00' and e.encounter_datetime<=:endDate and e.location_id=:location
 			  GROUP BY 	p.patient_id
 		  
 			union
@@ -71,7 +71,7 @@ from person per
 					inner join obs o on e.encounter_id=o.encounter_id
 			where 	p.voided=0 and e.voided=0 and o.voided=0 and e.encounter_type=52 and 
 					o.concept_id=23866 and o.value_datetime is not null and 
-					o.value_datetime > '0000-00-00 00:00' and o.value_datetime<=:endDate and e.location_id=:location
+					o.value_datetime > '0001-01-01 00:00:00' and o.value_datetime<=:endDate and e.location_id=:location
 			group by p.patient_id							
 			
 		) inicio
@@ -175,7 +175,7 @@ from person per
 					inner join obs o on o.encounter_id=e.encounter_id
 			where 	e.voided=0 and o.voided=0 and p.voided=0 and 
 					e.encounter_type in (18,6,9) and o.concept_id=1255 and o.value_coded=1256 and 
-					e.encounter_datetime > '0000-00-00 00:00' and e.encounter_datetime<=:endDate and e.location_id=:location
+					e.encounter_datetime > '0001-01-01 00:00:00' and e.encounter_datetime<=:endDate and e.location_id=:location
 			group by p.patient_id
 
 			union
@@ -187,7 +187,7 @@ from person per
 					inner join obs o on e.encounter_id=o.encounter_id
 			where 	p.voided=0 and e.voided=0 and o.voided=0 and e.encounter_type in (18,6,9,53) and 
 					o.concept_id=1190 and o.value_datetime is not null and 
-					o.value_datetime > '0000-00-00 00:00' and  o.value_datetime<=:endDate and e.location_id=:location
+					o.value_datetime > '0001-01-01 00:00:00' and  o.value_datetime<=:endDate and e.location_id=:location
 			group by p.patient_id
 
 			union
@@ -195,7 +195,7 @@ from person per
 			/*Patients enrolled in ART Program: OpenMRS Program*/
 			select 	pg.patient_id,min(date_enrolled) data_inicio
 			from 	patient p inner join patient_program pg on p.patient_id=pg.patient_id
-			where 	pg.voided=0 and p.voided=0 and program_id=2 and date_enrolled > '0000-00-00 00:00' and date_enrolled<=:endDate and location_id=:location
+			where 	pg.voided=0 and p.voided=0 and program_id=2 and date_enrolled > '0001-01-01 00:00:00' and date_enrolled<=:endDate and location_id=:location
 			group by pg.patient_id
 			
 			union
@@ -205,7 +205,7 @@ from person per
 			  SELECT 	e.patient_id, MIN(e.encounter_datetime) AS data_inicio 
 			  FROM 		patient p
 						inner join encounter e on p.patient_id=e.patient_id
-			  WHERE		p.voided=0 and e.encounter_type=18 AND e.voided=0 and e.encounter_datetime > '0000-00-00 00:00' and e.encounter_datetime<=:endDate and e.location_id=:location
+			  WHERE		p.voided=0 and e.encounter_type=18 AND e.voided=0 and e.encounter_datetime > '0001-01-01 00:00:00' and e.encounter_datetime<=:endDate and e.location_id=:location
 			  GROUP BY 	p.patient_id
 		  
 			union
@@ -217,7 +217,7 @@ from person per
 					inner join obs o on e.encounter_id=o.encounter_id
 			where 	p.voided=0 and e.voided=0 and o.voided=0 and e.encounter_type=52 and 
 					o.concept_id=23866 and o.value_datetime is not null and 
-					o.value_datetime > '0000-00-00 00:00' and o.value_datetime<=:endDate and e.location_id=:location
+					o.value_datetime > '0001-01-01 00:00:00' and o.value_datetime<=:endDate and e.location_id=:location
 			group by p.patient_id							
 			
 		) inicio
