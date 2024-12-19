@@ -31,17 +31,18 @@ import org.openmrs.module.eptsreports.reporting.library.datasets.TxPvlsDataset;
 import org.openmrs.module.eptsreports.reporting.library.datasets.TxPvlsSuplementalDataSet;
 import org.openmrs.module.eptsreports.reporting.library.datasets.TxRttDataset;
 import org.openmrs.module.eptsreports.reporting.library.queries.BaseQueries;
-import org.openmrs.module.eptsreports.reporting.reports.manager.EptsDataExportManager;
+import org.openmrs.module.eptsreports.reporting.reports.manager.EptsPeriodIndicatorDataExportManager;
 import org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils;
 import org.openmrs.module.reporting.ReportingException;
 import org.openmrs.module.reporting.evaluation.parameter.Mapped;
 import org.openmrs.module.reporting.report.ReportDesign;
+import org.openmrs.module.reporting.report.definition.PeriodIndicatorReportDefinition;
 import org.openmrs.module.reporting.report.definition.ReportDefinition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SetupMERQuarterly extends EptsDataExportManager {
+public class SetupMERQuarterly extends EptsPeriodIndicatorDataExportManager {
 
   @Autowired private TxPvlsDataset txPvlsDataset;
 
@@ -94,8 +95,10 @@ public class SetupMERQuarterly extends EptsDataExportManager {
   }
 
   @Override
-  public ReportDefinition constructReportDefinition() {
-    final ReportDefinition reportDefinition = new ReportDefinition();
+  public PeriodIndicatorReportDefinition constructReportDefinition() {
+
+    PeriodIndicatorReportDefinition reportDefinition =
+        SetupResumoMensalReport.getDefaultPeriodIndicatorReportDefinition();
 
     reportDefinition.setUuid(this.getUuid());
     reportDefinition.setName(this.getName());
