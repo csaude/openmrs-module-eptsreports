@@ -1,7 +1,5 @@
 package org.openmrs.module.eptsreports.reporting.calculation.util.processor;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import org.openmrs.api.context.Context;
@@ -51,17 +49,7 @@ public class TxRttNextFilaUntilEndDateProcessor {
               .evaluateToList(queryBuilder, context);
 
       for (Object[] row : queryResult) {
-
-        Object row1 = row[1];
-        Object row2 = row[2];
-
-        LocalDateTime rowDate1 = (LocalDateTime) row1;
-        LocalDateTime rowDate2 = (LocalDateTime) row2;
-
-        Date date1 = Date.from(rowDate1.atZone(ZoneId.systemDefault()).toInstant());
-        Date date2 = Date.from(rowDate2.atZone(ZoneId.systemDefault()).toInstant());
-
-        listPatientDates.putInList((Integer) row[0], new Date[] {date1, date2});
+        listPatientDates.putInList((Integer) row[0], new Date[] {(Date) row[1], (Date) row[2]});
       }
     }
     return listPatientDates;
