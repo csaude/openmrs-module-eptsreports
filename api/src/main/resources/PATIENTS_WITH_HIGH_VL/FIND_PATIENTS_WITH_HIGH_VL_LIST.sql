@@ -18,7 +18,7 @@ select
 			HVL_FR41.valorCV,
 			if(HVL_FR41.dataConsultaClinica0CV1 ='N/A','N/A',DATE_FORMAT(HVL_FR41.dataConsultaClinica0CV1,'%d/%m/%Y')) dataConsultaClinica0CV1,
 			DATE_FORMAT(HVL_FR41.dataPrevistaConsultaClinica0CV1,'%d/%m/%Y') dataPrevistaConsultaClinica0CV1,
-			if(HVL_FR41.dataConsultaApss0CV1 is not null or HVL_FR41.dataConsultaApss0CV1='', DATE_FORMAT(HVL_FR41.dataConsultaApss0CV1,'%d/%m/%Y'),'N/A') dataConsultaApss0CV1,
+			IF(COALESCE(HVL_FR41.dataConsultaApss0CV1, '') != '', DATE_FORMAT(HVL_FR41.dataConsultaApss0CV1, '%d/%m/%Y'), 'N/A') AS dataConsultaApss0CV1,
 			DATE_FORMAT(HVL_FR41.dataPrevistaConsultaApss0CV1,'%d/%m/%Y') dataPrevistaConsultaApss0CV1, 
 			DATE_FORMAT(HVL_FR41.dataConsultaApss1CV1,'%d/%m/%Y') dataConsultaApss1CV1,
 			HVL_FR41.previstaConsultaApss1CV1, 
