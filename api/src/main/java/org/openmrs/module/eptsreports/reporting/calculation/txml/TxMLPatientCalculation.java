@@ -1,5 +1,7 @@
 package org.openmrs.module.eptsreports.reporting.calculation.txml;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -66,10 +68,22 @@ public abstract class TxMLPatientCalculation extends BaseFghCalculation {
     CalculationResultMap lastRecepcaoLevantamentoPlus30 = new CalculationResultMap();
     CalculationResult maxRecepcao = lastRecepcaoLevantamentoResult.get(patientId);
     if (maxRecepcao != null) {
+
+      Object object = maxRecepcao.getValue();
+      Date date = null;
+
+      if (object instanceof Date) {
+        date = (Date) object;
+
+      } else if (object instanceof LocalDateTime) {
+        LocalDateTime localDateTime = (LocalDateTime) object;
+        date = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+      }
+
       lastRecepcaoLevantamentoPlus30.put(
           patientId,
           new SimpleResult(
-              CalculationProcessorUtils.adjustDaysInDate((Date) maxRecepcao.getValue(), 30),
+              CalculationProcessorUtils.adjustDaysInDate(date, 30),
               lastRecepcaoLevantamentoCalculation));
     }
     return lastRecepcaoLevantamentoPlus30;
