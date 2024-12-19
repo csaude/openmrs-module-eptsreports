@@ -70,10 +70,15 @@ public abstract class TxMLPatientCalculation extends BaseFghCalculation {
     if (maxRecepcao != null) {
 
       Object object = maxRecepcao.getValue();
+      Date date = null;
 
-      LocalDateTime localDateTime = (LocalDateTime) object;
+      if (object instanceof Date) {
+        date = (Date) object;
 
-      Date date = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+      } else if (object instanceof LocalDateTime) {
+        LocalDateTime localDateTime = (LocalDateTime) object;
+        date = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+      }
 
       lastRecepcaoLevantamentoPlus30.put(
           patientId,

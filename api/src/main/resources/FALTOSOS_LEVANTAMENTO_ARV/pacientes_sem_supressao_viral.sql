@@ -43,7 +43,7 @@ from	(
 																where p.voided = 0  and e.voided = 0 and o.voided = 0 and e.encounter_type  = 53 and o.concept_id = 856 
 																		and e.location_id =:location and o.obs_datetime between date_sub(:endDate, interval 12 month) and :endDate
 																	group by p.patient_id
-															)f group by f.patient_id, encounter_datetime desc, ordem asc
+															)f group by f.patient_id order by encounter_datetime desc, ordem asc
 															)f group by f.patient_id
 														) cargaQuantitaviva group by patient_id
 						   							) cargaQuantitaviva group by patient_id
@@ -81,7 +81,7 @@ from	(
 									           	where p.voided = 0  and e.voided = 0 and o.voided = 0 and e.encounter_type  = 53 and o.concept_id = 1305 
 									               	and e.location_id =:location and o.obs_datetime between date_sub(:endDate, interval 12 month) and :endDate
 									               	group by p.patient_id 
-											) cargaQualitativa group by cargaQualitativa.patient_id, cargaQualitativa.encounter_datetime desc, ordem asc
+											) cargaQualitativa group by cargaQualitativa.patient_id order by cargaQualitativa.encounter_datetime desc, ordem asc
 											)cargaQualitativa group by cargaQualitativa.patient_id 
 								 	)  cargaQualitativa on cargaQuantitativa.patient_id = cargaQualitativa.patient_id 
 			       				     where cargaQualitativa.patient_id is null  
@@ -152,6 +152,6 @@ from	(
 																   ) f 
 								inner join obs obCv on obCv.person_id=f.patient_id and obCv.concept_id=856 and obCv.value_numeric>=1000 and date(obCv.obs_datetime)=date(f.encounter_datetime)  and obCv.voided=0					
 						     ) filter on filter.patient_id=cargaQuantitativa.patient_id 
-				     ) cargaQuantitativa group by patient_id, encounter_datetime desc, ordem asc 
+				     ) cargaQuantitativa group by patient_id order by encounter_datetime desc, ordem asc 
 			) cargaQuantitativa group by patient_id
 	) cargaQuantitativa

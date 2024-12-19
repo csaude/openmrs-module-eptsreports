@@ -40,10 +40,16 @@ public class TxRttNextFilaUntilEndDateCalculation extends BaseFghCalculation {
 
     for (Integer patientId : lastFilaCalculationResult.keySet()) {
       CalculationResult calculationResult = lastFilaCalculationResult.get(patientId);
+      Object dateObject = (calculationResult != null ? calculationResult.getValue() : null);
 
-      Object object = (calculationResult != null ? calculationResult.getValue() : null);
-      LocalDateTime localDateTime = (LocalDateTime) object;
-      Date lastDateFila = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+      Date lastDateFila = null;
+      if (dateObject instanceof Date) {
+        lastDateFila = (Date) dateObject;
+      } else if (dateObject instanceof LocalDateTime) {
+        // Convert LocalDateTime to Date
+        LocalDateTime localDateTime = (LocalDateTime) dateObject;
+        lastDateFila = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+      }
 
       List<Date[]> allObsNextFila = resutls.get(patientId);
 

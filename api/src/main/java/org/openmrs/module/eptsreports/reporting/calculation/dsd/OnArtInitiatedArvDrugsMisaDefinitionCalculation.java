@@ -20,16 +20,23 @@ public class OnArtInitiatedArvDrugsMisaDefinitionCalculation extends BaseFghCalc
       Map<String, Object> parameterValues, EvaluationContext context) {
 
     CalculationResultMap resultMap = new CalculationResultMap();
-    Map<Integer, Date> processorResult =
+
+    Map<Integer, ? extends Object> processorResult =
         Context.getRegisteredComponents(OnArtInitiatedArvDrugsMISAUDefinitionProcessor.class)
             .get(0)
             .getResutls(context);
+
     for (Integer pId : processorResult.keySet()) {
+      Object dateObject = processorResult.get(pId);
+      Date date = null;
 
-      Object dateProcessor = processorResult.get(pId);
-      LocalDateTime localDateTime = (LocalDateTime) dateProcessor;
-
-      Date date = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+      if (dateObject instanceof Date) {
+        date = (Date) dateObject;
+      } else if (dateObject instanceof LocalDateTime) {
+        // Convert LocalDateTime to Date
+        LocalDateTime localDateTime = (LocalDateTime) dateObject;
+        date = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+      }
 
       if (date != null) {
         resultMap.put(pId, new SimpleResult(date, this));

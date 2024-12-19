@@ -52,14 +52,25 @@ public class TxRttNextFilaUntilEndDateProcessor {
 
       for (Object[] row : queryResult) {
 
+        Date date1 = null;
+        Date date2 = null;
+
         Object row1 = row[1];
         Object row2 = row[2];
 
-        LocalDateTime rowDate1 = (LocalDateTime) row1;
-        LocalDateTime rowDate2 = (LocalDateTime) row2;
+        if (row1 instanceof Date) {
+          date1 = (Date) row1;
+        } else if (row1 instanceof LocalDateTime) {
+          LocalDateTime rowDate1 = (LocalDateTime) row1;
+          date1 = Date.from(rowDate1.atZone(ZoneId.systemDefault()).toInstant());
+        }
 
-        Date date1 = Date.from(rowDate1.atZone(ZoneId.systemDefault()).toInstant());
-        Date date2 = Date.from(rowDate2.atZone(ZoneId.systemDefault()).toInstant());
+        if (row2 instanceof Date) {
+          date2 = (Date) row2;
+        } else if (row2 instanceof LocalDateTime) {
+          LocalDateTime rowDate2 = (LocalDateTime) row2;
+          date2 = Date.from(rowDate2.atZone(ZoneId.systemDefault()).toInstant());
+        }
 
         listPatientDates.putInList((Integer) row[0], new Date[] {date1, date2});
       }
