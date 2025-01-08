@@ -847,6 +847,7 @@ public class TB7AdvancedDiseaseAndTBCohortQueries {
     definition.addParameter(new Parameter("endDate", "End Date", Date.class));
     definition.addParameter(new Parameter("location", "location", Location.class));
 
+    final String mappingsGrades = "startDate=${startDate},endDate=${endDate},location=${location}";
     final String mappings = "startDate=${endDate-2m+1d},endDate=${endDate-1m},location=${location}";
 
     String query =
@@ -870,7 +871,12 @@ public class TB7AdvancedDiseaseAndTBCohortQueries {
                 query),
             mappings));
 
-    definition.setCompositionString("POSITIVE-TBLAM-RESULTS");
+    definition.addSearch(
+        "GRADE4",
+        EptsReportUtils.map(
+            this.getNumberOfClientsWithGradeFourLevelPositiveTBLAMResults(), mappingsGrades));
+
+    definition.setCompositionString("POSITIVE-TBLAM-RESULTS NOT GRADE4");
 
     return definition;
   }
@@ -883,6 +889,7 @@ public class TB7AdvancedDiseaseAndTBCohortQueries {
     definition.addParameter(new Parameter("endDate", "End Date", Date.class));
     definition.addParameter(new Parameter("location", "location", Location.class));
 
+    final String mappingsGrades = "startDate=${startDate},endDate=${endDate},location=${location}";
     final String mappings = "startDate=${endDate-2m+1d},endDate=${endDate-1m},location=${location}";
 
     String query =
@@ -915,7 +922,17 @@ public class TB7AdvancedDiseaseAndTBCohortQueries {
                 query),
             mappings));
 
-    definition.setCompositionString("POSITIVE-TBLAM-RESULTS");
+    definition.addSearch(
+        "GRADE4",
+        EptsReportUtils.map(
+            this.getNumberOfClientsWithGradeFourLevelPositiveTBLAMResults(), mappingsGrades));
+
+    definition.addSearch(
+        "GRADE3",
+        EptsReportUtils.map(
+            this.getNumberOfClientsWithGradeThreeLevelPositiveTBLAMResults(), mappingsGrades));
+
+    definition.setCompositionString("POSITIVE-TBLAM-RESULTS NOT (GRADE3 OR GRADE4)");
 
     return definition;
   }
@@ -928,6 +945,7 @@ public class TB7AdvancedDiseaseAndTBCohortQueries {
     definition.addParameter(new Parameter("endDate", "End Date", Date.class));
     definition.addParameter(new Parameter("location", "location", Location.class));
 
+    final String mappingsGrades = "startDate=${startDate},endDate=${endDate},location=${location}";
     final String mappings = "startDate=${endDate-2m+1d},endDate=${endDate-1m},location=${location}";
 
     String query =
@@ -966,7 +984,22 @@ public class TB7AdvancedDiseaseAndTBCohortQueries {
                 query),
             mappings));
 
-    definition.setCompositionString("POSITIVE-TBLAM-RESULTS");
+    definition.addSearch(
+        "GRADE4",
+        EptsReportUtils.map(
+            this.getNumberOfClientsWithGradeFourLevelPositiveTBLAMResults(), mappingsGrades));
+
+    definition.addSearch(
+        "GRADE3",
+        EptsReportUtils.map(
+            this.getNumberOfClientsWithGradeThreeLevelPositiveTBLAMResults(), mappingsGrades));
+
+    definition.addSearch(
+        "GRADE2",
+        EptsReportUtils.map(
+            this.getNumberOfClientsWithGradeTwoLevelPositiveTBLAMResults(), mappingsGrades));
+
+    definition.setCompositionString("POSITIVE-TBLAM-RESULTS NOT (GRADE2 OR GRADE3 OR GRADE4)");
 
     return definition;
   }
@@ -979,6 +1012,7 @@ public class TB7AdvancedDiseaseAndTBCohortQueries {
     definition.addParameter(new Parameter("endDate", "End Date", Date.class));
     definition.addParameter(new Parameter("location", "location", Location.class));
 
+    final String mappingsGrades = "startDate=${startDate},endDate=${endDate},location=${location}";
     final String mappings = "startDate=${endDate-2m+1d},endDate=${endDate-1m},location=${location}";
 
     String query =
@@ -999,22 +1033,22 @@ public class TB7AdvancedDiseaseAndTBCohortQueries {
     definition.addSearch(
         "GRADE4",
         EptsReportUtils.map(
-            this.getNumberOfClientsWithGradeFourLevelPositiveTBLAMResults(), mappings));
+            this.getNumberOfClientsWithGradeFourLevelPositiveTBLAMResults(), mappingsGrades));
 
     definition.addSearch(
         "GRADE3",
         EptsReportUtils.map(
-            this.getNumberOfClientsWithGradeThreeLevelPositiveTBLAMResults(), mappings));
+            this.getNumberOfClientsWithGradeThreeLevelPositiveTBLAMResults(), mappingsGrades));
 
     definition.addSearch(
         "GRADE2",
         EptsReportUtils.map(
-            this.getNumberOfClientsWithGradeTwoLevelPositiveTBLAMResults(), mappings));
+            this.getNumberOfClientsWithGradeTwoLevelPositiveTBLAMResults(), mappingsGrades));
 
     definition.addSearch(
         "GRADE1",
         EptsReportUtils.map(
-            this.getNumberOfClientsWithGradeOneLevelPositiveTBLAMResults(), mappings));
+            this.getNumberOfClientsWithGradeOneLevelPositiveTBLAMResults(), mappingsGrades));
 
     definition.setCompositionString(
         "POSITIVE-TBLAM-RESULTS NOT (GRADE4 OR GRADE3 OR GRADE2 OR GRADE1)");
