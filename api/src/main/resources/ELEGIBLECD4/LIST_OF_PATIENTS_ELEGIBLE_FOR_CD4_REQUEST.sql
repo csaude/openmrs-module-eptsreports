@@ -13,12 +13,12 @@
 				 if(max(obs_seguimento.value_datetime) is not null,DATE_FORMAT(DATE(max(obs_seguimento.value_datetime)), '%d/%m/%Y'),'N/A') as data_proximo_seguimento,
 				 coorteFinal.criteria,
 			     case 
-	             when coorteFinal.criteria = 1 then 'C1– CD4 Inicial - Novo Início TARV' 
-	             when coorteFinal.criteria = 2 then 'C2– CD4 Inicial - Reinício TARV' 
-	             when coorteFinal.criteria =:location then 'C3– CV Alta' 
-	             when coorteFinal.criteria = 4 then 'C4– Estadiamento Clínico III ou IV' 
-	             when coorteFinal.criteria = 5 then 'C5– CD4 de Seguimento'
-	             when coorteFinal.criteria = 6 then 'C6– Mulher Grávida'
+	             when coorteFinal.criteria=1 then 'C1– CD4 Inicial - Novo Início TARV' 
+	             when coorteFinal.criteria=2 then 'C2– CD4 Inicial - Reinício TARV' 
+	             when coorteFinal.criteria=3 then 'C3– CV Alta' 
+	             when coorteFinal.criteria=4 then 'C4– Estadiamento Clínico III ou IV' 
+	             when coorteFinal.criteria=5 then 'C5– CD4 de Seguimento'
+	             when coorteFinal.criteria=6 then 'C6– Mulher Grávida'
 	             end as criterioElegibilidade,
 	            
 	             if(cd4.data_ultimo_cd4 is not null,DATE_FORMAT(DATE(cd4.data_ultimo_cd4), '%d/%m/%Y'),'N/A')  as data_ultimo_cd4,
@@ -1085,19 +1085,19 @@
 									from patient p                                                                                                               
 											inner join patient_program pg on p.patient_id = pg.patient_id                                                               
 									  	inner join patient_state ps on pg.patient_program_id = ps.patient_program_id                                                
-									where pg.voided=0 and ps.voided=0 and p.voided=0 and pg.program_id = 2                                    
+									where pg.voided=0 and ps.voided=0 and p.voided=0 and  pg.program_id in(1,2)                                    
 										and ps.start_date <= :endDate  and pg.location_id =:location 
 										group by pg.patient_id 
 								)max_estado
 									inner join patient_program pp on pp.patient_id = max_estado.patient_id
 								 	inner join patient_state ps on ps.patient_program_id = pp.patient_program_id and ps.start_date = max_estado.data_estado  
-						  		where pp.program_id = 2 and pp.voided = 0 and ps.voided = 0 and pp.location_id=:location 
-						    			group by pp.patient_id, ps.patient_state_id  order by pp.patient_id, ps.patient_state_id desc         
-						  	)max_estado group by max_estado.patient_id                                        
+						  		where pp.program_id in(1,2) and pp.voided = 0 and ps.voided = 0 and pp.location_id=:location 
+						    			group by pp.patient_id, ps.patient_state_id  order by pp.patient_id, ps.patient_state_id asc         
+						  	)max_estado                                       
 						) max_estado                                                                                                                        
 							inner join patient_state ps on ps.patient_state_id =max_estado.patient_state_id  
 							inner join patient_program pp on pp.patient_program_id = ps.patient_program_id         
-						where ps.state = 29
+						where ps.state in(28,29)
 						)transferedIn on transferedIn.patient_id=coorteFinal.patient_id
 	                      inner join person p on p.person_id=coorteFinal.patient_id        
 	                      left join  
