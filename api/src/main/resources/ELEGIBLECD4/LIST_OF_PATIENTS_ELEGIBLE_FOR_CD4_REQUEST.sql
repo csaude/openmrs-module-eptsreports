@@ -1078,21 +1078,47 @@
 							select max_estado.*
 							from(
 								
-								select pp.patient_id, ps.patient_state_id, ps.state, max_estado.data_estado
+								select pp.patient_id, ps.patient_state_id, ps.state, min(max_estado.data_estado) data_estado
 								from(
 									
 									select pg.patient_id, ps.start_date data_estado                                                                                          
 									from patient p                                                                                                               
 											inner join patient_program pg on p.patient_id = pg.patient_id                                                               
 									  	inner join patient_state ps on pg.patient_program_id = ps.patient_program_id                                                
-									where pg.voided=0 and ps.voided=0 and p.voided=0 and  pg.program_id in(1,2)                                    
+									where pg.voided=0 and ps.voided=0 and p.voided=0 and  pg.program_id in(1)                                    
 										and ps.start_date <= :endDate  and pg.location_id =:location 
-										--group by pg.patient_id 
 								)max_estado
 									inner join patient_program pp on pp.patient_id = max_estado.patient_id
 								 	inner join patient_state ps on ps.patient_program_id = pp.patient_program_id and ps.start_date = max_estado.data_estado  
-						  		where pp.program_id in(1,2) and pp.voided = 0 and ps.voided = 0 and pp.location_id=:location 
-						    			group by pp.patient_id, ps.patient_state_id  order by pp.patient_id, ps.patient_state_id asc         
+						  		where pp.program_id in(1) and pp.voided = 0 and ps.voided = 0 and pp.location_id=:location 
+						    			group by pp.patient_id    
+						  	)max_estado                                       
+						) max_estado                                                                                                                        
+							inner join patient_state ps on ps.patient_state_id =max_estado.patient_state_id  
+							inner join patient_program pp on pp.patient_program_id = ps.patient_program_id         
+						where ps.state in(28,29)
+						union
+					  
+						select max_estado.patient_id, max_estado.data_estado 
+						from(                                                                
+							
+							select max_estado.*
+							from(
+								
+								select pp.patient_id, ps.patient_state_id, ps.state, min(max_estado.data_estado) data_estado
+								from(
+									
+									select pg.patient_id, ps.start_date data_estado                                                                                          
+									from patient p                                                                                                               
+											inner join patient_program pg on p.patient_id = pg.patient_id                                                               
+									  	inner join patient_state ps on pg.patient_program_id = ps.patient_program_id                                                
+									where pg.voided=0 and ps.voided=0 and p.voided=0 and  pg.program_id in(2)                                    
+										and ps.start_date <= :endDate  and pg.location_id =:location 
+								)max_estado
+									inner join patient_program pp on pp.patient_id = max_estado.patient_id
+								 	inner join patient_state ps on ps.patient_program_id = pp.patient_program_id and ps.start_date = max_estado.data_estado  
+						  		where pp.program_id in(2) and pp.voided = 0 and ps.voided = 0 and pp.location_id=:location 
+						    			group by pp.patient_id    
 						  	)max_estado                                       
 						) max_estado                                                                                                                        
 							inner join patient_state ps on ps.patient_state_id =max_estado.patient_state_id  
