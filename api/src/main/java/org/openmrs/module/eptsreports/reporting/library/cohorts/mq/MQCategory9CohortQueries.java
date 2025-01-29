@@ -926,12 +926,12 @@ public class MQCategory9CohortQueries {
             mappings));
 
     definition.addSearch(
-        "CD4-RESULT",
+        "TRANSFERED-IN",
         EptsReportUtils.map(
-            this.findPatientsWhoReceivedCD4ResultBetweenReinitiatedConsultationAndEnRevisionDate(),
+            this.mQCohortQueries.findPatientsWhoWhereMarkedAsTransferedInOnMasterCardRF5Category9(),
             mappings));
 
-    definition.setCompositionString("(REINICIO AND CD4-RESULT)");
+    definition.setCompositionString("(REINICIO NOT TRANSFERED-IN)");
 
     return definition;
   }
