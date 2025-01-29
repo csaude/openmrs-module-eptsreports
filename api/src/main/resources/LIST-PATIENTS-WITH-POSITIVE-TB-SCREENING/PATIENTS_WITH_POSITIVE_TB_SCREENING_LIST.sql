@@ -1,32 +1,32 @@
 select coorte12meses_final.patient_id as patient_id,
                     concat(ifnull(pn.given_name,''),' ',ifnull(pn.middle_name,''),' ',ifnull(pn.family_name,'')) as NomeCompleto, 
                     pid.identifier as NID, 
-                    case p.gender when 'F' then 'Feminino' when 'M' then 'Masculino' else null end as gender, 
+                    case p.gender when 'F' then 'F' when 'M' then 'M' else null end as gender, 
                     floor(datediff(:endDate,p.birthdate)/365) as idade_actual,
                     pat.value telefone,
-                    coorte12meses_final.data_inicio as data_inicio, 
-                    maxEnc.encounter_datetime lastClinicalConsultationDate,
-                    positiveTbScreening.screeningDate firstPositiveTbScreening,
-                    max(genexpertTest.data_pedido) genExpertRequestDate,
-                    max(geneXpertResult.data_resultado) lastGenExpertResultDate,
+                    DATE_FORMAT(tx_new.data_inicio, '%%d/%%m/%%Y') as data_inicio, 
+                    DATE_FORMAT(maxEnc.encounter_datetime, '%%d/%%m/%%Y') lastClinicalConsultationDate,
+                    DATE_FORMAT(positiveTbScreening.screeningDate, '%%d/%%m/%%Y') firstPositiveTbScreening,
+                    DATE_FORMAT(max(genexpertTest.data_pedido), '%%d/%%m/%%Y') genExpertRequestDate,
+                    DATE_FORMAT(max(geneXpertResult.data_resultado), '%%d/%%m/%%Y') lastGenExpertResultDate,
                     if(geneXpertResult.value_coded = 703, 'Positivo',if(geneXpertResult.value_coded = 664, 'Negativo','')) as genExpertResult, 
-                    max(gExpertLabResult.data_resultado) gExpertLabResultDate,
+                    DATE_FORMAT(max(gExpertLabResult.data_resultado), '%%d/%%m/%%Y') gExpertLabResultDate,
                     if(gExpertLabResult.value_coded = 703, 'Positivo',if(gExpertLabResult.value_coded = 664, 'Negativo','')) as gExpertLabResult, 
-                    max(xpertLabResult.data_resultado) xpertLabResultDate,
+                    DATE_FORMAT(max(xpertLabResult.data_resultado), '%%d/%%m/%%Y') xpertLabResultDate,
                     if(xpertLabResult.value_coded = 1065, 'Sim',if(xpertLabResult.value_coded = 1066, 'Não','')) as xpertLabResult, 
-                    max(rifampinResistanceLabResult.data_resultado) rifampinLabResultDate,
+                    DATE_FORMAT(max(rifampinResistanceLabResult.data_resultado), '%%d/%%m/%%Y') rifampinLabResultDate,
                     if(rifampinResistanceLabResult.value_coded = 1065, 'Sim',if(rifampinResistanceLabResult.value_coded = 1066, 'Não',if(rifampinResistanceLabResult.value_coded = 1138, 'Indeterminado',''))) as rifampinResistanceLabResult, 
-                    max(baciloscopia.data_pedido) lastBKResquestDate,
-                    max(baciloscopiaResult.data_resultado) lastBKResultDate,
+                    DATE_FORMAT(max(baciloscopia.data_pedido), '%%d/%%m/%%Y') lastBKResquestDate,
+                    DATE_FORMAT(max(baciloscopiaResult.data_resultado), '%%d/%%m/%%Y') lastBKResultDate,
                     if(baciloscopiaResult.value_coded = 703, 'Positivo',if(baciloscopiaResult.value_coded = 664, 'Negativo','')) as baciloscopiaResult, 
-                    max(baciloscopiaLabResult.data_resultado) lastBKLabResultDate,
+                    DATE_FORMAT(max(baciloscopiaLabResult.data_resultado), '%%d/%%m/%%Y') lastBKLabResultDate,
                     if(baciloscopiaLabResult.value_coded = 703, 'Positivo',if(baciloscopiaLabResult.value_coded = 165184, 'Não encontrado','')) as baciloscopiaLabResult, 
-                    max(tbLam.data_pedido) lastTbLamRequestDate,
-                    max(tbLamResult.data_resultado) lastTbLamResultDate,
+                    DATE_FORMAT(max(tbLam.data_pedido), '%%d/%%m/%%Y') lastTbLamRequestDate,
+                    DATE_FORMAT(max(tbLamResult.data_resultado), '%%d/%%m/%%Y') lastTbLamResultDate,
                     if(tbLamResult.value_coded = 703, 'Positivo',if(tbLamResult.value_coded = 664, 'Negativo','')) as tbLamResult, 
-                    max(tbLamLabResult.data_resultado) lastTbLamLabResultDate,
+                    DATE_FORMAT(max(tbLamLabResult.data_resultado), '%%d/%%m/%%Y') lastTbLamLabResultDate,
                     if(tbLamLabResult.value_coded = 703, 'Positivo',if(tbLamLabResult.value_coded = 664, 'Negativo',if(tbLamLabResult.value_coded = 1138, 'Indeterminado',''))) as tbLamLabResult, 
-                    max(tbTreatment.data_inicio) tbTreatmentInitialDate   
+                    DATE_FORMAT(max(tbTreatment.data_inicio), '%%d/%%m/%%Y') tbTreatmentInitialDate   
             from 
             (
              %s               
@@ -296,5 +296,58 @@ select coorte12meses_final.patient_id as patient_id,
       and o.concept_id=1268 and o.value_coded=1256  and e.location_id=:location    
 
     )tbTretment6Months on tbTretment6Months.patient_id=coorte12meses_final.patient_id
+    left join
+    (
+    				select patient_id,data_inicio from 
+							(
+								  select patient_id, min(data_inicio) data_inicio 
+								  from 
+										(
+											  select p.patient_id, min(e.encounter_datetime) data_inicio 
+											  from patient p 
+													inner join encounter e on p.patient_id=e.patient_id 
+													inner join obs o on o.encounter_id=e.encounter_id 
+											  where e.voided=0 and o.voided=0 and p.voided=0 and e.encounter_type in (18,6,9) 
+													and o.concept_id=1255 and o.value_coded=1256 and e.encounter_datetime<=:endDate and e.location_id=:location 
+													group by p.patient_id 
+											  union 
+											  
+											  select p.patient_id, min(value_datetime) data_inicio 
+											  from patient p 
+													inner join encounter e on p.patient_id=e.patient_id 
+													inner join obs o on e.encounter_id=o.encounter_id 
+											  where p.voided=0 and e.voided=0 and o.voided=0 and e.encounter_type in (18,6,9,53) 
+													and o.concept_id=1190 and o.value_datetime is not null and o.value_datetime<=:endDate and e.location_id=:location 
+													group by p.patient_id 
+											  
+											  union 
+								   
+											  select pg.patient_id, min(date_enrolled) data_inicio 
+											  from patient p 
+													inner join patient_program pg on p.patient_id=pg.patient_id 
+											  where pg.voided=0 and p.voided=0 and program_id=2 and date_enrolled<=:endDate and location_id=:location 
+													group by pg.patient_id 
+											  
+											  union 
+							
+											  select e.patient_id, min(e.encounter_datetime) as data_inicio 
+											  from patient p 
+													inner join encounter e on p.patient_id=e.patient_id 
+											  where p.voided=0 and e.encounter_type=18 and e.voided=0 and e.encounter_datetime<=:endDate and e.location_id=:location 
+													group by p.patient_id 
+											  
+											  union 
+								   
+											  select p.patient_id, min(value_datetime) data_inicio 
+											  from patient p 
+													inner join encounter e on p.patient_id=e.patient_id 
+													inner join obs o on e.encounter_id=o.encounter_id 
+											  where p.voided=0 and e.voided=0 and o.voided=0 and e.encounter_type=52 
+													and o.concept_id=23866 and o.value_datetime is not null and o.value_datetime<=:endDate and e.location_id=:location 
+													group by p.patient_id
+										) 
+								  art_start group by patient_id 
+							) tx_new
+               )tx_new on tx_new.patient_id=coorte12meses_final.patient_id
     where  tbTretment6Months.patient_id is null
     group by coorte12meses_final.patient_id
