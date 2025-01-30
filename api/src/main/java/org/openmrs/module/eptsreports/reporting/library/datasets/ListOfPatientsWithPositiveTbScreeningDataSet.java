@@ -6,6 +6,8 @@ import org.openmrs.Location;
 import org.openmrs.module.eptsreports.reporting.library.indicators.EptsGeneralIndicator;
 import org.openmrs.module.eptsreports.reporting.utils.EptsQuerysUtils;
 import org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils;
+import org.openmrs.module.eptsreports.reporting.utils.TxCurrColumnsQuantity;
+import org.openmrs.module.eptsreports.reporting.utils.TxCurrQuery;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
 import org.openmrs.module.reporting.dataset.definition.CohortIndicatorDataSetDefinition;
@@ -31,7 +33,13 @@ public class ListOfPatientsWithPositiveTbScreeningDataSet extends BaseDataSet {
     SqlDataSetDefinition dsd = new SqlDataSetDefinition();
     dsd.setName("Find list of patients with positive tb screening");
     dsd.addParameters(list);
-    dsd.setSqlQuery(EptsQuerysUtils.loadQuery(FIND_PATIENTS_WITH_POSITIVE_TB_SCREENING_LIST));
+    String query =
+        String.format(
+            EptsQuerysUtils.loadQuery(FIND_PATIENTS_WITH_POSITIVE_TB_SCREENING_LIST),
+            TxCurrQuery.findPatientsInTxCurr(TxCurrColumnsQuantity.ALL));
+
+    dsd.setSqlQuery(query);
+
     return dsd;
   }
 
@@ -65,7 +73,10 @@ public class ListOfPatientsWithPositiveTbScreeningDataSet extends BaseDataSet {
     definition.addParameter(new Parameter("endDate", "End Date", Date.class));
     definition.addParameter(new Parameter("location", "location", Location.class));
 
-    definition.setQuery(EptsQuerysUtils.loadQuery(FIND_PATIENTS_WITH_POSITIVE_TB_SCREENING_TOTAL));
+    definition.setQuery(
+        String.format(
+            EptsQuerysUtils.loadQuery(FIND_PATIENTS_WITH_POSITIVE_TB_SCREENING_TOTAL),
+            TxCurrQuery.findPatientsInTxCurr(TxCurrColumnsQuantity.ALL)));
 
     return definition;
   }
