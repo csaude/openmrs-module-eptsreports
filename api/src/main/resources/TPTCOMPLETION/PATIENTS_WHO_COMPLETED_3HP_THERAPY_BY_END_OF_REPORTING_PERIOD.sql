@@ -107,7 +107,7 @@ select inicio_3HP.patient_id, max( inicio_3HP.data_final_3HP)
 							inner join encounter e on p.patient_id=e.patient_id  																			
 							inner join obs obs3hp on obs3hp.encounter_id=e.encounter_id 
 							inner join obs obs3HPCompleted on obs3HPCompleted.encounter_id=e.encounter_id 
-					where 	e.voided=0 and p.voided=0 and obs3HPCompleted.obs_datetime <:endDate and  										
+					where 	e.voided=0 and p.voided=0 and obs3HPCompleted.obs_datetime <=:endDate and  										
 							obs3hp.voided=0 and obs3hp.concept_id=23985 and obs3hp.value_coded=23954 and e.encounter_type in (6,53) and  
 							e.location_id=:location and obs3HPCompleted.voided=0 and obs3HPCompleted.concept_id=165308 and obs3HPCompleted.value_coded = 1267 		
 					group by p.patient_id
@@ -212,6 +212,7 @@ select inicio_3HP.patient_id, max( inicio_3HP.data_final_3HP)
 		where e.voided=0 and regime3HP.voided=0 and regime3HP.concept_id=23985 and regime3HP.value_coded in (23954,23984) and e.encounter_type=60 
 			and  e.location_id=:location and dispensaTrimestral.voided =0 and dispensaTrimestral.concept_id =23986 and dispensaTrimestral.value_coded=23720
 			and e.encounter_datetime between inicio_3HP.data_inicio_3HP and  (inicio_3HP.data_inicio_3HP + interval 4 month) 
+			and e.encounter_datetime<= :endDate
 			
 		union
 		
@@ -309,14 +310,14 @@ select inicio_3HP.patient_id, max( inicio_3HP.data_final_3HP)
 				inner join obs dispensaMensal on dispensaMensal.encounter_id=e.encounter_id																
 			where 		e.voided=0 and e.encounter_datetime between inicio_3HP.data_inicio_3HP and  (inicio_3HP.data_inicio_3HP + interval 4 month)	 			  									
 						and regimeTPT.voided=0 and regimeTPT.concept_id=23985 and regimeTPT.value_coded in (23954,23984) and e.encounter_type=60 
-						and  e.location_id=:location	  		
+						and  e.location_id=:location and e.encounter_datetime <= :endDate  		
 						and dispensaMensal.voided =0 and dispensaMensal.concept_id =23986 and dispensaMensal.value_coded=1098 							
 			group by inicio_3HP.patient_id
 			having count(e.encounter_id)>=3
 		
 		union
 		
-		select inicio_3HP.patient_id, e.encounter_datetime data_final_3HP
+		select inicio_3HP.patient_id, data_inicio_3HP--, e.encounter_datetime data_final_3HP
 		from (
 			select inicio_3HP.patient_id,min(inicio_3HP.data_inicio_tpi) data_inicio_3HP 
 			from ( 
@@ -407,7 +408,8 @@ select inicio_3HP.patient_id, max( inicio_3HP.data_final_3HP)
 			) inicio_3HP
 			inner join encounter e on e.patient_id = inicio_3HP.patient_id  																		
 			inner join obs outrasPrescricoesDT3HP on outrasPrescricoesDT3HP.encounter_id = e.encounter_id  																				
-		where e.voided=0 and outrasPrescricoesDT3HP.voided=0 and e.encounter_datetime between inicio_3HP.data_inicio_3HP and (inicio_3HP.data_inicio_3HP + interval 4 month)							
+		where e.voided=0 and outrasPrescricoesDT3HP.voided=0 and e.encounter_datetime between inicio_3HP.data_inicio_3HP and (inicio_3HP.data_inicio_3HP + interval 4 month)		
+		     and e.encounter_datetime <= :endDate 
 			and outrasPrescricoesDT3HP.concept_id=1719 and outrasPrescricoesDT3HP.value_coded=165307 and e.encounter_type  = 6 
 			and  e.location_id=:location
 		
@@ -511,6 +513,7 @@ select inicio_3HP.patient_id, max( inicio_3HP.data_final_3HP)
 				inner join obs estadoProfilaxia on estadoProfilaxia.encounter_id = e.encounter_id																
 			 where e.voided=0 and profilaxia3HP.voided=0 and profilaxia3HP.concept_id=23985 and profilaxia3HP.value_coded = 23954 and e.encounter_type=6 and  e.location_id=:location	
 				   and estadoProfilaxia.voided =0 and estadoProfilaxia.concept_id =165308 and estadoProfilaxia.value_coded in (1256,1257) and p.voided=0	
+				   and e.encounter_datetime <=:endDate
 	        ) fim on fim.patient_id=inicio_3HP.patient_id
 	            where fim.encounter_datetime between inicio_3HP.data_inicio_3HP and (inicio_3HP.data_inicio_3HP + interval 4 month)
 	            group by inicio_3HP.patient_id
