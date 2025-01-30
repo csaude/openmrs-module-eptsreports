@@ -117,9 +117,9 @@ from(
 			the INH Start Date (not including the INH Start Date)
 		 * 
 		 * */
-
-	select inicio_INH.patient_id, inicio_INH.data_fim_INH from (
-       select distinct inicio_INH.patient_id,fimINH.data_fim_INH, fimINH.encounter_id
+	select inicio_INH.patient_id, inicio_INH.data_inicio_INH from (
+	select inicio_INH.patient_id, inicio_INH.data_inicio_INH, inicio_INH.nDataFim from (
+       select distinct inicio_INH.patient_id,inicio_INH.data_inicio_INH,fimINH.data_fim_INH, count(fimINH.encounter_id) nDataFim
 		from(
 			select inicio_INH.patient_id,inicio_INH.data_inicio_INH data_inicio_INH 
 			from (
@@ -144,13 +144,16 @@ from(
 					inner join obs estadoProfilaxia on estadoProfilaxia.encounter_id=e.encounter_id																
 			where 	e.voided=0 and p.voided=0 and estadoProfilaxia.obs_datetime <=:endDate 			  									
 					and profilaxiaINH.voided=0 and profilaxiaINH.concept_id=23985 and profilaxiaINH.value_coded in (656,23982) and e.encounter_type in (6,9) and  e.location_id=:location	  		
-					and estadoProfilaxia.voided =0 and estadoProfilaxia.concept_id =165308 and estadoProfilaxia.value_coded in (1256,1257)			
+					and estadoProfilaxia.voided =0 and estadoProfilaxia.concept_id =165308 and estadoProfilaxia.value_coded in (1256,1257)		
 			
 		) fimINH on fimINH.patient_id=inicio_INH.patient_id
 		where fimINH.data_fim_INH BETWEEN (inicio_INH.data_inicio_INH +interval 1 day) and (inicio_INH.data_inicio_INH + interval 7 month)
+		group by inicio_INH.patient_id,inicio_INH.data_inicio_INH
+		order by inicio_INH.data_inicio_INH
 		) inicio_INH
 		group by inicio_INH.patient_id
-		HAVING count(inicio_INH.encounter_id)>=5
+		HAVING inicio_INH.nDataFim>=5
+		)inicio_INH
 		
 		union
 		 
