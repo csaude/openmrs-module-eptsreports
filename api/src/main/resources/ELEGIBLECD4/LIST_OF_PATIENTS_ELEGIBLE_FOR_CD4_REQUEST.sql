@@ -1072,7 +1072,12 @@
 				        
 				        union
 			            
-				        select max_estado.patient_id, max_estado.data_estado 
+				     select final.patient_id,final.data_estado 
+					  from
+					  (
+			            select final.patient_id,min(final.data_estado) data_estado,final.patient_state_id from
+			            (
+				        select max_estado.patient_id, max_estado.data_estado, ps.patient_state_id 
 						from(                                                                
 							
 							select max_estado.*
@@ -1086,7 +1091,7 @@
 											inner join patient_program pg on p.patient_id = pg.patient_id                                                               
 									  	inner join patient_state ps on pg.patient_program_id = ps.patient_program_id                                                
 									where pg.voided=0 and ps.voided=0 and p.voided=0 and  pg.program_id in(1)                                    
-										and ps.start_date <= :endDate  and pg.location_id =:location 
+										and ps.start_date <= :endDate  and pg.location_id=:location
 								)max_estado
 									inner join patient_program pp on pp.patient_id = max_estado.patient_id
 								 	inner join patient_state ps on ps.patient_program_id = pp.patient_program_id and ps.start_date = max_estado.data_estado  
@@ -1096,10 +1101,9 @@
 						) max_estado                                                                                                                        
 							inner join patient_state ps on ps.patient_state_id =max_estado.patient_state_id  
 							inner join patient_program pp on pp.patient_program_id = ps.patient_program_id         
-						where ps.state in(28,29)
 						union
 					  
-						select max_estado.patient_id, max_estado.data_estado 
+						select max_estado.patient_id, max_estado.data_estado,ps.patient_state_id 
 						from(                                                                
 							
 							select max_estado.*
@@ -1113,7 +1117,7 @@
 											inner join patient_program pg on p.patient_id = pg.patient_id                                                               
 									  	inner join patient_state ps on pg.patient_program_id = ps.patient_program_id                                                
 									where pg.voided=0 and ps.voided=0 and p.voided=0 and  pg.program_id in(2)                                    
-										and ps.start_date <= :endDate  and pg.location_id =:location 
+										and ps.start_date <= :endDate  and pg.location_id=:location
 								)max_estado
 									inner join patient_program pp on pp.patient_id = max_estado.patient_id
 								 	inner join patient_state ps on ps.patient_program_id = pp.patient_program_id and ps.start_date = max_estado.data_estado  
@@ -1123,7 +1127,12 @@
 						) max_estado                                                                                                                        
 							inner join patient_state ps on ps.patient_state_id =max_estado.patient_state_id  
 							inner join patient_program pp on pp.patient_program_id = ps.patient_program_id         
-						where ps.state in(28,29)
+						)final
+						inner join patient_state ps on ps.patient_state_id =final.patient_state_id  
+					     inner join patient_program pp on pp.patient_program_id = ps.patient_program_id         
+						where ps.start_date=final.data_estado and ps.state in(28,29)
+						group by final.patient_id
+						)final
 						)transferedIn on transferedIn.patient_id=coorteFinal.patient_id
 	                      inner join person p on p.person_id=coorteFinal.patient_id        
 	                      left join  
