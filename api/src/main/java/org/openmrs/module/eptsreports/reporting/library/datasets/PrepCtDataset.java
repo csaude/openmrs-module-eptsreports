@@ -88,6 +88,15 @@ public class PrepCtDataset extends BaseDataSet {
     final CohortDefinition clientsWithPrepInterruptionReasonUserOther =
         this.prepCtCohortQueries.getClientsWithPrepInterruptionReasonUserOther();
 
+    final CohortDefinition clientsWithOralPrepType =
+        this.prepCtCohortQueries.findClientsNewlyEnrolledInPrepByOralPrepTypeDissagragation();
+
+    final CohortDefinition clientsWithInjactablePrepType =
+        this.prepCtCohortQueries.findClientsNewlyEnrolledInPrepByInjectablePrepTypeDissagragation();
+
+    final CohortDefinition clientsWithOtherPrepType =
+        this.prepCtCohortQueries.findClientsNewlyEnrolledInPrepByOtherPrepTypeDissagragation();
+
     final CohortIndicator clientsNewlyEnrolledInPrepIndicator =
         this.eptsGeneralIndicator.getIndicator(
             "clientsNewlyEnrolledInPrepIndicator",
@@ -143,6 +152,21 @@ public class PrepCtDataset extends BaseDataSet {
             "clientsNewlyEnrolledInPrepIndicator",
             EptsReportUtils.map(clientsWithPrepInterruptionReasonUserOther, mappings));
 
+    final CohortIndicator clientsWithOralPrepTypeIndicator =
+        this.eptsGeneralIndicator.getIndicator(
+            "clientsNewlyEnrolledInPrepIndicator",
+            EptsReportUtils.map(clientsWithOralPrepType, mappings));
+
+    final CohortIndicator clientsWithInjactablePrepTypeIndicator =
+        this.eptsGeneralIndicator.getIndicator(
+            "clientsNewlyEnrolledInPrepIndicator",
+            EptsReportUtils.map(clientsWithInjactablePrepType, mappings));
+
+    final CohortIndicator clientsWithOtherPrepTypeIndicator =
+        this.eptsGeneralIndicator.getIndicator(
+            "clientsNewlyEnrolledInPrepIndicator",
+            EptsReportUtils.map(clientsWithOtherPrepType, mappings));
+
     dataSetDefinition.addDimension("gender", EptsReportUtils.map(eptsCommonDimension.gender(), ""));
     dataSetDefinition.addDimension(
         "age",
@@ -190,11 +214,6 @@ public class PrepCtDataset extends BaseDataSet {
         "sex-worker",
         EptsReportUtils.map(
             this.prepKeyPopulationDimension.findPatientsWhoAreSexWorker(), mappings));
-
-    dataSetDefinition.addDimension(
-        "transgender",
-        EptsReportUtils.map(
-            this.prepKeyPopulationDimension.findPatientsWhoAreTransGender(), mappings));
 
     dataSetDefinition.addColumn(
         "PREP-C-All",
@@ -251,12 +270,6 @@ public class PrepCtDataset extends BaseDataSet {
         "gender=M|sex-worker=sex-worker");
 
     dataSetDefinition.addColumn(
-        "PREP-C-TG",
-        "Transgender",
-        EptsReportUtils.map(clientsNewlyEnrolledInPrepIndicator, mappings),
-        "transgender=transgender");
-
-    dataSetDefinition.addColumn(
         "PREP-C-PREGNANT",
         "PREP_CT: PREGNANT STATUS",
         EptsReportUtils.map(clientsWithPregnancyStatusIndicator, mappings),
@@ -296,6 +309,23 @@ public class PrepCtDataset extends BaseDataSet {
         "PREP-C-OTHER",
         "Prep Interruption Reason - OTHER",
         EptsReportUtils.map(clientsWithPrepInterruptionReasonUserOtherIndicator, mappings),
+        "");
+
+    dataSetDefinition.addColumn(
+        "PREP-C-ORALTYPE",
+        "Prep Type- Oral",
+        EptsReportUtils.map(clientsWithOralPrepTypeIndicator, mappings),
+        "");
+
+    dataSetDefinition.addColumn(
+        "PREP-C-INJACTABLETYPE",
+        "Prep Type- Injactable",
+        EptsReportUtils.map(clientsWithInjactablePrepTypeIndicator, mappings),
+        "");
+    dataSetDefinition.addColumn(
+        "PREP-C-OTHERTYPE",
+        "Prep Type- Other",
+        EptsReportUtils.map(clientsWithOtherPrepTypeIndicator, mappings),
         "");
 
     return dataSetDefinition;

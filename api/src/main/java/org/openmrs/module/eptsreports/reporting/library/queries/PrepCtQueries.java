@@ -366,5 +366,62 @@ public interface PrepCtQueries {
             + "and e.encounter_datetime <=:endDate "
             + "and e.location_id=:location "
             + "group by p.patient_id ";
+
+    public static final String findPrepCTByOralPrepType =
+        "select prep.patient_id from "
+            + "( "
+            + "select p.patient_id, max(e.encounter_datetime) data_consulta_oral "
+            + "		from patient p "
+            + "		inner join encounter e on e.patient_id=p.patient_id "
+            + "		inner join obs o on o.encounter_id=e.encounter_id "
+            + "		where e.voided=0 "
+            + "		and p.voided=0 "
+            + "		and o.voided=0 "
+            + "		and e.encounter_type in(80,81) "
+            + "		and o.concept_id=165516 "
+            + "		and o.value_coded in (165517,165518) "
+            + "		and e.encounter_datetime>=:startDate "
+            + "		and e.encounter_datetime<=:endDate "
+            + "		and e.location_id=:location "
+            + "		group by p.patient_id "
+            + ") prep ";
+
+    public static final String findPrepCTByInjectablePrepType =
+        "select prep.patient_id from "
+            + "( "
+            + "select p.patient_id, max(e.encounter_datetime) data_consulta_oral "
+            + "		from patient p "
+            + "		inner join encounter e on e.patient_id=p.patient_id "
+            + "		inner join obs o on o.encounter_id=e.encounter_id "
+            + "		where e.voided=0 "
+            + "		and p.voided=0 "
+            + "		and o.voided=0 "
+            + "		and e.encounter_type in(80,81) "
+            + "		and o.concept_id=165516 "
+            + "		and o.value_coded=21959 "
+            + "		and e.encounter_datetime>=:startDate "
+            + "		and e.encounter_datetime<=:endDate "
+            + "		and e.location_id=:location "
+            + "		group by p.patient_id "
+            + ") prep ";
+
+    public static final String findPrepCTByOtherPrepType =
+        "select prep.patient_id from "
+            + "( "
+            + "select p.patient_id, max(e.encounter_datetime) data_consulta_oral "
+            + "		from patient p "
+            + "		inner join encounter e on e.patient_id=p.patient_id "
+            + "		inner join obs o on o.encounter_id=e.encounter_id "
+            + "		where e.voided=0 "
+            + "		and p.voided=0 "
+            + "		and o.voided=0 "
+            + "		and e.encounter_type in(80,81) "
+            + "		and o.concept_id=165516 "
+            + "		and o.value_coded=165514 "
+            + "		and e.encounter_datetime>=:startDate "
+            + "		and e.encounter_datetime<=:endDate "
+            + "		and e.location_id=:location "
+            + "		group by p.patient_id "
+            + ") prep ";
   }
 }
