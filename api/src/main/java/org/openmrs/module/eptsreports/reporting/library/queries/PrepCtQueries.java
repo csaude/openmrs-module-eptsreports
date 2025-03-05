@@ -87,7 +87,7 @@ public interface PrepCtQueries {
             + " 	) transferido_de "
             + "inner join person pe on pe.person_id=transferido_de.patient_id "
             + "    				where "
-            + "    			((pe.birthdate is not null and timestampdiff(year,pe.birthdate,:startDate) >= 15) or pe.birthdate is  null) ";
+            + "    			((pe.birthdate is not null and timestampdiff(year,pe.birthdate,:endDate) >= 15) or pe.birthdate is  null) ";
 
     public static final String findClientsWhoReinitiatedPrep =
         "select patient_id from ( "
