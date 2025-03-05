@@ -32,7 +32,7 @@ public interface PrepNewQueries {
             + " prep_new 																								"
             + "		inner join person pe on pe.person_id=prep_new.patient_id											"
             + "where prep_new.data_inicio_prep between :startDate and :endDate 											"
-            + "		 and ((pe.birthdate is not null and timestampdiff(year,pe.birthdate,:endDate) >= 15	) or pe.birthdate is  null	)			";
+            + "		 and ((pe.birthdate is not null and timestampdiff(year,pe.birthdate,prep_new.data_inicio_prep) >= 15	) or pe.birthdate is  null	)			";
 
     public static final String findClientsWhoWhereTransferredIn =
         "														"
