@@ -273,9 +273,9 @@ from(
 		 * */
 		select inicio_INH.patient_id, DTINH.data_fim_INH
 		from(
-			select inicio_INH.patient_id,min(inicio_INH.data_inicio_INH) data_inicio_INH 
+			select inicio_INH.patient_id,inicio_INH.data_inicio_INH data_inicio_INH 
 			from (
-					select p.patient_id,min(obsInicioINH.obs_datetime) data_inicio_INH 
+					select p.patient_id,obsInicioINH.obs_datetime data_inicio_INH 
 					from patient p 
 						inner join encounter e on p.patient_id = e.patient_id 
 						inner join obs o on o.encounter_id = e.encounter_id 
@@ -283,11 +283,11 @@ from(
 					where e.voided=0 and p.voided=0 and o.voided=0 and e.encounter_type in (6,9,53)and o.concept_id=23985 and o.value_coded=656
 						and obsInicioINH.concept_id=165308 and obsInicioINH.value_coded=1256 and obsInicioINH.voided=0
 						and obsInicioINH.obs_datetime<:endDate  and  e.location_id=:location
-						group by p.patient_id
+						
 					
 					union	
 					
-					select p.patient_id,min(seguimentoTPT.obs_datetime) data_inicio_INH	
+					select p.patient_id,seguimentoTPT.obs_datetime data_inicio_INH	
 					from	patient p													 
 						inner join encounter e on p.patient_id=e.patient_id																				 
 						inner join obs o on o.encounter_id=e.encounter_id	 																			 
@@ -295,11 +295,11 @@ from(
 					where e.voided=0 and p.voided=0 and seguimentoTPT.obs_datetime <:endDate   
 						and seguimentoTPT.voided =0 and seguimentoTPT.concept_id = 23987 and seguimentoTPT.value_coded in (1256,1705)	 						 
 						and o.voided=0 and o.concept_id=23985 and o.value_coded in (656,23982) and e.encounter_type=60 and  e.location_id=:location		 
-						group by p.patient_id	 																											 
+ 																											 
 					union
 					(	select inicio.patient_id, inicio.data_inicio_INH
 						from (
-								select p.patient_id,min(seguimentoTPT.obs_datetime) data_inicio_INH	
+								select p.patient_id,seguimentoTPT.obs_datetime data_inicio_INH	
 								from	patient p													 
 									inner join encounter e on p.patient_id=e.patient_id																				 
 									inner join obs o on o.encounter_id=e.encounter_id	 																			 
@@ -307,9 +307,10 @@ from(
 								where e.voided=0 and p.voided=0 and seguimentoTPT.obs_datetime <:endDate   
 									and seguimentoTPT.voided =0 and seguimentoTPT.concept_id =23987 and seguimentoTPT.value_coded in (1257)	 						 
 									and o.voided=0 and o.concept_id=23985 and o.value_coded in (656,23982) and e.encounter_type=60 and  e.location_id=:location		 
-									group by p.patient_id	 
+	 
 								union
-								select p.patient_id,min(seguimentoTPT.obs_datetime) data_inicio_INH	from	patient p													         
+								
+								select p.patient_id,seguimentoTPT.obs_datetime data_inicio_INH	from	patient p													         
 									inner join encounter e on p.patient_id=e.patient_id																				 
 									inner join obs o on o.encounter_id=e.encounter_id																				 
 									left join obs seguimentoTPT on (e.encounter_id =seguimentoTPT.encounter_id	 													
@@ -319,7 +320,7 @@ from(
 								where e.voided=0 and p.voided=0 and seguimentoTPT.obs_datetime <:endDate   
 									and o.voided=0 and o.concept_id=23985 and o.value_coded in (656,23982) and e.encounter_type=60 and  e.location_id=:location      
 									and seguimentoTPT.obs_id is null 	         
-									group by p.patient_id
+
 							)
 				 		inicio
 						left join
@@ -344,7 +345,7 @@ from(
 						where inicioAnterior.patient_id is null	
 			  		)
 			 	) 
-			inicio_INH group by inicio_INH.patient_id
+			inicio_INH 
 		) inicio_INH
 		inner join 
 		(
