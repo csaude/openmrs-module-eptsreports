@@ -29,9 +29,8 @@ public class PrepKeyPopQuery {
             + "            ) maxkp "
             + "            inner join encounter e on e.patient_id=maxkp.patient_id and maxkp.maxkpdate=e.encounter_datetime "
             + "            inner join obs o on o.encounter_id=e.encounter_id and maxkp.maxkpdate=o.obs_datetime "
-            + "            inner join person pe on pe.person_id=maxkp.patient_id "
-            + "            where o.concept_id=23703 and o.voided=0  and e.encounter_type=81 and e.voided=0 and e.location_id=:location and pe.voided=0 "
-            + "            AND o.value_coded=1901 and pe.gender = 'F' "
+            + "            where o.concept_id=23703 and o.voided=0  and e.encounter_type=81 and e.voided=0 and e.location_id=:location "
+            + "            AND o.value_coded=1901 "
             + "            union "
             + "            select maxkp.patient_id, o.value_coded,o.obs_datetime,1 ordemSource,3 ordemKp from ( "
             + "            Select p.patient_id,max(e.encounter_datetime) maxkpdate from patient p "
@@ -81,10 +80,8 @@ public class PrepKeyPopQuery {
             + "            ) maxkp "
             + "            inner join encounter e on e.patient_id=maxkp.patient_id and maxkp.maxkpdate=e.encounter_datetime "
             + "            inner join obs o on o.encounter_id=e.encounter_id and maxkp.maxkpdate=o.obs_datetime "
-            + "            inner join person pe on pe.person_id=maxkp.patient_id "
             + "            where o.concept_id=23703 and o.voided=0 and e.encounter_type = 80 and e.voided=0 and e.location_id=:location "
-            + "            and pe.voided=0 "
-            + "            AND o.value_coded=1901 and pe.gender = 'F' "
+            + "            AND o.value_coded=1901 "
             + "            union "
             + "            select maxkp.patient_id, o.value_coded,o.obs_datetime,1 ordemSource,3 ordemKp from ( "
             + "            Select p.patient_id,max(e.encounter_datetime) maxkpdate from patient p "
@@ -279,7 +276,7 @@ public class PrepKeyPopQuery {
         break;
 
       case OTHER:
-        query = query + "where value_coded=5622 ";
+        query = query + "where value_coded=5622 or value_coded=165205 ";
         break;
     }
 
