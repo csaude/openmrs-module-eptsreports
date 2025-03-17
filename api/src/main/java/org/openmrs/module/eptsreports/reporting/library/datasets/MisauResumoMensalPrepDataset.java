@@ -89,11 +89,6 @@ public class MisauResumoMensalPrepDataset extends BaseDataSet {
             this.prepKeyPopulationDimension.findPatientsWhoAreSexWorker(), mappings));
 
     dataSetDefinition.addDimension(
-        "transgender",
-        EptsReportUtils.map(
-            this.prepKeyPopulationDimension.findPatientsWhoAreTransGender(), mappings));
-
-    dataSetDefinition.addDimension(
         "serodiscordants",
         EptsReportUtils.map(
             this.prepKeyPopulationDimension.findPatientsWhoAreSeroDiscordants(), mappings));
@@ -296,11 +291,7 @@ public class MisauResumoMensalPrepDataset extends BaseDataSet {
         indicatorPrefix + " - Reclusos",
         mappedIndicator,
         "prisioner=prisioner");
-    dataSetDefinition.addColumn(
-        indicatorPrefix + "-transgender",
-        indicatorPrefix + " - Transgéneros",
-        mappedIndicator,
-        "transgender=transgender");
+
     dataSetDefinition.addColumn(
         indicatorPrefix + "-serodiscordants",
         indicatorPrefix + " - Casais serodiscordantes ",

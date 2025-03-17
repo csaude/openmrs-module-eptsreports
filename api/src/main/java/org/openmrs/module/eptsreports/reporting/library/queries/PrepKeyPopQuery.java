@@ -276,7 +276,7 @@ public class PrepKeyPopQuery {
         break;
 
       case OTHER:
-        query = query + "where value_coded=5622 ";
+        query = query + "where value_coded=5622 or value_coded=165205 ";
         break;
     }
 
