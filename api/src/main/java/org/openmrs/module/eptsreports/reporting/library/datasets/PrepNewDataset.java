@@ -215,22 +215,14 @@ public class PrepNewDataset extends BaseDataSet {
 
     dataSetDefinition.addColumn(
         "PREP-N-FSW",
-        "Female sex Worker",
+        "Famele sex worker",
         EptsReportUtils.map(clientsNewlyEnrolledInPrepIndicator, mappings),
         "gender=F|sex-worker=sex-worker");
-
     dataSetDefinition.addColumn(
         "PREP-N-MSW",
         "Male sex Worker",
         EptsReportUtils.map(clientsNewlyEnrolledInPrepIndicator, mappings),
         "gender=M|sex-worker=sex-worker");
-
-    dataSetDefinition.addColumn(
-        "PREP-N-TG",
-        "Transgender",
-        EptsReportUtils.map(clientsNewlyEnrolledInPrepIndicator, mappings),
-        "transgender=transgender");
-
     dataSetDefinition.addColumn(
         "PREP-N-PREGNANT",
         "PREP_NEW: PREGNANT STATUS",
