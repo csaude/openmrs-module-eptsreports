@@ -14,7 +14,6 @@
 		                               IF(ISNULL(grupoAlvo.SERODISCORDANTES), 'N', 'S') AS SERODISCORDANTES,
 		                               IF(ISNULL(grupoAlvoKp.PRISAO), 'N', 'S') AS PRISAO,
 		                               IF(ISNULL(grupoAlvoKp.HSH), 'N', 'S') AS HSH,
-		                               IF(ISNULL(grupoAlvoKp.TG), 'N', 'S') AS TG,
 		                               IF(ISNULL(grupoAlvoKp.TS), 'N', 'S') AS TS,
 		                               IF(ISNULL(grupoAlvoKp.PID), 'N', 'S') AS PID,
 		                               IF(ISNULL(grupoAlvoKp.OUTRO), 'N', 'S') AS OUTRO,
@@ -138,7 +137,6 @@
 			         select tmp.patient_id, 
 				     	   MAX(CASE WHEN tmp.value_coded = 20426 then tmp.value_coded END) as PRISAO, 
 		                       MAX(CASE WHEN tmp.value_coded = 1377 then tmp.value_coded END) as HSH, 
-		                       MAX(CASE WHEN tmp.value_coded = 165205 then tmp.value_coded END) as TG,
 		                       MAX(CASE WHEN tmp.value_coded = 1901 then tmp.value_coded END) as TS,
 		                       MAX(CASE WHEN tmp.value_coded = 20454 then tmp.value_coded END) as PID,
 		                       MAX(CASE WHEN tmp.value_coded = 5622 then tmp.value_coded END) as OUTRO from (

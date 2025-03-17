@@ -117,7 +117,6 @@
 			         select tmp.patient_id, 
 				     	   MAX(CASE WHEN tmp.value_coded = 20426 then tmp.value_coded END) as PRISAO, 
 		                       MAX(CASE WHEN tmp.value_coded = 1377 then tmp.value_coded END) as HSH, 
-		                       MAX(CASE WHEN tmp.value_coded = 165205 then tmp.value_coded END) as TG,
 		                       MAX(CASE WHEN tmp.value_coded = 1901 then tmp.value_coded END) as TS,
 		                       MAX(CASE WHEN tmp.value_coded = 20454 then tmp.value_coded END) as PID,
 		                       MAX(CASE WHEN tmp.value_coded = 5622 then tmp.value_coded END) as OUTRO from (
