@@ -285,7 +285,7 @@ public class MisauResumoMensalPrepDataset extends BaseDataSet {
         indicatorPrefix + "-sex-worker",
         indicatorPrefix + " - Trabalhador(a) de Sexo",
         mappedIndicator,
-        "sex-worker=sex-worker");
+        "sex-worker=sex-worker|gender=F");
     dataSetDefinition.addColumn(
         indicatorPrefix + "-prisioner",
         indicatorPrefix + " - Reclusos",
