@@ -67,7 +67,7 @@ public class SetupMisauResumoMensalPrepReport extends EptsPeriodIndicatorDataExp
 
   @Override
   public String getName() {
-    return "Resumo Mensal da PrEP – MISAU";
+    return "Resumo Mensal da PrEP - MISAU";
   }
 
   @Override
