@@ -180,7 +180,7 @@ public interface MQCategory13Section1QueriesInterface {
                 + "where  p.voided=0 and obsLinha.concept_id=21190 and e.encounter_type=53 and obsLinha.voided=0 and e.voided=0 and  e.location_id=:location and obsLinha.obs_datetime<=:endRevisionDate "
                 + "group by p.patient_id "
                 + ")alternativeLine on alternativeLine.patient_id = enc.patient_id "
-                + "where alternativeLine.dataLinha<enc.encounter_datetime and (TIMESTAMPDIFF(MONTH,alternativeLine.dataLinha,enc.encounter_datetime)) >= 6 ";
+                + "where alternativeLine.dataLinha<enc.encounter_datetime and (TIMESTAMPDIFF(DAY,alternativeLine.dataLinha,enc.encounter_datetime)) >= 165 ";
 
     public static final String
         findPatientsWithLastClinicalConsultationwhoAreDiferentFirstLineLinhaAternativaDenominatorB3E =
@@ -204,7 +204,7 @@ public interface MQCategory13Section1QueriesInterface {
                 + "and obsDiferenteLinha.obs_datetime>=linhaAlternativa.dataLinha "
                 + "and obsDiferenteLinha.obs_datetime<=linhaAlternativa.ultimaConsulta "
                 + "and obsDiferenteLinha.location_id=:location "
-                + "where (TIMESTAMPDIFF(MONTH,linhaAlternativa.dataLinha,linhaAlternativa.ultimaConsulta)) >= 6 and obsDiferenteLinha.obs_datetime is not null group by linhaAlternativa.patient_id";
+                + "where (TIMESTAMPDIFF(DAY,linhaAlternativa.dataLinha,linhaAlternativa.ultimaConsulta)) >= 165 and obsDiferenteLinha.obs_datetime is not null group by linhaAlternativa.patient_id";
 
     public static final String findPatientsWithCVDenominatorB4E =
         "Select final.patient_id from ( "
@@ -367,7 +367,7 @@ public interface MQCategory13Section1QueriesInterface {
                 + " group by p.patient_id  "
                 + " ) maxLinha "
                 + " ) primeiraLinha on art_start.patient_id = primeiraLinha.patient_id "
-                + " where TIMESTAMPDIFF(MONTH,art_start.art_start_date,primeiraLinha.maxDataLinha)>=6 ";
+                + " where TIMESTAMPDIFF(DAY,art_start.art_start_date,primeiraLinha.maxDataLinha)>=165 ";
 
     public static final String findPatientsWhoAbandonedARTInTheFirstSixMonthsOfARTStart =
         "select primeiraLinha.patient_id from ( "
