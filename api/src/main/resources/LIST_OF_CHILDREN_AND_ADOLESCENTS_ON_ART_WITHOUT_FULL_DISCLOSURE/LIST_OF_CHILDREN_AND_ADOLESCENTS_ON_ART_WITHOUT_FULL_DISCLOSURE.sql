@@ -1,12 +1,12 @@
 select 
   coorte12meses_final.patient_id as PATIENT_ID, 
-  DATE_FORMAT(DATE(coorte12meses_final.data_inicio), '%d-%m-%Y') as INIT_ART, 
+  DATE_FORMAT(DATE(txNew.art_start_date), '%d/%m/%Y') as INIT_ART, 
   pid.identifier as NID, 
   p.gender as GENDER, 
   if(p.birthdate is not null, floor(datediff(:endDate, p.birthdate)/ 365), 'N/A') AGE, 
   concat( ifnull(pn.given_name, ''), ' ', ifnull(pn.middle_name, ''), ' ', ifnull(pn.family_name, '')) as NAME, 
   if(ultimaRevelacao.estadoRevelacao is not null, ultimaRevelacao.estadoRevelacao, '') AS CODE, 
-  if(revelacaoParcial.data_revelacao is not null, DATE_FORMAT(DATE(revelacaoParcial.data_revelacao), '%d-%m-%Y'), 'N/A') as DATE_REVELATION, 
+  if(revelacaoParcial.data_revelacao is not null, DATE_FORMAT(DATE(revelacaoParcial.data_revelacao), '%d/%m/%Y'), 'N/A') as DATE_REVELATION, 
   if(revelacaoParcial.data_revelacao is not null, DATEDIFF(:endDate, revelacaoParcial.data_revelacao), 'N/A') as DIF_DAYS 
 from 
   (
@@ -343,6 +343,44 @@ from(
 
   ) coorte12meses_final 
   inner join person p on p.person_id = coorte12meses_final.patient_id 
+  left join 
+   (
+   	SELECT * FROM 
+			(SELECT patient_id, MIN(art_start_date) art_start_date FROM 
+			(
+			SELECT p.patient_id, MIN(e.encounter_datetime) art_start_date FROM patient p 
+			INNER JOIN encounter e ON p.patient_id=e.patient_id 
+			INNER JOIN obs o ON o.encounter_id=e.encounter_id 
+			WHERE e.voided=0 AND o.voided=0 AND p.voided=0 AND e.encounter_type in (18,6,9) 
+			AND o.concept_id=1255 AND o.value_coded=1256 AND e.encounter_datetime<=:endDate AND e.location_id=:location 
+			GROUP BY p.patient_id 
+			UNION 
+			SELECT p.patient_id, MIN(value_datetime) art_start_date FROM patient p INNER JOIN encounter e ON p.patient_id=e.patient_id 
+			INNER JOIN obs o ON e.encounter_id=o.encounter_id WHERE p.voided=0 AND e.voided=0 AND o.voided=0 AND e.encounter_type IN (18,6,9,53) 
+			AND o.concept_id=1190 AND o.value_datetime is NOT NULL AND o.value_datetime<=:endDate AND e.location_id=:location 
+			GROUP BY p.patient_id 
+			UNION 
+			SELECT pg.patient_id, MIN(date_enrolled) art_start_date FROM patient p 
+			INNER JOIN patient_program pg ON p.patient_id=pg.patient_id 
+			WHERE pg.voided=0 AND p.voided=0 AND program_id=2 AND date_enrolled<=:endDate AND location_id=:location 
+			GROUP BY pg.patient_id 
+			UNION SELECT e.patient_id, MIN(e.encounter_datetime) AS art_start_date FROM patient p 
+			INNER JOIN encounter e ON p.patient_id=e.patient_id 
+			WHERE p.voided=0 AND e.encounter_type=18 AND e.voided=0 AND e.encounter_datetime<=:endDate AND e.location_id=:location 
+			GROUP BY p.patient_id 
+			UNION 
+			SELECT p.patient_id, MIN(value_datetime) art_start_date FROM patient p 
+			INNER JOIN encounter e ON p.patient_id=e.patient_id 
+			INNER JOIN obs o ON e.encounter_id=o.encounter_id 
+			WHERE p.voided=0 AND e.voided=0 AND o.voided=0 AND e.encounter_type=52 
+			AND o.concept_id=23866 AND o.value_datetime is NOT NULL AND o.value_datetime<=:endDate AND e.location_id=:location 
+			GROUP BY p.patient_id 
+			) 
+			art_start 
+			GROUP BY patient_id 
+			) tx_new WHERE art_start_date <=:endDate 
+  	)txNew on txNew.patient_id=coorte12meses_final.patient_id
+  
   left join (
     select 
       pn1.* 
