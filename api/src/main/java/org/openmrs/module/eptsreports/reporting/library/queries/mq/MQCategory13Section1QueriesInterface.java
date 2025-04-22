@@ -510,7 +510,7 @@ public interface MQCategory13Section1QueriesInterface {
                 + " and o.obs_datetime between :startInclusionDate and :endRevisionDate and e.location_id = :location "
                 + " group by p.patient_id "
                 + " ) segundaLinha on maxEnc.patient_id = segundaLinha.patient_id "
-                + " where maxEnc.encounter_datetime >= date_add(segundaLinha.obs_datetime, INTERVAL 6 Month) ";
+                + " where maxEnc.encounter_datetime >= date_add(segundaLinha.obs_datetime, INTERVAL 165 DAY) ";
 
     public static final String
         findPatientsWithLastClinicalConsultationwhoAreNotInFistLineDenominatorB2ENEW =
@@ -534,7 +534,7 @@ public interface MQCategory13Section1QueriesInterface {
                 + " and obsDiferenteLinha.obs_datetime > linhaAlternativa.dataLinha "
                 + " and obsDiferenteLinha.obs_datetime <= linhaAlternativa.ultimaConsulta "
                 + " and obsDiferenteLinha.location_id = :location "
-                + " where (TIMESTAMPDIFF(MONTH,linhaAlternativa.dataLinha,linhaAlternativa.ultimaConsulta)) >= 6 and obsDiferenteLinha.obs_datetime is null "
+                + " where (TIMESTAMPDIFF(DAY,linhaAlternativa.dataLinha,linhaAlternativa.ultimaConsulta)) >= 165 and obsDiferenteLinha.obs_datetime is null "
                 + " group by linhaAlternativa.patient_id ";
 
     public static final String findPatientsWithDiagnosticoTBAtivaDuringRevisionPeriod =

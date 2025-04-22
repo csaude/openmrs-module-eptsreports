@@ -374,7 +374,7 @@ public interface MQCategory13P3QueriesInterface {
                 + "inner join obs  o on e.encounter_id=o.encounter_id "
                 + "where e.voided=0 and o.voided=0 and p.voided=0 and  e.encounter_type in (53,6) and o.concept_id in (6272,6273) and o.value_coded in (1707,1705) and e.location_id=:location "
                 + ")abandono on abandono.patient_id = maxEnc.patient_id "
-                + "where abandono.data_estado between date_sub(maxEnc.encounter_datetime, interval 6 MONTH) and maxEnc.encounter_datetime ";
+                + "where abandono.data_estado between date_sub(maxEnc.encounter_datetime, interval 165 DAY) and maxEnc.encounter_datetime ";
 
     public static final String
         findPatientsDeclaredDeadDuringTheFirstSixMonthsAfterChangeRegimenInFirstLineART =
@@ -603,7 +603,7 @@ public interface MQCategory13P3QueriesInterface {
                 + "inner join encounter e on e.patient_id=tx_new.patient_id "
                 + "inner join obs o on o.encounter_id=e.encounter_id "
                 + "where e.encounter_type in (6,53) and e.voided=0 and o.voided=0 and "
-                + "o.obs_datetime between date_add(tx_new.art_start_date, interval 198 DAY) AND  date_add(tx_new.art_start_date, interval 297 DAY) and "
+                + "o.obs_datetime between date_add(tx_new.art_start_date, interval 165 DAY) AND  date_add(tx_new.art_start_date, interval 297 DAY) and "
                 + "o.concept_id in (856,1305) and e.location_id=:location "
                 + ") final";
 
@@ -628,6 +628,6 @@ public interface MQCategory13P3QueriesInterface {
                 + " inner join encounter e on e.patient_id = B2NEW.patient_id "
                 + " inner join obs o on o.encounter_id = e.encounter_id and o.voided = 0 and o.concept_id IN (856, 1305) "
                 + " where e.encounter_type in (6,53) and e.voided = 0 and e.location_id = :location "
-                + " and o.obs_datetime between date_add(B2NEW.data_linha23898, interval 198 DAY) AND  date_add(B2NEW.data_linha23898, interval 297 DAY) ";
+                + " and o.obs_datetime between date_add(B2NEW.data_linha23898, interval 165 DAY) AND  date_add(B2NEW.data_linha23898, interval 297 DAY) ";
   }
 }
