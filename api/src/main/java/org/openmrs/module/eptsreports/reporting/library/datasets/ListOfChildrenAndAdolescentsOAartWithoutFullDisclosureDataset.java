@@ -10,6 +10,8 @@ import org.openmrs.module.eptsreports.reporting.library.dimensions.EptsCommonDim
 import org.openmrs.module.eptsreports.reporting.library.indicators.EptsGeneralIndicator;
 import org.openmrs.module.eptsreports.reporting.utils.EptsQuerysUtils;
 import org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils;
+import org.openmrs.module.eptsreports.reporting.utils.TxCurrColumnsQuantity;
+import org.openmrs.module.eptsreports.reporting.utils.TxCurrQuery;
 import org.openmrs.module.reporting.ReportingConstants;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
 import org.openmrs.module.reporting.dataset.definition.CohortIndicatorDataSetDefinition;
@@ -42,7 +44,11 @@ public class ListOfChildrenAndAdolescentsOAartWithoutFullDisclosureDataset exten
     SqlDataSetDefinition definition = new SqlDataSetDefinition();
     definition.setName("Lista de Crianças e Adolescentes em TARV sem Divulgação Completa");
     definition.addParameters(parameterList);
-    String query = EptsQuerysUtils.loadQuery(DISCLOSURE_LIST);
+    String query =
+        String.format(
+            EptsQuerysUtils.loadQuery(DISCLOSURE_LIST),
+            TxCurrQuery.findPatientsInTxCurr(TxCurrColumnsQuantity.PATIENT_ID));
+
     definition.setSqlQuery(query);
     return definition;
   }
