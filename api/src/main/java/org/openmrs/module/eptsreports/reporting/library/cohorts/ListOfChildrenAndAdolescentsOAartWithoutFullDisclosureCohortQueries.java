@@ -4,8 +4,6 @@ import java.util.Date;
 import org.openmrs.Location;
 import org.openmrs.module.eptsreports.reporting.utils.DiscloreType;
 import org.openmrs.module.eptsreports.reporting.utils.EptsQuerysUtils;
-import org.openmrs.module.eptsreports.reporting.utils.TxCurrColumnsQuantity;
-import org.openmrs.module.eptsreports.reporting.utils.TxCurrQuery;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
@@ -16,13 +14,13 @@ public class ListOfChildrenAndAdolescentsOAartWithoutFullDisclosureCohortQueries
 
   private static final String DISCLOSURE_LIST_MARKED =
       "LIST_OF_CHILDREN_AND_ADOLESCENTS_ON_ART_WITHOUT_FULL_DISCLOSURE/LIST_OF_CHILDREN_AND_ADOLESCENTS_ON_ART_WITHOUT_FULL_DISCLOSURE_TOTAL.sql";
+  private static final String B13 = "RMB13/PATIENTS_WHO_ARE_CURRENTLY_ENROLLED_ON_ART_B13.sql";
 
   public static String findPatientsOAartWithoutFullDisclosure(DiscloreType discloreType) {
 
     String query =
         String.format(
-            EptsQuerysUtils.loadQuery(DISCLOSURE_LIST_MARKED),
-            TxCurrQuery.findPatientsInTxCurr(TxCurrColumnsQuantity.PATIENT_ID));
+            EptsQuerysUtils.loadQuery(DISCLOSURE_LIST_MARKED), EptsQuerysUtils.loadQuery(B13));
 
     switch (discloreType) {
       case T:
