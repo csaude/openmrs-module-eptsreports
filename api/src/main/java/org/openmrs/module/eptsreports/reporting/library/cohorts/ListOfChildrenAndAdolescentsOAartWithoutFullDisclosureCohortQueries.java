@@ -4,6 +4,8 @@ import java.util.Date;
 import org.openmrs.Location;
 import org.openmrs.module.eptsreports.reporting.utils.DiscloreType;
 import org.openmrs.module.eptsreports.reporting.utils.EptsQuerysUtils;
+import org.openmrs.module.eptsreports.reporting.utils.TxCurrColumnsQuantity;
+import org.openmrs.module.eptsreports.reporting.utils.TxCurrQuery;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
@@ -17,7 +19,10 @@ public class ListOfChildrenAndAdolescentsOAartWithoutFullDisclosureCohortQueries
 
   public static String findPatientsOAartWithoutFullDisclosure(DiscloreType discloreType) {
 
-    String query = EptsQuerysUtils.loadQuery(DISCLOSURE_LIST_MARKED);
+    String query =
+        String.format(
+            EptsQuerysUtils.loadQuery(DISCLOSURE_LIST_MARKED),
+            TxCurrQuery.findPatientsInTxCurr(TxCurrColumnsQuantity.PATIENT_ID));
 
     switch (discloreType) {
       case T:
