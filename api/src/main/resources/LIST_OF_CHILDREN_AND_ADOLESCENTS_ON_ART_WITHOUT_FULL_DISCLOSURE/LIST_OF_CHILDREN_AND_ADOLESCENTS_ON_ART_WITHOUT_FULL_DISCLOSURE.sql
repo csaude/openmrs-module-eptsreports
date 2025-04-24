@@ -6,7 +6,7 @@ select
   if(p.birthdate is not null, floor(datediff(:endDate, p.birthdate)/ 365), 'N/A') AGE, 
   concat( ifnull(pn.given_name, ''), ' ', ifnull(pn.middle_name, ''), ' ', ifnull(pn.family_name, '')) as NAME, 
   if(ultimaRevelacao.estadoRevelacao is not null, ultimaRevelacao.estadoRevelacao, '') AS CODE, 
-  if(revelacaoParcial.data_revelacao is not null, DATE(revelacaoParcial.data_revelacao), 'N/A') as DATE_REVELATION, 
+  if(revelacaoParcial.data_revelacao is not null, DATE_FORMAT(DATE(revelacaoParcial.data_revelacao),'%%d/%%m/%%Y'), 'N/A') as DATE_REVELATION, 
   if(revelacaoParcial.data_revelacao is not null, DATEDIFF(:endDate, revelacaoParcial.data_revelacao), 'N/A') as DIF_DAYS 
 from 
   (
