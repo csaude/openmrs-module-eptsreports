@@ -374,7 +374,7 @@ public interface MQCategory13P3QueriesInterface {
                 + "inner join obs  o on e.encounter_id=o.encounter_id "
                 + "where e.voided=0 and o.voided=0 and p.voided=0 and  e.encounter_type in (53,6) and o.concept_id in (6272,6273) and o.value_coded in (1707,1705) and e.location_id=:location "
                 + ")abandono on abandono.patient_id = maxEnc.patient_id "
-                + "where abandono.data_estado between date_sub(maxEnc.encounter_datetime, interval 165 DAY) and maxEnc.encounter_datetime ";
+                + "where abandono.data_estado between date_sub(maxEnc.encounter_datetime, interval 6 MONTH) and maxEnc.encounter_datetime ";
 
     public static final String
         findPatientsDeclaredDeadDuringTheFirstSixMonthsAfterChangeRegimenInFirstLineART =
