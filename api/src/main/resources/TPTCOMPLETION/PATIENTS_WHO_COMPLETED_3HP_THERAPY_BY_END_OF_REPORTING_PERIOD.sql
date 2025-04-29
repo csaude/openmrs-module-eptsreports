@@ -110,7 +110,7 @@ select inicio_3HP.patient_id, max( inicio_3HP.data_final_3HP)
 		
 		select inicio_3HP.patient_id, e.encounter_datetime data_final_3HP
 		from (
-				select inicio_3HP.patient_id,min(inicio_3HP.data_inicio_tpi) data_inicio_3HP 
+				select inicio_3HP.patient_id,inicio_3HP.data_inicio_tpi data_inicio_3HP 
 				from ( 
 					select p.patient_id,min(estadoProfilaxia.obs_datetime) data_inicio_tpi from  patient p 
 						inner join encounter e on p.patient_id = e.patient_id 
@@ -118,44 +118,40 @@ select inicio_3HP.patient_id, max( inicio_3HP.data_final_3HP)
 						inner join obs estadoProfilaxia on estadoProfilaxia.encounter_id = e.encounter_id
 					where p.voided=0 and e.voided=0  and profilaxia3HP.voided = 0 and estadoProfilaxia.voided = 0  
 						and  profilaxia3HP.concept_id = 23985  and profilaxia3HP.value_coded = 23954 and estadoProfilaxia.concept_id=165308 and estadoProfilaxia.value_coded = 1256 
-						and e.encounter_type in (6,9,53) and e.location_id=:location and estadoProfilaxia.obs_datetime <:endDate
-					group by p.patient_id 
+						and e.encounter_type in (6,9,53) and e.location_id=:location and estadoProfilaxia.obs_datetime <:endDate 
 							
 					union
 					
-					select p.patient_id,min(outrasPrescricoesDT3HP.obs_datetime) data_inicio_tpi  from patient p 
+					select p.patient_id,outrasPrescricoesDT3HP.obs_datetime data_inicio_tpi  from patient p 
 						inner join encounter e on p.patient_id = e.patient_id 
 						inner join obs outrasPrescricoesDT3HP on outrasPrescricoesDT3HP.encounter_id = e.encounter_id 
 					where p.voided=0 and e.voided=0  and outrasPrescricoesDT3HP.voided=0 and outrasPrescricoesDT3HP.obs_datetime <:endDate 
-						 and outrasPrescricoesDT3HP.concept_id=1719 and outrasPrescricoesDT3HP.value_coded=165307 and e.encounter_type in (6)  and e.location_id=:location 
-					group by p.patient_id  
+						 and outrasPrescricoesDT3HP.concept_id=1719 and outrasPrescricoesDT3HP.value_coded=165307 and e.encounter_type in (6)  and e.location_id=:location  
 					
 					union
 					
-					select p.patient_id,min(seguimentoTPT.obs_datetime) data_inicio_tpi from patient p														 			 
+					select p.patient_id,seguimentoTPT.obs_datetime data_inicio_tpi from patient p														 			 
 						inner join encounter e on p.patient_id=e.patient_id																				 			 
 						inner join obs regime3HP on regime3HP.encounter_id=e.encounter_id		 																					 
 						inner join obs seguimentoTPT on seguimentoTPT.encounter_id=e.encounter_id																	 
 					where e.voided=0 and p.voided=0 and seguimentoTPT.obs_datetime <:endDate	 			 
 						and regime3HP.voided=0 and regime3HP.concept_id=23985 and regime3HP.value_coded in (23954,23984) and e.encounter_type=60 and  e.location_id=:location	  			 
 						and seguimentoTPT.voided =0 and seguimentoTPT.concept_id =23987 and seguimentoTPT.value_coded in (1256,1705) 								 
-					group by p.patient_id
 					
 					union
 					(
 					 		select inicio.patient_id,inicio.data_inicio_tpi from																					 
-					 		(	select p.patient_id,min(seguimentoTPT.obs_datetime) data_inicio_tpi from patient p														 
+					 		(	select p.patient_id,seguimentoTPT.obs_datetime data_inicio_tpi from patient p														 
 					 				inner join encounter e on p.patient_id=e.patient_id																				 
 					 				inner join obs regime3HP on regime3HP.encounter_id=e.encounter_id	 																			 
 					 				inner join obs seguimentoTPT on seguimentoTPT.encounter_id=e.encounter_id														 
 					 			where e.voided=0 and p.voided=0 and seguimentoTPT.obs_datetime <:endDate	 
 					 				and regime3HP.voided=0 and regime3HP.concept_id=23985 and regime3HP.value_coded in (23954,23984) and e.encounter_type=60 and  e.location_id=:location	 
 					 				and seguimentoTPT.voided =0 and seguimentoTPT.concept_id =23987 and seguimentoTPT.value_coded in (1257,1267) 					 
-					 			group by p.patient_id
 							
 					 			union 	
 								
-					 			select p.patient_id,min(regime3HP.obs_datetime) data_inicio_tpi from patient p														 		 
+					 			select p.patient_id,regime3HP.obs_datetime data_inicio_tpi from patient p														 		 
 									inner join encounter e on p.patient_id=e.patient_id																				 		 
 									inner join obs regime3HP on regime3HP.encounter_id=e.encounter_id	 																					 
 									left join obs seguimentoTPT on (e.encounter_id =seguimentoTPT.encounter_id	 													
@@ -164,8 +160,7 @@ select inicio_3HP.patient_id, max( inicio_3HP.data_final_3HP)
 										and seguimentoTPT.voided =0)							 
 								where e.voided=0 and p.voided=0 and regime3HP.obs_datetime <:endDate	         
 									and regime3HP.voided=0 and regime3HP.concept_id=23985 and regime3HP.value_coded in (23954,23984) and e.encounter_type=60 and  e.location_id=:location	 	     
-									and seguimentoTPT.obs_id is null					 
-								group by p.patient_id	 																													 
+									and seguimentoTPT.obs_id is null					 	 																													 
 					   		
 					   		) inicio
 					   		left join 																																 
@@ -195,7 +190,7 @@ select inicio_3HP.patient_id, max( inicio_3HP.data_final_3HP)
 					     		where inicioAnterior.patient_id is null																									 
 					 )
 					) 
-				inicio_3HP group by inicio_3HP.patient_id
+				inicio_3HP 
 			) inicio_3HP
 			inner join encounter e on e.patient_id = inicio_3HP.patient_id																				 		
 			inner join obs regime3HP on regime3HP.encounter_id=e.encounter_id		 																				
@@ -209,52 +204,48 @@ select inicio_3HP.patient_id, max( inicio_3HP.data_final_3HP)
 		
 		select inicio_3HP.patient_id, e.encounter_datetime data_final_3HP
 		from (
-				select inicio_3HP.patient_id,min(inicio_3HP.data_inicio_tpi) data_inicio_3HP 
+				select inicio_3HP.patient_id,inicio_3HP.data_inicio_tpi data_inicio_3HP 
 				from ( 
-					select p.patient_id,min(estadoProfilaxia.obs_datetime) data_inicio_tpi from  patient p 
+					select p.patient_id,estadoProfilaxia.obs_datetime data_inicio_tpi from  patient p 
 						inner join encounter e on p.patient_id = e.patient_id 
 						inner join obs profilaxia3HP on profilaxia3HP.encounter_id = e.encounter_id 
 						inner join obs estadoProfilaxia on estadoProfilaxia.encounter_id = e.encounter_id
 					where p.voided=0 and e.voided=0  and profilaxia3HP.voided = 0 and estadoProfilaxia.voided = 0  
 						and  profilaxia3HP.concept_id = 23985  and profilaxia3HP.value_coded = 23954 and estadoProfilaxia.concept_id=165308 and estadoProfilaxia.value_coded = 1256 
-						and e.encounter_type in (6,9,53) and e.location_id=:location and estadoProfilaxia.obs_datetime <:endDate
-					group by p.patient_id 
+						and e.encounter_type in (6,9,53) and e.location_id=:location and estadoProfilaxia.obs_datetime <:endDate 
 							
 					union
 					
-					select p.patient_id,min(outrasPrescricoesDT3HP.obs_datetime) data_inicio_tpi  from patient p 
+					select p.patient_id,outrasPrescricoesDT3HP.obs_datetime data_inicio_tpi  from patient p 
 						inner join encounter e on p.patient_id = e.patient_id 
 						inner join obs outrasPrescricoesDT3HP on outrasPrescricoesDT3HP.encounter_id = e.encounter_id 
 					where p.voided=0 and e.voided=0  and outrasPrescricoesDT3HP.voided=0 and outrasPrescricoesDT3HP.obs_datetime <:endDate
 						 and outrasPrescricoesDT3HP.concept_id=1719 and outrasPrescricoesDT3HP.value_coded=165307 and e.encounter_type in (6)  and e.location_id=:location 
-					group by p.patient_id  
 					
 					union
 					
-					select p.patient_id,min(seguimentoTPT.obs_datetime) data_inicio_tpi from patient p														 			 
+					select p.patient_id,seguimentoTPT.obs_datetime data_inicio_tpi from patient p														 			 
 						inner join encounter e on p.patient_id=e.patient_id																				 			 
 						inner join obs regime3HP on regime3HP.encounter_id=e.encounter_id		 																					 
 						inner join obs seguimentoTPT on seguimentoTPT.encounter_id=e.encounter_id																	 
 					where e.voided=0 and p.voided=0 and seguimentoTPT.obs_datetime <:endDate	 			 
 						and regime3HP.voided=0 and regime3HP.concept_id=23985 and regime3HP.value_coded in (23954,23984) and e.encounter_type=60 and  e.location_id=:location	  			 
 						and seguimentoTPT.voided =0 and seguimentoTPT.concept_id =23987 and seguimentoTPT.value_coded in (1256,1705) 								 
-					group by p.patient_id
 					
 					union
 					(
 					 		select inicio.patient_id,inicio.data_inicio_tpi from																					 
-					 		(	select p.patient_id,min(seguimentoTPT.obs_datetime) data_inicio_tpi from patient p														 
+					 		(	select p.patient_id,seguimentoTPT.obs_datetime data_inicio_tpi from patient p														 
 					 				inner join encounter e on p.patient_id=e.patient_id																				 
 					 				inner join obs regime3HP on regime3HP.encounter_id=e.encounter_id	 																			 
 					 				inner join obs seguimentoTPT on seguimentoTPT.encounter_id=e.encounter_id														 
 					 			where e.voided=0 and p.voided=0 and seguimentoTPT.obs_datetime <:endDate	 
 					 				and regime3HP.voided=0 and regime3HP.concept_id=23985 and regime3HP.value_coded in (23954,23984) and e.encounter_type=60 and  e.location_id=:location	 
 					 				and seguimentoTPT.voided =0 and seguimentoTPT.concept_id =23987 and seguimentoTPT.value_coded in (1257,1267) 					 
-					 			group by p.patient_id
 							
 					 			union 	
 								
-					 			select p.patient_id,min(regime3HP.obs_datetime) data_inicio_tpi from patient p														 		 
+					 			select p.patient_id,regime3HP.obs_datetime data_inicio_tpi from patient p														 		 
 									inner join encounter e on p.patient_id=e.patient_id																				 		 
 									inner join obs regime3HP on regime3HP.encounter_id=e.encounter_id	 																					 
 									left join obs seguimentoTPT on (e.encounter_id =seguimentoTPT.encounter_id	 													
@@ -263,8 +254,7 @@ select inicio_3HP.patient_id, max( inicio_3HP.data_final_3HP)
 										and seguimentoTPT.voided =0)							 
 								where e.voided=0 and p.voided=0 and regime3HP.obs_datetime <:endDate	         
 									and regime3HP.voided=0 and regime3HP.concept_id=23985 and regime3HP.value_coded in (23954,23984) and e.encounter_type=60 and  e.location_id=:location	 	     
-									and seguimentoTPT.obs_id is null					 
-								group by p.patient_id	 																													 
+									and seguimentoTPT.obs_id is null					  																													 
 					   		
 					   		) inicio
 					   		left join 																																 
@@ -294,7 +284,7 @@ select inicio_3HP.patient_id, max( inicio_3HP.data_final_3HP)
 					     		where inicioAnterior.patient_id is null																									 
 					 )
 					) 
-				inicio_3HP group by inicio_3HP.patient_id
+				inicio_3HP
 			) inicio_3HP
 			inner join encounter e on inicio_3HP.patient_id=e.patient_id
 				inner join obs regimeTPT on regimeTPT.encounter_id=e.encounter_id		 																				
@@ -308,54 +298,50 @@ select inicio_3HP.patient_id, max( inicio_3HP.data_final_3HP)
 		
 		union
 		
-		select inicio_3HP.patient_id, data_inicio_3HP--, e.encounter_datetime data_final_3HP
+		select inicio_3HP.patient_id, data_inicio_3HP
 		from (
-			select inicio_3HP.patient_id,min(inicio_3HP.data_inicio_tpi) data_inicio_3HP 
+			select inicio_3HP.patient_id,inicio_3HP.data_inicio_tpi data_inicio_3HP 
 			from ( 
-				select p.patient_id,min(estadoProfilaxia.obs_datetime) data_inicio_tpi from  patient p 
+				select p.patient_id,estadoProfilaxia.obs_datetime data_inicio_tpi from  patient p 
 					inner join encounter e on p.patient_id = e.patient_id 
 					inner join obs profilaxia3HP on profilaxia3HP.encounter_id = e.encounter_id 
 					inner join obs estadoProfilaxia on estadoProfilaxia.encounter_id = e.encounter_id
 				where p.voided=0 and e.voided=0  and profilaxia3HP.voided = 0 and estadoProfilaxia.voided = 0  
 					and  profilaxia3HP.concept_id = 23985  and profilaxia3HP.value_coded = 23954 and estadoProfilaxia.concept_id=165308 and estadoProfilaxia.value_coded = 1256 
 					and e.encounter_type in (6,9,53) and e.location_id=:location and estadoProfilaxia.obs_datetime <:endDate
-				group by p.patient_id 
 						
 				union
 				
-				select p.patient_id,min(outrasPrescricoesDT3HP.obs_datetime) data_inicio_tpi  from patient p 
+				select p.patient_id,outrasPrescricoesDT3HP.obs_datetime data_inicio_tpi  from patient p 
 					inner join encounter e on p.patient_id = e.patient_id 
 					inner join obs outrasPrescricoesDT3HP on outrasPrescricoesDT3HP.encounter_id = e.encounter_id 
 				where p.voided=0 and e.voided=0  and outrasPrescricoesDT3HP.voided=0 and outrasPrescricoesDT3HP.obs_datetime <:endDate
 					 and outrasPrescricoesDT3HP.concept_id=1719 and outrasPrescricoesDT3HP.value_coded=165307 and e.encounter_type in (6)  and e.location_id=:location 
-				group by p.patient_id  
 				
 				union
 				
-				select p.patient_id,min(seguimentoTPT.obs_datetime) data_inicio_tpi from patient p														 			 
+				select p.patient_id,seguimentoTPT.obs_datetime data_inicio_tpi from patient p														 			 
 					inner join encounter e on p.patient_id=e.patient_id																				 			 
 					inner join obs regime3HP on regime3HP.encounter_id=e.encounter_id		 																					 
 					inner join obs seguimentoTPT on seguimentoTPT.encounter_id=e.encounter_id																	 
 				where e.voided=0 and p.voided=0 and seguimentoTPT.obs_datetime <:endDate	 			 
 					and regime3HP.voided=0 and regime3HP.concept_id=23985 and regime3HP.value_coded in (23954,23984) and e.encounter_type=60 and  e.location_id=:location	  			 
 					and seguimentoTPT.voided =0 and seguimentoTPT.concept_id =23987 and seguimentoTPT.value_coded in (1256,1705) 								 
-				group by p.patient_id
 				
 				union
 				(
 				 		select inicio.patient_id,inicio.data_inicio_tpi from																					 
-				 		(	select p.patient_id,min(seguimentoTPT.obs_datetime) data_inicio_tpi from patient p														 
+				 		(	select p.patient_id,seguimentoTPT.obs_datetime data_inicio_tpi from patient p														 
 				 				inner join encounter e on p.patient_id=e.patient_id																				 
 				 				inner join obs regime3HP on regime3HP.encounter_id=e.encounter_id	 																			 
 				 				inner join obs seguimentoTPT on seguimentoTPT.encounter_id=e.encounter_id														 
 				 			where e.voided=0 and p.voided=0 and seguimentoTPT.obs_datetime <:endDate	 
 				 				and regime3HP.voided=0 and regime3HP.concept_id=23985 and regime3HP.value_coded in (23954,23984) and e.encounter_type=60 and  e.location_id=:location	 
 				 				and seguimentoTPT.voided =0 and seguimentoTPT.concept_id =23987 and seguimentoTPT.value_coded in (1257,1267) 					 
-				 			group by p.patient_id
 						
 				 			union 	
 							
-				 			select p.patient_id,min(regime3HP.obs_datetime) data_inicio_tpi from patient p														 		 
+				 			select p.patient_id,regime3HP.obs_datetime data_inicio_tpi from patient p														 		 
 								inner join encounter e on p.patient_id=e.patient_id																				 		 
 								inner join obs regime3HP on regime3HP.encounter_id=e.encounter_id	 																					 
 								left join obs seguimentoTPT on (e.encounter_id =seguimentoTPT.encounter_id	 													
@@ -365,7 +351,7 @@ select inicio_3HP.patient_id, max( inicio_3HP.data_final_3HP)
 							where e.voided=0 and p.voided=0 and regime3HP.obs_datetime <:endDate	         
 								and regime3HP.voided=0 and regime3HP.concept_id=23985 and regime3HP.value_coded in (23954,23984) and e.encounter_type=60 and  e.location_id=:location	 	     
 								and seguimentoTPT.obs_id is null					 
-							group by p.patient_id	 																													 
+	 																													 
 				   		
 				   		) inicio
 				   		left join 																																 
@@ -395,7 +381,7 @@ select inicio_3HP.patient_id, max( inicio_3HP.data_final_3HP)
 				     		where inicioAnterior.patient_id is null																									 
 				 )
 				) 
-			inicio_3HP group by inicio_3HP.patient_id
+			inicio_3HP 
 			) inicio_3HP
 			inner join encounter e on e.patient_id = inicio_3HP.patient_id  																		
 			inner join obs outrasPrescricoesDT3HP on outrasPrescricoesDT3HP.encounter_id = e.encounter_id  																				
@@ -408,7 +394,7 @@ select inicio_3HP.patient_id, max( inicio_3HP.data_final_3HP)
 		
 		select inicio_3HP.patient_id, fim.encounter_datetime data_final_3HP
 		from (
-			select inicio_3HP.patient_id,min(inicio_3HP.data_inicio_tpi) data_inicio_3HP 
+			select inicio_3HP.patient_id,inicio_3HP.data_inicio_tpi data_inicio_3HP 
 				from ( 
 					select p.patient_id,min(estadoProfilaxia.obs_datetime) data_inicio_tpi from  patient p 
 						inner join encounter e on p.patient_id = e.patient_id 
@@ -417,43 +403,39 @@ select inicio_3HP.patient_id, max( inicio_3HP.data_final_3HP)
 					where p.voided=0 and e.voided=0  and profilaxia3HP.voided = 0 and estadoProfilaxia.voided = 0  
 						and  profilaxia3HP.concept_id = 23985  and profilaxia3HP.value_coded = 23954 and estadoProfilaxia.concept_id=165308 and estadoProfilaxia.value_coded = 1256 
 						and e.encounter_type in (6,9,53) and e.location_id=:location and estadoProfilaxia.obs_datetime <:endDate
-					group by p.patient_id 
 							
 					union
 					
-					select p.patient_id,min(outrasPrescricoesDT3HP.obs_datetime) data_inicio_tpi  from patient p 
+					select p.patient_id,outrasPrescricoesDT3HP.obs_datetime data_inicio_tpi  from patient p 
 						inner join encounter e on p.patient_id = e.patient_id 
 						inner join obs outrasPrescricoesDT3HP on outrasPrescricoesDT3HP.encounter_id = e.encounter_id 
 					where p.voided=0 and e.voided=0  and outrasPrescricoesDT3HP.voided=0 and outrasPrescricoesDT3HP.obs_datetime <:endDate
 						 and outrasPrescricoesDT3HP.concept_id=1719 and outrasPrescricoesDT3HP.value_coded=165307 and e.encounter_type in (6)  and e.location_id=:location 
-					group by p.patient_id  
 					
 					union
 					
-					select p.patient_id,min(seguimentoTPT.obs_datetime) data_inicio_tpi from patient p														 			 
+					select p.patient_id,seguimentoTPT.obs_datetime data_inicio_tpi from patient p														 			 
 						inner join encounter e on p.patient_id=e.patient_id																				 			 
 						inner join obs regime3HP on regime3HP.encounter_id=e.encounter_id		 																					 
 						inner join obs seguimentoTPT on seguimentoTPT.encounter_id=e.encounter_id																	 
 					where e.voided=0 and p.voided=0 and seguimentoTPT.obs_datetime <:endDate	 			 
 						and regime3HP.voided=0 and regime3HP.concept_id=23985 and regime3HP.value_coded in (23954,23984) and e.encounter_type=60 and  e.location_id=:location	  			 
 						and seguimentoTPT.voided =0 and seguimentoTPT.concept_id =23987 and seguimentoTPT.value_coded in (1256,1705) 								 
-					group by p.patient_id
 					
 					union
 					(
 					 		select inicio.patient_id,inicio.data_inicio_tpi from																					 
-					 		(	select p.patient_id,min(seguimentoTPT.obs_datetime) data_inicio_tpi from patient p														 
+					 		(	select p.patient_id,seguimentoTPT.obs_datetime data_inicio_tpi from patient p														 
 					 				inner join encounter e on p.patient_id=e.patient_id																				 
 					 				inner join obs regime3HP on regime3HP.encounter_id=e.encounter_id	 																			 
 					 				inner join obs seguimentoTPT on seguimentoTPT.encounter_id=e.encounter_id														 
 					 			where e.voided=0 and p.voided=0 and seguimentoTPT.obs_datetime <:endDate	 
 					 				and regime3HP.voided=0 and regime3HP.concept_id=23985 and regime3HP.value_coded in (23954,23984) and e.encounter_type=60 and  e.location_id=:location	 
 					 				and seguimentoTPT.voided =0 and seguimentoTPT.concept_id =23987 and seguimentoTPT.value_coded in (1257,1267) 					 
-					 			group by p.patient_id
 							
 					 			union 	
 								
-					 			select p.patient_id,min(regime3HP.obs_datetime) data_inicio_tpi from patient p														 		 
+					 			select p.patient_id,regime3HP.obs_datetime data_inicio_tpi from patient p														 		 
 									inner join encounter e on p.patient_id=e.patient_id																				 		 
 									inner join obs regime3HP on regime3HP.encounter_id=e.encounter_id	 																					 
 									left join obs seguimentoTPT on (e.encounter_id =seguimentoTPT.encounter_id	 													
@@ -462,8 +444,7 @@ select inicio_3HP.patient_id, max( inicio_3HP.data_final_3HP)
 										and seguimentoTPT.voided =0)							 
 								where e.voided=0 and p.voided=0 and regime3HP.obs_datetime <:endDate	         
 									and regime3HP.voided=0 and regime3HP.concept_id=23985 and regime3HP.value_coded in (23954,23984) and e.encounter_type=60 and  e.location_id=:location	 	     
-									and seguimentoTPT.obs_id is null					 
-								group by p.patient_id	 																													 
+									and seguimentoTPT.obs_id is null					  																													 
 					   		
 					   		) inicio
 					   		left join 																																 
@@ -493,7 +474,7 @@ select inicio_3HP.patient_id, max( inicio_3HP.data_final_3HP)
 					     		where inicioAnterior.patient_id is null																									 
 					 )
 					) 
-				inicio_3HP group by inicio_3HP.patient_id
+				inicio_3HP
 			) inicio_3HP
 
 			inner join 
