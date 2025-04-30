@@ -173,20 +173,32 @@
      lactante_real on lactante_real.patient_id = coorte12meses_final.patient_id                                                                                                                          
         and lactante_real.data_parto between date_add(curdate(), interval -18 MONTH) 
         and curdate()  and (lactante_real.data_parto is not null or gravida_real.data_gravida is not null) 
-     left join (
-     select patient_id, max(data_estado) state_date, state, source from (
-     select patient_id, data_estado,state, source from (
-     SELECT pg.patient_id AS patient_id, ps.start_date data_estado, ps.state, 3 as source
-     FROM patient p 
-     INNER JOIN patient_program pg ON p.patient_id = pg.patient_id 
-     INNER JOIN patient_state ps ON pg.patient_program_id = ps.patient_program_id 
-     WHERE p.voided = 0 
-     AND pg.program_id = 2 
-     AND pg.voided = 0 
-     AND ps.voided = 0 
-     AND pg.location_id = :location
-     AND (ps.start_date IS NOT NULL AND ps.end_date IS NULL and ps.voided =0) 
-     AND ps.start_date <= curdate()
+     left join 
+     (
+          	 select patient_id, max(data_estado) state_date, state, source from 
+     (
+     select patient_id, data_estado,state, source from 
+     (
+    select max_estado.patient_id, max_estado.start_date data_estado, max_estado.state, 3 as source
+	from(
+			select pp.patient_id, ps.patient_state_id, ps.state, max(max_estado.data_estado) start_date
+			from(
+				
+				select pg.patient_id, ps.start_date data_estado
+				from patient p
+						inner join patient_program pg on p.patient_id = pg.patient_id
+				  	inner join patient_state ps on pg.patient_program_id = ps.patient_program_id
+				where pg.voided=0 and ps.voided=0 and p.voided=0 and  pg.program_id = 2
+					and ps.start_date <= curdate()  and pg.location_id=:location
+			)max_estado
+				inner join patient_program pp on pp.patient_id = max_estado.patient_id
+			 	inner join patient_state ps on ps.patient_program_id = pp.patient_program_id and ps.start_date = max_estado.data_estado
+	  		where pp.program_id = 2 and pp.voided = 0 and ps.voided = 0 and pp.location_id=:location
+	    			group by pp.patient_id
+	) max_estado
+		inner join patient_state ps on ps.patient_state_id =max_estado.patient_state_id
+		inner join patient_program pp on pp.patient_program_id = ps.patient_program_id
+
      union
     select  p.patient_id, 
              e.encounter_datetime data_estado, o.value_coded state, 2 as source
@@ -209,6 +221,7 @@
             o.obs_datetime<=curdate()
             ) final order by patient_id, data_estado desc, source 
             ) final group by patient_id
+
      ) estadoPermanencia on estadoPermanencia.patient_id = coorte12meses_final.patient_id
      inner join  
 ( 

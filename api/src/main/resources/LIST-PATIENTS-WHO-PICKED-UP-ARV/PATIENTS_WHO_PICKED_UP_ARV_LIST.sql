@@ -204,20 +204,32 @@
      lactante_real on lactante_real.patient_id = coorte12meses_final.patient_id                                                                                                                          
         and lactante_real.data_parto between date_add(curdate(), interval -18 MONTH) 
         and curdate()  and (lactante_real.data_parto is not null or gravida_real.data_gravida is not null) 
-     left join (
-     select patient_id, max(data_estado) state_date, state, source from (
-     select patient_id, data_estado,state, source from (
-     SELECT pg.patient_id AS patient_id, ps.start_date data_estado, ps.state, 3 as source
-     FROM patient p 
-     INNER JOIN patient_program pg ON p.patient_id = pg.patient_id 
-     INNER JOIN patient_state ps ON pg.patient_program_id = ps.patient_program_id 
-     WHERE p.voided = 0 
-     AND pg.program_id = 2 
-     AND pg.voided = 0 
-     AND ps.voided = 0 
-     AND pg.location_id = :location
-     AND (ps.start_date IS NOT NULL AND ps.end_date IS NULL and ps.voided =0) 
-     AND ps.start_date <= curdate()
+     left join 
+     (
+     	 select patient_id, max(data_estado) state_date, state, source from 
+     (
+     select patient_id, data_estado,state, source from 
+     (
+    select max_estado.patient_id, max_estado.start_date data_estado, max_estado.state, 3 as source
+	from(
+			select pp.patient_id, ps.patient_state_id, ps.state, max(max_estado.data_estado) start_date
+			from(
+				
+				select pg.patient_id, ps.start_date data_estado
+				from patient p
+						inner join patient_program pg on p.patient_id = pg.patient_id
+				  	inner join patient_state ps on pg.patient_program_id = ps.patient_program_id
+				where pg.voided=0 and ps.voided=0 and p.voided=0 and  pg.program_id = 2
+					and ps.start_date <= curdate()  and pg.location_id=:location
+			)max_estado
+				inner join patient_program pp on pp.patient_id = max_estado.patient_id
+			 	inner join patient_state ps on ps.patient_program_id = pp.patient_program_id and ps.start_date = max_estado.data_estado
+	  		where pp.program_id = 2 and pp.voided = 0 and ps.voided = 0 and pp.location_id=:location
+	    			group by pp.patient_id
+	) max_estado
+		inner join patient_state ps on ps.patient_state_id =max_estado.patient_state_id
+		inner join patient_program pp on pp.patient_program_id = ps.patient_program_id
+
      union
     select  p.patient_id, 
              e.encounter_datetime data_estado, o.value_coded state, 2 as source
@@ -243,107 +255,107 @@
      ) estadoPermanencia on estadoPermanencia.patient_id = coorte12meses_final.patient_id
      inner join  
 ( 
-select distinct max_filaFinal.patient_id,max_filaFinal.data_fila, 
-case  o.value_coded 
-when 1703 then 'AZT+3TC+EFV' 
-when 6100 then 'AZT+3TC+LPV/r' 
-when 1651 then 'AZT+3TC+NVP' 
-when 6324 then 'TDF+3TC+EFV' 
-when 6104 then 'ABC+3TC+EFV' 
-when 23784 then 'TDF+3TC+DTG' 
-when 23786 then 'ABC+3TC+DTG' 
-when 6116 then 'AZT+3TC+ABC' 
-when 6106 then 'ABC+3TC+LPV/r' 
-when 6105 then 'ABC+3TC+NVP' 
-when 6108 then 'TDF+3TC+LPV/r' 
-when 23790 then 'TDF+3TC+LPV/r+RTV' 
-when 23791 then 'TDF+3TC+ATV/r' 
-when 23792 then 'ABC+3TC+ATV/r' 
-when 23793 then 'AZT+3TC+ATV/r' 
-when 23795 then 'ABC+3TC+ATV/r+RAL' 
-when 23796 then 'TDF+3TC+ATV/r+RAL' 
-when 23801 then 'AZT+3TC+RAL' 
-when 23802 then 'AZT+3TC+DRV/r' 
-when 23815 then 'AZT+3TC+DTG' 
-when 6329 then 'TDF+3TC+RAL+DRV/r' 
-when 23797 then 'ABC+3TC+DRV/r+RAL' 
-when 23798 then '3TC+RAL+DRV/r' 
-when 23803 then 'AZT+3TC+RAL+DRV/r' 
-when 6243 then 'TDF+3TC+NVP' 
-when 6103 then 'D4T+3TC+LPV/r' 
-when 792 then 'D4T+3TC+NVP' 
-when 1827 then 'D4T+3TC+EFV' 
-when 6102 then 'D4T+3TC+ABC' 
-when 1311 then 'ABC+3TC+LPV/r' 
-when 1312 then 'ABC+3TC+NVP' 
-when 1313 then 'ABC+3TC+EFV' 
-when 1314 then 'AZT+3TC+LPV/r' 
-when 1315 then 'TDF+3TC+EFV'    
-when 6330 then 'AZT+3TC+RAL+DRV/r' 
-when 6325 then 'D4T+3TC+ABC+LPV/r' 
-when 6326 then 'AZT+3TC+ABC+LPV/r' 
-when 6327 then 'D4T+3TC+ABC+EFV' 
-when 6328 then 'AZT+3TC+ABC+EFV' 
-when 6109 then 'AZT+DDI+LPV/r' 
-when 21163 then 'AZT+3TC+LPV/r' 
-when 23799 then 'TDF+3TC+DTG ' 
-when 23800 then 'ABC+3TC+DTG '  
-when 6110 then  'D4T20+3TC+NVP' 
-when 1702 then 'AZT+3TC+NFV' 
-when 817  then 'AZT+3TC+ABC' 
-when 6244 then 'AZT+3TC+RTV' 
-when 1700 then 'AZT+DDl+NFV' 
-when 633  then 'EFV' 
-when 625  then 'D4T' 
-when 631  then 'NVP' 
-when 628  then '3TC' 
-when 635  then 'NFV' 
-when 797  then 'AZT' 
-when 814  then 'ABC' 
-when 6107 then 'TDF+AZT+3TC+LPV/r' 
-when 6236 then 'D4T+DDI+RTV-IP' 
-when 1701 then 'ABC+DDI+NFV' 
-when 6114 then 'AZT60+3TC+NVP' 
-when 6115 then '2DFC+EFV' 
-when 6233 then 'AZT+3TC+DDI+LPV' 
-when 6234 then 'ABC+TDF+LPV' 
-when 6242 then 'D4T+DDI+NVP' 
-when 6118 then 'DDI50+ABC+LPV' 
-when 23785 then 'TDF+3TC+DTG2' 
-when 5424 then 'OUTRO MEDICAMENTO ANTI-RETROVIRAL'
-else null end as code, 
-drug.D4,drug.D3,drug.D2,drug.D1,obs_proximo.value_datetime proximo_levantamento from ( 
-Select p.patient_id,max(encounter_datetime) data_fila,e.encounter_id  from  patient p  
-inner join encounter e on e.patient_id=p.patient_id 
-where p.voided=0 and e.voided=0 and e.encounter_type=18 and   
-e.location_id=:location and e.encounter_datetime >= :startDate and e.encounter_datetime <=:endDate 
-group by p.patient_id  
-) max_filaFinal  
-inner join obs o on o.person_id=max_filaFinal.patient_id and o.concept_id=1088 and o.obs_datetime=max_filaFinal.data_fila and o.voided=0 
-inner join obs obs_proximo on obs_proximo.person_id=max_filaFinal.patient_id and obs_proximo.concept_id=5096 and obs_proximo.obs_datetime=max_filaFinal.data_fila and obs_proximo.voided=0 
-left join  (  
-select  
-@num_drugs := 1 + LENGTH(drugname) - LENGTH(REPLACE(drugname, ',', '')) AS num_drugs,  
-SUBSTRING_INDEX(drugname, ',', 1) AS D1,  
-IF(@num_drugs > 1, SUBSTRING_INDEX(SUBSTRING_INDEX(drugname, ',', 2), ',', -1), '') AS D2,  
-IF(@num_drugs > 2, SUBSTRING_INDEX(SUBSTRING_INDEX(drugname, ',', 3), ',', -1), '') AS D3,  
-IF(@num_drugs > 3, SUBSTRING_INDEX(SUBSTRING_INDEX(drugname, ',', 4), ',', -1), '') AS D4,  
-drug.person_id, drug.encounter_datetime  from (  
-select formulacao.person_id as person_id, e.encounter_datetime encounter_datetime, group_concat(drug1.name ORDER BY formulacao.value_drug  DESC) drugname from encounter e  
-join obs grupo on grupo.encounter_id=e.encounter_id  
-join obs formulacao on formulacao.encounter_id=e.encounter_id  
-inner join drug drug1 on formulacao.value_drug=drug1.drug_id  
-where formulacao.concept_id = 165256  
-and  grupo.concept_id =165252  
-and formulacao.obs_group_id = grupo.obs_id  
-and formulacao.voided=0  
-and grupo.voided=0  
-and e.voided=0  
-and e.encounter_datetime >= :startDate and e.encounter_datetime <=:endDate  
-and e.location_id=:location  
-group by formulacao.person_id, e.encounter_datetime  
-order by grupo.obs_id  
-) drug  
-) drug on drug.person_id=max_filaFinal.patient_id and max_filaFinal.data_fila=drug.encounter_datetime 
+	select distinct max_filaFinal.patient_id,max_filaFinal.data_fila, 
+	case  o.value_coded 
+	when 1703 then 'AZT+3TC+EFV' 
+	when 6100 then 'AZT+3TC+LPV/r' 
+	when 1651 then 'AZT+3TC+NVP' 
+	when 6324 then 'TDF+3TC+EFV' 
+	when 6104 then 'ABC+3TC+EFV' 
+	when 23784 then 'TDF+3TC+DTG' 
+	when 23786 then 'ABC+3TC+DTG' 
+	when 6116 then 'AZT+3TC+ABC' 
+	when 6106 then 'ABC+3TC+LPV/r' 
+	when 6105 then 'ABC+3TC+NVP' 
+	when 6108 then 'TDF+3TC+LPV/r' 
+	when 23790 then 'TDF+3TC+LPV/r+RTV' 
+	when 23791 then 'TDF+3TC+ATV/r' 
+	when 23792 then 'ABC+3TC+ATV/r' 
+	when 23793 then 'AZT+3TC+ATV/r' 
+	when 23795 then 'ABC+3TC+ATV/r+RAL' 
+	when 23796 then 'TDF+3TC+ATV/r+RAL' 
+	when 23801 then 'AZT+3TC+RAL' 
+	when 23802 then 'AZT+3TC+DRV/r' 
+	when 23815 then 'AZT+3TC+DTG' 
+	when 6329 then 'TDF+3TC+RAL+DRV/r' 
+	when 23797 then 'ABC+3TC+DRV/r+RAL' 
+	when 23798 then '3TC+RAL+DRV/r' 
+	when 23803 then 'AZT+3TC+RAL+DRV/r' 
+	when 6243 then 'TDF+3TC+NVP' 
+	when 6103 then 'D4T+3TC+LPV/r' 
+	when 792 then 'D4T+3TC+NVP' 
+	when 1827 then 'D4T+3TC+EFV' 
+	when 6102 then 'D4T+3TC+ABC' 
+	when 1311 then 'ABC+3TC+LPV/r' 
+	when 1312 then 'ABC+3TC+NVP' 
+	when 1313 then 'ABC+3TC+EFV' 
+	when 1314 then 'AZT+3TC+LPV/r' 
+	when 1315 then 'TDF+3TC+EFV'    
+	when 6330 then 'AZT+3TC+RAL+DRV/r' 
+	when 6325 then 'D4T+3TC+ABC+LPV/r' 
+	when 6326 then 'AZT+3TC+ABC+LPV/r' 
+	when 6327 then 'D4T+3TC+ABC+EFV' 
+	when 6328 then 'AZT+3TC+ABC+EFV' 
+	when 6109 then 'AZT+DDI+LPV/r' 
+	when 21163 then 'AZT+3TC+LPV/r' 
+	when 23799 then 'TDF+3TC+DTG ' 
+	when 23800 then 'ABC+3TC+DTG '  
+	when 6110 then  'D4T20+3TC+NVP' 
+	when 1702 then 'AZT+3TC+NFV' 
+	when 817  then 'AZT+3TC+ABC' 
+	when 6244 then 'AZT+3TC+RTV' 
+	when 1700 then 'AZT+DDl+NFV' 
+	when 633  then 'EFV' 
+	when 625  then 'D4T' 
+	when 631  then 'NVP' 
+	when 628  then '3TC' 
+	when 635  then 'NFV' 
+	when 797  then 'AZT' 
+	when 814  then 'ABC' 
+	when 6107 then 'TDF+AZT+3TC+LPV/r' 
+	when 6236 then 'D4T+DDI+RTV-IP' 
+	when 1701 then 'ABC+DDI+NFV' 
+	when 6114 then 'AZT60+3TC+NVP' 
+	when 6115 then '2DFC+EFV' 
+	when 6233 then 'AZT+3TC+DDI+LPV' 
+	when 6234 then 'ABC+TDF+LPV' 
+	when 6242 then 'D4T+DDI+NVP' 
+	when 6118 then 'DDI50+ABC+LPV' 
+	when 23785 then 'TDF+3TC+DTG2' 
+	when 5424 then 'OUTRO MEDICAMENTO ANTI-RETROVIRAL'
+	else null end as code, 
+	drug.D4,drug.D3,drug.D2,drug.D1,obs_proximo.value_datetime proximo_levantamento from ( 
+	Select p.patient_id,max(encounter_datetime) data_fila,e.encounter_id  from  patient p  
+	inner join encounter e on e.patient_id=p.patient_id 
+	where p.voided=0 and e.voided=0 and e.encounter_type=18 and   
+	e.location_id=:location and e.encounter_datetime >= :startDate and e.encounter_datetime <=:endDate 
+	group by p.patient_id  
+	) max_filaFinal  
+	inner join obs o on o.person_id=max_filaFinal.patient_id and o.concept_id=1088 and o.obs_datetime=max_filaFinal.data_fila and o.voided=0 
+	inner join obs obs_proximo on obs_proximo.person_id=max_filaFinal.patient_id and obs_proximo.concept_id=5096 and obs_proximo.obs_datetime=max_filaFinal.data_fila and obs_proximo.voided=0 
+	left join  (  
+	select  
+	@num_drugs := 1 + LENGTH(drugname) - LENGTH(REPLACE(drugname, ',', '')) AS num_drugs,  
+	SUBSTRING_INDEX(drugname, ',', 1) AS D1,  
+	IF(@num_drugs > 1, SUBSTRING_INDEX(SUBSTRING_INDEX(drugname, ',', 2), ',', -1), '') AS D2,  
+	IF(@num_drugs > 2, SUBSTRING_INDEX(SUBSTRING_INDEX(drugname, ',', 3), ',', -1), '') AS D3,  
+	IF(@num_drugs > 3, SUBSTRING_INDEX(SUBSTRING_INDEX(drugname, ',', 4), ',', -1), '') AS D4,  
+	drug.person_id, drug.encounter_datetime  from (  
+	select formulacao.person_id as person_id, e.encounter_datetime encounter_datetime, group_concat(drug1.name ORDER BY formulacao.value_drug  DESC) drugname from encounter e  
+	join obs grupo on grupo.encounter_id=e.encounter_id  
+	join obs formulacao on formulacao.encounter_id=e.encounter_id  
+	inner join drug drug1 on formulacao.value_drug=drug1.drug_id  
+	where formulacao.concept_id = 165256  
+	and  grupo.concept_id =165252  
+	and formulacao.obs_group_id = grupo.obs_id  
+	and formulacao.voided=0  
+	and grupo.voided=0  
+	and e.voided=0  
+	and e.encounter_datetime >= :startDate and e.encounter_datetime <=:endDate  
+	and e.location_id=:location  
+	group by formulacao.person_id, e.encounter_datetime  
+	order by grupo.obs_id  
+	) drug  
+	) drug on drug.person_id=max_filaFinal.patient_id and max_filaFinal.data_fila=drug.encounter_datetime 
 )max_filaF  on max_filaF.patient_id=coorte12meses_final.patient_id 
 group by coorte12meses_final.patient_id 
