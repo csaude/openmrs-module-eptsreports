@@ -61,7 +61,7 @@ public class SetupDSDReport extends EptsPeriodIndicatorDataExportManager {
 
   @Override
   public String getName() {
-    return "Relatório de MDS";
+    return "Relatorio de MDS";
   }
 
   @Override
