@@ -1,7 +1,7 @@
 			select distinct coorte12meses_final.patient_id as patient_id
-		 from  
+			from  
 			( 
-			 %s
+	         %s
 			) coorte12meses_final  
 			inner join person p on p.person_id=coorte12meses_final.patient_id		  
 			left join   ( 
@@ -178,8 +178,8 @@
 			when 1267 then 'FIM' 
 			else null end as abordagem, 
 			case obsDispensa.value_coded 
-			when 23720 then 'SIM' 
-			else 'NÃO' end as dispensa, 
+			when 23720 then 'Sim' 
+			else 'Não' end as dispensa, 
 			obsProximaConsulta.value_datetime as proxima_consulta, 
 			case  obsRegConsulta.value_coded     
 			when 1703 then 'AZT+3TC+EFV' 
@@ -248,7 +248,8 @@
 			when 6118 then 'DDI50+ABC+LPV' 
 			when 23785 then 'TDF+3TC+DTG2' 
 			when 5424 then 'OUTRO MEDICAMENTO ANTI-RETROVIRAL' 
-			else null end as codeReg  from  ( 
+			else null end as codeReg  from  
+			( 
 			Select p.patient_id,max(encounter_datetime) data_seguimento  from  patient p   
 			inner join encounter e on e.patient_id=p.patient_id  
 			where  p.voided=0 and e.voided=0 and e.encounter_type in (6,9) and   
@@ -257,8 +258,13 @@
 			) max_consulta  
 			left join obs obsPeso on obsPeso.person_id=max_consulta.patient_id and obsPeso.concept_id=5089 and obsPeso.obs_datetime=max_consulta.data_seguimento and obsPeso.voided=0 
 			left join 
-			(select e.patient_id,e.encounter_datetime,o.value_coded from encounter e join obs o on o.encounter_id=e.encounter_id and e.encounter_type=6 and o.concept_id=23725 and e.voided=0 and o.voided=0 
-			) maxAbordagem on maxAbordagem.patient_id=max_consulta.patient_id and maxAbordagem.encounter_datetime=max_consulta.data_seguimento 
+			(
+				select e.patient_id,e.encounter_datetime,obsEstado.value_coded from encounter e 
+				join obs o on o.encounter_id=e.encounter_id 
+				join obs obsEstado on  obsEstado.encounter_id=e.encounter_id
+				where e.encounter_type=6 and o.concept_id=165174 and o.value_coded=23725 and e.voided=0 and o.voided=0 and obsEstado.value_coded in(1256,1257,1267)
+			) maxAbordagem on maxAbordagem.patient_id=max_consulta.patient_id and maxAbordagem.encounter_datetime=max_consulta.data_seguimento
+			
 			left join  obs obsDispensa  on obsDispensa.person_id=max_consulta.patient_id and obsDispensa.concept_id=23739 and  obsDispensa.obs_datetime=max_consulta.data_seguimento and obsDispensa.voided=0 
 			left join  obs obsProximaConsulta  on obsProximaConsulta.person_id=max_consulta.patient_id and obsProximaConsulta.concept_id=1410 and  obsProximaConsulta.obs_datetime=max_consulta.data_seguimento and obsProximaConsulta.voided=0 
 			left join  obs obsRegConsulta  on obsRegConsulta.person_id=max_consulta.patient_id and obsRegConsulta.concept_id=1087 and  obsRegConsulta.obs_datetime=max_consulta.data_seguimento and obsRegConsulta.voided=0
