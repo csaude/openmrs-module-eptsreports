@@ -1,7 +1,5 @@
-select fim_3hp.patient_id 
-from
-(
-select inicio_3HP.patient_id, max( inicio_3HP.data_final_3HP) 
+
+select inicio_3HP.patient_id
 		from (
 			select inicio_3HP.patient_id, final3hp.data_final_3HP
 			from (
@@ -112,7 +110,7 @@ select inicio_3HP.patient_id, max( inicio_3HP.data_final_3HP)
 		from (
 				select inicio_3HP.patient_id,inicio_3HP.data_inicio_tpi data_inicio_3HP 
 				from ( 
-					select p.patient_id,min(estadoProfilaxia.obs_datetime) data_inicio_tpi from  patient p 
+					select p.patient_id,estadoProfilaxia.obs_datetime data_inicio_tpi from  patient p 
 						inner join encounter e on p.patient_id = e.patient_id 
 						inner join obs profilaxia3HP on profilaxia3HP.encounter_id = e.encounter_id 
 						inner join obs estadoProfilaxia on estadoProfilaxia.encounter_id = e.encounter_id
@@ -201,8 +199,9 @@ select inicio_3HP.patient_id, max( inicio_3HP.data_final_3HP)
 			and e.encounter_datetime<= :endDate
 			
 		union
-		
-		select inicio_3HP.patient_id, e.encounter_datetime data_final_3HP
+
+		select patient_id, data_inicio_3HP from (
+		select inicio_3HP.patient_id, data_inicio_3HP, count(fim.encounter_id) nConsultasFim
 		from (
 				select inicio_3HP.patient_id,inicio_3HP.data_inicio_tpi data_inicio_3HP 
 				from ( 
@@ -286,15 +285,20 @@ select inicio_3HP.patient_id, max( inicio_3HP.data_final_3HP)
 					) 
 				inicio_3HP
 			) inicio_3HP
-			inner join encounter e on inicio_3HP.patient_id=e.patient_id
+			inner join (
+						select p.patient_id, e.encounter_datetime data_fim_inh, e.encounter_id from patient p
+						inner join encounter e on p.patient_id=e.patient_id
 				inner join obs regimeTPT on regimeTPT.encounter_id=e.encounter_id		 																				
 				inner join obs dispensaMensal on dispensaMensal.encounter_id=e.encounter_id																
-			where 		e.voided=0 and e.encounter_datetime between inicio_3HP.data_inicio_3HP and  (inicio_3HP.data_inicio_3HP + interval 4 month)	 			  									
+			where 		e.voided=0  			  									
 						and regimeTPT.voided=0 and regimeTPT.concept_id=23985 and regimeTPT.value_coded in (23954,23984) and e.encounter_type=60 
 						and  e.location_id=:location and e.encounter_datetime <= :endDate  		
 						and dispensaMensal.voided =0 and dispensaMensal.concept_id =23986 and dispensaMensal.value_coded=1098 							
-			group by inicio_3HP.patient_id
-			having count(e.encounter_id)>=3
+			) fim on fim.Patient_id = inicio_3HP.patient_id 
+			where fim.data_fim_inh between inicio_3HP.data_inicio_3HP and  (inicio_3HP.data_inicio_3HP + interval 4 month)
+			group by inicio_3HP.patient_id,inicio_3HP.data_inicio_3HP
+			order by inicio_3HP.data_inicio_3HP
+			) final where final.nConsultasFim>=3
 		
 		union
 		
@@ -391,12 +395,13 @@ select inicio_3HP.patient_id, max( inicio_3HP.data_final_3HP)
 			and  e.location_id=:location
 		
 		union
-		
-		select inicio_3HP.patient_id, fim.encounter_datetime data_final_3HP
+
+		select patient_id, data_final_3HP from (
+		select inicio_3HP.patient_id, fim.encounter_datetime data_final_3HP, count(fim.encounter_id) nConsultasFim
 		from (
 			select inicio_3HP.patient_id,inicio_3HP.data_inicio_tpi data_inicio_3HP 
 				from ( 
-					select p.patient_id,min(estadoProfilaxia.obs_datetime) data_inicio_tpi from  patient p 
+					select p.patient_id,estadoProfilaxia.obs_datetime data_inicio_tpi from  patient p 
 						inner join encounter e on p.patient_id = e.patient_id 
 						inner join obs profilaxia3HP on profilaxia3HP.encounter_id = e.encounter_id 
 						inner join obs estadoProfilaxia on estadoProfilaxia.encounter_id = e.encounter_id
@@ -488,8 +493,7 @@ select inicio_3HP.patient_id, max( inicio_3HP.data_final_3HP)
 				   and e.encounter_datetime <=:endDate
 	        ) fim on fim.patient_id=inicio_3HP.patient_id
 	            where fim.encounter_datetime between inicio_3HP.data_inicio_3HP and (inicio_3HP.data_inicio_3HP + interval 4 month)
-	            group by inicio_3HP.patient_id
-				having count(fim.encounter_id)>=3
-				
-			) inicio_3HP group by inicio_3HP.patient_id
-	)fim_3hp
+	           group by inicio_3HP.patient_id,inicio_3HP.data_inicio_3HP
+		      order by inicio_3HP.data_inicio_3HP	
+		    ) final where final.nConsultasFim >=3
+		    ) inicio_3HP
