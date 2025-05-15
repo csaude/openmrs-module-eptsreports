@@ -270,3 +270,4 @@
 			left join  obs obsRegConsulta  on obsRegConsulta.person_id=max_consulta.patient_id and obsRegConsulta.concept_id=1087 and  obsRegConsulta.obs_datetime=max_consulta.data_seguimento and obsRegConsulta.voided=0
 			) max_consulta_final on  coorte12meses_final.patient_id=max_consulta_final.patient_id 
 			where  (TIMESTAMPDIFF(year,birthdate,:endDate))<15 
+			group by coorte12meses_final.patient_id
