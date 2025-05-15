@@ -367,7 +367,7 @@ public interface MQCategory13Section1QueriesInterface {
                 + " group by p.patient_id  "
                 + " ) maxLinha "
                 + " ) primeiraLinha on art_start.patient_id = primeiraLinha.patient_id "
-                + " where TIMESTAMPDIFF(DAY,art_start.art_start_date,primeiraLinha.maxDataLinha)>=165 ";
+                + " where TIMESTAMPDIFF(DAY,art_start.art_start_date,primeiraLinha.maxDataLinha)>165 ";
 
     public static final String findPatientsWhoAbandonedARTInTheFirstSixMonthsOfARTStart =
         "select primeiraLinha.patient_id from ( "
