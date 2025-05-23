@@ -54,12 +54,13 @@ public interface MQCategory15QueriesInterface {
     public static final String
         findPatientsFromFichaClinicaForGivenConceptsDenominadorCategoria15ARF5 =
             "select patient_id from ( "
-                + "select mdcs.patient_id, max(data_mdc) data_mdc from ( "
-                + "select p.patient_id,e.encounter_datetime data_mdc, e.encounter_id,  o.obs_id from patient p "
+                + "select mdcs.patient_id, mdcs.data_mdc data_mdc from ( "
+                + "select p.patient_id,max(e.encounter_datetime) data_mdc, e.encounter_id,  o.obs_id from patient p "
                 + "join encounter e on p.patient_id=e.patient_id "
                 + "join obs o on o.encounter_id=e.encounter_id "
-                + "where  e.encounter_type in(6) and e.location_id=:location and o.concept_id=165174 and o.value_coded in(23724,23730,165179,165315,23888,23729,165314) and o.voided=0 "
+                + "where  e.encounter_type in(6) and e.location_id=:location and o.concept_id=165174 and o.voided=0 "
                 + "and DATE(e.encounter_datetime) between (:endRevisionDate - INTERVAL 26 MONTH + INTERVAL  1 DAY) and (:endRevisionDate - INTERVAL 24 MONTH) "
+                + "group by p.patient_id "
                 + ")mdcs "
                 + "inner join encounter e on (mdcs.patient_id=e.patient_id and mdcs.data_mdc = e.encounter_datetime) "
                 + "join obs grupo on grupo.encounter_id=e.encounter_id "
