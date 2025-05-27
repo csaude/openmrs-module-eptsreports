@@ -137,7 +137,7 @@ public interface GenericMQQueryIntarface {
       final String sql =
           "	select patient_id from ( "
               + "	select reinicio.patient_id,data_reinicio from ( "
-              + "	select p.patient_id, max(e.encounter_datetime) data_reinicio from patient p "
+              + "	select p.patient_id, min(e.encounter_datetime) data_reinicio from patient p "
               + "	inner join encounter e on p.patient_id=e.patient_id "
               + "	inner join obs  o on e.encounter_id=o.encounter_id "
               + "	where e.voided=0 and o.voided=0 and p.voided=0 and  e.encounter_type = 6 and o.concept_id = 6273 and o.value_coded = 1705 and e.location_id=:location "

@@ -36,7 +36,7 @@ public class SetupQualityImprovementReport extends EptsPeriodIndicatorDataExport
 
   @Override
   public String getName() {
-    return "Melhoria de Qualidade - 2024";
+    return "Melhoria de Qualidade - 2025";
   }
 
   @Override
