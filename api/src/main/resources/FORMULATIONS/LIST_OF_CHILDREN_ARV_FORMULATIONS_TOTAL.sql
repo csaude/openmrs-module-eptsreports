@@ -259,10 +259,25 @@
 			left join obs obsPeso on obsPeso.person_id=max_consulta.patient_id and obsPeso.concept_id=5089 and obsPeso.obs_datetime=max_consulta.data_seguimento and obsPeso.voided=0 
 			left join 
 			(
-				select e.patient_id,e.encounter_datetime,obsEstado.value_coded from encounter e 
-				join obs o on o.encounter_id=e.encounter_id 
-				join obs obsEstado on  obsEstado.encounter_id=e.encounter_id
-				where e.encounter_type=6 and o.concept_id=165174 and o.value_coded=23725 and e.voided=0 and o.voided=0 and obsEstado.value_coded in(1256,1257,1267)
+	     	select maxAbordagem.* from
+	     	(
+	     	select max_seguimento.patient_id,max_seguimento.data_seguimento, e.encounter_datetime, o.concept_id, o.value_coded value_coded_1, estado.value_coded value_coded from
+	             ( 
+		           select p.patient_id,max(e.encounter_datetime) data_seguimento                                                                                                
+		             from    patient p                                                                                                                                   
+		                     inner join encounter e on e.patient_id=p.patient_id                                                                                         
+		             where   p.voided=0 and e.voided=0 and e.encounter_type=6 and                                                                     
+		                     e.location_id=3 and e.encounter_datetime<=:endDate                                                                             
+		             group by p.patient_id                                                                                                                               
+	             ) max_seguimento
+	               left join encounter e on max_seguimento.patient_id = e.patient_id  
+				   left join obs o on o.encounter_id = e.encounter_id  
+				   left join obs estado on estado.encounter_id = e.encounter_id 
+				   where e.voided = 0  and o.voided = 0 and estado.voided = 0   
+		 	     	and  o.concept_id = 165174  and o.value_coded=23725 and estado.obs_group_id=o.obs_group_id 
+				    and estado.value_coded in(1256,1257,1267)  and max_seguimento.data_seguimento=e.encounter_datetime 
+				    and e.encounter_type=6 and e.location_id=:location 
+			   )maxAbordagem
 			) maxAbordagem on maxAbordagem.patient_id=max_consulta.patient_id and maxAbordagem.encounter_datetime=max_consulta.data_seguimento
 			
 			left join  obs obsDispensa  on obsDispensa.person_id=max_consulta.patient_id and obsDispensa.concept_id=23739 and  obsDispensa.obs_datetime=max_consulta.data_seguimento and obsDispensa.voided=0 
