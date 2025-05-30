@@ -127,7 +127,7 @@ public class Ec10Queries {
             + " where "
             + " pe.voided = 0 "
             + " and abandonedPrograma.patient_id is not null "
-            + " and consultation.encounter_datetime >= abandonedPrograma.data_abandono "
+            + " and consultation.encounter_datetime > abandonedPrograma.data_abandono "
             + " GROUP BY pe.person_id ";
     return query;
   }

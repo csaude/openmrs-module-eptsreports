@@ -73,9 +73,6 @@ public class Ec13Queries {
             + " ) "
             + " AND pa.patient_id IN( "
             + " SELECT pa.patient_id FROM patient pa INNER JOIN person pe ON pa.patient_id=pe.person_id "
-            + " WHERE pe.birthdate IS NOT NULL AND pe.birthdate > pe.date_created "
-            + " UNION "
-            + " SELECT pa.patient_id FROM patient pa INNER JOIN person pe ON pa.patient_id=pe.person_id "
             + " WHERE TIMESTAMPDIFF(MONTH,pe.birthdate,CURRENT_TIMESTAMP)<0) ";
     return query;
   }

@@ -203,12 +203,6 @@ public class SummaryQueries {
         + " ) AND ps.start_date IS NOT NULL AND ps.end_date IS NULL "
         + " AND pa.patient_id IN( "
         + " SELECT pa.patient_id FROM patient pa INNER JOIN person pe ON pa.patient_id=pe.person_id "
-        + " WHERE pe.birthdate IS NULL "
-        + " UNION "
-        + " SELECT pa.patient_id FROM patient pa INNER JOIN person pe ON pa.patient_id=pe.person_id "
-        + " WHERE pe.birthdate IS NOT NULL AND pe.birthdate > pe.date_created "
-        + " UNION "
-        + " SELECT pa.patient_id FROM patient pa INNER JOIN person pe ON pa.patient_id=pe.person_id "
         + " WHERE TIMESTAMPDIFF(MONTH,pe.birthdate,CURRENT_TIMESTAMP)<0) ";
   }
 
@@ -473,7 +467,7 @@ public class SummaryQueries {
             + " where "
             + " pe.voided = 0 "
             + " and abandonedPrograma.patient_id is not null "
-            + " and consultation.encounter_datetime >= abandonedPrograma.data_abandono "
+            + " and consultation.encounter_datetime > abandonedPrograma.data_abandono "
             + " GROUP BY pe.person_id ";
     return String.format(query);
   }
@@ -1184,15 +1178,9 @@ public class SummaryQueries {
    *
    * @return String
    */
-  public static String getPatientsWhoseEncounterIsBefore1985EC19(
-      int programId,
-      int labEncounterType,
-      int FSREncounterType,
-      int masterCardEncounterType,
-      int adultoSeguimentoEncounterType,
-      int aRVPediatriaSeguimentoEncounterType) {
+  public static String getPatientsWhoseEncounterIsBefore1985EC19() {
     String query =
-        "SELECT pe.person_id As patient_id "
+        "SELECT 	pe.person_id As patient_id "
             + "FROM "
             + "person pe "
             + "left join "
@@ -1202,11 +1190,7 @@ public class SummaryQueries {
             + "	INNER JOIN encounter e ON p.patient_id = e.patient_id "
             + "	inner join location l on l.location_id = e.location_id "
             + "	WHERE p.voided = 0 AND e.voided = 0 "
-            + "	AND e.encounter_type in ("
-            + labEncounterType
-            + ","
-            + FSREncounterType
-            + ")"
+            + "	AND e.encounter_type in (13,51) "
             + "	AND e.location_id IN (:location) "
             + "	AND e.encounter_datetime < '1985-01-01' "
             + ") registo_laboratorio on pe.person_id = registo_laboratorio.patient_id "
@@ -1218,8 +1202,7 @@ public class SummaryQueries {
             + "		inner join location l on l.location_id = e.location_id "
             + "	INNER JOIN obs o ON e.encounter_id = o.encounter_id "
             + "	WHERE p.voided = 0 AND e.voided = 0 AND o.voided = 0 AND o.concept_id in (23821,6246) "
-            + "	AND e.encounter_type = "
-            + labEncounterType
+            + "	AND e.encounter_type = 13 "
             + "	AND e.location_id IN (:location) "
             + "	AND o.obs_datetime < '1985-01-01' "
             + ") pedido_colheita_laboratorio on pe.person_id = pedido_colheita_laboratorio.patient_id "
@@ -1231,8 +1214,7 @@ public class SummaryQueries {
             + "     inner join location l on l.location_id = e.location_id "
             + "	INNER JOIN obs o ON e.encounter_id = o.encounter_id "
             + "	WHERE p.voided = 0 AND e.voided = 0 AND o.voided = 0 AND o.concept_id in (23826,23827) "
-            + "	AND e.encounter_type = "
-            + FSREncounterType
+            + "	AND e.encounter_type = 51 "
             + "	AND e.location_id IN (:location) "
             + "	AND o.obs_datetime < '1985-01-01' "
             + ") pedido_colheita_fsr on pe.person_id = pedido_colheita_laboratorio.patient_id "
@@ -1243,13 +1225,7 @@ public class SummaryQueries {
             + "	inner join location l on l.location_id = e.location_id "
             + "	INNER JOIN obs o ON e.encounter_id = o.encounter_id "
             + "	WHERE p.voided = 0 AND e.voided = 0 AND o.voided = 0 "
-            + "	AND e.encounter_type in ("
-            + adultoSeguimentoEncounterType
-            + ","
-            + aRVPediatriaSeguimentoEncounterType
-            + ","
-            + masterCardEncounterType
-            + ") AND e.location_id IN (:location) "
+            + "	AND e.encounter_type = 53 and e.location_id IN (:location) "
             + "	and o.concept_id in (1695, 856, 1690, 1691, 1692, 1693, 857, 1299, 729, 730, 678, 1022, 1021, 1694, 887, 1011, 45, 1655) "
             + "	and o.obs_datetime < '1985-01-01' ) seguimento on pe.person_id = seguimento.patient_id "
             + "left join "
@@ -1276,17 +1252,35 @@ public class SummaryQueries {
             + "	) pid2 "
             + "	where pid1.patient_id = pid2.patient_id and pid1.patient_identifier_id = pid2.id "
             + ") pid on pid.patient_id = pe.person_id "
-            + "left join  patient_program pg ON pe.person_id = pg.patient_id and pg.program_id = "
-            + programId
-            + " and pg.location_id IN (:location) "
-            + " inner join  patient_state ps ON pg.patient_program_id = ps.patient_program_id and ps.start_date IS NOT NULL AND ps.end_date IS NULL "
+            + "	LEFT JOIN ( "
+            + " select max_estado.patient_id, max_estado.start_date, ps.state, pp.date_enrolled, pp.location_id "
+            + "	from( "
+            + "			select pp.patient_id, max(max_estado.start_date) start_date,ps.patient_state_id,ps.state "
+            + "			from( "
+            + "				select pg.patient_id, ps.start_date,ps.voided,ps.state "
+            + "				from patient p "
+            + "						inner join patient_program pg on p.patient_id = pg.patient_id "
+            + "				  	inner join patient_state ps on pg.patient_program_id = ps.patient_program_id "
+            + "				where pg.voided=0  and p.voided=0 and  pg.program_id = 2 and ps.voided=0 "
+            + "					and ps.start_date  <= :endDate  and pg.location_id=:location "
+            + "                    order by pg.patient_id, ps.patient_state_id desc, ps.start_date desc "
+            + "			)max_estado "
+            + "				inner join patient_program pp on pp.patient_id = max_estado.patient_id "
+            + "			 	inner join patient_state ps on ps.patient_program_id = pp.patient_program_id and ps.start_date = max_estado.start_date and max_estado.state=ps.state "
+            + "	  		where pp.program_id = 2 and pp.voided = 0 and ps.voided = 0 and pp.location_id=:location "
+            + "			group by pp.patient_id "
+            + "	) max_estado "
+            + "	inner join patient_state ps on ps.patient_state_id =max_estado.patient_state_id "
+            + "	inner join patient_program pp on pp.patient_program_id = ps.patient_program_id "
+            + "	) AS ps ON pe.person_id = ps.patient_id "
+            + "  INNER JOIN location l on l.location_id = ps.location_id "
             + " where pe.voided = 0 "
             + " and (registo_laboratorio.encounter_date is not null "
             + " or pedido_colheita_laboratorio.encounter_date is not null or "
             + " pedido_colheita_fsr.encounter_date is not null or "
             + " seguimento.encounter_date is not null "
             + " ) "
-            + " GROUP BY pe.person_id; ";
+            + " GROUP BY pe.person_id ";
     return query;
   }
 

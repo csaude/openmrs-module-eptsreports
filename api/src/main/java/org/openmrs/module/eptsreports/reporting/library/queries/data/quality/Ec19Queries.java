@@ -9,14 +9,7 @@ public class Ec19Queries {
    * @param labEncounterType
    * @return
    */
-  public static String getEc19CombinedQuery(
-      int programId,
-      int labEncounterType,
-      int FSREncounterType,
-      int masterCardEncounterType,
-      int adultoSeguimentoEncounterType,
-      int aRVPediatriaSeguimentoEncounterType,
-      int year) {
+  public static String getEc19CombinedQuery() {
     String query =
         "SELECT 	pe.person_id As patient_id, "
             + "		pid.identifier AS NID, "
@@ -51,11 +44,7 @@ public class Ec19Queries {
             + "	INNER JOIN encounter e ON p.patient_id = e.patient_id "
             + "	inner join location l on l.location_id = e.location_id "
             + "	WHERE p.voided = 0 AND e.voided = 0 "
-            + "	AND e.encounter_type in ("
-            + labEncounterType
-            + ","
-            + FSREncounterType
-            + ")"
+            + "	AND e.encounter_type in (13,51) "
             + "	AND e.location_id IN (:location) "
             + "	AND e.encounter_datetime < '1985-01-01' "
             + ") registo_laboratorio on pe.person_id = registo_laboratorio.patient_id "
@@ -67,8 +56,7 @@ public class Ec19Queries {
             + "		inner join location l on l.location_id = e.location_id "
             + "	INNER JOIN obs o ON e.encounter_id = o.encounter_id "
             + "	WHERE p.voided = 0 AND e.voided = 0 AND o.voided = 0 AND o.concept_id in (23821,6246) "
-            + "	AND e.encounter_type = "
-            + labEncounterType
+            + "	AND e.encounter_type = 13 "
             + "	AND e.location_id IN (:location) "
             + "	AND o.obs_datetime < '1985-01-01' "
             + ") pedido_colheita_laboratorio on pe.person_id = pedido_colheita_laboratorio.patient_id "
@@ -80,8 +68,7 @@ public class Ec19Queries {
             + "     inner join location l on l.location_id = e.location_id "
             + "	INNER JOIN obs o ON e.encounter_id = o.encounter_id "
             + "	WHERE p.voided = 0 AND e.voided = 0 AND o.voided = 0 AND o.concept_id in (23826,23827) "
-            + "	AND e.encounter_type = "
-            + FSREncounterType
+            + "	AND e.encounter_type = 51 "
             + "	AND e.location_id IN (:location) "
             + "	AND o.obs_datetime < '1985-01-01' "
             + ") pedido_colheita_fsr on pe.person_id = pedido_colheita_laboratorio.patient_id "
@@ -92,13 +79,7 @@ public class Ec19Queries {
             + "	inner join location l on l.location_id = e.location_id "
             + "	INNER JOIN obs o ON e.encounter_id = o.encounter_id "
             + "	WHERE p.voided = 0 AND e.voided = 0 AND o.voided = 0 "
-            + "	AND e.encounter_type in ("
-            + adultoSeguimentoEncounterType
-            + ","
-            + aRVPediatriaSeguimentoEncounterType
-            + ","
-            + masterCardEncounterType
-            + ") AND e.location_id IN (:location) "
+            + "	AND e.encounter_type = 53 and e.location_id IN (:location) "
             + "	and o.concept_id in (1695, 856, 1690, 1691, 1692, 1693, 857, 1299, 729, 730, 678, 1022, 1021, 1694, 887, 1011, 45, 1655) "
             + "	and o.obs_datetime < '1985-01-01' ) seguimento on pe.person_id = seguimento.patient_id "
             + "left join "
@@ -153,7 +134,7 @@ public class Ec19Queries {
             + " pedido_colheita_fsr.encounter_date is not null or "
             + " seguimento.encounter_date is not null "
             + " ) "
-            + " GROUP BY pe.person_id; ";
+            + " GROUP BY pe.person_id ";
     return query;
   }
 }
