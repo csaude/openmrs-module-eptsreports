@@ -175,7 +175,7 @@
         and curdate()  and (lactante_real.data_parto is not null or gravida_real.data_gravida is not null) 
      left join 
      (
-     	     	 select patient_id, max(data_estado) state_date, state, source from 
+     	 select patient_id, max(data_estado) state_date, state, source from 
 	     (
 	     select patient_id, data_estado,state, source from 
 	     (
@@ -222,7 +222,7 @@
             ) final group by patient_id
      ) estadoPermanencia on estadoPermanencia.patient_id = coorte12meses_final.patient_id
      inner join  
-		( 
+	( 
 		select distinct max_filaFinal.patient_id,max_filaFinal.data_fila, 
 		case  o.value_coded 
 		when 1703 then 'AZT+3TC+EFV' 
@@ -301,29 +301,41 @@
 		) max_filaFinal  
 		inner join obs o on o.person_id=max_filaFinal.patient_id and o.concept_id=1088 and o.obs_datetime=max_filaFinal.data_fila and o.voided=0 
 		inner join obs obs_proximo on obs_proximo.person_id=max_filaFinal.patient_id and obs_proximo.concept_id=5096 and obs_proximo.obs_datetime=max_filaFinal.data_fila and obs_proximo.voided=0 
-		left join  (  
-		select  
-		@num_drugs := 1 + LENGTH(drugname) - LENGTH(REPLACE(drugname, ',', '')) AS num_drugs,  
-		SUBSTRING_INDEX(drugname, ',', 1) AS D1,  
-		IF(@num_drugs > 1, SUBSTRING_INDEX(SUBSTRING_INDEX(drugname, ',', 2), ',', -1), '') AS D2,  
-		IF(@num_drugs > 2, SUBSTRING_INDEX(SUBSTRING_INDEX(drugname, ',', 3), ',', -1), '') AS D3,  
-		IF(@num_drugs > 3, SUBSTRING_INDEX(SUBSTRING_INDEX(drugname, ',', 4), ',', -1), '') AS D4,  
-		drug.person_id, drug.encounter_datetime  from (  
-		select formulacao.person_id as person_id, e.encounter_datetime encounter_datetime, group_concat(drug1.name ORDER BY formulacao.value_drug  DESC) drugname from encounter e  
-		join obs grupo on grupo.encounter_id=e.encounter_id  
-		join obs formulacao on formulacao.encounter_id=e.encounter_id  
-		inner join drug drug1 on formulacao.value_drug=drug1.drug_id  
-		where formulacao.concept_id = 165256  
-		and  grupo.concept_id =165252  
-		and formulacao.obs_group_id = grupo.obs_id  
-		and formulacao.voided=0  
-		and grupo.voided=0  
-		and e.voided=0  
-		and e.encounter_datetime >= :startDate and e.encounter_datetime <=:endDate  
-		and e.location_id=:location  
-		group by formulacao.person_id, e.encounter_datetime  
-		order by grupo.obs_id  
-		) drug  
+		left join 
+		(  
+					select  
+			@num_drugs := 1 + LENGTH(drugname) - LENGTH(REPLACE(drugname, ',', '')) AS num_drugs,  
+			SUBSTRING_INDEX(drugname, ',', 1) AS D1,  
+			IF(@num_drugs > 1, SUBSTRING_INDEX(SUBSTRING_INDEX(drugname, ',', 2), ',', -1), '') AS D2,  
+			IF(@num_drugs > 2, SUBSTRING_INDEX(SUBSTRING_INDEX(drugname, ',', 3), ',', -1), '') AS D3,  
+			IF(@num_drugs > 3, SUBSTRING_INDEX(SUBSTRING_INDEX(drugname, ',', 4), ',', -1), '') AS D4,  
+			drug.person_id, drug.encounter_datetime  from 
+			(  
+			select formulacoes.person_id, formulacoes.encounter_datetime, formulacoes.drugname from (
+			select formulacao.person_id as person_id, e.encounter_datetime encounter_datetime, e.encounter_id, group_concat(drug1.name order by formulacao.person_id, formulacao.encounter_id desc, formulacao.value_drug  DESC) drugname from encounter e  
+			join obs grupo on grupo.encounter_id=e.encounter_id  
+			join obs formulacao on formulacao.encounter_id=e.encounter_id  
+			inner join drug drug1 on formulacao.value_drug=drug1.drug_id  
+			where formulacao.concept_id = 165256  
+			and  grupo.concept_id =165252  
+			and formulacao.obs_group_id = grupo.obs_id  
+			and formulacao.voided=0  
+			and grupo.voided=0  
+			and e.voided=0  
+			and e.encounter_datetime <=:endDate  
+			and e.location_id=:location
+			and e.encounter_type = 18
+			group by formulacao.person_id, e.encounter_datetime, e.encounter_id 
+			order by grupo.person_id, e.encounter_datetime desc, e.encounter_id desc
+			)formulacoes inner join
+			(
+			select * from (
+			SELECT e.patient_id, e.encounter_id FROM encounter e 
+			where e.encounter_type = 18 and e.encounter_datetime <= :endDate
+			order by e.patient_id, e.encounter_datetime desc
+			)maxConsulta group by maxConsulta.patient_id
+			)maxConsulta on maxConsulta.patient_id = formulacoes.person_id and formulacoes.encounter_id = maxConsulta.encounter_id
+			) drug  
 		) drug on drug.person_id=max_filaFinal.patient_id and max_filaFinal.data_fila=drug.encounter_datetime 
-		)max_filaF  on max_filaF.patient_id=coorte12meses_final.patient_id 
-		     group by coorte12meses_final.patient_id
+	)max_filaF  on max_filaF.patient_id=coorte12meses_final.patient_id 
+	group by coorte12meses_final.patient_id 
