@@ -153,7 +153,8 @@
 			IF(@num_drugs > 2, SUBSTRING_INDEX(SUBSTRING_INDEX(drugname, ',', 3), ',', -1), '') AS D3,  
 			IF(@num_drugs > 3, SUBSTRING_INDEX(SUBSTRING_INDEX(drugname, ',', 4), ',', -1), '') AS D4,  
 			drug.person_id, drug.encounter_datetime  from (  
-			select formulacao.person_id as person_id, e.encounter_datetime encounter_datetime, group_concat(drug1.name ORDER BY formulacao.value_drug  DESC) drugname from encounter e  
+			select formulacoes.person_id, formulacoes.encounter_datetime, formulacoes.drugname from (
+			select formulacao.person_id as person_id, e.encounter_datetime encounter_datetime, e.encounter_id, group_concat(drug1.name order by formulacao.person_id, formulacao.encounter_id desc, formulacao.value_drug  DESC) drugname from encounter e  
 			join obs grupo on grupo.encounter_id=e.encounter_id  
 			join obs formulacao on formulacao.encounter_id=e.encounter_id  
 			inner join drug drug1 on formulacao.value_drug=drug1.drug_id  
@@ -164,9 +165,18 @@
 			and grupo.voided=0  
 			and e.voided=0  
 			and e.encounter_datetime <=:endDate  
-			and e.location_id=:location  
-			group by formulacao.person_id, e.encounter_datetime  
-			order by grupo.obs_id  
+			and e.location_id=:location
+			and e.encounter_type = 18
+			group by formulacao.person_id, e.encounter_datetime, e.encounter_id 
+			order by grupo.person_id, e.encounter_datetime desc, e.encounter_id desc
+			)formulacoes inner join
+			(
+			select * from (
+			SELECT e.patient_id,e.encounter_id FROM encounter e 
+			where e.encounter_type = 18 and e.encounter_datetime <= :endDate
+			order by e.patient_id, e.encounter_datetime desc
+			)maxConsulta group by maxConsulta.patient_id
+			)maxConsulta on maxConsulta.patient_id = formulacoes.person_id and formulacoes.encounter_id = maxConsulta.encounter_id
 			) drug  
 			) drug on drug.person_id=max_filaFinal.patient_id and max_filaFinal.data_fila=drug.encounter_datetime 
 			)max_filaF  on max_filaF.patient_id=coorte12meses_final.patient_id 
