@@ -137,14 +137,16 @@
 			when 5424 then 'OUTRO MEDICAMENTO ANTI-RETROVIRAL'
 			else null end as code, 
 			drug.D4,drug.D3,drug.D2,drug.D1,obs_proximo.value_datetime proxima_levantamento from ( 
-			Select p.patient_id,max(encounter_datetime) data_fila,e.encounter_id  from  patient p  
+			select * from (
+			Select p.patient_id,encounter_datetime data_fila,e.encounter_id  from  patient p  
 			inner join encounter e on e.patient_id=p.patient_id 
 			where p.voided=0 and e.voided=0 and e.encounter_type=18 and   
-			e.location_id=:location and e.encounter_datetime<=:endDate  
-			group by p.patient_id  
+			e.location_id=:location and e.encounter_datetime <= :endDate
+			order by e.patient_id, e.encounter_id desc  
+			)maxConsulta group by maxConsulta.patient_id
 			) max_filaFinal  
-			inner join obs o on o.person_id=max_filaFinal.patient_id and o.concept_id=1088 and o.obs_datetime=max_filaFinal.data_fila and o.voided=0 
-			inner join obs obs_proximo on obs_proximo.person_id=max_filaFinal.patient_id and obs_proximo.concept_id=5096 and obs_proximo.obs_datetime=max_filaFinal.data_fila and obs_proximo.voided=0 
+			inner join obs o on o.person_id=max_filaFinal.patient_id and o.concept_id=1088 and o.encounter_id=max_filaFinal.encounter_id and o.voided=0 
+			inner join obs obs_proximo on obs_proximo.person_id=max_filaFinal.patient_id and obs_proximo.concept_id=5096 and obs_proximo.encounter_id=max_filaFinal.encounter_id and obs_proximo.voided=0 
 			left join  (  
 			select  
 			@num_drugs := 1 + LENGTH(drugname) - LENGTH(REPLACE(drugname, ',', '')) AS num_drugs,  
@@ -174,7 +176,8 @@
 			select * from (
 			SELECT e.patient_id,e.encounter_id FROM encounter e 
 			where e.encounter_type = 18 and e.encounter_datetime <= :endDate
-			order by e.patient_id, e.encounter_datetime desc
+			and e.location_id=:location
+			order by e.patient_id, e.encounter_id desc
 			)maxConsulta group by maxConsulta.patient_id
 			)maxConsulta on maxConsulta.patient_id = formulacoes.person_id and formulacoes.encounter_id = maxConsulta.encounter_id
 			) drug  
