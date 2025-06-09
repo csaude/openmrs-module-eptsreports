@@ -328,7 +328,7 @@
 		Select p.patient_id,encounter_datetime data_fila,e.encounter_id  from  patient p  
 		inner join encounter e on e.patient_id=p.patient_id 
 		where p.voided=0 and e.voided=0 and e.encounter_type=18 and   
-		e.location_id=270 and e.encounter_datetime >= :startDate and e.encounter_datetime <=:endDate
+		e.location_id=:location and e.encounter_datetime >= :startDate and e.encounter_datetime <=:endDate
 		order by e.patient_id, e.encounter_id desc  
 		)maxConsulta group by maxConsulta.patient_id
 		) max_filaFinal  
