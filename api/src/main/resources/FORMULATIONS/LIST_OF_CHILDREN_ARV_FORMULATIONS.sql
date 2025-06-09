@@ -197,6 +197,7 @@
 			SELECT e.patient_id, e.encounter_id FROM encounter e 
 			where e.encounter_type = 18 and e.encounter_datetime <= :endDate
 			and e.location_id=:location
+			and e.voided = 0
 			order by e.patient_id, e.encounter_id desc
 			)maxConsulta group by maxConsulta.patient_id
 			)maxConsulta on maxConsulta.patient_id = formulacoes.person_id and formulacoes.encounter_id = maxConsulta.encounter_id
