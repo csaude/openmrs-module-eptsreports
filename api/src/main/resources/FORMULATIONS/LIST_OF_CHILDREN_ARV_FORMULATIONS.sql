@@ -161,7 +161,7 @@
 			inner join encounter e on e.patient_id=p.patient_id 
 			where p.voided=0 and e.voided=0 and e.encounter_type=18 and   
 			e.location_id=:location and e.encounter_datetime <= :endDate
-			order by e.patient_id, e.encounter_id desc  
+			order by e.patient_id, e.encounter_datetime desc, e.encounter_id desc  
 			)maxConsulta group by maxConsulta.patient_id
 			) max_filaFinal  
 			inner join obs o on o.person_id=max_filaFinal.patient_id and o.concept_id=1088 and o.encounter_id=max_filaFinal.encounter_id and o.voided=0 
@@ -198,7 +198,7 @@
 			where e.encounter_type = 18 and e.encounter_datetime <= :endDate
 			and e.location_id=:location
 			and e.voided = 0
-			order by e.patient_id, e.encounter_id desc
+			order by e.patient_id, e.encounter_datetime desc, e.encounter_id desc
 			)maxConsulta group by maxConsulta.patient_id
 			)maxConsulta on maxConsulta.patient_id = formulacoes.person_id and formulacoes.encounter_id = maxConsulta.encounter_id
 			) drug  
@@ -301,7 +301,7 @@
 		             from    patient p                                                                                                                                   
 		                     inner join encounter e on e.patient_id=p.patient_id                                                                                         
 		             where   p.voided=0 and e.voided=0 and e.encounter_type=6 and                                                                     
-		                     e.location_id=3 and e.encounter_datetime<=:endDate                                                                             
+		                     e.location_id=:location and e.encounter_datetime<=:endDate                                                                             
 		             group by p.patient_id                                                                                                                               
 	             ) max_seguimento
 	               left join encounter e on max_seguimento.patient_id = e.patient_id  
