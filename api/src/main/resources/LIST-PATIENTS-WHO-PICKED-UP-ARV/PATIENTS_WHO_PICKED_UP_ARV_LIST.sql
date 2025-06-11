@@ -220,7 +220,7 @@
 					  	inner join patient_state ps on pg.patient_program_id = ps.patient_program_id
 					where pg.voided=0  and p.voided=0 and  pg.program_id = 2 and ps.voided=0
 						and ps.start_date  <= curdate()  and pg.location_id=:location 
-	                    order by pg.patient_id, ps.patient_state_id desc, ps.start_date desc
+	                    order by pg.patient_id, ps.start_date desc, ps.patient_state_id desc
 				)max_estado
 					inner join patient_program pp on pp.patient_id = max_estado.patient_id
 				 	inner join patient_state ps on ps.patient_program_id = pp.patient_program_id and ps.start_date = max_estado.start_date and max_estado.state=ps.state
@@ -329,7 +329,7 @@
 		inner join encounter e on e.patient_id=p.patient_id 
 		where p.voided=0 and e.voided=0 and e.encounter_type=18 and   
 		e.location_id=:location and e.encounter_datetime >= :startDate and e.encounter_datetime <=:endDate
-		order by e.patient_id, e.encounter_id desc  
+		order by e.patient_id, e.encounter_datetime desc, e.encounter_id desc  
 		)maxConsulta group by maxConsulta.patient_id
 		) max_filaFinal  
 		inner join obs o on o.person_id=max_filaFinal.patient_id and o.concept_id=1088 and o.encounter_id=max_filaFinal.encounter_id and o.voided=0 
@@ -366,7 +366,7 @@
 			SELECT e.patient_id, e.encounter_id FROM encounter e 
 			where e.encounter_type = 18 and e.encounter_datetime <= :endDate
 			and e.voided = 0 and e.location_id=:location
-			order by e.patient_id, e.encounter_id desc
+			order by e.patient_id, e.encounter_datetime desc, e.encounter_id desc
 			)maxConsulta group by maxConsulta.patient_id
 			)maxConsulta on maxConsulta.patient_id = formulacoes.person_id and formulacoes.encounter_id = maxConsulta.encounter_id
 			) drug  
