@@ -240,7 +240,7 @@ select	 		HVL_FR22.*,
 					from 	patient p
 							inner join encounter e on p.patient_id=e.patient_id
 							inner join obs o on e.encounter_id=o.encounter_id
-					where 	p.voided=0 and e.voided=0 and o.voided=0 and e.encounter_type in (13,51)  and e.location_id =3 and
+					where 	p.voided=0 and e.voided=0 and o.voided=0 and e.encounter_type in (13,51)  and e.location_id=:location and
 							o.concept_id in (856,1305)
 				) resultadoSegundaCVData on resultadoSegundaCVData.patient_id = HVL_FR22.patient_id and resultadoSegundaCVData.dataResultadoSegundaCV between HVL_FR22.dataConsultaApss3 and :endDate
 				where resultadoSegundaCVData.dataResultadoSegundaCV is not null
