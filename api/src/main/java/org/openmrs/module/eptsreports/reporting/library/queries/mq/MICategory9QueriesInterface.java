@@ -150,7 +150,7 @@ public interface MICategory9QueriesInterface {
                 + "inner join obs obsCD4 on obsCD4.encounter_id=e.encounter_id  "
                 + "where firstClinica.encounter_datetime between  :startInclusionDate AND :endInclusionDate  "
                 + "and obsCD4.obs_datetime >= firstClinica.encounter_datetime and obsCD4.obs_datetime <=  DATE_ADD(firstClinica.encounter_datetime, INTERVAL 33 DAY)  "
-                + "and obsCD4.concept_id in(1695,730) and obsCD4.value_numeric is not null and obsCD4.voided=0  "
+                + "and ((obsCD4.concept_id in(1695,730) and obsCD4.value_numeric is not null) or (obsCD4.concept_id=165515 and obsCD4.value_coded is not null )) and obsCD4.voided=0  "
                 + "and obsCD4.location_id=:location and e.encounter_type=6 ";
 
     public static final String
@@ -168,8 +168,7 @@ public interface MICategory9QueriesInterface {
                 + ") firstClinica     "
                 + "inner join encounter e on firstClinica.patient_id=e.patient_id   "
                 + "inner join obs obsCD4 on obsCD4.encounter_id=e.encounter_id   "
-                + "where obsCD4.concept_id in(1695,730)  "
-                + "and obsCD4.value_numeric is not null   "
+                + "where ((obsCD4.concept_id in(1695,730) and obsCD4.value_numeric is not null) or (obsCD4.concept_id=165515 and obsCD4.value_coded is not null ))  "
                 + "and obsCD4.voided=0   "
                 + "and obsCD4.obs_datetime >=firstClinica.encounter_datetime  "
                 + "and obsCD4.obs_datetime<=date_add(firstClinica.encounter_datetime, interval 33 day)   "

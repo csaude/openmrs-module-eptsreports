@@ -36,7 +36,7 @@ public class SetupQualityImprovementReport extends EptsPeriodIndicatorDataExport
 
   @Override
   public String getName() {
-    return "Melhoria de Qualidade - 2024";
+    return "Melhoria de Qualidade - 2025";
   }
 
   @Override
@@ -85,7 +85,7 @@ public class SetupQualityImprovementReport extends EptsPeriodIndicatorDataExport
           createXlsReportDesign(
               reportDefinition,
               "MQ.xls",
-              "Melhoria de Qualidade - 2024",
+              "Melhoria de Qualidade - 2025",
               getExcelDesignUuid(),
               null);
       Properties props = new Properties();

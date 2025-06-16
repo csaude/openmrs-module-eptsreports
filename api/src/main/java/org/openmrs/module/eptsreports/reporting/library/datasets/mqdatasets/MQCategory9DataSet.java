@@ -97,7 +97,7 @@ public class MQCategory9DataSet extends MQAbstractDataSet {
                 "CAT9ADULTOS94NUMERADOR",
                 mappings),
             mappings),
-        "ageOnReinicio=CD4-15+");
+        "ageOnReinicio=15+");
 
     dataSetDefinition.addColumn(
         "CAT9ADULTOS94DENOMINADOR",
@@ -109,7 +109,7 @@ public class MQCategory9DataSet extends MQAbstractDataSet {
                 "CAT9ADULTOS94DENOMINADOR",
                 mappings),
             mappings),
-        "ageOnReinicio=CD4-15+");
+        "ageOnReinicio=15+");
 
     dataSetDefinition.addColumn(
         "CAT9CHILDREN01TNUMERATOR",
