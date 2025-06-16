@@ -25,13 +25,13 @@
 		/> </changeSet> -->
 
 
-	<changeSet id="20250320-17:30" author="csaude"
+	<changeSet id="20250620-16:30" author="csaude"
 		runAlways="true">
 		<comment>
-			SESP Release version 4.1.0
+			SESP Release version 4.2.0
 		</comment>
 		<sqlFile
-			path="_metadata/SESPMetadataForRelease410_20032025.sql" />
+			path="_metadata/SESPMetadataForRelease420_06032025.sql" />
 	</changeSet>
 	 
 </databaseChangeLog>
