@@ -6,7 +6,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import org.openmrs.module.eptsreports.reporting.library.cohorts.GenericCohortQueries;
+import org.openmrs.module.eptsreports.reporting.library.datasets.DatimCodeDataSet;
 import org.openmrs.module.eptsreports.reporting.library.datasets.ListOfChildrenARVFormulationsDataSet;
+import org.openmrs.module.eptsreports.reporting.library.datasets.SismaCodeDataSet;
 import org.openmrs.module.eptsreports.reporting.library.queries.BaseQueries;
 import org.openmrs.module.eptsreports.reporting.reports.manager.EptsDataExportManager;
 import org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils;
@@ -24,6 +26,9 @@ public class SetupListOfChildrenARVFormulations extends EptsDataExportManager {
 
   @Autowired private GenericCohortQueries genericCohortQueries;
   @Autowired private ListOfChildrenARVFormulationsDataSet listOfChildrenARVFormulationsDataSet;
+  @Autowired private SismaCodeDataSet sismaCodeDataSet;
+
+  @Autowired private DatimCodeDataSet datimCodeDataSet;
 
   @Override
   public String getExcelDesignUuid() {
@@ -57,6 +62,19 @@ public class SetupListOfChildrenARVFormulations extends EptsDataExportManager {
         "FR",
         Mapped.mapStraightThrough(
             listOfChildrenARVFormulationsDataSet.costructDataSet(this.getParameters())));
+
+    rd.addDataSetDefinition(
+        "FRT",
+        Mapped.mapStraightThrough(
+            listOfChildrenARVFormulationsDataSet.getTotalARVFormulationsDataSet()));
+    rd.addDataSetDefinition(
+        "D",
+        Mapped.mapStraightThrough(this.datimCodeDataSet.constructDataset(this.getParameters())));
+
+    rd.addDataSetDefinition(
+        "SC",
+        Mapped.mapStraightThrough(this.sismaCodeDataSet.constructDataset(this.getParameters())));
+
     rd.setBaseCohortDefinition(
         EptsReportUtils.map(
             this.genericCohortQueries.generalSql(
@@ -83,7 +101,7 @@ public class SetupListOfChildrenARVFormulations extends EptsDataExportManager {
               getExcelDesignUuid(),
               null);
       Properties props = new Properties();
-      props.put("repeatingSections", "sheet:1,row:8,dataset:FR");
+      props.put("repeatingSections", "sheet:1,row:11,dataset:FR");
 
       props.put("sortWeight", "5000");
       props.put("sortWeight", "5000");
