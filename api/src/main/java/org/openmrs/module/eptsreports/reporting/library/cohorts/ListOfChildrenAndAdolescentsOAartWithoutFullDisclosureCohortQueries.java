@@ -14,10 +14,13 @@ public class ListOfChildrenAndAdolescentsOAartWithoutFullDisclosureCohortQueries
 
   private static final String DISCLOSURE_LIST_MARKED =
       "LIST_OF_CHILDREN_AND_ADOLESCENTS_ON_ART_WITHOUT_FULL_DISCLOSURE/LIST_OF_CHILDREN_AND_ADOLESCENTS_ON_ART_WITHOUT_FULL_DISCLOSURE_TOTAL.sql";
+  private static final String B13 = "RMB13/PATIENTS_WHO_ARE_CURRENTLY_ENROLLED_ON_ART_B13.sql";
 
   public static String findPatientsOAartWithoutFullDisclosure(DiscloreType discloreType) {
 
-    String query = EptsQuerysUtils.loadQuery(DISCLOSURE_LIST_MARKED);
+    String query =
+        String.format(
+            EptsQuerysUtils.loadQuery(DISCLOSURE_LIST_MARKED), EptsQuerysUtils.loadQuery(B13));
 
     switch (discloreType) {
       case T:

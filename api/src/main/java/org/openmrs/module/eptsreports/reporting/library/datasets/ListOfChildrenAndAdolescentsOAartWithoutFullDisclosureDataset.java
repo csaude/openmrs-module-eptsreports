@@ -25,6 +25,7 @@ public class ListOfChildrenAndAdolescentsOAartWithoutFullDisclosureDataset exten
 
   private static final String DISCLOSURE_LIST =
       "LIST_OF_CHILDREN_AND_ADOLESCENTS_ON_ART_WITHOUT_FULL_DISCLOSURE/LIST_OF_CHILDREN_AND_ADOLESCENTS_ON_ART_WITHOUT_FULL_DISCLOSURE.sql";
+  private static final String B13 = "RMB13/PATIENTS_WHO_ARE_CURRENTLY_ENROLLED_ON_ART_B13.sql";
 
   @Autowired EptsGeneralIndicator eptsGeneralIndicator;
   @Autowired private EptsCommonDimension eptsCommonDimension;
@@ -32,7 +33,7 @@ public class ListOfChildrenAndAdolescentsOAartWithoutFullDisclosureDataset exten
 
   @Autowired
   private ListOfChildrenAndAdolescentsOAartWithoutFullDisclosureCohortQueries
-      ListOfChildrenAndAdolescentsOAartWithoutFullDisclosureCohortQueries;
+      listOfChildrenAndAdolescentsOAartWithoutFullDisclosureCohortQueries;
 
   @Autowired
   @Qualifier("commonAgeDimensionCohort")
@@ -42,7 +43,9 @@ public class ListOfChildrenAndAdolescentsOAartWithoutFullDisclosureDataset exten
     SqlDataSetDefinition definition = new SqlDataSetDefinition();
     definition.setName("Lista de Crianças e Adolescentes em TARV sem Divulgação Completa");
     definition.addParameters(parameterList);
-    String query = EptsQuerysUtils.loadQuery(DISCLOSURE_LIST);
+    String query =
+        String.format(EptsQuerysUtils.loadQuery(DISCLOSURE_LIST), EptsQuerysUtils.loadQuery(B13));
+
     definition.setSqlQuery(query);
     return definition;
   }
@@ -82,7 +85,7 @@ public class ListOfChildrenAndAdolescentsOAartWithoutFullDisclosureDataset exten
             this.eptsGeneralIndicator.getIndicator(
                 "Lista de Criancas de 8 a 14 Anos Actualmente Em TARV",
                 EptsReportUtils.map(
-                    ListOfChildrenAndAdolescentsOAartWithoutFullDisclosureCohortQueries
+                    listOfChildrenAndAdolescentsOAartWithoutFullDisclosureCohortQueries
                         .findPatientsOAartWithoutFullDisclosure_N(),
                     mappings)),
             mappings),
@@ -95,7 +98,7 @@ public class ListOfChildrenAndAdolescentsOAartWithoutFullDisclosureDataset exten
             this.eptsGeneralIndicator.getIndicator(
                 "Lista de Criancas de 8 a 14 Anos Actualmente Em TARV",
                 EptsReportUtils.map(
-                    ListOfChildrenAndAdolescentsOAartWithoutFullDisclosureCohortQueries
+                    listOfChildrenAndAdolescentsOAartWithoutFullDisclosureCohortQueries
                         .findPatientsOAartWithoutFullDisclosure_T(),
                     mappings)),
             mappings),
@@ -108,7 +111,7 @@ public class ListOfChildrenAndAdolescentsOAartWithoutFullDisclosureDataset exten
             this.eptsGeneralIndicator.getIndicator(
                 "Lista de Criancas de 8 a 14 Anos Actualmente Em TARV",
                 EptsReportUtils.map(
-                    ListOfChildrenAndAdolescentsOAartWithoutFullDisclosureCohortQueries
+                    listOfChildrenAndAdolescentsOAartWithoutFullDisclosureCohortQueries
                         .findPatientsOAartWithoutFullDisclosure_P(),
                     mappings)),
             mappings),
@@ -121,7 +124,7 @@ public class ListOfChildrenAndAdolescentsOAartWithoutFullDisclosureDataset exten
             this.eptsGeneralIndicator.getIndicator(
                 "Lista de Criancas de 8 a 14 Anos Actualmente Em TARV",
                 EptsReportUtils.map(
-                    ListOfChildrenAndAdolescentsOAartWithoutFullDisclosureCohortQueries
+                    listOfChildrenAndAdolescentsOAartWithoutFullDisclosureCohortQueries
                         .findPatientsOAartWithoutFullDisclosure_B(),
                     mappings)),
             mappings),

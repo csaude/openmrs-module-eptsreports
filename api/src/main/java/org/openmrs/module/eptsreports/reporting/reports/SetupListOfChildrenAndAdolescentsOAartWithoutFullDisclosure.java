@@ -94,7 +94,7 @@ public class SetupListOfChildrenAndAdolescentsOAartWithoutFullDisclosure
       reportDesign =
           createXlsReportDesign(
               reportDefinition,
-              "Template_ListChildrenAdolescentARTWithoutFullDisclosure.xls",
+              "ListChildrenAdolescentARTWithoutFullDisclosure.xls",
               "Lista de Crianças e Adolescentes em TARV sem Revelação Diagnóstica Total",
               getExcelDesignUuid(),
               null);

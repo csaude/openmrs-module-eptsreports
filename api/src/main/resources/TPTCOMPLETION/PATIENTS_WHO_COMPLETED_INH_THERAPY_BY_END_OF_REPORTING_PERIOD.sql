@@ -140,7 +140,7 @@ from(
 		inner join 
 		(
 		select * from (
-			select 	p.patient_id, estadoProfilaxia.obs_datetime data_fim_INH,estadoProfilaxia.value_coded,estadoProfilaxia.concept_id, e.encounter_id	 																
+			select 	p.patient_id, e.encounter_datetime data_fim_INH,estadoProfilaxia.value_coded,estadoProfilaxia.concept_id, e.encounter_id	 																
 			from 	patient p														 			  															
 					inner join encounter e on p.patient_id=e.patient_id																				 		
 					inner join obs profilaxiaINH on profilaxiaINH.encounter_id=e.encounter_id		 																				
@@ -148,7 +148,7 @@ from(
 			where 	e.voided=0 and p.voided=0 and estadoProfilaxia.obs_datetime <=:endDate 			  									
 					and profilaxiaINH.voided=0 and profilaxiaINH.concept_id=23985 and profilaxiaINH.value_coded in (656,23982) and e.encounter_type in (6,9) and  e.location_id=:location	  		
 					and estadoProfilaxia.voided =0 and estadoProfilaxia.concept_id =165308 and estadoProfilaxia.value_coded in (1256,1257)
-					) fim group by fim.patient_id, fim.encounter_id, fim.concept_id, fim.value_coded
+					) fim group by fim.patient_id, fim.encounter_id
 			
 		) fimINH on fimINH.patient_id=inicio_INH.patient_id
 		where fimINH.data_fim_INH BETWEEN (inicio_INH.data_inicio_INH +interval 1 day) and (inicio_INH.data_inicio_INH + interval 7 month)
@@ -376,7 +376,8 @@ from(
 					INH ) until a 5-month period from the INH Start Date (including
 					the INH Start Date)
 		 * */
-		select inicio_INH.patient_id, DTINH.data_fim_INH
+		select patient_id, data_fim_INH from (
+		select inicio_INH.patient_id, DTINH.data_fim_INH,count(DTINH.encounter_id) nConsultasFim
 		from(
 			select inicio_INH.patient_id,inicio_INH.data_inicio_INH data_inicio_INH 
 			from (
@@ -466,8 +467,10 @@ from(
 				and obsDTINH.voided=0 and obsDTINH.concept_id=1719 and obsDTINH.value_coded=23955 and e.encounter_type=6 and  e.location_id=:location	  		
 		) DTINH on DTINH.patient_id=inicio_INH.patient_id
 		where DTINH.data_fim_INH BETWEEN inicio_INH.data_inicio_INH and (inicio_INH.data_inicio_INH + interval 5 month)
-		group by inicio_INH.patient_id
-		having count(DTINH.encounter_id)>=2
+		group by inicio_INH.patient_id,inicio_INH.data_inicio_INH
+		order by inicio_INH.data_inicio_INH
+		) final
+		where nConsultasFim>=2
 		
 		union
 		
@@ -663,7 +666,7 @@ from(
 			where e.voided=0 and p.voided=0 and estadoProfilaxia.obs_datetime <:endDate 
 				and profilaxiaINH.concept_id = 23985 and profilaxiaINH.value_coded = 656 and profilaxiaINH.voided = 0
 				and estadoProfilaxia.voided=0 and estadoProfilaxia.concept_id=165308 and estadoProfilaxia.value_coded in (1256,1257)
-				and e.encounter_type=6 and  e.location_id=:location	  
+				and e.encounter_type=6 and  e.location_id=:location
 		) DTINH on DTINH.patient_id=inicio_INH.patient_id
 		where DTINH.data_fim_INH BETWEEN inicio_INH.data_inicio_INH and (inicio_INH.data_inicio_INH +interval 7 month)
 		group by inicio_INH.patient_id,inicio_INH.data_inicio_INH
@@ -681,7 +684,7 @@ from(
 			where e.voided=0 and p.voided=0 and estadoProfilaxia.obs_datetime <=:endDate 
 				and profilaxiaINH.concept_id = 23985 and profilaxiaINH.value_coded = 656 and profilaxiaINH.voided = 0
 				and estadoProfilaxia.voided=0 and estadoProfilaxia.concept_id=165308 and estadoProfilaxia.value_coded in (1256,1257)
-				and obsDTINH.voided=0 and obsDTINH.concept_id=1719 and obsDTINH.value_coded=23955 and e.encounter_type=6 and  e.location_id=:location	  
+				and obsDTINH.voided=0 and obsDTINH.concept_id=1719 and obsDTINH.value_coded=23955 and e.encounter_type=6 and  e.location_id=:location
 		) dt on startAndDT.patient_id=dt.patient_id 
 		where dt.data_fim_INH BETWEEN startAndDT.data_inicio_INH and (startAndDT.data_inicio_INH + interval 7 month)
 		
@@ -697,21 +700,11 @@ from(
 		 * */
 		select startAndDT.patient_id, startAndDT.data_fim_INH
 		from (
-		select inicio_INH.patient_id, data_inicio_INH, DTINH.data_fim_INH
+		select final.patient_id, data_inicio_INH, data_fim_INH from (
+		select inicio_INH.patient_id, data_inicio_INH, DTINH.data_fim_INH, count(DTINH.encounter_id) nConsultasFim 
 		from(
-			select inicio_INH.patient_id,inicio_INH.data_inicio_INH data_inicio_INH 
+			select inicio_INH.patient_id,inicio_INH.data_inicio_INH data_inicio_INH
 			from (
-					select p.patient_id,obsInicioINH.obs_datetime data_inicio_INH 
-					from patient p 
-						inner join encounter e on p.patient_id = e.patient_id 
-						inner join obs o on o.encounter_id = e.encounter_id 
-						inner join obs obsInicioINH on obsInicioINH.encounter_id = e.encounter_id 
-					where e.voided=0 and p.voided=0 and o.voided=0 and e.encounter_type in (6,9,53)and o.concept_id=23985 and o.value_coded=656
-						and obsInicioINH.concept_id=165308 and obsInicioINH.value_coded=1256 and obsInicioINH.voided=0
-						and obsInicioINH.obs_datetime <:endDate and  e.location_id=:location
-					
-					union	
-					
 					select p.patient_id,seguimentoTPT.obs_datetime data_inicio_INH	
 					from	patient p													 
 						inner join encounter e on p.patient_id=e.patient_id																				 
@@ -719,7 +712,7 @@ from(
 						inner join obs seguimentoTPT on seguimentoTPT.encounter_id=e.encounter_id														 
 					where e.voided=0 and p.voided=0 and seguimentoTPT.obs_datetime <:endDate   
 						and seguimentoTPT.voided =0 and seguimentoTPT.concept_id = 23987 and seguimentoTPT.value_coded in (1256,1705)	 						 
-						and o.voided=0 and o.concept_id=23985 and o.value_coded in (656,23982) and e.encounter_type=60 and  e.location_id=:location		 
+						and o.voided=0 and o.concept_id=23985 and o.value_coded in (656,23982) and e.encounter_type=60 and  e.location_id=:location 		 
 																												 
 					union
 					(	select inicio.patient_id, inicio.data_inicio_INH
@@ -781,11 +774,12 @@ from(
 					inner join obs dispensaMensal on dispensaMensal.encounter_id=e.encounter_id																
 			where 	e.voided=0 and p.voided=0 and e.encounter_datetime <:endDate	 			  									
 					and obsInh.voided=0 and obsInh.concept_id=23985 and obsInh.value_coded in (656,23982) and e.encounter_type=60 and  e.location_id=:location	  		
-					and dispensaMensal.voided =0 and dispensaMensal.concept_id =23986 and dispensaMensal.value_coded=1098 							
+					and dispensaMensal.voided =0 and dispensaMensal.concept_id =23986 and dispensaMensal.value_coded=1098							
 		) DTINH on DTINH.patient_id=inicio_INH.patient_id
 		where DTINH.data_fim_INH BETWEEN inicio_INH.data_inicio_INH and (inicio_INH.data_inicio_INH + interval 7 month)
-		group by inicio_INH.patient_id
-		having count(DTINH.encounter_id)>=3
+		group by inicio_INH.patient_id,inicio_INH.data_inicio_INH
+		order by inicio_INH.data_inicio_INH
+		)final where nConsultasFim >= 3
 		) startAndDT
 		inner join
 		(

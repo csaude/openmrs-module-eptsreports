@@ -281,13 +281,7 @@ public class SummaryDataQualityDataset extends BaseDataSet {
             eptsGeneralIndicator.getIndicator(
                 "The patients' whose date of laboratory test specimen collection date or results report date is before 1985",
                 EptsReportUtils.map(
-                    summaryDataQualityCohorts.getPatientsWhoseEncounterIsBefore1985EC19(
-                        hivMetadata.getARTProgram().getProgramId(),
-                        hivMetadata.getMisauLaboratorioEncounterType().getEncounterTypeId(),
-                        ENCONTER_TYPE_FSR,
-                        hivMetadata.getMasterCardEncounterType().getEncounterTypeId(),
-                        hivMetadata.getAdultoSeguimentoEncounterType().getEncounterTypeId(),
-                        hivMetadata.getARVPediatriaSeguimentoEncounterType().getEncounterTypeId()),
+                    summaryDataQualityCohorts.getPatientsWhoseEncounterIsBefore1985EC19(),
                     mappings)),
             mappings),
         "");

@@ -381,12 +381,19 @@ public class MQCategory13Section1CohortQueries {
             this.findPatientsWithDiagnosticoTBAtivaDuringRevisionPeriod(),
             mappingsTbActivaEndRevisionDate));
 
+    definition.addSearch(
+        "TRANSFERED-IN",
+        EptsReportUtils.map(
+            mQCohortQueries
+                .findPatientsWhoWhereMarkedAsTransferedInAndOnARTOnInAPeriodOnMasterCardRF06(),
+            mappings));
+
     if (excludeTbActiveDiagnostic) {
       compositionString =
-          "(B1 AND ((B2NEW NOT DROPPEDOUT) OR (REINITIATED-ART NOT DROPPEDOUT) OR (B3 NOT (B3E OR DROPPEDOUT)))) NOT (B5E OR C OR TB-ACTIVA)";
+          "(B1 AND ((B2NEW NOT DROPPEDOUT) OR (REINITIATED-ART NOT DROPPEDOUT) OR (B3 NOT (B3E OR DROPPEDOUT)))) NOT (B5E OR C OR TRANSFERED-IN OR TB-ACTIVA)";
     } else {
       compositionString =
-          "(B1 AND ((B2NEW NOT DROPPEDOUT) OR (REINITIATED-ART NOT DROPPEDOUT) OR (B3 NOT (B3E OR DROPPEDOUT)))) NOT (B5E OR C)";
+          "(B1 AND ((B2NEW NOT DROPPEDOUT) OR (REINITIATED-ART NOT DROPPEDOUT) OR (B3 NOT (B3E OR DROPPEDOUT)))) NOT (B5E OR C OR TRANSFERED-IN)";
     }
 
     definition.setCompositionString(compositionString);

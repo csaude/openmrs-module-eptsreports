@@ -6,6 +6,8 @@ import org.openmrs.Location;
 import org.openmrs.module.eptsreports.reporting.library.indicators.EptsGeneralIndicator;
 import org.openmrs.module.eptsreports.reporting.utils.EptsQuerysUtils;
 import org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils;
+import org.openmrs.module.eptsreports.reporting.utils.TxCurrColumnsQuantity;
+import org.openmrs.module.eptsreports.reporting.utils.TxCurrQuery;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
 import org.openmrs.module.reporting.dataset.definition.CohortIndicatorDataSetDefinition;
@@ -31,7 +33,12 @@ public class ListPatientsWhoPickedUpARVDataSet extends BaseDataSet {
     SqlDataSetDefinition dsd = new SqlDataSetDefinition();
     dsd.setName("Find list of patients who picked up ARV during period");
     dsd.addParameters(list);
-    dsd.setSqlQuery(EptsQuerysUtils.loadQuery(FIND_PATIENTS_WHO_PICKED_UP_ARV_LIST));
+    String query =
+        String.format(
+            EptsQuerysUtils.loadQuery(FIND_PATIENTS_WHO_PICKED_UP_ARV_LIST),
+            TxCurrQuery.findPatientsInTxCurr(TxCurrColumnsQuantity.ALL));
+    dsd.setSqlQuery(query);
+
     return dsd;
   }
 
@@ -65,7 +72,12 @@ public class ListPatientsWhoPickedUpARVDataSet extends BaseDataSet {
     definition.addParameter(new Parameter("endDate", "End Date", Date.class));
     definition.addParameter(new Parameter("location", "location", Location.class));
 
-    definition.setQuery(EptsQuerysUtils.loadQuery(FIND_PATIENTS_WHO_PICKED_UP_ARV_TOTAL));
+    String query =
+        String.format(
+            EptsQuerysUtils.loadQuery(FIND_PATIENTS_WHO_PICKED_UP_ARV_TOTAL),
+            TxCurrQuery.findPatientsInTxCurr(TxCurrColumnsQuantity.ALL));
+
+    definition.setQuery(query);
 
     return definition;
   }

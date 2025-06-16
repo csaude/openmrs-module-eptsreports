@@ -397,27 +397,14 @@ public class SummaryDataQualityCohorts {
    * @param encounterList
    * @return
    */
-  public CohortDefinition getPatientsWhoseEncounterIsBefore1985EC19(
-      int programId,
-      int labEncounterType,
-      int FSREncounterType,
-      int masterCardEncounterType,
-      int adultoSeguimentoEncounterType,
-      int aRVPediatriaSeguimentoEncounterType) {
+  public CohortDefinition getPatientsWhoseEncounterIsBefore1985EC19() {
     SqlCohortDefinition sqlCohortDefinition = new SqlCohortDefinition();
 
     sqlCohortDefinition.setName("patients whose date of drug pick up is before 1985");
     sqlCohortDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
     sqlCohortDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
     sqlCohortDefinition.addParameter(new Parameter("location", "Location", Location.class));
-    sqlCohortDefinition.setQuery(
-        SummaryQueries.getPatientsWhoseEncounterIsBefore1985EC19(
-            programId,
-            labEncounterType,
-            FSREncounterType,
-            masterCardEncounterType,
-            adultoSeguimentoEncounterType,
-            aRVPediatriaSeguimentoEncounterType));
+    sqlCohortDefinition.setQuery(SummaryQueries.getPatientsWhoseEncounterIsBefore1985EC19());
 
     return sqlCohortDefinition;
   }

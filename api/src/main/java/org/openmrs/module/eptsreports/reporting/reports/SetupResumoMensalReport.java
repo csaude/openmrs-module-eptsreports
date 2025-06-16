@@ -59,7 +59,7 @@ public class SetupResumoMensalReport extends EptsPeriodIndicatorDataExportManage
 
   @Override
   public String getName() {
-    return "Resumo Mensal US HIV/SIDA – Ficha Mestre";
+    return "Resumo Mensal US HIV/SIDA - Ficha Mestre";
   }
 
   @Override
