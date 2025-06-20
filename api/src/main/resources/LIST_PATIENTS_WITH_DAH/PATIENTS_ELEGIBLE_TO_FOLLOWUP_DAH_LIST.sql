@@ -2569,7 +2569,7 @@ left join
 	    )
 	   penultimoCd4 on penultimoCd4.patient_id = ultimoCd4.patient_id 
 	   	and date(penultimoCd4.obs_datetime) < ultimoCd4.max_data_cd4 
-	    	group by patient_id, penultimoCd4.obs_datetime desc 
+	    	group by patient_id order by penultimoCd4.obs_datetime desc 
 	) penultimoCd4  group by penultimoCd4.patient_id
 )penultimoCd4 on inicioDAH.patient_id = penultimoCd4.patient_id 
 left join
@@ -2639,7 +2639,7 @@ left join
 		    )
 		   penultimoCd4 on penultimoCd4.patient_id = ultimoCd4.patient_id 
 		   	and date(penultimoCd4.obs_datetime) < ultimoCd4.max_data_cd4 
-		    	group by patient_id, penultimoCd4.obs_datetime desc 
+		    	group by patient_id order by penultimoCd4.obs_datetime desc 
 		) penultimoCd4  group by penultimoCd4.patient_id
 	) valor_penultimo_cd4
 		inner join encounter e on e.patient_id = valor_penultimo_cd4.patient_id 
