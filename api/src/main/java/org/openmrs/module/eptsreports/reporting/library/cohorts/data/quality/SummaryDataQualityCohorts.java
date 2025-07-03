@@ -325,26 +325,13 @@ public class SummaryDataQualityCohorts {
    * @param encounterList
    * @return
    */
-  public CohortDefinition getPatientsWhoseEncounterIsBefore1985(List<Integer> encounterList) {
-    SqlCohortDefinition sqlCohortDefinition = new SqlCohortDefinition();
-    sqlCohortDefinition.setName("patients whose date of drug pick up is before 1985");
-    sqlCohortDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
-    sqlCohortDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-    sqlCohortDefinition.addParameter(new Parameter("location", "Location", Location.class));
-    sqlCohortDefinition.setQuery(
-        SummaryQueries.getPatientsWhoseEncounterIsBefore1985(encounterList));
-
-    return sqlCohortDefinition;
-  }
-
   public CohortDefinition getPatientsWhoseEncounterIsBeforeEC18() {
     SqlCohortDefinition sqlCohortDefinition = new SqlCohortDefinition();
 
-    sqlCohortDefinition.setName("patients whose date of drug pick up is before 1985");
+    sqlCohortDefinition.setName("E18 - Sumario");
     sqlCohortDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
     sqlCohortDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
     sqlCohortDefinition.addParameter(new Parameter("location", "Location", Location.class));
-
     sqlCohortDefinition.setQuery(SummaryQueries.getPatientsWhoseEncounterIsBeforeEC18());
 
     return sqlCohortDefinition;
@@ -353,11 +340,9 @@ public class SummaryDataQualityCohorts {
   public CohortDefinition getPatientsSexNotDefinedEC21() {
     SqlCohortDefinition sqlCohortDefinition = new SqlCohortDefinition();
 
+    sqlCohortDefinition.setName("The Patient’s sex is not defined");
     sqlCohortDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
     sqlCohortDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-    sqlCohortDefinition.addParameter(new Parameter("location", "Location", Location.class));
-
-    sqlCohortDefinition.setName("The Patient’s sex is not defined");
     sqlCohortDefinition.addParameter(new Parameter("location", "Location", Location.class));
     sqlCohortDefinition.setQuery(SummaryQueries.getPatientsSexNotDefinedEC21());
 
@@ -365,13 +350,12 @@ public class SummaryDataQualityCohorts {
   }
 
   public CohortDefinition getPatientsSexNotDefinedEC22() {
+
     SqlCohortDefinition sqlCohortDefinition = new SqlCohortDefinition();
 
+    sqlCohortDefinition.setName("The Patient’s date of birth is not defined");
     sqlCohortDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
     sqlCohortDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-    sqlCohortDefinition.addParameter(new Parameter("location", "Location", Location.class));
-
-    sqlCohortDefinition.setName("The Patient’s date of birth is not defined");
     sqlCohortDefinition.addParameter(new Parameter("location", "Location", Location.class));
     sqlCohortDefinition.setQuery(SummaryQueries.getPatientsBirthNotDefinedEC22());
 
@@ -380,11 +364,10 @@ public class SummaryDataQualityCohorts {
 
   public CohortDefinition getPatientsWhoseEncounterIsBeforeEC17() {
     SqlCohortDefinition sqlCohortDefinition = new SqlCohortDefinition();
+
+    sqlCohortDefinition.setName("E17 - Sumario");
     sqlCohortDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
     sqlCohortDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
-    sqlCohortDefinition.addParameter(new Parameter("location", "Location", Location.class));
-
-    sqlCohortDefinition.setName("patients whose date of drug pick up is before 1985");
     sqlCohortDefinition.addParameter(new Parameter("location", "Location", Location.class));
     sqlCohortDefinition.setQuery(SummaryQueries.getPatientsWhoseEncounterIsBeforeEC17());
     return sqlCohortDefinition;
@@ -400,7 +383,7 @@ public class SummaryDataQualityCohorts {
   public CohortDefinition getPatientsWhoseEncounterIsBefore1985EC19() {
     SqlCohortDefinition sqlCohortDefinition = new SqlCohortDefinition();
 
-    sqlCohortDefinition.setName("patients whose date of drug pick up is before 1985");
+    sqlCohortDefinition.setName("E19 - Sumario");
     sqlCohortDefinition.addParameter(new Parameter("startDate", "Start Date", Date.class));
     sqlCohortDefinition.addParameter(new Parameter("endDate", "End Date", Date.class));
     sqlCohortDefinition.addParameter(new Parameter("location", "Location", Location.class));
