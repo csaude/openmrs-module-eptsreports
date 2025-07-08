@@ -41,7 +41,7 @@ public class SetupIntensiveMonitoringReport extends EptsPeriodIndicatorDataExpor
 
   @Override
   public String getName() {
-    return "Monitoria Intensiva - 2024";
+    return "Monitoria Intensiva - 2025";
   }
 
   @Override
