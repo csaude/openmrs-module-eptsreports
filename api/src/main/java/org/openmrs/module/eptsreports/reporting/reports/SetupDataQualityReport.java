@@ -224,14 +224,6 @@ public class SetupDataQualityReport extends EptsDataExportManager {
             summaryDataQualityDataset.constructSummaryDataQualityDatset(getDataParameters())));
 
     rd.addDataSetDefinition(
-        "D",
-        Mapped.mapStraightThrough(this.datimCodeDataset.constructDataset(this.getParameters())));
-
-    rd.addDataSetDefinition(
-        "SC",
-        Mapped.mapStraightThrough(this.sismaCodeDataset.constructDataset(this.getParameters())));
-
-    rd.addDataSetDefinition(
         "S20",
         Mapped.mapStraightThrough(
             summaryEc20DataQualityDataset.constructSummaryEc20DataQualityDatset(
@@ -345,6 +337,14 @@ public class SetupDataQualityReport extends EptsDataExportManager {
         "EC26",
         Mapped.mapStraightThrough(
             ec26PatientListDataset.ec26PatientListDatset(getDataParameters())));
+
+    rd.addDataSetDefinition(
+        "D",
+        Mapped.mapStraightThrough(this.datimCodeDataset.constructDataset(this.getParameters())));
+
+    rd.addDataSetDefinition(
+        "SC",
+        Mapped.mapStraightThrough(this.sismaCodeDataset.constructDataset(this.getParameters())));
 
     return rd;
   }
