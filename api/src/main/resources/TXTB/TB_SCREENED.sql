@@ -93,7 +93,7 @@ from(
 				  inner join encounter e on p.patient_id=e.patient_id                                                         
 				  inner join obs o on o.encounter_id=e.encounter_id
 			where e.voided=0 and o.voided=0 and p.voided=0 and                                                            
-				  e.encounter_type in (6) and o.concept_id=1766 and o.value_coded in(1763,1764,1762,1760,1765,23760,161)   
+				  e.encounter_type=6 and o.concept_id=1766 and o.value_coded in(1763,1764,1762,1760,1765,23760,161)   
 				  and e.location_id= :location  and e.encounter_datetime  between :startDate and :endDate
 				  
 			union
@@ -121,7 +121,7 @@ from(
 				  inner join encounter e on p.patient_id=e.patient_id                                                         
 				  inner join obs o on o.encounter_id=e.encounter_id
 			where e.voided=0 and o.voided=0 and p.voided=0 and                                                            
-				  e.encounter_type=13 and o.concept_id in(307, 23723, 23724, 23951, 165189) and o.value_coded is not null
+				  e.encounter_type=13 and o.concept_id in(307, 23723, 23774, 23951, 165588) and o.value_coded is not null
 				  and e.location_id= :location and e.encounter_datetime between :startDate and :endDate
 
 			union
