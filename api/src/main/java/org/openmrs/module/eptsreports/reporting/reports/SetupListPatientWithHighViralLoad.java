@@ -51,7 +51,7 @@ public class SetupListPatientWithHighViralLoad extends EptsPeriodIndicatorDataEx
 
   @Override
   public String getName() {
-    return "Lista De Seguimento De Pacientes Com Carga Viral Não Suprimida";
+    return "Lista De Seguimento De Pacientes Com Carga Viral Nao Suprimida";
   }
 
   @Override

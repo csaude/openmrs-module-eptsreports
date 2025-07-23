@@ -49,7 +49,7 @@ public class SetupTB4Report extends EptsPeriodIndicatorDataExportManager {
 
   @Override
   public String getName() {
-    return "TB4: Relatório Cascata Mensal de TX_TB";
+    return "TB4: Relatorio Cascata Mensal de TX_TB";
   }
 
   @Override

@@ -51,7 +51,7 @@ public class SetupTB7AdvancedDiseaseAndTBCascadeReport
 
   @Override
   public String getName() {
-    return "TB7: Relatório Cascatas de Doença Avançada por HIV e TB";
+    return "TB7: Relatorio Cascatas de Doenca Avancada por HIV e TB";
   }
 
   @Override

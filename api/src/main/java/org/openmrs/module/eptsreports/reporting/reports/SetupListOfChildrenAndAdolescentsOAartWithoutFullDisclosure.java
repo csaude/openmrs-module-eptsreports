@@ -50,7 +50,7 @@ public class SetupListOfChildrenAndAdolescentsOAartWithoutFullDisclosure
 
   @Override
   public String getName() {
-    return "Lista de Crianças e Adolescentes em TARV sem Revelação Diagnóstica Total";
+    return "Lista de Criancas e Adolescentes em TARV sem Revelacao Diagnostica Total";
   }
 
   @Override
