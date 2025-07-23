@@ -49,7 +49,7 @@ public class SetupTB1Report extends EptsPeriodIndicatorDataExportManager {
 
   @Override
   public String getName() {
-    return "TB1: Relatório Cascata de Completude de TPT";
+    return "TB1: Relatorio Cascata de Completude de TPT";
   }
 
   @Override
