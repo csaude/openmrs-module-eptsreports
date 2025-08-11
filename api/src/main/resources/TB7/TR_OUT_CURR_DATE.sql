@@ -1,6 +1,6 @@
-select transferido_para.patient_id 
+select transferido_para.patient_id
 	from (
-    	 select transferido_para.patient_id, data_transferencia  
+    	 select transferido_para.patient_id, data_transferencia, ultimo_fila.max_date  
     	 from ( 
     			select patient_id,max(data_estado) data_transferencia 
     			from ( 
@@ -16,7 +16,7 @@ select transferido_para.patient_id
 									select pg.patient_id, max(ps.start_date) data_estado                                                                                          
 									from patient p                                                                                                               
 											inner join patient_program pg on p.patient_id = pg.patient_id                                                               
-									  	inner join patient_state ps on pg.patient_program_id = ps.patient_program_id                                                
+									  	inner join patient_state ps on pg.patient_program_id = ps.patient_program_id                                                 
 									where pg.voided=0 and ps.voided=0 and p.voided=0 and pg.program_id = 2                                        
 										and ps.start_date <= CURDATE()  and pg.location_id = :location group by pg.patient_id 
 								)max_estado
@@ -37,7 +37,7 @@ select transferido_para.patient_id
 		                 	inner join encounter e on p.patient_id=e.patient_id                                                                         
 		                 	inner join obs o on e.encounter_id=o.encounter_id                                                                          
 		         		where e.voided=0 and o.voided=0 and p.voided=0                                                                
-		               	and e.encounter_type in (53,6) and o.concept_id in (6272,6273) and o.value_coded = 1706                         
+		               	and e.encounter_type in (53,6) and o.concept_id in (6272,6273) and o.value_coded = 1706                          
 		                 	and o.obs_datetime <= CURDATE()  and e.location_id=:location                                                                        
 		         			group by p.patient_id 
 
@@ -49,7 +49,7 @@ select transferido_para.patient_id
 	                      from patient p                                                                                                              
 	                          inner join encounter e on p.patient_id=e.patient_id                                                                     
 	                          inner join obs o on o.encounter_id=e.encounter_id                                                                       
-	                      where e.voided=0 and p.voided=0 and e.encounter_datetime <= CURDATE()                                       
+	                      where e.voided=0 and p.voided=0 and e.encounter_datetime <= CURDATE()                                    
 	                          and e.encounter_type = 21 and  e.location_id= :location                                                                 
 	                          group by p.patient_id                                                                                                   
 	                  ) ultimaBusca                                                                                                                   
@@ -68,7 +68,7 @@ select transferido_para.patient_id
 			from patient p                                                                                                                                   
 				inner join person pe on pe.person_id = p.patient_id                                                                                         
 				inner join encounter e on e.patient_id=p.patient_id                                                                                         
-			where p.voided=0 and pe.voided = 0 and e.voided=0 and e.encounter_type=18                                                                      
+			where p.voided=0 and pe.voided = 0 and e.voided=0 and e.encounter_type=18                                                                   
 				and e.location_id=:location  and e.encounter_datetime <=CURDATE()                                                                             
 				group by p.patient_id 
 		) ultimo_fila
@@ -81,7 +81,7 @@ select transferido_para.patient_id
 					from patient p                                                                                                                                   
 						inner join encounter e on e.patient_id= p.patient_id 
 						inner join obs o on o.encounter_id = e.encounter_id                                                                                        
-					where p.voided= 0 and e.voided=0 and o.voided = 0 and e.encounter_type=18 and o.concept_id = 5096                                                                  
+					where p.voided= 0 and e.voided=0 and o.voided = 0 and e.encounter_type=18 and o.concept_id = 5096                                                            
 						and e.location_id= :location and e.encounter_datetime <= CURDATE()                                                                               
 						group by p.patient_id 
          
@@ -93,7 +93,7 @@ select transferido_para.patient_id
                     		inner join encounter e on p.patient_id=e.patient_id                                                                                         
                     		inner join obs o on e.encounter_id=o.encounter_id                                                                                           
               			where p.voided=0 and pe.voided = 0 and e.voided=0 and o.voided=0 and e.encounter_type=52                                                       
-                    		and o.concept_id=23866 and o.value_datetime is not null and e.location_id= :location and o.value_datetime <= CURDATE()                                                                                        
+                    		and o.concept_id=23866 and o.value_datetime is not null and e.location_id= :location and o.value_datetime <= CURDATE()                                                                                       
               				group by p.patient_id
                ) ultimo_levantamento group by patient_id
       	) ultimo_levantamento
@@ -104,3 +104,31 @@ select transferido_para.patient_id
 			where transferido_para.data_transferencia >= ultimo_fila.max_date or ultimo_fila.max_date is null
 )
 transferido_para
+left join (
+		select patient_id , data_ultimo_levantamento    
+		from(  	
+       		select patient_id, max(data_ultimo_levantamento)  data_ultimo_levantamento    
+               from(
+         				select p.patient_id, date_add(max(o.value_datetime), interval 1 day) data_ultimo_levantamento                                                                                            
+					from patient p                                                                                                                                   
+						inner join encounter e on e.patient_id= p.patient_id 
+						inner join obs o on o.encounter_id = e.encounter_id                                                                                        
+					where p.voided= 0 and e.voided=0 and o.voided = 0 and e.encounter_type=18 and o.concept_id = 5096                                                           
+						and e.location_id= :location and e.encounter_datetime <= CURDATE()                                                                               
+						group by p.patient_id 
+         
+         				union
+         
+              			select p.patient_id, date_add(max(value_datetime), interval 31 day) data_ultimo_levantamento                                                                                     
+              			from patient p                                                                                                                                   
+               			inner join person pe on pe.person_id = p.patient_id                                                                                         
+                    		inner join encounter e on p.patient_id=e.patient_id                                                                                         
+                    		inner join obs o on e.encounter_id=o.encounter_id                                                                                           
+              			where p.voided=0 and pe.voided = 0 and e.voided=0 and o.voided=0 and e.encounter_type=52                                                       
+                    		and o.concept_id=23866 and o.value_datetime is not null and e.location_id= :location and o.value_datetime <= CURDATE()                                                                                       
+              				group by p.patient_id
+               ) ultimo_levantamento group by patient_id
+      	) ultimo_levantamento
+     		where ultimo_levantamento.data_ultimo_levantamento > CURDATE() 
+     		) maxFilaMaiorCurDate on maxFilaMaiorCurDate.patient_id = transferido_para.patient_id
+     		where maxFilaMaiorCurDate.patient_id is null
