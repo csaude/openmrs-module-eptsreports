@@ -32,14 +32,19 @@ select transferido_para.patient_id
 
     					union
     					 
-						select  p.patient_id,max(o.obs_datetime) data_estado                                                                                             
-		         		from patient p                                                                                                                   
-		                 	inner join encounter e on p.patient_id=e.patient_id                                                                         
-		                 	inner join obs o on e.encounter_id=o.encounter_id                                                                          
-		         		where e.voided=0 and o.voided=0 and p.voided=0                                                                
-		               	and e.encounter_type in (53,6) and o.concept_id in (6272,6273) and o.value_coded = 1706                          
-		                 	and o.obs_datetime <= CURDATE()  and e.location_id=:location                                                                        
-		         			group by p.patient_id 
+		         	select masterCard.patient_id, masterCard.data_estado                                                                              
+	              	from (                                                                                                                              
+	                      select p.patient_id,max(e.encounter_datetime) data_estado                                                                   
+	                      from patient p                                                                                                              
+	                          inner join encounter e on p.patient_id=e.patient_id                                                                     
+	                          inner join obs o on o.encounter_id=e.encounter_id                                                                       
+	                      where e.voided=0 and p.voided=0 and e.encounter_datetime <= CURDATE() and o.concept_id in (6272,6273)                                       
+	                          and e.encounter_type in (53,6) and  e.location_id= :location                                                                 
+	                          group by p.patient_id                                                                                                   
+	                  ) masterCard                                                                                                                   
+	                      inner join encounter e on e.patient_id = masterCard.patient_id                                                             
+	                      inner join obs o on o.encounter_id = e.encounter_id                                                                         
+	                 where e.encounter_type in (53,6) and o.voided=0 and o.concept_id in (6272,6273) and o.value_coded=1706 and masterCard.data_estado = e.encounter_datetime and e.location_id = :location 
 
 		         	  union                                                                                                                               
 	              
@@ -104,31 +109,3 @@ select transferido_para.patient_id
 			where transferido_para.data_transferencia >= ultimo_fila.max_date or ultimo_fila.max_date is null
 )
 transferido_para
-left join (
-		select patient_id , data_ultimo_levantamento    
-		from(  	
-       		select patient_id, max(data_ultimo_levantamento)  data_ultimo_levantamento    
-               from(
-         				select p.patient_id, date_add(max(o.value_datetime), interval 1 day) data_ultimo_levantamento                                                                                            
-					from patient p                                                                                                                                   
-						inner join encounter e on e.patient_id= p.patient_id 
-						inner join obs o on o.encounter_id = e.encounter_id                                                                                        
-					where p.voided= 0 and e.voided=0 and o.voided = 0 and e.encounter_type=18 and o.concept_id = 5096                                                           
-						and e.location_id= :location and e.encounter_datetime <= CURDATE()                                                                               
-						group by p.patient_id 
-         
-         				union
-         
-              			select p.patient_id, date_add(max(value_datetime), interval 31 day) data_ultimo_levantamento                                                                                     
-              			from patient p                                                                                                                                   
-               			inner join person pe on pe.person_id = p.patient_id                                                                                         
-                    		inner join encounter e on p.patient_id=e.patient_id                                                                                         
-                    		inner join obs o on e.encounter_id=o.encounter_id                                                                                           
-              			where p.voided=0 and pe.voided = 0 and e.voided=0 and o.voided=0 and e.encounter_type=52                                                       
-                    		and o.concept_id=23866 and o.value_datetime is not null and e.location_id= :location and o.value_datetime <= CURDATE()                                                                                       
-              				group by p.patient_id
-               ) ultimo_levantamento group by patient_id
-      	) ultimo_levantamento
-     		where ultimo_levantamento.data_ultimo_levantamento > CURDATE() 
-     		) maxFilaMaiorCurDate on maxFilaMaiorCurDate.patient_id = transferido_para.patient_id
-     		where maxFilaMaiorCurDate.patient_id is null
