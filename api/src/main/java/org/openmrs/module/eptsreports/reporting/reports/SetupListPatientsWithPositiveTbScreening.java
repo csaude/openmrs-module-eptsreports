@@ -98,7 +98,7 @@ public class SetupListPatientsWithPositiveTbScreening extends EptsDataExportMana
       reportDesign =
           createXlsReportDesign(
               reportDefinition,
-              "TB6_List_Patients_With_Positive_TB_Screening .xls",
+              "TB6_List_Patients_With_Positive_TB_Screening.xls",
               "LISTA DE PACIENTES COM RASTREIO POSITIVO DE TB",
               getExcelDesignUuid(),
               null);
