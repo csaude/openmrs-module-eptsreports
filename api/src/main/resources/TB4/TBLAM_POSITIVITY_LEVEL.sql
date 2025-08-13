@@ -1,0 +1,26 @@
+			select grade_level.patient_id                                                                                                                                                                                                 
+	from(  
+		select p.patient_id                                                                                                                                                                                                         
+		from patient p                                                                                                                                                                                                              
+		inner join encounter e on e.patient_id=p.patient_id                                                                                                                                                                         
+		   inner join obs o on o.encounter_id = e.encounter_id                                                                                                                                                                     
+		   left join obs nivelPositividade on (e.encounter_id = nivelPositividade.encounter_id and nivelPositividade.voided = 0 and nivelPositividade.concept_id = 165185)                                                         
+		where p.voided=0 and  e.voided=0 and o.voided=0                                                                                                                                                                             
+		and e.encounter_type = 51 and o.concept_id=23951 and o.value_coded = 703                                                                                                                                                    
+		   and nivelPositividade.value_coded = %s                                                                                                                                                                                  
+		   and e.location_id=  :location and e.encounter_datetime between :startDate and :endDate                                                                                                                             
+		                                                                                                                                                                                                                           
+		union                                                                                                                                                                                                                       
+		                                                                                                                                                                                                                           
+		select p.patient_id                                                                                                                                                                                                         
+		from patient p                                                                                                                                                                                                              
+		inner join encounter e on e.patient_id = p.patient_id                                                                                                                                                                       
+		   inner join obs o on o.encounter_id = e.encounter_id                                                                                                                                                                     
+		   left join obs tbLamGrupo on (e.encounter_id = tbLamGrupo.encounter_id and tbLamGrupo.voided = 0 and tbLamGrupo.concept_id = 165349)                                                                                     
+		 left join obs nivelPositividade on (e.encounter_id = nivelPositividade.encounter_id and nivelPositividade.voided = 0 and nivelPositividade.concept_id = 165185  and nivelPositividade.obs_group_id = tbLamGrupo.obs_id)   
+		where p.voided=0 and  e.voided=0 and o.voided=0                                                                                                                                                                             
+		and e.encounter_type in(6, 13) and o.concept_id=23951 and o.value_coded = 703                                                                                                                                               
+		 and nivelPositividade.value_coded = %s                                                                                                                                                                                    
+		 and e.location_id=  :location and e.encounter_datetime between :startDate and :endDate    
+		 
+		 )grade_level                                                             
