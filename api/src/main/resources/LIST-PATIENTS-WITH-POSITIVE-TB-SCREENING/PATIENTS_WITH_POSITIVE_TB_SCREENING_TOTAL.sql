@@ -1,19 +1,19 @@
-select TB6.patient_id as patient_id                          
+select           TB6.patient_id as patient_id
 from
 (
 select final.*,
-       		  pedidos.genExpertRequestDate,
+       		   pedidos.genExpertRequestDate,
 		       pedidos.lastBKResquestDate,
 		       pedidos.lastTbLamRequestDate,
 		       pedidos.tbTreatmentInitialDate,
 		       pedidos.tbTretment6MonthsDate,
-       		  resultados.lastGenExpertResultDate,
-			  resultados.lastBKResultDate,
-			  resultados.lastTbLamResultDate,
-			  resultados.gExpertLabResultDate,
-			  resultados.gExpertLabResult,
-			  resultados.rifampinLabResultDate,
-			  resultados.lastBKLabResultDate,
+       		   resultados.lastGenExpertResultDate,
+			   resultados.lastBKResultDate,
+			   resultados.lastTbLamResultDate,
+			   resultados.gExpertLabResultDate,
+			   resultados.gExpertLabResult,
+			   resultados.rifampinLabResultDate,
+			   resultados.lastBKLabResultDate,
 		       resultados.lastTbLamLabResultDate,
 		       resultados.tipoTestePcrTBLabFormDate,
 		       resultados.resistenciaRinfapinaLabFormDate,
@@ -49,159 +49,132 @@ select final.*,
 						inner join encounter e on p.patient_id=e.patient_id                                                         
 					    inner join obs o on o.encounter_id=e.encounter_id                                                           
 					where e.voided=0 and o.voided=0 and p.voided=0                                                                 
-						and e.encounter_type in (6,9) and o.concept_id=1113  and e.location_id= 399 
+						and e.encounter_type in (6,9) and o.concept_id=1113  and e.location_id=:location 
 			     		and  o.value_datetime  between :startDate and :endDate
-					
 			     	union
-
 					select p.patient_id,e.encounter_datetime data_tratamento                                                           
 					from patient p                                                                                                   
 						inner join encounter e on p.patient_id=e.patient_id                                                         
 					    inner join obs o on o.encounter_id=e.encounter_id                                                           
 					where e.voided=0 and o.voided=0 and p.voided=0                                                                 
-					      and e.encounter_type in (6,9) and o.concept_id=6257 and o.value_coded =1065 and e.location_id= 399 
+					      and e.encounter_type in (6,9) and o.concept_id=6257 and o.value_coded =1065 and e.location_id=:location 
 					      and  e.encounter_datetime  between :startDate and :endDate
-					
 					 union
-
 					select p.patient_id,e.encounter_datetime data_tratamento                                                           
 			        from patient p                                                                                                   
 			      		inner join encounter e on p.patient_id=e.patient_id                                                         
 			      		inner join obs o on o.encounter_id=e.encounter_id                                                           
 					where e.voided=0 and o.voided=0 and p.voided=0                                                                 
-			     		and e.encounter_type in (6,9) and o.concept_id=6277 and o.value_coded = 703  and e.location_id= 399 
+			     		and e.encounter_type in (6,9) and o.concept_id=6277 and o.value_coded = 703  and e.location_id=:location 
 			     		and e.encounter_datetime  between :startDate and :endDate
-			     		
 			     	union
-			     	
 			     	select  p.patient_id,e.encounter_datetime data_inicio                                                           
 					from patient p                                                                                                   
 						inner join encounter e on p.patient_id=e.patient_id                                                         
 						inner join obs obs6277 on obs6277.encounter_id= e.encounter_id 
 						inner join obs obs6257 on obs6257.encounter_id= e.encounter_id                                                           
 					where p.voided = 0 and e.voided = 0 and obs6277.voided = 0 and obs6257.voided = 0                                                                  
-						and e.encounter_type in (6,9) and obs6277.concept_id=6277 and obs6277.value_coded = 664 and e.location_id= 399 and obs6257.concept_id= 6257 and obs6257.value_coded in(1065,1066)
+						and e.encounter_type in (6,9) and obs6277.concept_id=6277 and obs6277.value_coded = 664 and e.location_id=:location and obs6257.concept_id= 6257 and obs6257.value_coded in(1065,1066)
 						and e.encounter_datetime  between :startDate and :endDate
-
 					union
-
 					select p.patient_id,o.obs_datetime data_tratamento                                                           
 					from patient p                                                                                                   
 			      		inner join encounter e on p.patient_id=e.patient_id                                                         
 			      		inner join obs o on o.encounter_id=e.encounter_id                                                           
 					where e.voided=0 and o.voided=0 and p.voided=0                                                                 
-			      		and e.encounter_type=53 and o.concept_id=1406 and o.value_coded=42  and e.location_id= 399 
+			      		and e.encounter_type=53 and o.concept_id=1406 and o.value_coded=42  and e.location_id=:location 
 			     		and o.obs_datetime  between :startDate and :endDate
-					
 			     	union
-
 					select pg.patient_id, date_enrolled data_tratamento                                                             
 					from patient p 
 			        	inner join patient_program pg on p.patient_id=pg.patient_id                                       
-					where pg.voided=0 and p.voided=0 and program_id=5 and location_id= 399  
+					where pg.voided=0 and p.voided=0 and program_id=5 and location_id=:location  
 			        	and date_enrolled between :startDate and :endDate
-					
 			        union
-
 					select p.patient_id,e.encounter_datetime data_tratamento                                                           
 					from patient p                                                                                                   
 						inner join encounter e on p.patient_id=e.patient_id                                                         
 						inner join obs o on o.encounter_id=e.encounter_id                                                           
 					where e.voided=0 and o.voided=0 and p.voided=0                                                                 
-						and e.encounter_type=6 and o.concept_id=1268 and o.value_coded=1256  and e.location_id= 399 
+						and e.encounter_type=6 and o.concept_id=1268 and o.value_coded=1256  and e.location_id=:location 
 					    and  e.encounter_datetime  between :startDate and  :endDate
-					
 					union
-
 					select p.patient_id,e.encounter_datetime data_tratamento                                                           
 					from patient p                                                                                                   
 			      		inner join encounter e on p.patient_id=e.patient_id                                                         
 			      		inner join obs o on o.encounter_id=e.encounter_id                                                           
 					where e.voided=0 and o.voided=0 and p.voided=0                                                                 
-			      		and e.encounter_type=6 and o.concept_id=23758 and o.value_coded=1065  and e.location_id= 399 
+			      		and e.encounter_type=6 and o.concept_id=23758 and o.value_coded=1065  and e.location_id=:location 
 			     		and e.encounter_datetime  between :startDate and :endDate
-					
 			     	union
-
 					select p.patient_id,e.encounter_datetime data_tratamento                                                           
 					from patient p                                                                                                   
 			      		inner join encounter e on p.patient_id=e.patient_id                                                         
 			      		inner join obs o on o.encounter_id=e.encounter_id                                                           
 					where e.voided=0 and o.voided=0 and p.voided=0                                                                 
-			      		and e.encounter_type=6 and o.concept_id=23761 and o.value_coded=1065  and e.location_id= 399 
+			      		and e.encounter_type=6 and o.concept_id=23761 and o.value_coded=1065  and e.location_id=:location 
 			     		and e.encounter_datetime  between :startDate and :endDate
-
 					union
-
 					select p.patient_id,e.encounter_datetime data_inicio                                                           
 					from patient p                                                                                                   
 			      		inner join encounter e on p.patient_id=e.patient_id                                                         
 			      		inner join obs o on o.encounter_id=e.encounter_id
 					where e.voided=0 and o.voided=0 and p.voided=0                                                             
 			     		and e.encounter_type = 6 and o.concept_id=1766 and o.value_coded in(1763,1764,1762,1760,1765,23760,161)   
-			      		and e.location_id= 399  and e.encounter_datetime   between :startDate and :endDate
-					
+			      		and e.location_id=:location  and e.encounter_datetime   between :startDate and :endDate
 			      	union
-
 			      	select p.patient_id,e.encounter_datetime data_inicio                                                      
 					from patient p                                                                                                   
 			      		inner join encounter e on p.patient_id=e.patient_id                                                         
 			      		inner join obs o on o.encounter_id=e.encounter_id
 					where e.voided=0 and o.voided=0 and p.voided=0                                                             
 			      		and e.encounter_type=6 and o.concept_id=23722 and o.value_coded in(23723,23774,23951,307,12)   
-			      		and e.location_id= 399  and e.encounter_datetime   between :startDate and :endDate
-					
+			      		and e.location_id=:location  and e.encounter_datetime   between :startDate and :endDate
 			      	union
-
 					select p.patient_id,e.encounter_datetime data_inicio                                                      
 					from patient p                                                                                                   
 			      		inner join encounter e on p.patient_id=e.patient_id                                                         
 			      		inner join obs o on o.encounter_id=e.encounter_id
 					where e.voided=0 and o.voided=0 and p.voided=0                                                             
 			     		and e.encounter_type=6 and o.concept_id  in(23723,23774,23951,307,12) and o.value_coded is not null
-			      		and e.location_id= 399  and e.encounter_datetime   between :startDate and :endDate
+			      		and e.location_id=:location  and e.encounter_datetime   between :startDate and :endDate
 			      
 					union
-					
 					select p.patient_id,e.encounter_datetime data_inicio                                                      
 					from patient p                                                                                                   
 			      		inner join encounter e on p.patient_id=e.patient_id                                                         
 			      		inner join obs o on o.encounter_id=e.encounter_id
 					where e.voided=0 and o.voided=0 and p.voided=0                                                             
 			     		and e.encounter_type=13 and o.concept_id  in(307, 23723, 23774, 23951, 165588) and o.value_coded is not null
-			      		and e.location_id= 399  and e.encounter_datetime   between :startDate and :endDate
+			      		and e.location_id=:location  and e.encounter_datetime   between :startDate and :endDate
 			      	union
-			         
 			         select p.patient_id,e.encounter_datetime data_inicio                                                      
 					from patient p                                                                                                   
 			      		inner join encounter e on p.patient_id=e.patient_id                                                         
 			      		inner join obs o on o.encounter_id=e.encounter_id
 					where e.voided=0 and o.voided=0 and p.voided=0                                                             
 			     		and e.encounter_type=13 and o.concept_id=23774 and o.value_coded is not null
-			      		and e.location_id= 399  and e.encounter_datetime   between :startDate and :endDate 
-					
+			      		and e.location_id=:location  and e.encounter_datetime   between :startDate and :endDate 
 			 		union
-					
 			 		select p.patient_id,e.encounter_datetime data_inicio                                                      
 					from patient p                                                                                                   
 			      		inner join encounter e on p.patient_id=e.patient_id                                                         
 			      		inner join obs o on o.encounter_id=e.encounter_id
 					where e.voided=0 and o.voided=0 and p.voided=0                                                             
 			      		and e.encounter_type= 51 and o.concept_id = 23951 and o.value_coded is not null
-			      		and e.location_id= 399  and e.encounter_datetime   between :startDate and :endDate
+			      		and e.location_id=:location  and e.encounter_datetime   between :startDate and :endDate
 			)TBPositive
 		    ) positiveTbScreening on positiveTbScreening.patient_id = coorte12meses_final.patient_id
 		    inner join person p on p.person_id=coorte12meses_final.patient_id        
 		    )final
 		    left join
 		    (
-		    		 select final.patient_id, 
+		    select final.patient_id, 
 		           MAX(CASE WHEN final.source = 'T1' then final.data_pedido END) as genExpertRequestDate,
 		           MAX(CASE WHEN final.source = 'T2' then final.data_pedido END) as lastBKResquestDate,
 		           MAX(CASE WHEN final.source = 'T3' then final.data_pedido END) as lastTbLamRequestDate,
 		           MAX(CASE WHEN final.source = 'T4' then final.data_pedido END) as tbTreatmentInitialDate,
 		           MAX(CASE WHEN final.source = 'T5' then final.data_pedido END) as tbTretment6MonthsDate
-		           
 		     from
 
 			    (
@@ -214,9 +187,7 @@ select final.*,
 			    e.location_id=:location and e.encounter_type=6 and obsLabResearch.concept_id=23722 
 			    and obsLabResearch.value_coded = 23723 and obsLabResearch.voided=0 
 			    )genexpertTest
-			    
 			    union
-			    
 			    select baciloscopia.patient_id, baciloscopia.data_pedido, "T2" as source from
 			    (
 			  	select p.patient_id, e.encounter_datetime data_pedido  from patient p 
@@ -226,9 +197,7 @@ select final.*,
 				e.location_id=:location and e.encounter_type=6 and obsLabResearch.concept_id=23722 
 				and obsLabResearch.value_coded = 307 and obsLabResearch.voided=0 
 			    )baciloscopia
-			    
 			    union
-	
 			    select tbLam.patient_id, tbLam.data_pedido, "T3" as source from
 			    (
 			    select p.patient_id, e.encounter_datetime data_pedido  from patient p 
@@ -238,36 +207,32 @@ select final.*,
 			    e.location_id=:location and e.encounter_type=6 and obsLabResearch.concept_id=23722 
 			    and obsLabResearch.value_coded = 23951 and obsLabResearch.voided=0 
 			    )tbLam
-			    
 			    union
-			    
 			    select tbTreatment.patient_id, tbTreatment.data_inicio, "T4" as source from
 			    (
 			    select  pg.patient_id,date_enrolled data_inicio from  patient p  
 			    inner join patient_program pg on p.patient_id=pg.patient_id                         
-			    where pg.voided=0 and p.voided=0 and program_id=5 and date_enrolled between '2024-0421' and  curdate()  and location_id=:location 
+			    where pg.voided=0 and p.voided=0 and program_id=5 and date_enrolled between :startDate and  curdate()  and location_id=:location 
 			    union 
 			    select p.patient_id,obsTB.obs_datetime data_inicio from patient p  
 			    inner join encounter e on e.patient_id=p.patient_id  
 			    inner join obs obsTB on obsTB.encounter_id=e.encounter_id 
-			    where p.voided=0 and e.voided=0 and obsTB.obs_datetime between '2024-0421' and  curdate()  and   
+			    where p.voided=0 and e.voided=0 and obsTB.obs_datetime between :startDate and  curdate()  and   
 			    e.location_id=:location and e.encounter_type=53 and obsTB.concept_id=1406 and obsTB.value_coded =42 and obsTB.voided=0 
 			    union                 
 			    select p.patient_id, obsTB.obs_datetime data_inicio from patient p  
 			    inner join encounter e on e.patient_id=p.patient_id  
 			    inner join obs obsTB on obsTB.encounter_id=e.encounter_id 
-			    where p.voided=0 and e.voided=0 and obsTB.obs_datetime between '2024-0421' and  curdate()  and   
+			    where p.voided=0 and e.voided=0 and obsTB.obs_datetime between :startDate and  curdate()  and   
 			    e.location_id=:location and e.encounter_type=6 and obsTB.concept_id=1268 and obsTB.value_coded in (1256) and obsTB.voided=0  
 			    union 
 			    select p.patient_id,obsTB.obs_datetime data_inicio from patient p  
 			    inner join encounter e on e.patient_id=p.patient_id  
 			    inner join obs obsTB on obsTB.encounter_id=e.encounter_id 
-			    where p.voided=0 and e.voided=0 and obsTB.obs_datetime between '2024-0421' and  curdate()  and   
+			    where p.voided=0 and e.voided=0 and obsTB.obs_datetime between :startDate and  curdate()  and   
 			    e.location_id=:location and e.encounter_type=6 and obsTB.concept_id=23761 and obsTB.value_coded =1065 and obsTB.voided=0  
 			    )tbTreatment
-	
 			    union
-	
 			 select  tbTretment6Months.patient_id,tbTretment6Months.data_tratamento, "T5" source
 			 from
 		      (
@@ -277,25 +242,19 @@ select final.*,
 		      where p.voided=0 and e.voided=0 and o.voided=0 and e.encounter_type in(6,9)
 		      and o.value_datetime between DATE_SUB(:startDate, INTERVAL 6 MONTH) and :startDate
 		      and o.concept_id=1113 and  e.location_id=:location    
-		
 		      union
-		
 		      select  pg.patient_id, pg.date_enrolled  data_tratamento                            
 		      from  patient p inner join patient_program pg on p.patient_id=pg.patient_id                   
 		      where   pg.voided=0 and p.voided=0 and program_id=5 and location_id=:location 
 		      and pg.date_enrolled between  DATE_SUB(:startDate, INTERVAL 6 MONTH) and :startDate    
-		
 		      union
-		
 		      Select p.patient_id,o.obs_datetime data_tratamento from  patient p  
 		      inner join encounter e on p.patient_id=e.patient_id  
 		      inner join obs o on e.encounter_id=o.encounter_id  
 		      where p.voided=0 and e.voided=0 and o.voided=0 and e.encounter_type=53 
 		      and o.obs_datetime between DATE_SUB(:startDate, INTERVAL 6 MONTH) and :startDate
 		      and o.concept_id=1406 and o.value_coded=42 and e.location_id=:location    
-		
 		      union 
-		
 		      Select p.patient_id,o.obs_datetime data_tratamento from  patient p  
 		      inner join encounter e on p.patient_id=e.patient_id  
 		      inner join obs o on e.encounter_id=o.encounter_id  
@@ -309,13 +268,13 @@ select final.*,
 		    left join
 		    (
 			select final.patient_id, 
-			 MAX(CASE WHEN (final.source = 'T1') then final.value_coded END) as lastGenExpertResultDate,
-			 MAX(CASE WHEN final.source = 'T2' then final.value_coded END) as lastBKResultDate,
-			 MAX(CASE WHEN final.source = 'T3' then final.value_coded END) as lastTbLamResultDate,
-			 MAX(CASE WHEN final.source = 'T4' then final.value_coded END) as gExpertLabResultDate,
-			 MAX(CASE WHEN final.source = 'T5' then final.value_coded END) as gExpertLabResult,
-			 MAX(CASE WHEN final.source = 'T6' then final.value_coded END) as rifampinLabResultDate,
-			 MAX(CASE WHEN final.source = 'T7' then final.value_coded END) as lastBKLabResultDate,
+			  MAX(CASE WHEN (final.source = 'T1') then final.value_coded END) as lastGenExpertResultDate,
+			  MAX(CASE WHEN final.source = 'T2' then final.value_coded END) as lastBKResultDate,
+			  MAX(CASE WHEN final.source = 'T3' then final.value_coded END) as lastTbLamResultDate,
+			  MAX(CASE WHEN final.source = 'T4' then final.value_coded END) as gExpertLabResultDate,
+			  MAX(CASE WHEN final.source = 'T5' then final.value_coded END) as gExpertLabResult,
+			  MAX(CASE WHEN final.source = 'T6' then final.value_coded END) as rifampinLabResultDate,
+			  MAX(CASE WHEN final.source = 'T7' then final.value_coded END) as lastBKLabResultDate,
 		      MAX(CASE WHEN final.source = 'T8' then final.value_coded END) as lastTbLamLabResultDate,
 		      MAX(CASE WHEN final.source = 'T9' then final.value_coded END) as tipoTestePcrTBLabFormDate,
 		      MAX(CASE WHEN final.source = 'T10' then final.value_coded END) as resistenciaRinfapinaLabFormDate,
@@ -325,9 +284,7 @@ select final.*,
 		      MAX(CASE WHEN final.source = 'T14' then final.value_coded END) as resistenciaEtheonamidaLabFormDate,
 		      MAX(CASE WHEN final.source = 'T15' then final.value_coded END) as resistenciaFloroquinolonaLabFormDate,
 		      MAX(CASE WHEN final.source = 'T16' then final.value_coded END) as resistenciaIsoneazidaLabFormDate
-
-
-		     from
+		from
 			(	           
 		    select geneXpertResult.patient_id,geneXpertResult.data_resultado,geneXpertResult.value_coded, "T1" source
 		    from
@@ -413,9 +370,7 @@ select final.*,
 		    e.location_id=:location and e.encounter_type=13 and obsTestResult.concept_id = 23951 
 		    and obsTestResult.value_coded in (703, 664, 1138) and obsTestResult.voided=0
 		    )tbLamLabResult
-
 		    union
-
 		    select tipoTestePcrTBLabForm.patient_id,tipoTestePcrTBLabForm.data_resultado,tipoTestePcrTBLabForm.value_coded, "T9" source 
 		    from
 		    (
@@ -426,9 +381,7 @@ select final.*,
 		    e.location_id=:location and e.encounter_type=13 and obsTestResult.concept_id = 165588
 		    group by p.patient_id 
 		    )tipoTestePcrTBLabForm
-
 		    union
-
 		    select resistenciaRinfapinaLabForm.patient_id,resistenciaRinfapinaLabForm.data_resultado,resistenciaRinfapinaLabForm.value_coded, "T10" source 
 		    from
 		    (
@@ -452,11 +405,7 @@ select final.*,
 		    group by p.patient_id 
 		    )tipoTestePcrTBLabForm
 		    )tipoTestePcrTBLabForm on tipoTestePcrTBLabForm.patient_id=resistenciaRinfapinaLabForm.patient_id and tipoTestePcrTBLabForm.data_resultado=resistenciaRinfapinaLabForm.data_resultado
-		    
-		    
-
 		    union
-
 		    select resistenciaAmikacinaLabForm.patient_id,resistenciaAmikacinaLabForm.data_resultado,resistenciaAmikacinaLabForm.value_coded, "T11" source 
 		    from
 		    (
@@ -480,10 +429,7 @@ select final.*,
 		    group by p.patient_id 
 		    )tipoTestePcrTBLabForm
 		    )tipoTestePcrTBLabForm on tipoTestePcrTBLabForm.patient_id=resistenciaAmikacinaLabForm.patient_id and tipoTestePcrTBLabForm.data_resultado=resistenciaAmikacinaLabForm.data_resultado
-		    
-
 		    union
-
 		    select resistenciakanimicinaLabForm.patient_id,resistenciakanimicinaLabForm.data_resultado,resistenciakanimicinaLabForm.value_coded, "T12" source 
 		    from
 		    (
@@ -507,10 +453,7 @@ select final.*,
 		    group by p.patient_id 
 		    )tipoTestePcrTBLabForm
 		    )tipoTestePcrTBLabForm on tipoTestePcrTBLabForm.patient_id=resistenciakanimicinaLabForm.patient_id and tipoTestePcrTBLabForm.data_resultado=resistenciakanimicinaLabForm.data_resultado
-
 		    union
-
-
 		    select resistenciaCepreomicinaLabForm.patient_id,resistenciaCepreomicinaLabForm.data_resultado,resistenciaCepreomicinaLabForm.value_coded, "T13" source 
 		    from
 		    (
@@ -534,10 +477,7 @@ select final.*,
 		    group by p.patient_id 
 		    )tipoTestePcrTBLabForm
 		    )tipoTestePcrTBLabForm on tipoTestePcrTBLabForm.patient_id=resistenciaCepreomicinaLabForm.patient_id and tipoTestePcrTBLabForm.data_resultado=resistenciaCepreomicinaLabForm.data_resultado
-
-
 		    union
-
 		    select resistenciaEtheonamidaLabForm.patient_id,resistenciaEtheonamidaLabForm.data_resultado,resistenciaEtheonamidaLabForm.value_coded, "T14" source 
 		    from
 		    (
@@ -561,11 +501,7 @@ select final.*,
 		    group by p.patient_id 
 		    )tipoTestePcrTBLabForm
 		    )tipoTestePcrTBLabForm on tipoTestePcrTBLabForm.patient_id=resistenciaEtheonamidaLabForm.patient_id and tipoTestePcrTBLabForm.data_resultado=resistenciaEtheonamidaLabForm.data_resultado
-
-
-
 		    union
-
 		    select resistenciaFloroquinolonaLabForm.patient_id,resistenciaFloroquinolonaLabForm.data_resultado,resistenciaFloroquinolonaLabForm.value_coded, "T15" source 
 		    from
 		    (
@@ -576,7 +512,6 @@ select final.*,
 		    e.location_id=:location and e.encounter_type=13 and obsTestResult.concept_id = 165346
 		    group by p.patient_id 
 		    )resistenciaFloroquinolonaLabForm
-
 		    inner join
 		    (
 		    select tipoTestePcrTBLabForm.patient_id,tipoTestePcrTBLabForm.data_resultado,tipoTestePcrTBLabForm.value_coded, "T9" source 
@@ -589,11 +524,8 @@ select final.*,
 		    e.location_id=:location and e.encounter_type=13 and obsTestResult.concept_id = 165588
 		    group by p.patient_id 
 		    )tipoTestePcrTBLabForm
-		    )tipoTestePcrTBLabForm on tipoTestePcrTBLabForm.patient_id=resistenciaFloroquinolonaLabForm.patient_id and tipoTestePcrTBLabForm.data_resultado=resistenciaFloroquinolonaLabForm.data_resultado
-
-		    
+		    )tipoTestePcrTBLabForm on tipoTestePcrTBLabForm.patient_id=resistenciaFloroquinolonaLabForm.patient_id and tipoTestePcrTBLabForm.data_resultado=resistenciaFloroquinolonaLabForm.data_resultado		    
 		    union
-
 		    select resistenciaIsoneazidaLabForm.patient_id,resistenciaIsoneazidaLabForm.data_resultado,resistenciaIsoneazidaLabForm.value_coded, "T16" source 
 		    from
 		    (
