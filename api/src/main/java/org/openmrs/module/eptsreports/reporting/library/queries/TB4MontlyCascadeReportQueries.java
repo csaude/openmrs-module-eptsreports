@@ -82,7 +82,7 @@ public interface TB4MontlyCascadeReportQueries {
               + "from obs 																																					"
               + "		inner join encounter on encounter.encounter_id = obs.encounter_id 																						"
               + "where encounter.encounter_type = 13 																															"
-              + "		and obs.concept_id in (#)and obs.value_coded in (703,1065) and encounter.voided = 0 and obs.voided =0 and obs.location_id =:location 					"
+              + "		and obs.concept_id in (#)and obs.value_coded in (703,1065,165190,6230,6229,6228,165587) and encounter.voided = 0 and obs.voided =0 and obs.location_id =:location 					"
               + "  	and encounter.encounter_datetime >=:startDate  and encounter.encounter_datetime <=:endDate																";
 
       switch (diagnosticTestType) {
