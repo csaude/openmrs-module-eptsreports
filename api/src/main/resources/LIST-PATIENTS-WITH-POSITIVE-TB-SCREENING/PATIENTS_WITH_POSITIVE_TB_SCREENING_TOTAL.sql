@@ -378,7 +378,7 @@ select final.*,
 		    inner join encounter e on e.patient_id=p.patient_id 
 		    inner join obs obsTestResult on obsTestResult.encounter_id=e.encounter_id 
 		    where p.voided=0 and e.voided=0 and e.encounter_datetime between  :startDate and curdate() and  
-		    e.location_id=:location and e.encounter_type=13 and obsTestResult.concept_id = 165588
+		    e.location_id=:location and e.encounter_type=13 and obsTestResult.concept_id in(165588,23723)
 		    group by p.patient_id 
 		    )tipoTestePcrTBLabForm
 		    union

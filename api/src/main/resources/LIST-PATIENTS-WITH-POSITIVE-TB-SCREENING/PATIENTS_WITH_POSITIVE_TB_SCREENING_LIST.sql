@@ -50,9 +50,9 @@ select final.*,
 		       resultados.resistenciaEtheonamidaLabFormDate,
 		       resultados.resistenciaFloroquinolonaLabFormDate,
 		       resultados.resistenciaIsoneazidaLabFormDate
- from
-(
- select coorte12meses_final.*,maxEnc.encounter_datetime,positiveTbScreening.screeningDate,p.gender
+			 from
+			(
+			 select coorte12meses_final.*,maxEnc.encounter_datetime,positiveTbScreening.screeningDate,p.gender
                   
             from 
             (
@@ -69,7 +69,7 @@ select final.*,
     
 		    inner join 
 		    (
-			select TBPositive.patient_id,TBPositive.data_tratamento screeningDate
+			select TBPositive.patient_id,min(TBPositive.data_tratamento) screeningDate
 			from(
 					select p.patient_id,o.value_datetime data_tratamento                                                           
 					from patient p                                                                                                   
@@ -190,7 +190,7 @@ select final.*,
 					where e.voided=0 and o.voided=0 and p.voided=0                                                             
 			      		and e.encounter_type= 51 and o.concept_id = 23951 and o.value_coded is not null
 			      		and e.location_id=:location  and e.encounter_datetime   between :startDate and :endDate
-			)TBPositive
+			)TBPositive group by TBPositive.patient_id
 		    ) positiveTbScreening on positiveTbScreening.patient_id = coorte12meses_final.patient_id
 		    inner join person p on p.person_id=coorte12meses_final.patient_id        
 		    )final
@@ -351,7 +351,7 @@ select final.*,
 		    inner join obs obsTestResult on obsTestResult.encounter_id=e.encounter_id 
 		    where p.voided=0 and e.voided=0 and e.encounter_datetime between  :startDate and curdate() and  
 		    e.location_id=:location and e.encounter_type=13 and obsTestResult.concept_id = 23723 
-		    and obsTestResult.value_coded in (703, 664) and obsTestResult.voided=0
+		    and obsTestResult.value_coded in (703,664) and obsTestResult.voided=0
 		    )gExpertLabResult
 		    union
 		    select xpertLabResult.patient_id,xpertLabResult.data_resultado,xpertLabResult.value_coded,"T5"
@@ -405,7 +405,7 @@ select final.*,
 		    inner join encounter e on e.patient_id=p.patient_id 
 		    inner join obs obsTestResult on obsTestResult.encounter_id=e.encounter_id 
 		    where p.voided=0 and e.voided=0 and e.encounter_datetime between  :startDate and curdate() and  
-		    e.location_id=:location and e.encounter_type=13 and obsTestResult.concept_id = 165588
+		    e.location_id=:location and e.encounter_type=13 and obsTestResult.concept_id in(165588,23723)
 		    group by p.patient_id 
 		    )tipoTestePcrTBLabForm
 		    union
