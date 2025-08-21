@@ -117,7 +117,7 @@ public class TXTBQueries {
         + "            inner join encounter e on p.patient_id=e.patient_id                                           "
         + "            inner join obs o on o.encounter_id=e.encounter_id                                             "
         + "      where e.voided=0 and o.voided=0 and p.voided=0                                                      "
-        + "            and e.encounter_type in (13, 51) and o.concept_id in(23723, 165588, 23951, 307, 23774)        "
+        + "            and e.encounter_type in (13, 51) and o.concept_id in(23723, 165588, 23951, 307, 23774,165588)        "
         + "            and e.location_id= :location  and e.encounter_datetime   between :startDate and :endDate      "
         + "      union                                                                                               "
         + "      select p.patient_id,e.encounter_datetime data_inicio                                                "
@@ -229,7 +229,7 @@ public class TXTBQueries {
         + "            inner join encounter e on p.patient_id=e.patient_id                                                 "
         + "            inner join obs o on o.encounter_id=e.encounter_id                                                   "
         + "      where e.voided=0 and o.voided=0 and p.voided=0                                                            "
-        + "            and e.encounter_type in (6,13) and o.concept_id in(23774,23951)                                     "
+        + "            and e.encounter_type in (6,13,51) and o.concept_id in(23774,23951)                                     "
         + "            and e.location_id= :location  and e.encounter_datetime   between  :startDate and :endDate           "
         + ")diagnosticTest                                                                                                 ";
   }
