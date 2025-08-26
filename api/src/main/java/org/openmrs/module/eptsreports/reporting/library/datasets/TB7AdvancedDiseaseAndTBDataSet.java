@@ -381,21 +381,21 @@ public class TB7AdvancedDiseaseAndTBDataSet extends BaseDataSet {
     // tb7WithoutGeneExpert
     dataSetDefinition.addColumn(
         "CASCADE2-TI2-WITHOUT-GEN",
-        "Number of clients with positive TB LAM during inclusion period (between (end date - 2 months + 1 day) and (end date - 1 month)) but NOT tested with GeneXpert by report generation date",
+        "Number of clients with positive TB LAM during inclusion period (between (end date - 2 months + 1 day) and (end date - 1 month)) but NOT tested with PCR TB by report generation date",
         EptsReportUtils.map(tb7WithoutGeneExpert, mappings),
         "");
 
     // tb7WithGeneExpert
     dataSetDefinition.addColumn(
         "CASCADE2-TI2-WITH-GEN",
-        "Number of clients with positive TB LAM during inclusion period (between (end date - 2 months + 1 day) and (end date - 1 month)) and also tested with GeneXpert by report generation date",
+        "Number of clients with positive TB LAM during inclusion period (between (end date - 2 months + 1 day) and (end date - 1 month)) and also tested with PCR TB by report generation date",
         EptsReportUtils.map(tb7WithGeneExpert, mappings),
         "");
 
     // tb7WithGeneExpertPositiveResults
     dataSetDefinition.addColumn(
         "CASCADE2-TI2-WITH-GEN-POS",
-        "Number of clients with positive TB LAM during inclusion period (between (end date - 2 months + 1 day) and (end date - 1 month)) and GeneXpert positive for TB by report generation date",
+        "Number of clients with positive TB LAM during inclusion period (between (end date - 2 months + 1 day) and (end date - 1 month)) and PCR TB positive for TB by report generation date",
         EptsReportUtils.map(tb7WithGeneExpertPositiveResults, mappings),
         "");
 
