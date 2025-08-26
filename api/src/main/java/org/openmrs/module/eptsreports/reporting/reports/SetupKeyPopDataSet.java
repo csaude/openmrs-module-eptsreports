@@ -8,17 +8,18 @@ import org.openmrs.module.eptsreports.reporting.library.cohorts.GenericCohortQue
 import org.openmrs.module.eptsreports.reporting.library.datasets.DatimCodeDataSet;
 import org.openmrs.module.eptsreports.reporting.library.datasets.kpdatasets.KeyPopDataSet;
 import org.openmrs.module.eptsreports.reporting.library.queries.BaseQueries;
-import org.openmrs.module.eptsreports.reporting.reports.manager.EptsDataExportManager;
+import org.openmrs.module.eptsreports.reporting.reports.manager.EptsPeriodIndicatorDataExportManager;
 import org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils;
 import org.openmrs.module.reporting.ReportingException;
 import org.openmrs.module.reporting.evaluation.parameter.Mapped;
 import org.openmrs.module.reporting.report.ReportDesign;
+import org.openmrs.module.reporting.report.definition.PeriodIndicatorReportDefinition;
 import org.openmrs.module.reporting.report.definition.ReportDefinition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SetupKeyPopDataSet extends EptsDataExportManager {
+public class SetupKeyPopDataSet extends EptsPeriodIndicatorDataExportManager {
 
   @Autowired private KeyPopDataSet keyPopDataSet;
   @Autowired private GenericCohortQueries genericCohortQueries;
@@ -50,8 +51,8 @@ public class SetupKeyPopDataSet extends EptsDataExportManager {
   }
 
   @Override
-  public ReportDefinition constructReportDefinition() {
-    ReportDefinition rd = new ReportDefinition();
+  public PeriodIndicatorReportDefinition constructReportDefinition() {
+    PeriodIndicatorReportDefinition rd = new PeriodIndicatorReportDefinition();
     rd.setUuid(getUuid());
     rd.setName(getName());
     rd.setDescription(getDescription());
