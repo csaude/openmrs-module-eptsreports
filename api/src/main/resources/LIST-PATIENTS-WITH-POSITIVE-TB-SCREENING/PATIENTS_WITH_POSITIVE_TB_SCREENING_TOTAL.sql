@@ -31,7 +31,7 @@ select final.*,
             (
             %s
             ) coorte12meses_final 
-            inner join
+            left join
             (
 		    Select p.patient_id,max(e.encounter_datetime) encounter_datetime from patient p 
 		    inner join encounter e on p.patient_id=e.patient_id 
