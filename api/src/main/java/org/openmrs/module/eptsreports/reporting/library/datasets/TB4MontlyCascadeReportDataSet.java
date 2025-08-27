@@ -461,31 +461,31 @@ public class TB4MontlyCascadeReportDataSet extends BaseDataSet {
         "TBD-PRL-N-GRADE4",
         " 6a. Screened patients with positive TB testing result TB LAM (Positivity Grade) - grade 4+",
         EptsReportUtils.map(positiveResults, mappings),
-        "tblam-grade-level=four");
+        "diagnostictest=tblam|tblam-grade-level=four");
 
     dataSetDefinition.addColumn(
         "TBD-PRL-N-GRADE3",
         " 6a. Screened patients with positive TB testing result TB LAM (Positivity Grade) - grade 3+",
         EptsReportUtils.map(positiveResults, mappings),
-        "tblam-grade-level=three");
+        "diagnostictest=tblam|tblam-grade-level=three");
 
     dataSetDefinition.addColumn(
         "TBD-PRL-N-GRADE2",
         " 6a. Screened patients with positive TB testing result TB LAM (Positivity Grade) - grade 2+",
         EptsReportUtils.map(positiveResults, mappings),
-        "tblam-grade-level=two");
+        "diagnostictest=tblam|tblam-grade-level=two");
 
     dataSetDefinition.addColumn(
         "TBD-PRL-N-GRADE1",
         " 6a. Screened patients with positive TB testing result TB LAM (Positivity Grade) - grade 1+",
         EptsReportUtils.map(positiveResults, mappings),
-        "tblam-grade-level=one");
+        "diagnostictest=tblam|tblam-grade-level=one");
 
     dataSetDefinition.addColumn(
         "TBD-PRL-N-GRADE0",
         " 6a. Screened patients with positive TB testing result TB LAM (Positivity Grade) - grade not reported",
         EptsReportUtils.map(positiveResults, mappings),
-        "tblam-grade-level=no-level");
+        "diagnostictest=tblam|tblam-grade-level=no-level");
 
     this.addRow(
         dataSetDefinition,
@@ -714,13 +714,13 @@ public class TB4MontlyCascadeReportDataSet extends BaseDataSet {
         "TBD-STBL-GRADE4",
         " 7. Screened patients with pos TB testing result who initiated treatment result TB LAM (Positivity Grade) - grade 4+",
         EptsReportUtils.map(startedTBTreatment, mappings),
-        "tblam-grade-level=four");
+        "diagnostictest=tblam|tblam-grade-level=four");
 
     dataSetDefinition.addColumn(
         "TBD-STBL-GRADE3",
         " 7. Screened patients with pos TB testing result who initiated treatment result TB LAM (Positivity Grade) - grade 3+",
         EptsReportUtils.map(startedTBTreatment, mappings),
-        "tblam-grade-level=three");
+        "diagnostictest=tblam|tblam-grade-level=three");
 
     dataSetDefinition.addColumn(
         "TBD-STBL-GRADE2",
@@ -732,13 +732,13 @@ public class TB4MontlyCascadeReportDataSet extends BaseDataSet {
         "TBD-STBL-GRADE1",
         " 7. Screened patients with pos TB testing result who initiated treatment result TB LAM (Positivity Grade) - grade 1+",
         EptsReportUtils.map(startedTBTreatment, mappings),
-        "tblam-grade-level=one");
+        "diagnostictest=tblam|tblam-grade-level=one");
 
     dataSetDefinition.addColumn(
         "TBD-STBL-GRADE0",
         " 7. Screened patients with pos TB testing result who initiated treatment result TB LAM (Positivity Grade) - grade not reported",
         EptsReportUtils.map(startedTBTreatment, mappings),
-        "tblam-grade-level=no-level");
+        "diagnostictest=tblam|tblam-grade-level=no-level");
 
     this.addRow(
         dataSetDefinition,
