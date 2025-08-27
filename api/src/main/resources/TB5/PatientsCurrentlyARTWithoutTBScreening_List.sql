@@ -974,31 +974,47 @@ select coorte12meses_final.*,
 				) TB_START group by TB_START.patient_id
 			)TB_START on  coorte12meses_final.patient_id = TB_START.patient_id 
 		) coorte12meses_final
-		left join (	
-			select p.patient_id, o.obs_datetime, o.value_coded 
-			from patient p
-		  		inner join encounter e on e.patient_id = p.patient_id
-		  		inner join obs o on o.encounter_id = e.encounter_id
-		 	where p.voided = 0 and e.voided = 0 and o.voided = 0
-		 	 	and e.encounter_type = 18 and e.location_id = :location and o.concept_id=165174
-		) obs_dispensa on coorte12meses_final.patient_id = obs_dispensa.patient_id and obs_dispensa.obs_datetime =  coorte12meses_final.data_fila
-		                                          
-		left join (	
-			select p.patient_id, o.obs_datetime, o.value_datetime
-			from patient p
-		  		inner join encounter e on e.patient_id = p.patient_id
-		  		inner join obs o on o.encounter_id = e.encounter_id
-		 	where p.voided = 0 and e.voided = 0 and o.voided = 0
-		 	 	and e.encounter_type in(6,9) and e.location_id = :location and o.concept_id=1410
-		) obs_seguimento on coorte12meses_final.patient_id = obs_seguimento.patient_id and obs_seguimento.obs_datetime =  coorte12meses_final.data_seguimento
-		
 		left join (
-			select p.patient_id, o.obs_datetime, o.value_coded 
+				select maxFila.patient_id,o.obs_datetime, o.value_coded from (
+					select p.patient_id, max(e.encounter_datetime) encounter_datetime
 			from patient p
 		  		inner join encounter e on e.patient_id = p.patient_id
+		 	where p.voided = 0 and e.voided = 0 and e.encounter_datetime <= :endDate
+		 	 	and e.encounter_type = 18 and e.location_id = :location
+		 	 	group by p.patient_id
+		 	 	) maxFila inner join
+		 	 	 encounter e on maxFila.patient_id = e.patient_id
 		  		inner join obs o on o.encounter_id = e.encounter_id
-		 	where p.voided = 0 and e.voided = 0 and o.voided = 0
-		 		and e.encounter_type in(6,9) and e.location_id = :location and o.concept_id=23739
-		) obs_seguimento_dispensa on coorte12meses_final.patient_id = obs_seguimento_dispensa.patient_id and obs_seguimento_dispensa.obs_datetime =  coorte12meses_final.data_seguimento     
-		group by coorte12meses_final.patient_id      
+		 	where e.voided = 0 and o.voided = 0 and e.encounter_datetime = maxFila.encounter_datetime
+		 	 	and e.encounter_type = 18 and e.location_id = :location and o.concept_id=165174
+		) obs_dispensa on coorte12meses_final.patient_id = obs_dispensa.patient_id                                          
+		left join (	
+			select maxSeguimento.patient_id, o.obs_datetime, o.value_datetime from (
+					select p.patient_id, max(e.encounter_datetime) encounter_datetime
+			from patient p
+		  		inner join encounter e on e.patient_id = p.patient_id
+		 	where p.voided = 0 and e.voided = 0 and e.encounter_datetime <= :endDate
+		 	 	and e.encounter_type in (6,9) and e.location_id = :location
+		 	 	group by p.patient_id
+		 	 	) maxSeguimento inner join
+		 	 	 encounter e on maxSeguimento.patient_id = e.patient_id
+		  		inner join obs o on o.encounter_id = e.encounter_id
+		 	where e.voided = 0 and o.voided = 0 and e.encounter_datetime = maxSeguimento.encounter_datetime
+		 	 	and e.encounter_type in (6,9) and e.location_id = :location and o.concept_id=1410
+		) obs_seguimento on coorte12meses_final.patient_id = obs_seguimento.patient_id
+		left join (
+			select maxSeguimento.patient_id, o.obs_datetime, o.value_coded from (
+					select p.patient_id, max(e.encounter_datetime) encounter_datetime
+			from patient p
+		  		inner join encounter e on e.patient_id = p.patient_id
+		 	where p.voided = 0 and e.voided = 0 and e.encounter_datetime <= :endDate
+		 	 	and e.encounter_type in (6,9) and e.location_id = :location
+		 	 	group by p.patient_id
+		 	 	) maxSeguimento inner join
+		 	 	 encounter e on maxSeguimento.patient_id = e.patient_id
+		  		inner join obs o on o.encounter_id = e.encounter_id
+		 	where e.voided = 0 and o.voided = 0 and e.encounter_datetime = maxSeguimento.encounter_datetime
+		 	 	and e.encounter_type in (6,9) and e.location_id = :location and o.concept_id=23739
+		) obs_seguimento_dispensa on coorte12meses_final.patient_id = obs_seguimento_dispensa.patient_id  
+		group by coorte12meses_final.patient_id     
  
