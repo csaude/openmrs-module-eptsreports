@@ -303,7 +303,7 @@ public interface Eri2MonthsQueriesInterface {
               + "where ultimoFila.encounter_datetime<=allSaida.data_estado "
               + ") allSaida "
               + "group by patient_id "
-              + ") saida ON inicio_real.patient_id=saida.patient_id and saida.data_estado BETWEEN inicio_real.art_start_date and (:endDate + INTERVAL 3 DAY) "
+              + ") saida ON inicio_real.patient_id=saida.patient_id  "
               + "LEFT JOIN "
               + "( "
               + "SELECT f.patient_id FROM "
