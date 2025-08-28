@@ -10,19 +10,20 @@ import org.openmrs.module.eptsreports.reporting.library.datasets.DatimCodeDataSe
 import org.openmrs.module.eptsreports.reporting.library.datasets.SismaCodeDataSet;
 import org.openmrs.module.eptsreports.reporting.library.datasets.TB4MontlyCascadeReportDataSet;
 import org.openmrs.module.eptsreports.reporting.library.queries.BaseQueries;
-import org.openmrs.module.eptsreports.reporting.reports.manager.EptsDataExportManager;
+import org.openmrs.module.eptsreports.reporting.reports.manager.EptsPeriodIndicatorDataExportManager;
 import org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils;
 import org.openmrs.module.reporting.ReportingConstants;
 import org.openmrs.module.reporting.ReportingException;
 import org.openmrs.module.reporting.evaluation.parameter.Mapped;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.report.ReportDesign;
+import org.openmrs.module.reporting.report.definition.PeriodIndicatorReportDefinition;
 import org.openmrs.module.reporting.report.definition.ReportDefinition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SetupTB4Report extends EptsDataExportManager {
+public class SetupTB4Report extends EptsPeriodIndicatorDataExportManager {
 
   @Autowired private GenericCohortQueries genericCohortQueries;
 
@@ -48,7 +49,7 @@ public class SetupTB4Report extends EptsDataExportManager {
 
   @Override
   public String getName() {
-    return "TB4: Relatório Cascata Mensal de TX_TB";
+    return "TB4: Relatorio Cascata Mensal de TX_TB";
   }
 
   @Override
@@ -57,8 +58,8 @@ public class SetupTB4Report extends EptsDataExportManager {
   }
 
   @Override
-  public ReportDefinition constructReportDefinition() {
-    ReportDefinition reportDefinition = new ReportDefinition();
+  public PeriodIndicatorReportDefinition constructReportDefinition() {
+    PeriodIndicatorReportDefinition reportDefinition = new PeriodIndicatorReportDefinition();
     reportDefinition.setUuid(getUuid());
     reportDefinition.setName(getName());
     reportDefinition.setDescription(getDescription());
