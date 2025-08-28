@@ -344,7 +344,7 @@ public interface TB7AdvancedDiseaseQueries {
             + "select p.patient_id 																					"
             + "from patient p   																					"
             + "		inner join encounter e on e.patient_id=p.patient_id                                        		"
-            + "		left join obs o on (e.encounter_id = o.encounter_id and o.voided=0 and o.concept_id=165189)     "
+            + "		left join obs o on (e.encounter_id = o.encounter_id and o.voided=0 and o.concept_id=165588)     "
             + "where p.voided=0 and  e.voided=0 and e.encounter_type = 13                                           "
             + "    and  e.location_id=:location and e.encounter_datetime between :endDate and CURDATE()             "
             + "    and o.concept_id  %s 																			";
@@ -363,8 +363,8 @@ public interface TB7AdvancedDiseaseQueries {
             + "select p.patient_id 																					"
             + "from patient p   																					"
             + "		inner join encounter e on e.patient_id=p.patient_id                                        		"
-            + "		left join obs o on e.encounter_id = o.encounter_id 											     "
-            + "where p.voided=0 and  e.voided=0 and e.encounter_type = 13 and o.voided=0 and o.concept_id=165189  and o.value_coded = 1065   "
+            + "		inner join obs o on e.encounter_id = o.encounter_id 											     "
+            + "where p.voided=0 and  e.voided=0 and e.encounter_type = 13 and o.voided=0 and o.concept_id=165588 and o.value_coded in (703,165190,6230,6229,6228,165587)"
             + "    and  e.location_id=:location and e.encounter_datetime between :endDate and CURDATE()             ";
 
     public static final String findPatientsWhoInitiatedTBTreatment =

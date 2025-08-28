@@ -26,7 +26,7 @@ public class SummaryCohortQuery {
   public CohortDefinition getEC1Total() {
 
     final SqlCohortDefinition definition = new SqlCohortDefinition();
-    definition.setName("EC1");
+    definition.setName("EC1 - Sumario");
     definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
     definition.addParameter(new Parameter("endDate", "End Date", Date.class));
     definition.addParameter(new Parameter("location", "Location", Location.class));
@@ -41,7 +41,7 @@ public class SummaryCohortQuery {
   public CohortDefinition getEC2Total() {
 
     final SqlCohortDefinition definition = new SqlCohortDefinition();
-    definition.setName("EC2");
+    definition.setName("EC2 - Sumario");
     definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
     definition.addParameter(new Parameter("endDate", "End Date", Date.class));
     definition.addParameter(new Parameter("location", "Location", Location.class));
@@ -56,7 +56,7 @@ public class SummaryCohortQuery {
   public CohortDefinition getEC5Total() {
 
     final SqlCohortDefinition definition = new SqlCohortDefinition();
-    definition.setName("EC5");
+    definition.setName("EC5 - Sumario");
     definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
     definition.addParameter(new Parameter("endDate", "End Date", Date.class));
     definition.addParameter(new Parameter("location", "Location", Location.class));
@@ -71,7 +71,7 @@ public class SummaryCohortQuery {
   public CohortDefinition getEC6Total() {
 
     final SqlCohortDefinition definition = new SqlCohortDefinition();
-    definition.setName("EC6");
+    definition.setName("EC6 - Sumario");
     definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
     definition.addParameter(new Parameter("endDate", "End Date", Date.class));
     definition.addParameter(new Parameter("location", "Location", Location.class));
@@ -86,7 +86,7 @@ public class SummaryCohortQuery {
   public CohortDefinition getEC7Total() {
 
     final SqlCohortDefinition definition = new SqlCohortDefinition();
-    definition.setName("EC7");
+    definition.setName("EC7 - Sumario");
     definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
     definition.addParameter(new Parameter("endDate", "End Date", Date.class));
     definition.addParameter(new Parameter("location", "Location", Location.class));
@@ -101,7 +101,7 @@ public class SummaryCohortQuery {
   public CohortDefinition getEC8Total() {
 
     final SqlCohortDefinition definition = new SqlCohortDefinition();
-    definition.setName("EC8");
+    definition.setName("EC8 - Sumario");
     definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
     definition.addParameter(new Parameter("endDate", "End Date", Date.class));
     definition.addParameter(new Parameter("location", "Location", Location.class));
@@ -116,7 +116,7 @@ public class SummaryCohortQuery {
   public CohortDefinition getEC9Total() {
 
     final SqlCohortDefinition definition = new SqlCohortDefinition();
-    definition.setName("EC9");
+    definition.setName("EC9 - Sumario");
     definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
     definition.addParameter(new Parameter("endDate", "End Date", Date.class));
     definition.addParameter(new Parameter("location", "Location", Location.class));
@@ -131,7 +131,7 @@ public class SummaryCohortQuery {
   public CohortDefinition getEC15Total() {
 
     final SqlCohortDefinition definition = new SqlCohortDefinition();
-    definition.setName("EC15");
+    definition.setName("EC15 - Sumario");
     definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
     definition.addParameter(new Parameter("endDate", "End Date", Date.class));
     definition.addParameter(new Parameter("location", "Location", Location.class));
@@ -146,7 +146,7 @@ public class SummaryCohortQuery {
   public CohortDefinition getEC20Total() {
 
     final SqlCohortDefinition definition = new SqlCohortDefinition();
-    definition.setName("EC20");
+    definition.setName("EC20 - Sumario");
     definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
     definition.addParameter(new Parameter("endDate", "End Date", Date.class));
     definition.addParameter(new Parameter("location", "Location", Location.class));
@@ -161,7 +161,7 @@ public class SummaryCohortQuery {
   public CohortDefinition getEC23Total() {
 
     final SqlCohortDefinition definition = new SqlCohortDefinition();
-    definition.setName("EC23");
+    definition.setName("EC23 - Sumario");
     definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
     definition.addParameter(new Parameter("endDate", "End Date", Date.class));
     definition.addParameter(new Parameter("location", "Location", Location.class));
@@ -176,7 +176,7 @@ public class SummaryCohortQuery {
   public CohortDefinition getEC24Total() {
 
     final SqlCohortDefinition definition = new SqlCohortDefinition();
-    definition.setName("EC24");
+    definition.setName("EC24 - Sumario");
     definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
     definition.addParameter(new Parameter("endDate", "End Date", Date.class));
     definition.addParameter(new Parameter("location", "Location", Location.class));
@@ -191,7 +191,7 @@ public class SummaryCohortQuery {
   public CohortDefinition getEC25Total() {
 
     final SqlCohortDefinition definition = new SqlCohortDefinition();
-    definition.setName("EC25");
+    definition.setName("EC25 - Sumario");
     definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
     definition.addParameter(new Parameter("endDate", "End Date", Date.class));
     definition.addParameter(new Parameter("location", "Location", Location.class));
@@ -206,7 +206,7 @@ public class SummaryCohortQuery {
   public CohortDefinition getEC26Total() {
 
     final SqlCohortDefinition definition = new SqlCohortDefinition();
-    definition.setName("EC26");
+    definition.setName("EC26 - Sumario");
     definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
     definition.addParameter(new Parameter("endDate", "End Date", Date.class));
     definition.addParameter(new Parameter("location", "Location", Location.class));

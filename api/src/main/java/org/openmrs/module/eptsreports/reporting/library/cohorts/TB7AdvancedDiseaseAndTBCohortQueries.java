@@ -72,13 +72,6 @@ public class TB7AdvancedDiseaseAndTBCohortQueries {
         "ART-RESTART",
         Mapped.mapStraightThrough(findPatientsWhoReinitiatedARTTreatmentAndHaveCD4Count()));
 
-    definition.addSearch(
-        "TRANSFERREDOUT",
-        Mapped.mapStraightThrough(this.findPatientsWhoAreTransferredOutByReportGenerationDate()));
-
-    definition.addSearch(
-        "DEAD", Mapped.mapStraightThrough(this.findPatientsWhoAreDeadByReportGenerationDate()));
-
     definition.setCompositionString("CD4-TXNEW or PREGNANT or HIGH-VL or ART-RESTART");
 
     return definition;
@@ -151,7 +144,14 @@ public class TB7AdvancedDiseaseAndTBCohortQueries {
     definition.addSearch(
         "FR12", Mapped.mapStraightThrough(this.findPatientsWithImmunoSupression()));
 
-    definition.setCompositionString("FR12");
+    definition.addSearch(
+        "TRANSFERREDOUT",
+        Mapped.mapStraightThrough(this.findPatientsWhoAreTransferredOutByReportGenerationDate()));
+
+    definition.addSearch(
+        "DEAD", Mapped.mapStraightThrough(this.findPatientsWhoAreDeadByReportGenerationDate()));
+
+    definition.setCompositionString("FR12 NOT (TRANSFERREDOUT OR DEAD)");
 
     return definition;
   }
@@ -173,13 +173,7 @@ public class TB7AdvancedDiseaseAndTBCohortQueries {
     definition.addSearch(
         "TBLAM", Mapped.mapStraightThrough(this.findPatientsWhoHaveTBLAMResults()));
 
-    definition.addSearch(
-        "TRANSFERREDOUT",
-        Mapped.mapStraightThrough(this.findPatientsWhoAreTransferredOutByReportGenerationDate()));
-    definition.addSearch(
-        "DEAD", Mapped.mapStraightThrough(this.findPatientsWhoAreDeadByReportGenerationDate()));
-
-    definition.setCompositionString("(DENOMINATOR and TBLAM) NOT (TRANSFERREDOUT OR DEAD)");
+    definition.setCompositionString("DENOMINATOR and TBLAM");
 
     return definition;
   }
