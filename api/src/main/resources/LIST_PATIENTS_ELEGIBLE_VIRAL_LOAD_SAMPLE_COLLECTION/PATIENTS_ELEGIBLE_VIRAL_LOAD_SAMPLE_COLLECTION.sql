@@ -4,27 +4,27 @@
             per.birthdate, 
             TIMESTAMPDIFF(YEAR,per.birthdate,:endDate) idade_actual, 
             per.gender, 
-            elegivelAColheitaCV.data_inicio, 
+            date(elegivelAColheitaCV.data_inicio), 
            regime.ultimo_regime regime_tarv, 
            linha.valorLinha linha_terapeutica, 
             pat.value contacto, 
-            consulta.data_consulta data_ultima_consulta, 
-            consulta.proxima_consulta data_proxima_consulta, 
-            levantamento.data_levantamento_fila data_ultimo_fila, 
-            levantamento.proximo_levantamento_fila data_proximo_fila, 
-            levantamentoRecepcao.data_levantamento_recepcao data_recepcao_levantou, 
-            levantamentoRecepcao.proximo_levantamento_recepcao data_recepcao_levantou30, 
-            ultimaCarga.data_carga,
+            date(consulta.data_consulta) data_ultima_consulta, 
+            date(consulta.proxima_consulta) data_proxima_consulta, 
+            date(levantamento.data_levantamento_fila) data_ultimo_fila, 
+            date(levantamento.proximo_levantamento_fila) data_proximo_fila, 
+            date(levantamentoRecepcao.data_levantamento_recepcao) data_recepcao_levantou, 
+            date(levantamentoRecepcao.proximo_levantamento_recepcao) data_recepcao_levantou30, 
+            date(ultimaCarga.data_carga) data_carga,
             ultimaCarga.valor_carga,
-            vl.vl_request,
+            date(vl.vl_request) vl_request,
             sessoesApss.nrapss sessoes,
-            IF(ISNULL(keyPop.obs_datetime), 'N/A', DATE_FORMAT(keyPop.obs_datetime, '%%d-%%m-%%Y')) AS fcWithKeyPopDate,
+            IF(ISNULL(keyPop.obs_datetime), 'N/A', date(keyPop.obs_datetime)) AS fcWithKeyPopDate,
             IF(ISNULL(keyPop.value_coded) OR keyPop.value_coded<>1377, '', 'S') AS keyPopHSH,
 			IF(ISNULL(keyPop.value_coded) OR keyPop.value_coded<>20454, '', 'S') AS keyPopPID,
 			IF(ISNULL(keyPop.value_coded) OR keyPop.value_coded<>20426, '', 'S') AS keyPopREC,
 			IF(ISNULL(keyPop.value_coded) OR keyPop.value_coded<>1901, '', 'S') AS keyPopTS,
-			IF(ISNULL(patOVCEntryDate.value), 'N/A', DATE_FORMAT(patOVCEntryDate.value, '%%d-%%m-%%Y')) AS oVCEntryDate,
-			IF(ISNULL(patOVCExitDate.value), 'N/A', DATE_FORMAT(patOVCExitDate.value, '%%d-%%m-%%Y')) AS OVCExitDate,
+			IF(ISNULL(patOVCEntryDate.value), 'N/A', date(patOVCEntryDate.value)) AS oVCEntryDate,
+			IF(ISNULL(patOVCExitDate.value), 'N/A',date(patOVCExitDate.value)) AS OVCExitDate,
 			IF(ISNULL(patOVCStatus.value), 'N/A', patOVCStatus.value) AS OVCStatus,
 			   case 
 			when estadoPermanencia.RespostaEstadoPermanencia = 1 then 'Abandono' 
@@ -33,7 +33,7 @@
 			when estadoPermanencia.RespostaEstadoPermanencia = 3 then 'Suspenso' 
 			when ISNULL(estadoPermanencia.RespostaEstadoPermanencia) then 'N/A' 
 			end as ultimoEstadoPermanencia,
-			 IF(ISNULL(estadoPermanencia.data_estado), 'N/A', DATE_FORMAT(estadoPermanencia.data_estado, '%%d-%%m-%%Y')) AS data_estado
+			 IF(ISNULL(estadoPermanencia.data_estado), 'N/A',date(estadoPermanencia.data_estado)) AS data_estado
             from 
             ( 
 			select distinct txCurr.patient_id,
