@@ -4,7 +4,7 @@
             per.birthdate, 
             TIMESTAMPDIFF(YEAR,per.birthdate,:endDate) idade_actual, 
             per.gender, 
-            date(elegivelAColheitaCV.data_inicio), 
+            date(elegivelAColheitaCV.data_inicio) data_inicio, 
            regime.ultimo_regime regime_tarv, 
            linha.valorLinha linha_terapeutica, 
             pat.value contacto, 
@@ -18,7 +18,10 @@
             ultimaCarga.valor_carga,
             date(vl.vl_request) vl_request,
             sessoesApss.nrapss sessoes,
-            IF(ISNULL(keyPop.obs_datetime), 'N/A', date(keyPop.obs_datetime)) AS fcWithKeyPopDate,
+			CASE
+			    WHEN keyPop.obs_datetime IS NULL THEN NULL
+			    ELSE date(keyPop.obs_datetime)
+			END AS fcWithKeyPopDate,
             IF(ISNULL(keyPop.value_coded) OR keyPop.value_coded<>1377, '', 'S') AS keyPopHSH,
 			IF(ISNULL(keyPop.value_coded) OR keyPop.value_coded<>20454, '', 'S') AS keyPopPID,
 			IF(ISNULL(keyPop.value_coded) OR keyPop.value_coded<>20426, '', 'S') AS keyPopREC,
