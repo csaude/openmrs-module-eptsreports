@@ -13,7 +13,7 @@ select           TB6.patient_id as patient_id,
 		         DATE_FORMAT(DATE(TB6.tbTreatmentInitialDate), '%%d/%%m/%%Y') as tbTreatmentInitialDate,
 		         DATE_FORMAT(DATE(TB6.tbTretment6MonthsDate), '%%d/%%m/%%Y') as tbTretment6MonthsDate,
 		         DATE_FORMAT(DATE(TB6.lastGenExpertResultDate), '%%d/%%m/%%Y') as lastGenExpertResultDate,
-		         case TB6.tipoTestePcrTBLabFormDate when 664 then 'Negativo' when 703 then 'Positivo'  when 165190 then 'Traco' when 6230 then 'Detectado - Alto' when 6229 then 'Detectado - Médio' when 6228 then 'Detectado - Baixo' when 165587 then 'Detectado- Muito Baixo'  else null end as tipoTestePcrTBLabFormDate, 
+		         case TB6.tipoTestePcrTBLabFormDate when 664 then 'Negativo' when 703 then 'Positivo'  when 165190 then 'Traços' when 6230 then 'Detectado - Alto' when 6229 then 'Detectado - Médio' when 6228 then 'Detectado - Baixo' when 165587 then 'Detectado- Muito Baixo'  else null end as tipoTestePcrTBLabFormDate, 
 		         if(TB6.lastGenExpertResultDate = 703, 'Positivo',if(TB6.lastGenExpertResultDate = 664, 'Negativo','')) as genExpertResult,
 		         if(TB6.resistenciaRinfapinaLabFormDate = 1065, 'Resistência Detectada',if(TB6.resistenciaRinfapinaLabFormDate = 1066, 'Resistência Não-Detectada ',if(TB6.resistenciaRinfapinaLabFormDate = 1138, 'Indeterminado',''))) as resistenciaRinfapinaLabFormDate,
 			     if(TB6.resistenciakanimicinaLabFormDate = 1065, 'Resistência Detectada',if(TB6.resistenciakanimicinaLabFormDate = 1066, 'Resistência Não-Detectada ',if(TB6.resistenciakanimicinaLabFormDate = 1138, 'Indeterminado',''))) as resistenciakanimicinaLabFormDate,
@@ -118,13 +118,13 @@ select final.*,
 					where pg.voided=0 and p.voided=0 and program_id=5 and location_id=:location  
 			        	and date_enrolled between :startDate and :endDate
 			        union
-					select p.patient_id,e.encounter_datetime data_tratamento                                                           
+					select p.patient_id,o.obs_datetime data_tratamento                                                           
 					from patient p                                                                                                   
 						inner join encounter e on p.patient_id=e.patient_id                                                         
 						inner join obs o on o.encounter_id=e.encounter_id                                                           
 					where e.voided=0 and o.voided=0 and p.voided=0                                                                 
 						and e.encounter_type=6 and o.concept_id=1268 and o.value_coded=1256  and e.location_id=:location 
-					    and  e.encounter_datetime  between :startDate and  :endDate
+					    and  o.obs_datetime  between :startDate and  :endDate
 					union
 					select p.patient_id,e.encounter_datetime data_tratamento                                                           
 					from patient p                                                                                                   
