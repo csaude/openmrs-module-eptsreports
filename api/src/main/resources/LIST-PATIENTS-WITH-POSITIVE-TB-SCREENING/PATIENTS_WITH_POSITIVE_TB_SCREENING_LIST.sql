@@ -13,7 +13,7 @@ select           TB6.patient_id as patient_id,
 		         DATE_FORMAT(DATE(TB6.tbTreatmentInitialDate), '%%d/%%m/%%Y') as tbTreatmentInitialDate,
 		         DATE_FORMAT(DATE(TB6.tbTretment6MonthsDate), '%%d/%%m/%%Y') as tbTretment6MonthsDate,
 		         DATE_FORMAT(DATE(TB6.lastGenExpertResultDate), '%%d/%%m/%%Y') as lastGenExpertResultDate,
-		         case TB6.tipoTestePcrTBLabFormDate when 664 then 'Negativo' when 703 then 'Positivo'  when 165190 then 'Traços' when 6230 then 'Detectado - Alto' when 6229 then 'Detectado - Médio' when 6228 then 'Detectado - Baixo' when 165587 then 'Detectado- Muito Baixo'  else null end as tipoTestePcrTBLabFormDate, 
+		         case TB6.tipoTestePcrTBLabFormDate when 664 then 'Não Detectado' when 703 then 'Detectado'  when 165190 then 'Traços' when 6230 then 'Detectado - Alto' when 6229 then 'Detectado - Médio' when 6228 then 'Detectado - Baixo' when 165587 then 'Detectado- Muito Baixo'  else null end as tipoTestePcrTBLabFormDate, 
 		         if(TB6.lastGenExpertResultDate = 703, 'Positivo',if(TB6.lastGenExpertResultDate = 664, 'Negativo','')) as genExpertResult,
 		         if(TB6.resistenciaRinfapinaLabFormDate = 1065, 'Resistência Detectada',if(TB6.resistenciaRinfapinaLabFormDate = 1066, 'Resistência Não-Detectada ',if(TB6.resistenciaRinfapinaLabFormDate = 1138, 'Indeterminado',''))) as resistenciaRinfapinaLabFormDate,
 			     if(TB6.resistenciakanimicinaLabFormDate = 1065, 'Resistência Detectada',if(TB6.resistenciakanimicinaLabFormDate = 1066, 'Resistência Não-Detectada ',if(TB6.resistenciakanimicinaLabFormDate = 1138, 'Indeterminado',''))) as resistenciakanimicinaLabFormDate,
@@ -401,12 +401,11 @@ select final.*,
 		    select tipoTestePcrTBLabForm.patient_id,tipoTestePcrTBLabForm.data_resultado,tipoTestePcrTBLabForm.value_coded, "T9" source 
 		    from
 		    (
-		    select p.patient_id, max(e.encounter_datetime) data_resultado, obsTestResult.value_coded  from patient p 
+		    select p.patient_id, e.encounter_datetime data_resultado, obsTestResult.value_coded  from patient p 
 		    inner join encounter e on e.patient_id=p.patient_id 
 		    inner join obs obsTestResult on obsTestResult.encounter_id=e.encounter_id 
 		    where p.voided=0 and e.voided=0 and e.encounter_datetime between  :startDate and curdate() and  
-		    e.location_id=:location and e.encounter_type=13 and obsTestResult.concept_id in(165588,23723)
-		    group by p.patient_id 
+		    e.location_id=:location and e.encounter_type=13 and obsTestResult.concept_id=165588
 		    )tipoTestePcrTBLabForm
 		    union
 		    select resistenciaRinfapinaLabForm.patient_id,resistenciaRinfapinaLabForm.data_resultado,resistenciaRinfapinaLabForm.value_coded, "T10" source 
