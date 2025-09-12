@@ -13,7 +13,7 @@ select           TB6.patient_id as patient_id,
 		         DATE_FORMAT(DATE(TB6.tbTreatmentInitialDate), '%%d/%%m/%%Y') as tbTreatmentInitialDate,
 		         DATE_FORMAT(DATE(TB6.tbTretment6MonthsDate), '%%d/%%m/%%Y') as tbTretment6MonthsDate,
 		         DATE_FORMAT(DATE(TB6.lastGenExpertResultDate), '%%d/%%m/%%Y') as lastGenExpertResultDate,
-		         case TB6.tipoTestePcrTBLabFormDate when 664 then 'Não Detectado' when 703 then 'Detectado'  when 165190 then 'Traços' when 6230 then 'Detectado - Alto' when 6229 then 'Detectado - Médio' when 6228 then 'Detectado - Baixo' when 165587 then 'Detectado- Muito Baixo'  else null end as tipoTestePcrTBLabFormDate, 
+		         tipoTestePcrTBLabForm.decisao as tipoTestePcrTBLabFormDate,		         
 		         if(TB6.lastGenExpertResultDate = 703, 'Positivo',if(TB6.lastGenExpertResultDate = 664, 'Negativo','')) as genExpertResult,
 		         if(TB6.resistenciaRinfapinaLabFormDate = 1065, 'Resistência Detectada',if(TB6.resistenciaRinfapinaLabFormDate = 1066, 'Resistência Não-Detectada ',if(TB6.resistenciaRinfapinaLabFormDate = 1138, 'Indeterminado',''))) as resistenciaRinfapinaLabFormDate,
 			     if(TB6.resistenciakanimicinaLabFormDate = 1065, 'Resistência Detectada',if(TB6.resistenciakanimicinaLabFormDate = 1066, 'Resistência Não-Detectada ',if(TB6.resistenciakanimicinaLabFormDate = 1138, 'Indeterminado',''))) as resistenciakanimicinaLabFormDate,
@@ -405,7 +405,7 @@ select final.*,
 		    inner join encounter e on e.patient_id=p.patient_id 
 		    inner join obs obsTestResult on obsTestResult.encounter_id=e.encounter_id 
 		    where p.voided=0 and e.voided=0 and e.encounter_datetime between  :startDate and curdate() and  
-		    e.location_id=:location and e.encounter_type=13 and obsTestResult.concept_id=165588
+		    e.location_id=:location and e.encounter_type=13 and obsTestResult.concept_id in(165588,23723)
 		    )tipoTestePcrTBLabForm
 		    union
 		    select resistenciaRinfapinaLabForm.patient_id,resistenciaRinfapinaLabForm.data_resultado,resistenciaRinfapinaLabForm.value_coded, "T10" source 
@@ -619,8 +619,45 @@ select final.*,
                 where pid1.patient_id=pid2.patient_id and pid1.patient_identifier_id=pid2.id 
             ) pid on pid.patient_id=TB6.patient_id 
             left join person_attribute pat on pat.person_id=TB6.patient_id and pat.person_attribute_type_id=9 and pat.value is not null and pat.value <> '' and pat.voided=0 
-                left join
-    (
+            left join
+            (
+				select f.patient_id,
+				       case
+				         when f.concept_id = 23723 and f.value_coded = 664 then 'Negativo'
+				         when f.concept_id = 23723 and f.value_coded = 703 then 'Positivo'
+				         when f.concept_id = 165588 and f.value_coded = 664 then 'Não Detectado'
+				         when f.concept_id = 165588 and f.value_coded = 703 then 'Detectado'
+				         when f.concept_id = 165588 and f.value_coded = 165190 then 'Traços'
+				         when f.concept_id = 165588 and f.value_coded = 6230 then 'Detectado - Alto'
+				         when f.concept_id = 165588 and f.value_coded = 6229 then 'Detectado - Médio'
+				         when f.concept_id = 165588 and f.value_coded = 6228 then 'Detectado - Baixo'
+				         when f.concept_id = 165588 and f.value_coded = 165587 then 'Detectado - Muito Baixo'
+				         else 'Outro'
+				       end as decisao
+				from (
+				    select tipoTestePcrTBLabForm.patient_id,
+				           tipoTestePcrTBLabForm.data_resultado,
+				           tipoTestePcrTBLabForm.concept_id,
+				           tipoTestePcrTBLabForm.value_coded
+				    from (
+				        select p.patient_id,
+				               e.encounter_datetime as data_resultado,
+				               obsTestResult.concept_id,
+				               obsTestResult.value_coded  
+				        from patient p 
+				        inner join encounter e on e.patient_id = p.patient_id 
+				        inner join obs obsTestResult on obsTestResult.encounter_id = e.encounter_id 
+				        where p.voided = 0 
+				          and e.voided = 0 
+				          and e.encounter_datetime between :startDate and curdate() 
+				          and e.location_id=:location 
+				          and e.encounter_type = 13 
+				          and obsTestResult.concept_id in (165588,23723)
+				    ) tipoTestePcrTBLabForm 
+				) f
+            )tipoTestePcrTBLabForm on tipoTestePcrTBLabForm.patient_id=TB6.patient_id
+            left join
+            (
     				select patient_id,data_inicio from 
 							(
 								  select patient_id, min(data_inicio) data_inicio 
