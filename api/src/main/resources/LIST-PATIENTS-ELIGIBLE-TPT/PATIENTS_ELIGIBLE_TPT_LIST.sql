@@ -1526,7 +1526,7 @@ where e.voided=0 and obs3hp.voided=0 and obsTipo.voided=0
       		inner join encounter e on p.patient_id=e.patient_id                                                         
       		inner join obs o on o.encounter_id=e.encounter_id
 		where e.voided=0 and o.voided=0 and p.voided=0                                                             
-     		and e.encounter_type=13 and o.concept_id  in(307, 23723, 23724, 23951, 165189) and o.value_coded is not null
+     		and e.encounter_type=13 and o.concept_id  in(307, 23723, 23774, 23951, 165189) and o.value_coded is not null
       		and e.location_id=:location  and e.encounter_datetime   between (:endDate - INTERVAL 14 DAY) and :endDate
 		
  		union

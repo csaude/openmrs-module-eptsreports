@@ -13,13 +13,16 @@ package org.openmrs.module.eptsreports.reporting.library.cohorts;
 
 import java.util.Arrays;
 import java.util.Date;
+import org.apache.commons.lang.StringUtils;
 import org.openmrs.Location;
 import org.openmrs.module.eptsreports.metadata.HivMetadata;
 import org.openmrs.module.eptsreports.metadata.TbMetadata;
 import org.openmrs.module.eptsreports.reporting.library.queries.TB4MontlyCascadeReportQueries;
 import org.openmrs.module.eptsreports.reporting.library.queries.TB4MontlyCascadeReportQueries.QUERY.DiagnosticTestTypes;
 import org.openmrs.module.eptsreports.reporting.library.queries.TB4MontlyCascadeReportQueries.QUERY.EnrollmentPeriod;
+import org.openmrs.module.eptsreports.reporting.library.queries.TB7AdvancedDiseaseQueries.QUERY.PositivityLevel;
 import org.openmrs.module.eptsreports.reporting.library.queries.TXTBQueries;
+import org.openmrs.module.eptsreports.reporting.utils.EptsQuerysUtils;
 import org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.CompositionCohortDefinition;
@@ -683,5 +686,254 @@ public class TB4MontlyCascadeCohortQueries {
     cd.addParameter(new Parameter("startDate", "Start Date", Date.class));
     cd.addParameter(new Parameter("endDate", "End Date", Date.class));
     cd.addParameter(new Parameter("location", "Location", Location.class));
+  }
+
+  public CohortDefinition getNumberOfClientsWithGradeFourLevelPositiveTBLAMResults() {
+
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+    definition.setName("TB4 - Positive TB LAM Results: Grade 4");
+    definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("location", "location", Location.class));
+
+    String query =
+        String.format(
+            EptsQuerysUtils.loadQuery(
+                TB4MontlyCascadeReportQueries.QUERY
+                    .FIND_PATIENTS_WITH_POSITIVE_TBLAM_RESULT_AND_POSITIVITY_LEVEL),
+            PositivityLevel.GRADE_FOUR.getValue(),
+            PositivityLevel.GRADE_FOUR.getValue(),
+            PositivityLevel.GRADE_FOUR.getValue(),
+            StringUtils.join(Arrays.asList(0), ","),
+            StringUtils.join(Arrays.asList(0), ","),
+            StringUtils.join(Arrays.asList(0), ","));
+
+    definition.addSearch(
+        "POSITIVE-TBLAM-RESULTS",
+        EptsReportUtils.map(
+            this.genericCohortQueries.generalSql(
+                "clients with Positive TBLAM Results during the inclusion period - "
+                    + PositivityLevel.GRADE_FOUR.name(),
+                query),
+            generalParameterMapping));
+
+    definition.setCompositionString("POSITIVE-TBLAM-RESULTS");
+
+    return definition;
+  }
+
+  public CohortDefinition getNumberOfClientsWithGradeThreeLevelPositiveTBLAMResults() {
+
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+    definition.setName("TB4 - Positive TB LAM Results: Grade 3");
+    definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("location", "location", Location.class));
+
+    String query =
+        String.format(
+            EptsQuerysUtils.loadQuery(
+                TB4MontlyCascadeReportQueries.QUERY
+                    .FIND_PATIENTS_WITH_POSITIVE_TBLAM_RESULT_AND_POSITIVITY_LEVEL),
+            PositivityLevel.GRADE_THREE.getValue(),
+            PositivityLevel.GRADE_THREE.getValue(),
+            PositivityLevel.GRADE_THREE.getValue(),
+            StringUtils.join(Arrays.asList(PositivityLevel.GRADE_FOUR.getValue()), ","),
+            StringUtils.join(Arrays.asList(PositivityLevel.GRADE_FOUR.getValue()), ","),
+            StringUtils.join(Arrays.asList(PositivityLevel.GRADE_FOUR.getValue()), ","));
+
+    definition.addSearch(
+        "POSITIVE-TBLAM-RESULTS",
+        EptsReportUtils.map(
+            this.genericCohortQueries.generalSql(
+                "clients with Positive TBLAM Results during the inclusion period - "
+                    + PositivityLevel.GRADE_THREE.name(),
+                query),
+            generalParameterMapping));
+
+    definition.addSearch(
+        "GRADE4",
+        EptsReportUtils.map(
+            this.getNumberOfClientsWithGradeFourLevelPositiveTBLAMResults(),
+            generalParameterMapping));
+
+    definition.setCompositionString("POSITIVE-TBLAM-RESULTS NOT GRADE4");
+
+    return definition;
+  }
+
+  public CohortDefinition getNumberOfClientsWithGradeTwoLevelPositiveTBLAMResults() {
+
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+    definition.setName("TB4 - Positive TB LAM Results: Grade 2");
+    definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("location", "location", Location.class));
+
+    String query =
+        String.format(
+            EptsQuerysUtils.loadQuery(
+                TB4MontlyCascadeReportQueries.QUERY
+                    .FIND_PATIENTS_WITH_POSITIVE_TBLAM_RESULT_AND_POSITIVITY_LEVEL),
+            PositivityLevel.GRADE_TWO.getValue(),
+            PositivityLevel.GRADE_TWO.getValue(),
+            PositivityLevel.GRADE_TWO.getValue(),
+            StringUtils.join(
+                Arrays.asList(
+                    PositivityLevel.GRADE_FOUR.getValue(), PositivityLevel.GRADE_THREE.getValue()),
+                ","),
+            StringUtils.join(
+                Arrays.asList(
+                    PositivityLevel.GRADE_FOUR.getValue(), PositivityLevel.GRADE_THREE.getValue()),
+                ","),
+            StringUtils.join(
+                Arrays.asList(
+                    PositivityLevel.GRADE_FOUR.getValue(), PositivityLevel.GRADE_THREE.getValue()),
+                ","));
+
+    definition.addSearch(
+        "POSITIVE-TBLAM-RESULTS",
+        EptsReportUtils.map(
+            this.genericCohortQueries.generalSql(
+                "clients with Positive TBLAM Results during the inclusion period - "
+                    + PositivityLevel.GRADE_TWO.name(),
+                query),
+            generalParameterMapping));
+
+    definition.addSearch(
+        "GRADE4",
+        EptsReportUtils.map(
+            this.getNumberOfClientsWithGradeFourLevelPositiveTBLAMResults(),
+            generalParameterMapping));
+
+    definition.addSearch(
+        "GRADE3",
+        EptsReportUtils.map(
+            this.getNumberOfClientsWithGradeThreeLevelPositiveTBLAMResults(),
+            generalParameterMapping));
+
+    definition.setCompositionString("POSITIVE-TBLAM-RESULTS NOT (GRADE3 OR GRADE4)");
+
+    return definition;
+  }
+
+  public CohortDefinition getNumberOfClientsWithGradeOneLevelPositiveTBLAMResults() {
+
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+    definition.setName("TB4 - Positive TB LAM Results: Grade 1");
+    definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("location", "location", Location.class));
+
+    String query =
+        String.format(
+            EptsQuerysUtils.loadQuery(
+                TB4MontlyCascadeReportQueries.QUERY
+                    .FIND_PATIENTS_WITH_POSITIVE_TBLAM_RESULT_AND_POSITIVITY_LEVEL),
+            PositivityLevel.GRADE_ONE.getValue(),
+            PositivityLevel.GRADE_ONE.getValue(),
+            PositivityLevel.GRADE_ONE.getValue(),
+            StringUtils.join(
+                Arrays.asList(
+                    PositivityLevel.GRADE_FOUR.getValue(),
+                    PositivityLevel.GRADE_THREE.getValue(),
+                    PositivityLevel.GRADE_TWO.getValue()),
+                ","),
+            StringUtils.join(
+                Arrays.asList(
+                    PositivityLevel.GRADE_FOUR.getValue(),
+                    PositivityLevel.GRADE_THREE.getValue(),
+                    PositivityLevel.GRADE_TWO.getValue()),
+                ","),
+            StringUtils.join(
+                Arrays.asList(
+                    PositivityLevel.GRADE_FOUR.getValue(),
+                    PositivityLevel.GRADE_THREE.getValue(),
+                    PositivityLevel.GRADE_TWO.getValue()),
+                ","));
+
+    definition.addSearch(
+        "POSITIVE-TBLAM-RESULTS",
+        EptsReportUtils.map(
+            this.genericCohortQueries.generalSql(
+                "clients with Positive TBLAM Results during the inclusion period - "
+                    + PositivityLevel.GRADE_ONE.name(),
+                query),
+            generalParameterMapping));
+
+    definition.addSearch(
+        "GRADE4",
+        EptsReportUtils.map(
+            this.getNumberOfClientsWithGradeFourLevelPositiveTBLAMResults(),
+            generalParameterMapping));
+
+    definition.addSearch(
+        "GRADE3",
+        EptsReportUtils.map(
+            this.getNumberOfClientsWithGradeThreeLevelPositiveTBLAMResults(),
+            generalParameterMapping));
+
+    definition.addSearch(
+        "GRADE2",
+        EptsReportUtils.map(
+            this.getNumberOfClientsWithGradeTwoLevelPositiveTBLAMResults(),
+            generalParameterMapping));
+
+    definition.setCompositionString("POSITIVE-TBLAM-RESULTS NOT (GRADE2 OR GRADE3 OR GRADE4)");
+
+    return definition;
+  }
+
+  public CohortDefinition getNumberOfClientsWithGradeNoLevelPositiveTBLAMResults() {
+
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+    definition.setName("TB4 - Positive TB LAM Results: Grade no Level");
+    definition.addParameter(new Parameter("startDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("location", "location", Location.class));
+
+    String query =
+        String.format(
+            EptsQuerysUtils.loadQuery(
+                TB4MontlyCascadeReportQueries.QUERY
+                    .FIND_PATIENTS_WITH_POSITIVE_TBLAM_RESULT_WITHOUT_POSITIVITY_LEVEL));
+
+    definition.addSearch(
+        "POSITIVE-TBLAM-RESULTS",
+        EptsReportUtils.map(
+            this.genericCohortQueries.generalSql(
+                "clients with Positive TBLAM Results during the inclusion period - "
+                    + PositivityLevel.NO_GRADE.name(),
+                query),
+            generalParameterMapping));
+
+    definition.addSearch(
+        "GRADE4",
+        EptsReportUtils.map(
+            this.getNumberOfClientsWithGradeFourLevelPositiveTBLAMResults(),
+            generalParameterMapping));
+
+    definition.addSearch(
+        "GRADE3",
+        EptsReportUtils.map(
+            this.getNumberOfClientsWithGradeThreeLevelPositiveTBLAMResults(),
+            generalParameterMapping));
+
+    definition.addSearch(
+        "GRADE2",
+        EptsReportUtils.map(
+            this.getNumberOfClientsWithGradeTwoLevelPositiveTBLAMResults(),
+            generalParameterMapping));
+
+    definition.addSearch(
+        "GRADE1",
+        EptsReportUtils.map(
+            this.getNumberOfClientsWithGradeOneLevelPositiveTBLAMResults(),
+            generalParameterMapping));
+
+    definition.setCompositionString(
+        "POSITIVE-TBLAM-RESULTS NOT (GRADE4 OR GRADE3 OR GRADE2 OR GRADE1)");
+
+    return definition;
   }
 }
