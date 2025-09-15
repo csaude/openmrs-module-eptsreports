@@ -1,11 +1,11 @@
 select 
 inicioDAH.patient_id, pid.identifier as NID, concat(ifnull(pn.given_name,''),' ',ifnull(pn.middle_name,''),' ',ifnull(pn.family_name,'')) as NomeCompleto, 
-        DATE_FORMAT(p.birthdate, '%d-%m-%Y') AS data_nascimento, 
+        DATE_FORMAT(p.birthdate, '%d/%m/%Y') AS data_nascimento, 
         floor(datediff(:endDate,p.birthdate)/365) as idade_actual, 
      p.gender as gender, 
      pat.value contacto, 
-     IF(ISNULL(inicioTarv.data_inicio), 'N/A', DATE_FORMAT(inicioTarv.data_inicio, '%d-%m-%Y')) AS data_inicio, 
-     IF(ISNULL( ultimoLevantamentoTarv.data_levantamento), 'N/A', DATE_FORMAT(ultimoLevantamentoTarv.data_levantamento, '%d-%m-%Y')) AS data_ultimo_levantamento, 
+     IF(ISNULL(inicioTarv.data_inicio), 'N/A', DATE_FORMAT(inicioTarv.data_inicio, '%d/%m/%Y')) AS data_inicio, 
+     IF(ISNULL( ultimoLevantamentoTarv.data_levantamento), 'N/A', DATE_FORMAT(ultimoLevantamentoTarv.data_levantamento, '%d/%m/%Y')) AS data_ultimo_levantamento, 
      IF(ISNULL(transferredIn.dataTransferido), 'Não', 'Sim') AS transferido_de, 
      case 
      when estadoPermanencia.RespostaEstadoPermanencia = 1 then 'Abandono' 
@@ -22,10 +22,10 @@ inicioDAH.patient_id, pid.identifier as NID, concat(ifnull(pn.given_name,''),' '
      when situacaoTARVnoDAH.value_coded = 6275 then 'Pré TARV' 
      when ISNULL(situacaoTARVnoDAH.value_coded) then 'N/A' 
      end as tarvDAH, 
-     IF(ISNULL(seguimentoDAH.encounter_datetime), 'N/A', DATE_FORMAT(seguimentoDAH.encounter_datetime, '%d-%m-%Y')) AS data_inicioDAH, 
-     IF(ISNULL(cd4EligibilidadeMDSDAH.max_data_cd4), 'N/A',DATE_FORMAT(cd4EligibilidadeMDSDAH.max_data_cd4, '%d-%m-%Y')) AS max_data_cd4, 
+     IF(ISNULL(seguimentoDAH.encounter_datetime), 'N/A', DATE_FORMAT(seguimentoDAH.encounter_datetime, '%d/%m/%Y')) AS data_inicioDAH, 
+     IF(ISNULL(cd4EligibilidadeMDSDAH.max_data_cd4), 'N/A',DATE_FORMAT(cd4EligibilidadeMDSDAH.max_data_cd4, '%d/%m/%Y')) AS max_data_cd4, 
      IF(ISNULL(cd4EligibilidadeMDSDAH.value_numeric), 'N/A',IF(type=1, cd4EligibilidadeMDSDAH.value_numeric,'<=200')) AS ultimoResultadoCD4, 
-     IF(ISNULL(estadiamentoClinico.encounter_datetime), 'N/A', DATE_FORMAT(estadiamentoClinico.encounter_datetime, '%d-%m-%Y')) AS data_registo_estadiamento, 
+     IF(ISNULL(estadiamentoClinico.encounter_datetime), 'N/A', DATE_FORMAT(estadiamentoClinico.encounter_datetime, '%d/%m/%Y')) AS data_registo_estadiamento, 
      case 
         when estadiamentoClinico.tipoEstadio=3 then 'Estadio III' 
         when estadiamentoClinico.tipoEstadio=4 then 'Estadio IV' 
@@ -35,21 +35,21 @@ inicioDAH.patient_id, pid.identifier as NID, concat(ifnull(pn.given_name,''),' '
       IF(ISNULL(SUBSTRING_INDEX(estadiamentoClinico.motivoEstadio, ',', 1)), 'N/A', SUBSTRING_INDEX(estadiamentoClinico.motivoEstadio, ',', 1)) AS motivoEstadio1, 
       IF(IF(@motivoIndice > 1, SUBSTRING_INDEX(SUBSTRING_INDEX(estadiamentoClinico.motivoEstadio, ',', 2), ',', -1), '') = '', 'N/A', IF(@motivoIndice > 1, SUBSTRING_INDEX(SUBSTRING_INDEX(estadiamentoClinico.motivoEstadio, ',', 2), ',', -1), '')) AS motivoEstadio2, 
       IF(ISNULL( valor_ultimo_cd4.value_numeric), 'N/A', valor_ultimo_cd4.value_numeric) AS lastCd4Result, 
-      IF(ISNULL(maxCD4.max_data_cd4), 'N/A',  DATE_FORMAT(maxCD4.max_data_cd4, '%d-%m-%Y')) AS ultimoDataCd4,
+      IF(ISNULL(maxCD4.max_data_cd4), 'N/A',  DATE_FORMAT(maxCD4.max_data_cd4, '%d/%m/%Y')) AS ultimoDataCd4,
       IF(ISNULL(valor_penultimo_cd4.value_numeric), 'N/A',valor_penultimo_cd4.value_numeric) AS penultimoResultadoCd4,
-      IF(ISNULL(penultimoCd4.dataCd4Anterior), 'N/A',DATE_FORMAT(penultimoCd4.dataCd4Anterior, '%d-%m-%Y') ) AS penultimoCd4Data,
+      IF(ISNULL(penultimoCd4.dataCd4Anterior), 'N/A',DATE_FORMAT(penultimoCd4.dataCd4Anterior, '%d/%m/%Y') ) AS penultimoCd4Data,
       IF(ISNULL(ultimaCV.resultadoCV), 'N/A',ultimaCV.resultadoCV) AS resultadoCV,
-      IF(ISNULL(ultimaCV.data_carga), 'N/A', DATE_FORMAT(ultimaCV.data_carga, '%d-%m-%Y')) AS ultimaDataCv,
-      IF(ISNULL(penultimaCV.penultimaDataCarga), 'N/A',DATE_FORMAT(penultimaCV.penultimaDataCarga, '%d-%m-%Y') ) AS penultimaDataCv,
+      IF(ISNULL(ultimaCV.data_carga), 'N/A', DATE_FORMAT(ultimaCV.data_carga, '%d/%m/%Y')) AS ultimaDataCv,
+      IF(ISNULL(penultimaCV.penultimaDataCarga), 'N/A',DATE_FORMAT(penultimaCV.penultimaDataCarga, '%d/%m/%Y') ) AS penultimaDataCv,
       IF(ISNULL(penultimaCV.resultadoCV), 'N/A',penultimaCV.resultadoCV) AS penultimoResultadoCV,
       IF(ISNULL(ultimoTbLam.resultadoTbLam), 'N/A',ultimoTbLam.resultadoTbLam ) AS resultadoTbLam,
-      IF(ISNULL(ultimoTbLam.max_tblam), 'N/A', DATE_FORMAT(ultimoTbLam.max_tblam, '%d-%m-%Y')) AS ultimoTbLam,
+      IF(ISNULL(ultimoTbLam.max_tblam), 'N/A', DATE_FORMAT(ultimoTbLam.max_tblam, '%d/%m/%Y')) AS ultimoTbLam,
       IF(ISNULL(cragSoro.resultadoCragSoro), 'N/A',cragSoro.resultadoCragSoro) AS resultadoCragSoro,
-      IF(ISNULL(cragSoro.max_cragSoro), 'N/A',DATE_FORMAT(cragSoro.max_cragSoro, '%d-%m-%Y')) AS ultimoCragSoroData,
+      IF(ISNULL(cragSoro.max_cragSoro), 'N/A',DATE_FORMAT(cragSoro.max_cragSoro, '%d/%m/%Y')) AS ultimoCragSoroData,
       IF(ISNULL(cragLcr.resultadoCragLcr), 'N/A',cragLcr.resultadoCragLcr) AS resultadoCragLcr,
-      IF(ISNULL(cragLcr.max_cragLcr), 'N/A',DATE_FORMAT(cragLcr.max_cragLcr, '%d-%m-%Y')) AS ultimoCragLcrData,
+      IF(ISNULL(cragLcr.max_cragLcr), 'N/A',DATE_FORMAT(cragLcr.max_cragLcr, '%d/%m/%Y')) AS ultimoCragLcrData,
       IF(ISNULL( ultimoCacu.resultadoCacu), 'N/A',ultimoCacu.resultadoCacu) AS resultadoCacu,
-      IF(ISNULL(ultimoCacu.max_cacu), 'N/A',DATE_FORMAT(ultimoCacu.max_cacu, '%d-%m-%Y')) AS ultimoCacuData
+      IF(ISNULL(ultimoCacu.max_cacu), 'N/A',DATE_FORMAT(ultimoCacu.max_cacu, '%d/%m/%Y')) AS ultimoCacuData
 from ( 
 	select inicioDAH.patient_id 
 	from( 

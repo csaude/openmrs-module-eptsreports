@@ -2,7 +2,7 @@
  from
  (
  /* Primeiro alert  HVL_FR14*/
-		select
+		select distinct
 				HVL_FR41.patient_id,
 				HVL_FR41.NID,
 				HVL_FR41.NAME,
@@ -15,10 +15,10 @@
 				HVL_FR41.celula,
 				HVL_FR41.TB,
 				HVL_FR41.gravida_lactante,
-				HVL_FR41.data_inicio,
-				HVL_FR41.data_carga,
+				DATE_FORMAT(HVL_FR41.data_inicio, '%d/%m/%Y') as data_inicio,
+				DATE_FORMAT(HVL_FR41.data_carga, '%d/%m/%Y') as data_carga,
 				HVL_FR41.valorCV,
-				HVL_FR41.dataPrevistaConsultaClinica0CV1 proximaConsultaSeguimento,
+				DATE_FORMAT(HVL_FR41.dataPrevistaConsultaClinica0CV1, '%d/%m/%Y') as proximaConsultaSeguimento,
 				HVL_FR41.alert
 		from
 		(	
@@ -43,7 +43,7 @@
 		HVL_FR40.linha,
 		HVL_FR40.valorCV,
 		HVL_FR40.dataConsultaClinica0CV1,
-		HVL_FR40.dataPrevistaConsultaClinica0CV1,
+		date(HVL_FR40.dataPrevistaConsultaClinica0CV1) as dataPrevistaConsultaClinica0CV1,
 		if( HVL_FR40.dataPrevistaConsultaClinica0CV1 >= :endDate and HVL_FR40.dataPrevistaConsultaClinica0CV1 <= date_add(:endDate, interval 7 day) and HVL_FR40.dataConsultaClinica0CV1 is null ,'Consulta Clínica com CV registada na Ficha Clínica e Comunicada ao Paciente', null  ) alert
 
 from
@@ -218,11 +218,11 @@ from
 																										from
 																										(
 																											Select 	HVL_FR4_HVL_FR5.patient_id,
-																													HVL_FR4_HVL_FR5.data_inicio,
+																													date(HVL_FR4_HVL_FR5.data_inicio) as data_inicio,
 																													HVL_FR4_HVL_FR5.linha,
-																													primeiraCVAlta.data_carga,
+																													date(primeiraCVAlta.data_carga) as data_carga,
 																													primeiraCVAlta.valorCV,
-																													primeiraColheitaCV.data_colheita
+																													date(primeiraColheitaCV.data_colheita) as data_colheita
 																											from
 																											(
 																													select HVL_FR4.patient_id,HVL_FR4.data_inicio,'1ª Linha' linha
@@ -12964,4 +12964,4 @@ lactante_real on lactante_real.patient_id = HVL_FR40.patient_id
 				
 	)HVL_FR41
 			where HVL_FR41.alert is not null
- ) result order by patient_id
+ ) result group by patient_id order by patient_id

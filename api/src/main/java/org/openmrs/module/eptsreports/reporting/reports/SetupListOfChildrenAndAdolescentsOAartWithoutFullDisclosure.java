@@ -60,7 +60,8 @@ public class SetupListOfChildrenAndAdolescentsOAartWithoutFullDisclosure
 
   @Override
   public PeriodIndicatorReportDefinition constructReportDefinition() {
-    PeriodIndicatorReportDefinition rd = new PeriodIndicatorReportDefinition();
+    PeriodIndicatorReportDefinition rd =
+        SetupResumoMensalReport.getDefaultPeriodIndicatorReportDefinition();
     rd.setUuid(getUuid());
     rd.setName(getName());
     rd.setDescription(getDescription());

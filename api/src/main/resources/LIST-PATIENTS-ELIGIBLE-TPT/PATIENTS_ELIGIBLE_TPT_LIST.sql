@@ -1,14 +1,14 @@
 select coorte12meses_final.patient_id as patient_id,
-                    coorte12meses_final.data_inicio as data_inicio, 
+                    DATE_FORMAT(DATE(coorte12meses_final.data_inicio), '%d/%m/%Y') as data_inicio, 
                     concat(ifnull(pn.given_name,''),' ',ifnull(pn.middle_name,''),' ',ifnull(pn.family_name,'')) as NomeCompleto, 
                     pid.identifier as NID, 
                     p.gender as gender, 
                     floor(datediff(:endDate,p.birthdate)/365) as idade_actual, 
                     TPT_ELIG_FR16.decisao as gravidaLactante, 
-                    TPT_ELIG_FR19.data_seguimento as data_seguimento, 
-                    TPT_ELIG_FR19.data_proximo_seguimento as data_proximo_seguimento,
-                    DATE_FORMAT(DATE(fila.data_levantamento), '%d-%m-%Y') as LAST_FILA, 
-                    DATE_FORMAT(DATE(fila.data_proximo_levantamento), '%d-%m-%Y') as NEXT_FILA
+                    DATE_FORMAT(DATE(TPT_ELIG_FR19.data_seguimento), '%d/%m/%Y') as data_seguimento, 
+                    DATE_FORMAT(DATE(TPT_ELIG_FR19.data_proximo_seguimento), '%d/%m/%Y') as data_proximo_seguimento, 
+                    DATE_FORMAT(DATE(fila.data_levantamento), '%d/%m/%Y') as LAST_FILA, 
+                    DATE_FORMAT(DATE(fila.data_proximo_levantamento), '%d/%m/%Y') as NEXT_FILA
              from 
             (
             select inicio_fila_seg_prox.*,     
