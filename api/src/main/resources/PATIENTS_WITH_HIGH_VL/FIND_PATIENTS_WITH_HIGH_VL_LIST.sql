@@ -21,7 +21,7 @@ select
 			IF(COALESCE(HVL_FR41.dataConsultaApss0CV1, '') != '', DATE_FORMAT(HVL_FR41.dataConsultaApss0CV1, '%d/%m/%Y'), 'N/A') AS dataConsultaApss0CV1,
 			DATE_FORMAT(HVL_FR41.dataPrevistaConsultaApss0CV1,'%d/%m/%Y') dataPrevistaConsultaApss0CV1, 
 			DATE_FORMAT(HVL_FR41.dataConsultaApss1CV1,'%d/%m/%Y') dataConsultaApss1CV1,
-			HVL_FR41.previstaConsultaApss1CV1, 
+			DATE_FORMAT(HVL_FR41.previstaConsultaApss1CV1,'%d/%m/%Y') previstaConsultaApss1CV1,
 			DATE_FORMAT(HVL_FR41.dataConsultaApss2CV1,'%d/%m/%Y') dataConsultaApss2CV1,
 			DATE_FORMAT(HVL_FR41.previstaConsultaApss2CV1,'%d/%m/%Y') previstaConsultaApss2CV1, 		
 			DATE_FORMAT(HVL_FR41.dataConsultaApss3CV1,'%d/%m/%Y') dataConsultaApss3CV1, 	
