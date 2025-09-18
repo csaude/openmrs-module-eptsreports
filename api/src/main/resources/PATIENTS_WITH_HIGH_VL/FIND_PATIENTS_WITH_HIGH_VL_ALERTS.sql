@@ -2,7 +2,7 @@
  from
  (
  /* Primeiro alert  HVL_FR14*/
-		select distinct
+		select 
 				HVL_FR41.patient_id,
 				HVL_FR41.NID,
 				HVL_FR41.NAME,
@@ -12964,4 +12964,4 @@ lactante_real on lactante_real.patient_id = HVL_FR40.patient_id
 				
 	)HVL_FR41
 			where HVL_FR41.alert is not null
- ) result group by patient_id order by patient_id
+ ) result order by patient_id
