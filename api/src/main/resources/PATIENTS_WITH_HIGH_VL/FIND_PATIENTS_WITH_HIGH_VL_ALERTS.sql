@@ -1,4 +1,21 @@
- select *
+ 		select 
+				result.patient_id,
+				result.NID,
+				result.NAME,
+				result.GENDER,
+				result.AGE,
+				result.telefone,
+				result.telefoneAlternativo,
+				result.localidade,
+				result.bairro,
+				result.celula,
+				result.TB,
+				result.gravida_lactante,
+				DATE_FORMAT(result.data_inicio, '%d/%m/%Y') as data_inicio,
+				DATE_FORMAT(result.data_carga, '%d/%m/%Y') as data_carga,
+				result.valorCV,
+				DATE_FORMAT(result.dataPrevistaConsultaClinica0CV1, '%d/%m/%Y') as proximaConsultaSeguimento,
+				result.alert
  from
  (
  /* Primeiro alert  HVL_FR14*/
@@ -15,10 +32,10 @@
 				HVL_FR41.celula,
 				HVL_FR41.TB,
 				HVL_FR41.gravida_lactante,
-				DATE_FORMAT(HVL_FR41.data_inicio, '%d/%m/%Y') as data_inicio,
-				DATE_FORMAT(HVL_FR41.data_carga, '%d/%m/%Y') as data_carga,
+				HVL_FR41.data_inicio,
+				HVL_FR41.data_carga,
 				HVL_FR41.valorCV,
-				DATE_FORMAT(HVL_FR41.dataPrevistaConsultaClinica0CV1, '%d/%m/%Y') as proximaConsultaSeguimento,
+				HVL_FR41.dataPrevistaConsultaClinica0CV1,
 				HVL_FR41.alert
 		from
 		(	
