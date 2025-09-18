@@ -111,14 +111,17 @@ public class TxTBDataset extends BaseDataSet {
 
   private void addTXTBDenominator(
       String mappings, CohortIndicatorDataSetDefinition dataSetDefinition) {
+
     CohortIndicator previouslyOnARTPostiveScreening =
         eptsGeneralIndicator.getIndicator(
             "previouslyOnARTPositiveScreening",
             EptsReportUtils.map(txTbCohortQueries.previouslyOnARTPositiveScreening(), mappings));
+
     CohortIndicator previouslyOnARTNegativeScreening =
         eptsGeneralIndicator.getIndicator(
             "previouslyOnARTNegativeScreening",
             EptsReportUtils.map(txTbCohortQueries.previouslyOnARTNegativeScreening(), mappings));
+
     CohortIndicator newOnARTPositiveScreening =
         eptsGeneralIndicator.getIndicator(
             "newOnARTPositiveScreening",

@@ -2,14 +2,14 @@
                        pid.identifier as NID,
              concat(ifnull(pn.given_name,''),' ',ifnull(pn.middle_name,''),' ',ifnull(pn.family_name,'')) as NAME,
              p.gender as GENDER, 
-             birthdate,
+             DATE_FORMAT(date(birthdate), '%d/%m/%Y') as birthdate,
              floor(datediff(:endDate,birthdate)/365) AGE,
              IF(DATE_FORMAT(FROM_DAYS(DATEDIFF(:endDate,birthdate)),'%y-%m-%d') = '00-00-00', TIMESTAMPDIFF(month,birthdate, :endDate),DATE_FORMAT(FROM_DAYS(DATEDIFF(:endDate,birthdate)),'%m') - 1) AGE_IN_MONTHS,
              pad3.address6 as 'localidade',
              pad3.address5 as 'bairro',
              pad3.address1 as 'pontoReferencia', 
              pat.value as CONTACTO,
-             ccr.data_inicio,
+             DATE_FORMAT(date(ccr.data_inicio), '%d/%m/%Y') as data_inicio,
              @motivoIndice := 1 + LENGTH(motivoDaConsulta.resposta) - LENGTH(REPLACE(motivoDaConsulta.resposta, ',', '')) AS motivoIndice, 
       IF(SUBSTRING_INDEX(motivoDaConsulta.resposta, ',', 1)='N' OR ISNULL(motivoDaConsulta.resposta), 'N', SUBSTRING_INDEX(motivoDaConsulta.resposta, ',', 1)) AS motivoEstadio1, 
       IF(IF(@motivoIndice > 1, SUBSTRING_INDEX(SUBSTRING_INDEX(motivoDaConsulta.resposta, ',', 2), ',', -1), '') = 'N' OR ISNULL(motivoDaConsulta.resposta), 'N', IF(@motivoIndice > 1, SUBSTRING_INDEX(SUBSTRING_INDEX(motivoDaConsulta.resposta, ',', 2), ',', -1), '')) AS motivoEstadio2,
@@ -31,10 +31,10 @@
      when aceitaVisita.value_coded = 1066 then 'N'
      when aceitaVisita.value_coded = 1065 then 'S' 
      end AS aceitaVisitaDomiciliar,
-      firstSeguimento.primeira_consulta_ccr as primeiraConsultaCCR,
-      maxCCRSeguimento.ultima_consulta_ccr as ultimaConsultaCCR,
-      maxCCRSeguimento.proxima_consulta_ccr as dataProximaConsultaCCR,
-      pcrDateAndResult.encounter_datetime pcrResultDate,
+      DATE_FORMAT(date(firstSeguimento.primeira_consulta_ccr), '%d/%m/%Y') as primeiraConsultaCCR,
+      DATE_FORMAT(date(maxCCRSeguimento.ultima_consulta_ccr), '%d/%m/%Y') as ultimaConsultaCCR,
+      DATE_FORMAT(date(maxCCRSeguimento.proxima_consulta_ccr), '%d/%m/%Y') as dataProximaConsultaCCR,
+      DATE_FORMAT(date(pcrDateAndResult.encounter_datetime), '%d/%m/%Y') as pcrResultDate,
             case 
      when pcrDateAndResult.value_coded= 703 then 'Positivo' 
      when pcrDateAndResult.value_coded = 664 then 'Negativo' 
@@ -57,7 +57,7 @@
      when penultimoPCR.value_coded = 664 then 'Negativo' 
      when penultimoPCR.value_coded = 1138 then 'Indeterminado' 
      end as resultadoPenultimoPCR,
-     penultimoPCR.penultimoDatePCR,
+     DATE_FORMAT(date(penultimoPCR.penultimoDatePCR), '%d/%m/%Y') as penultimoDatePCR,
              case 
      when ISNULL(penultimoTipoDeColheitaPCR.value_coded) and ISNULL(penultimoPCR.value_coded) then ''
      when ISNULL(penultimoTipoDeColheitaPCR.value_coded) and penultimoPCR.value_coded is not null then 'N/A'
@@ -75,7 +75,7 @@
      when trHIVUltimoResultado.value_coded = 664 then 'Negativo' 
      when trHIVUltimoResultado.value_coded = 1138 then 'Indeterminado' 
      end as trHIVUltimoResultadoResultado,
-     trHIVUltimoResultado.encounter_datetime as dataTRHiv,
+     DATE_FORMAT(date(trHIVUltimoResultado.encounter_datetime), '%d/%m/%Y') as dataTRHiv,
                    case
     when programa.state = 11 then 'ACTIVO NO PROGRAMA' 
     when programa.state = 13 then 'CONSULTA MÉDICA' 
@@ -104,7 +104,7 @@
     when fichaSeguimento.state = 165485 then 'TRANSFERIDO PARA CONSULTA DE CRIANÇA SADIA'
     when fichaSeguimento.state = 165483 then 'TRANSFERIDO PARA SECTOR DE TB'
     end AS altaFichaSeguimento,
-    artStart.data_tarv
+    DATE_FORMAT(date(artStart.data_tarv), '%d/%m/%Y') as data_tarv
           from (
         select patient_id, min(data_inicio) data_inicio from (
          select  pg.patient_id,min(date_enrolled) data_inicio                                

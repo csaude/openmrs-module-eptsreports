@@ -10,19 +10,20 @@ import java.util.Properties;
 import org.openmrs.module.eptsreports.reporting.library.datasets.DatimCodeDataSet;
 import org.openmrs.module.eptsreports.reporting.library.datasets.ListOfChildrenAndAdolescentsOAartWithoutFullDisclosureDataset;
 import org.openmrs.module.eptsreports.reporting.library.datasets.SismaCodeDataSet;
-import org.openmrs.module.eptsreports.reporting.reports.manager.EptsDataExportManager;
+import org.openmrs.module.eptsreports.reporting.reports.manager.EptsPeriodIndicatorDataExportManager;
 import org.openmrs.module.reporting.ReportingConstants;
 import org.openmrs.module.reporting.ReportingException;
 import org.openmrs.module.reporting.evaluation.parameter.Mapped;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.report.ReportDesign;
+import org.openmrs.module.reporting.report.definition.PeriodIndicatorReportDefinition;
 import org.openmrs.module.reporting.report.definition.ReportDefinition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class SetupListOfChildrenAndAdolescentsOAartWithoutFullDisclosure
-    extends EptsDataExportManager {
+    extends EptsPeriodIndicatorDataExportManager {
 
   @Autowired
   private ListOfChildrenAndAdolescentsOAartWithoutFullDisclosureDataset
@@ -49,7 +50,7 @@ public class SetupListOfChildrenAndAdolescentsOAartWithoutFullDisclosure
 
   @Override
   public String getName() {
-    return "Lista de Crianças e Adolescentes em TARV sem Revelação Diagnóstica Total";
+    return "Lista de Criancas e Adolescentes em TARV sem Revelacao Diagnostica Total";
   }
 
   @Override
@@ -58,8 +59,9 @@ public class SetupListOfChildrenAndAdolescentsOAartWithoutFullDisclosure
   }
 
   @Override
-  public ReportDefinition constructReportDefinition() {
-    ReportDefinition rd = new ReportDefinition();
+  public PeriodIndicatorReportDefinition constructReportDefinition() {
+    PeriodIndicatorReportDefinition rd =
+        SetupResumoMensalReport.getDefaultPeriodIndicatorReportDefinition();
     rd.setUuid(getUuid());
     rd.setName(getName());
     rd.setDescription(getDescription());

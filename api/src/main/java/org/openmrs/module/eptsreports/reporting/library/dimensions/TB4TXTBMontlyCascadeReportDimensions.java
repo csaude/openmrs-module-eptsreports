@@ -4,6 +4,7 @@ import java.util.Date;
 import org.openmrs.Location;
 import org.openmrs.module.eptsreports.reporting.library.cohorts.TB4MontlyCascadeCohortQueries;
 import org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils;
+import org.openmrs.module.reporting.evaluation.parameter.Mapped;
 import org.openmrs.module.reporting.evaluation.parameter.Parameter;
 import org.openmrs.module.reporting.indicator.dimension.CohortDefinitionDimension;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -124,6 +125,43 @@ public class TB4TXTBMontlyCascadeReportDimensions {
         "negativeAdditonalDiagnostic",
         EptsReportUtils.map(
             this.txtbDenominatorForTBMontlyCascade.getAdditionalNegativeTestResults(), mappings));
+    return dim;
+  }
+
+  public CohortDefinitionDimension getTBLAMGradeLevelDimension() {
+    final CohortDefinitionDimension dim = new CohortDefinitionDimension();
+    dim.setName("tblam-grade-level");
+
+    dim.addParameter(new Parameter("startDate", "Start Date", Date.class));
+    dim.addParameter(new Parameter("endDate", "End Date", Date.class));
+    dim.addParameter(new Parameter("location", "location", Location.class));
+
+    dim.addCohortDefinition(
+        "four",
+        Mapped.mapStraightThrough(
+            this.txtbDenominatorForTBMontlyCascade
+                .getNumberOfClientsWithGradeFourLevelPositiveTBLAMResults()));
+    dim.addCohortDefinition(
+        "three",
+        Mapped.mapStraightThrough(
+            this.txtbDenominatorForTBMontlyCascade
+                .getNumberOfClientsWithGradeThreeLevelPositiveTBLAMResults()));
+    dim.addCohortDefinition(
+        "two",
+        Mapped.mapStraightThrough(
+            this.txtbDenominatorForTBMontlyCascade
+                .getNumberOfClientsWithGradeTwoLevelPositiveTBLAMResults()));
+    dim.addCohortDefinition(
+        "one",
+        Mapped.mapStraightThrough(
+            this.txtbDenominatorForTBMontlyCascade
+                .getNumberOfClientsWithGradeOneLevelPositiveTBLAMResults()));
+    dim.addCohortDefinition(
+        "no-level",
+        Mapped.mapStraightThrough(
+            this.txtbDenominatorForTBMontlyCascade
+                .getNumberOfClientsWithGradeNoLevelPositiveTBLAMResults()));
+
     return dim;
   }
 }

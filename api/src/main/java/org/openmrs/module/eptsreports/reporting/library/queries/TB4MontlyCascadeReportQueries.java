@@ -24,6 +24,12 @@ public interface TB4MontlyCascadeReportQueries {
     private static final String FIND_PATIENTS_WHO_ARE_CURRENTLY_ENROLLED_ON_ART =
         "TPT_CASCADE/TPT_CASCADE_PATIENTS_START_ART.sql";
 
+    public static final String FIND_PATIENTS_WITH_POSITIVE_TBLAM_RESULT_AND_POSITIVITY_LEVEL =
+        "TB4/TBLAM_POSITIVITY_LEVEL.sql";
+
+    public static final String FIND_PATIENTS_WITH_POSITIVE_TBLAM_RESULT_WITHOUT_POSITIVITY_LEVEL =
+        "TB4/TBLAM_WITHOUT_POSITIVITY_LEVEL.sql";
+
     public static final String findPatientsWithClinicalConsultationIntheLastSixMonths =
         "																	"
             + "	select p.patient_id from patient p 															"
@@ -76,13 +82,13 @@ public interface TB4MontlyCascadeReportQueries {
               + "from obs 																																					"
               + "		inner join encounter on encounter.encounter_id = obs.encounter_id 																						"
               + "where encounter.encounter_type = 13 																															"
-              + "		and obs.concept_id in (#)and obs.value_coded in (703,1065) and encounter.voided = 0 and obs.voided =0 and obs.location_id =:location 					"
+              + "		and obs.concept_id in (#)and obs.value_coded in (703,1065,165190,6230,6229,6228,165587) and encounter.voided = 0 and obs.voided =0 and obs.location_id =:location 					"
               + "  	and encounter.encounter_datetime >=:startDate  and encounter.encounter_datetime <=:endDate																";
 
       switch (diagnosticTestType) {
         case GENEXPERT:
           query =
-              StringUtils.replace(query, "#", StringUtils.join(Arrays.asList(23723, 165189), ","));
+              StringUtils.replace(query, "#", StringUtils.join(Arrays.asList(23723, 165588), ","));
           break;
         case BACILOSCOPIA:
           query = StringUtils.replace(query, "#", "307");
@@ -134,7 +140,7 @@ public interface TB4MontlyCascadeReportQueries {
       switch (diagnosticTestType) {
         case GENEXPERT:
           query =
-              StringUtils.replace(query, "#", StringUtils.join(Arrays.asList(23723, 165189), ","));
+              StringUtils.replace(query, "#", StringUtils.join(Arrays.asList(23723, 165588), ","));
           break;
         case BACILOSCOPIA:
           query = StringUtils.replace(query, "#", "307");
@@ -162,6 +168,28 @@ public interface TB4MontlyCascadeReportQueries {
           + "where encounter.encounter_type in (13, 51) 																													"
           + "		and obs.concept_id = 23951 and obs.value_coded = 664 and encounter.voided = 0 and obs.voided =0 and obs.location_id =:location 							"
           + "  	and encounter.encounter_datetime >=:startDate  and encounter.encounter_datetime <=:endDate																";
+    }
+  }
+
+  public enum PositivityLevel {
+    NO_GRADE(null),
+
+    GRADE_ONE(165186),
+
+    GRADE_TWO(165187),
+
+    GRADE_THREE(165188),
+
+    GRADE_FOUR(165348);
+
+    private final Integer value;
+
+    PositivityLevel(final Integer value) {
+      this.value = value;
+    }
+
+    public Integer getValue() {
+      return this.value;
     }
   }
 }

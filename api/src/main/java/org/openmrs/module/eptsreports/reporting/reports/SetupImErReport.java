@@ -98,11 +98,11 @@ public class SetupImErReport extends EptsPeriodIndicatorDataExportManager {
         "ERI4", Mapped.mapStraightThrough(this.eri4MonthsDataset.constructEri4MonthsDataset()));
 
     rd.addDataSetDefinition(
-        "D",
-        Mapped.mapStraightThrough(this.datimCodeDataSet.constructDataset(this.getParameters())));
+        "R", Mapped.mapStraightThrough(this.b13DataSet.constructResumoMensalDataset()));
 
     rd.addDataSetDefinition(
-        "R", Mapped.mapStraightThrough(this.b13DataSet.constructResumoMensalDataset()));
+        "D",
+        Mapped.mapStraightThrough(this.datimCodeDataSet.constructDataset(this.getParameters())));
 
     rd.addDataSetDefinition(
         "SC",

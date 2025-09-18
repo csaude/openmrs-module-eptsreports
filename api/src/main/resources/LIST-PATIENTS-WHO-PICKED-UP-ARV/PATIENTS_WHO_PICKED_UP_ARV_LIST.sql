@@ -3,7 +3,7 @@
                     pid.identifier as NID, 
                     p.gender as gender, 
                     floor(datediff(:endDate,p.birthdate)/365) as idade_actual,
-                    coorte12meses_final.data_inicio as data_inicio,
+                    DATE_FORMAT(date(coorte12meses_final.data_inicio), '%%d/%%m/%%Y') as data_inicio,
                    if(gravida_real.data_gravida is null and lactante_real.data_parto is null, null,
                    if(gravida_real.data_gravida is null, 'Lactante', if(lactante_real.data_parto is null,
                    'Grávida', if(max(lactante_real.data_parto)>max(gravida_real.data_gravida),'Lactante','Grávida')))) gravida_lactante,
@@ -17,19 +17,19 @@
              when estadoPermanencia.state = 23903 then 'Tem diagnóstico negativo'
              when estadoPermanencia.state = 1705 then 'Reinicio'
              end AS estado,
-             estadoPermanencia.state_date,
+             DATE_FORMAT(date(estadoPermanencia.state_date), '%%d/%%m/%%Y') as state_date,
              case 
              when estadoPermanencia.source = 1 then 'Ficha Resumo' 
              when estadoPermanencia.source = 2 then 'Ficha Clínica' 
              when estadoPermanencia.source = 3  then 'Programa SESP' 
              end AS fonte,
-             max_filaF.data_fila,
+             DATE_FORMAT(date(max_filaF.data_fila), '%%d/%%m/%%Y') as data_fila,
              max_filaF.code,
              max_filaF.D1, 
              max_filaF.D2, 
              max_filaF.D3, 
              max_filaF.D4, 
-             max_filaF.proximo_levantamento
+             DATE_FORMAT(date(max_filaF.proximo_levantamento), '%%d/%%m/%%Y') as proximo_levantamento
             from 
             (
             %s

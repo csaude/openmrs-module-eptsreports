@@ -88,6 +88,11 @@ public class TB4MontlyCascadeReportDataSet extends BaseDataSet {
         "negativeTestResult",
         EptsReportUtils.map(this.montlyCascadeReportDimensions.getNegativeTestResults(), mappings));
 
+    dataSetDefinition.addDimension(
+        "tblam-grade-level",
+        EptsReportUtils.map(
+            this.montlyCascadeReportDimensions.getTBLAMGradeLevelDimension(), mappings));
+
     this.addSection1And2(dataSetDefinition, mappings);
     this.addSection3(dataSetDefinition, mappingsPreviousPeriod);
     this.addSEction4(dataSetDefinition, mappingsPreviousPeriod);
@@ -452,6 +457,36 @@ public class TB4MontlyCascadeReportDataSet extends BaseDataSet {
         EptsReportUtils.map(positiveResults, mappings),
         "diagnostictest=tblam");
 
+    dataSetDefinition.addColumn(
+        "TBD-PRL-N-GRADE4",
+        " 6a. Screened patients with positive TB testing result TB LAM (Positivity Grade) - grade 4+",
+        EptsReportUtils.map(positiveResults, mappings),
+        "diagnostictest=tblam|tblam-grade-level=four");
+
+    dataSetDefinition.addColumn(
+        "TBD-PRL-N-GRADE3",
+        " 6a. Screened patients with positive TB testing result TB LAM (Positivity Grade) - grade 3+",
+        EptsReportUtils.map(positiveResults, mappings),
+        "diagnostictest=tblam|tblam-grade-level=three");
+
+    dataSetDefinition.addColumn(
+        "TBD-PRL-N-GRADE2",
+        " 6a. Screened patients with positive TB testing result TB LAM (Positivity Grade) - grade 2+",
+        EptsReportUtils.map(positiveResults, mappings),
+        "diagnostictest=tblam|tblam-grade-level=two");
+
+    dataSetDefinition.addColumn(
+        "TBD-PRL-N-GRADE1",
+        " 6a. Screened patients with positive TB testing result TB LAM (Positivity Grade) - grade 1+",
+        EptsReportUtils.map(positiveResults, mappings),
+        "diagnostictest=tblam|tblam-grade-level=one");
+
+    dataSetDefinition.addColumn(
+        "TBD-PRL-N-GRADE0",
+        " 6a. Screened patients with positive TB testing result TB LAM (Positivity Grade) - grade not reported",
+        EptsReportUtils.map(positiveResults, mappings),
+        "diagnostictest=tblam|tblam-grade-level=no-level");
+
     this.addRow(
         dataSetDefinition,
         "TBD-PRL-N",
@@ -674,6 +709,36 @@ public class TB4MontlyCascadeReportDataSet extends BaseDataSet {
         " 7. Screened patients with pos TB testing result who initiated treatment result TB LAM",
         EptsReportUtils.map(startedTBTreatment, mappings),
         "diagnostictest=tblam");
+
+    dataSetDefinition.addColumn(
+        "TBD-STBL-GRADE4",
+        " 7. Screened patients with pos TB testing result who initiated treatment result TB LAM (Positivity Grade) - grade 4+",
+        EptsReportUtils.map(startedTBTreatment, mappings),
+        "diagnostictest=tblam|tblam-grade-level=four");
+
+    dataSetDefinition.addColumn(
+        "TBD-STBL-GRADE3",
+        " 7. Screened patients with pos TB testing result who initiated treatment result TB LAM (Positivity Grade) - grade 3+",
+        EptsReportUtils.map(startedTBTreatment, mappings),
+        "diagnostictest=tblam|tblam-grade-level=three");
+
+    dataSetDefinition.addColumn(
+        "TBD-STBL-GRADE2",
+        " 7. Screened patients with pos TB testing result who initiated treatment result TB LAM (Positivity Grade) - grade 2+",
+        EptsReportUtils.map(startedTBTreatment, mappings),
+        "tblam-grade-level=two");
+
+    dataSetDefinition.addColumn(
+        "TBD-STBL-GRADE1",
+        " 7. Screened patients with pos TB testing result who initiated treatment result TB LAM (Positivity Grade) - grade 1+",
+        EptsReportUtils.map(startedTBTreatment, mappings),
+        "diagnostictest=tblam|tblam-grade-level=one");
+
+    dataSetDefinition.addColumn(
+        "TBD-STBL-GRADE0",
+        " 7. Screened patients with pos TB testing result who initiated treatment result TB LAM (Positivity Grade) - grade not reported",
+        EptsReportUtils.map(startedTBTreatment, mappings),
+        "diagnostictest=tblam|tblam-grade-level=no-level");
 
     this.addRow(
         dataSetDefinition,
