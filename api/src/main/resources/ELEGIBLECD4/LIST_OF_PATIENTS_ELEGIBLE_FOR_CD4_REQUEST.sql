@@ -1411,166 +1411,245 @@
 						                group by cd4Final.patient_id
 						      )cd4FinalLAB on cd4FinalLAB.patient_id=coorteFinal.patient_id
 			                   left join
-			                      ( 
-								select patient_id, encounter_datetime, group_concat(motivoEstadioClinico) motivoEstadio, tipoEstadio 
-								from( 
-									select estadiamentoClinico.patient_id, encounter_datetime encounter_datetime, 
-										case estadiamentoClinico.value_coded 
-											when 14656 then 'Caquexia' 
-											when 7180 then 'Toxoplasmose' 
-											when 6990 then 'Doença pelo HIV resultando encefalopatia' 
-											when 5344 then 'Herpes simples> 1 mês ou viisceral' 
-											when 5340 then 'Candidíase esofágica' 
-											when 1294 then 'Miningite cryptococal' 
-											when 5042 then 'Tuberculose extrapulmonar' 
-											when 507 then 'Sarcoma de Kaposi (SK)' 
-											when 1570 then 'Cancro do colo do útero' 
-											when 60 then 'Menigite, NSA' 
-											when 5018 then 'Diarreia Crónica' 
-											when 5945 then 'Febre' 
-											when 42 then 'Tuberculose Pulmonar' 
-											when 3 then 'Anemia' 
-											when 43 then 'Pneumonia' 
-											when 126 then 'Gengivite' 
-											when 6783 then 'Estomatite ulcerativa necrotizante' 
-											when 5334 then 'Candidíase oral' 
-											when 14656 then 'Caquexia' 
-											when 7180 then 'Toxoplasmose' 
-											when 6990 then 'Doença pelo HIV resultando encefalopatia' 
-											when 5344 then 'Herpes simples> 1 mês ou viisceral' 
-											when 5340 then 'Candidíase esofágica' 
-											when 1294 then 'Miningite cryptococal' 
-											when 5042 then 'Tuberculose extrapulmonar' 
-											when 507 then 'Sarcoma de Kaposi' 
-											when 1570 then 'Cancro do colo do útero' 
-											when 60 then 'Menigite, NSA' 
-											when 5018 then 'Diarréia Crónica > 1 Mês' 
-											when 5945 then 'Febre' 
-											when 42 then 'Tuberculose Pulmonar' 
-											when 3 then 'Anemia' 
-											when 43 then 'Pneumonia' 
-											when 126 then 'Gengivite' 
-											when 6783 then 'Estomatite ulcerativa necrotizante' 
-											when 5334 then 'Candidíase oral' 
-										end as motivoEstadioClinico, tipoEstadio 
-									from (
-									    select final.patient_id,min(final.encounter_datetime) encounter_datetime,final.value_coded,final.tipoEstadio 
-									    from
-									    (
-								   		select estadio4.patient_id, estadio4.encounter_datetime,o.value_coded, 4 as tipoEstadio 
-								   		from( 
-								   			select p.patient_id,e.encounter_datetime encounter_datetime 
-								   			from patient p 
-												inner join encounter e on p.patient_id=e.patient_id 
-												inner join obs o on o.encounter_id=e.encounter_id 
-											where e.encounter_type = 6 and e.voided=0 and o.voided=0 and p.voided=0 and o.concept_id=1406 and e.location_id=:location 
-												and o.obs_datetime <= :endDate 
-												--group by p.patient_id 
-										) estadio4 
-											inner join encounter e on e.patient_id = estadio4.patient_id 
-											inner join obs o on o.encounter_id = e.encounter_id and o.obs_datetime = estadio4.encounter_datetime 
-										where e.voided = 0 and o.voided = 0 and o.value_coded in (14656, 7180, 6990, 5344, 5340, 1294, 5042, 507, 1570, 60) 
-								
-										union 
-										
-										select estadio3.patient_id, estadio3.encounter_datetime,o.value_coded, 3 as tipoEstadio 
-										from( 
-								   			select p.patient_id,e.encounter_datetime encounter_datetime 
-								   			from patient p 
-												inner join encounter e on p.patient_id=e.patient_id 
-												inner join obs o on o.encounter_id=e.encounter_id 
-											where e.encounter_type = 6 and e.voided=0 and o.voided=0 and p.voided=0 and o.concept_id=1406 and e.location_id=:location 
-												and o.obs_datetime <= :endDate 
-												--group by p.patient_id 
-										) estadio3 
-											inner join encounter e on e.patient_id = estadio3.patient_id 
-											inner join obs o on o.encounter_id = e.encounter_id and o.obs_datetime = estadio3.encounter_datetime 
-										where e.voided = 0 and o.voided = 0 and o.value_coded in (5018, 5945, 42, 3, 43, 60, 126, 6783, 5334) 
-										 )final group by final.patient_id
-										)estadiamentoClinico order by estadiamentoClinico.patient_id, estadiamentoClinico.encounter_datetime 
-									)estadiamentoClinico group by estadiamentoClinico.patient_id 
-								)estadiamentoClinico on estadiamentoClinico.patient_id = coorteFinal.patient_id 
+			                    ( 
+									SELECT 
+									    estadiamentoClinico.patient_id,
+									    estadiamentoClinico.encounter_datetime,
+									    GROUP_CONCAT(motivoEstadioClinico) AS motivoEstadio,
+									    estadiamentoClinico.tipoEstadio
+									FROM ( 
+									    SELECT 
+									        estadiamentoClinico.patient_id, 
+									        encounter_datetime, 
+									        CASE estadiamentoClinico.value_coded 
+									            WHEN 14656 THEN 'Caquexia' 
+									            WHEN 7180 THEN 'Toxoplasmose' 
+									            WHEN 6990 THEN 'Doença pelo HIV resultando encefalopatia' 
+									            WHEN 5344 THEN 'Herpes simples> 1 mês ou viisceral' 
+									            WHEN 5340 THEN 'Candidíase esofágica' 
+									            WHEN 1294 THEN 'Miningite cryptococal' 
+									            WHEN 5042 THEN 'Tuberculose extrapulmonar' 
+									            WHEN 507 THEN 'Sarcoma de Kaposi (SK)' 
+									            WHEN 1570 THEN 'Cancro do colo do útero' 
+									            WHEN 60 THEN 'Menigite, NSA' 
+									            WHEN 5018 THEN 'Diarreia Crónica' 
+									            WHEN 5945 THEN 'Febre' 
+									            WHEN 42 THEN 'Tuberculose Pulmonar' 
+									            WHEN 3 THEN 'Anemia' 
+									            WHEN 43 THEN 'Pneumonia' 
+									            WHEN 126 THEN 'Gengivite' 
+									            WHEN 6783 THEN 'Estomatite ulcerativa necrotizante' 
+									            WHEN 5334 THEN 'Candidíase oral' 
+									        END AS motivoEstadioClinico, 
+									        tipoEstadio 
+									    FROM (
+									        SELECT 
+									            final.patient_id,
+									            MIN(final.encounter_datetime) AS encounter_datetime,
+									            final.value_coded,
+									            final.tipoEstadio 
+									        FROM (
+									            SELECT 
+									                estadio4.patient_id, 
+									                estadio4.encounter_datetime,
+									                o.value_coded,  
+									                4 AS tipoEstadio 
+									            FROM ( 
+									                SELECT 
+									                    p.patient_id,
+									                    e.encounter_datetime 
+									                FROM patient p 
+									                INNER JOIN encounter e ON p.patient_id = e.patient_id 
+									                INNER JOIN obs o ON o.encounter_id = e.encounter_id 
+									                WHERE e.encounter_type = 6 
+									                  AND e.voided = 0 
+									                  AND o.voided = 0 
+									                  AND p.voided = 0 
+									                  AND o.concept_id = 1406 
+									                  AND e.location_id = :location 
+									                  AND o.obs_datetime <= :endDate 
+									            ) estadio4 
+									            INNER JOIN encounter e ON e.patient_id = estadio4.patient_id 
+									            INNER JOIN obs o ON o.encounter_id = e.encounter_id 
+									                             AND o.obs_datetime = estadio4.encounter_datetime 
+									            WHERE e.voided = 0 
+									              AND o.voided = 0 
+									              AND o.value_coded IN (14656,7180,6990,5344,5340,1294,5042,507,1570,60) 
+									
+									            UNION 
+									
+									            SELECT 
+									                estadio3.patient_id, 
+									                estadio3.encounter_datetime,
+									                o.value_coded,  
+									                3 AS tipoEstadio 
+									            FROM ( 
+									                SELECT 
+									                    p.patient_id,
+									                    e.encounter_datetime 
+									                FROM patient p 
+									                INNER JOIN encounter e ON p.patient_id = e.patient_id 
+									                INNER JOIN obs o ON o.encounter_id = e.encounter_id 
+									                WHERE e.encounter_type = 6 
+									                  AND e.voided = 0 
+									                  AND o.voided = 0 
+									                  AND p.voided = 0 
+									                  AND o.concept_id = 1406 
+									                  AND e.location_id = :location 
+									                  AND o.obs_datetime <= :endDate 
+									            ) estadio3 
+									            INNER JOIN encounter e ON e.patient_id = estadio3.patient_id 
+									            INNER JOIN obs o ON o.encounter_id = e.encounter_id 
+									                             AND o.obs_datetime = estadio3.encounter_datetime 
+									            WHERE e.voided = 0 
+									              AND o.voided = 0 
+									              AND o.value_coded IN (5018,5945,42,3,43,60,126,6783,5334)
+									        ) final 
+									        GROUP BY final.patient_id
+									    ) estadiamentoClinico 
+									    ORDER BY estadiamentoClinico.patient_id, estadiamentoClinico.encounter_datetime 
+									) estadiamentoClinico 
+									LEFT JOIN (
+									    SELECT 
+									        p.patient_id,
+									        e.encounter_datetime 
+									    FROM patient p 
+									    INNER JOIN encounter e ON p.patient_id = e.patient_id 
+									    INNER JOIN obs o ON o.encounter_id = e.encounter_id 
+									    WHERE e.encounter_type = 6 
+									      AND e.voided = 0 
+									      AND o.voided = 0 
+									      AND p.voided = 0 
+									      AND o.concept_id IN (1695,730,165515) 
+									      AND e.location_id = :location 
+									      AND e.encounter_datetime BETWEEN DATE_SUB(:endDate, INTERVAL 12 MONTH) AND :endDate
+									) cd4 
+									    ON cd4.patient_id = estadiamentoClinico.patient_id
+									WHERE cd4.encounter_datetime IS NULL
+									GROUP BY estadiamentoClinico.patient_id
+							   	)estadiamentoClinico on estadiamentoClinico.patient_id = coorteFinal.patient_id 
 								left join
 								(
-								select patient_id, encounter_datetime, group_concat(motivoEstadioClinico) motivoEstadio, tipoEstadio 
-								from( 
-									select estadiamentoClinico.patient_id, encounter_datetime encounter_datetime, 
-										case estadiamentoClinico.value_coded 
-											when 14656 then 'Caquexia' 
-											when 7180 then 'Toxoplasmose' 
-											when 6990 then 'Doença pelo HIV resultando encefalopatia' 
-											when 5344 then 'Herpes simples> 1 mês ou viisceral' 
-											when 5340 then 'Candidíase esofágica' 
-											when 1294 then 'Miningite cryptococal' 
-											when 5042 then 'Tuberculose extrapulmonar' 
-											when 507 then 'Sarcoma de Kaposi (SK)' 
-											when 1570 then 'Cancro do colo do útero' 
-											when 60 then 'Menigite, NSA' 
-											when 5018 then 'Diarreia Crónica' 
-											when 5945 then 'Febre' 
-											when 42 then 'Tuberculose Pulmonar' 
-											when 3 then 'Anemia' 
-											when 43 then 'Pneumonia' 
-											when 126 then 'Gengivite' 
-											when 6783 then 'Estomatite ulcerativa necrotizante' 
-											when 5334 then 'Candidíase oral' 
-											when 14656 then 'Caquexia' 
-											when 7180 then 'Toxoplasmose' 
-											when 6990 then 'Doença pelo HIV resultando encefalopatia' 
-											when 5344 then 'Herpes simples> 1 mês ou viisceral' 
-											when 5340 then 'Candidíase esofágica' 
-											when 1294 then 'Miningite cryptococal' 
-											when 5042 then 'Tuberculose extrapulmonar' 
-											when 507 then 'Sarcoma de Kaposi' 
-											when 1570 then 'Cancro do colo do útero' 
-											when 60 then 'Menigite, NSA' 
-											when 5018 then 'Diarréia Crónica > 1 Mês' 
-											when 5945 then 'Febre' 
-											when 42 then 'Tuberculose Pulmonar' 
-											when 3 then 'Anemia' 
-											when 43 then 'Pneumonia' 
-											when 126 then 'Gengivite' 
-											when 6783 then 'Estomatite ulcerativa necrotizante' 
-											when 5334 then 'Candidíase oral' 
-										end as motivoEstadioClinico, tipoEstadio 
-									from (
-									    select final.patient_id,final.encounter_datetime encounter_datetime,final.value_coded,final.tipoEstadio 
-									    from
-									    (
-								   		select estadio4.patient_id, estadio4.encounter_datetime,o.value_coded, 4 as tipoEstadio 
-								   		from( 
-								   			select p.patient_id,e.encounter_datetime encounter_datetime 
-								   			from patient p 
-												inner join encounter e on p.patient_id=e.patient_id 
-												inner join obs o on o.encounter_id=e.encounter_id 
-											where e.encounter_type = 6 and e.voided=0 and o.voided=0 and p.voided=0 and o.concept_id=1406 and e.location_id=:location 
-												and o.obs_datetime <= :endDate 
-												--group by p.patient_id 
-										) estadio4 
-											inner join encounter e on e.patient_id = estadio4.patient_id 
-											inner join obs o on o.encounter_id = e.encounter_id and o.obs_datetime = estadio4.encounter_datetime 
-										where e.voided = 0 and o.voided = 0 and o.value_coded in (14656, 7180, 6990, 5344, 5340, 1294, 5042, 507, 1570, 60) 
-								
-										union 
-										
-										select estadio3.patient_id, estadio3.encounter_datetime,o.value_coded, 3 as tipoEstadio 
-										from( 
-								   			select p.patient_id,e.encounter_datetime encounter_datetime 
-								   			from patient p 
-												inner join encounter e on p.patient_id=e.patient_id 
-												inner join obs o on o.encounter_id=e.encounter_id 
-											where e.encounter_type = 6 and e.voided=0 and o.voided=0 and p.voided=0 and o.concept_id=1406 and e.location_id=:location 
-												and o.obs_datetime <= :endDate 
-												--group by p.patient_id 
-										) estadio3 
-											inner join encounter e on e.patient_id = estadio3.patient_id 
-											inner join obs o on o.encounter_id = e.encounter_id and o.obs_datetime = estadio3.encounter_datetime 
-										where e.voided = 0 and o.voided = 0 and o.value_coded in (5018, 5945, 42, 3, 43, 60, 126, 6783, 5334) 
-										 )final 
-										)estadiamentoClinico order by estadiamentoClinico.patient_id, estadiamentoClinico.encounter_datetime 
-									)estadiamentoClinico group by estadiamentoClinico.patient_id 
-								)estadiamentoClinicoFinal on estadiamentoClinicoFinal.patient_id=coorteFinal.patient_id
-								
+								SELECT 
+								    estadiamentoClinico.patient_id,
+								    estadiamentoClinico.encounter_datetime,
+								    GROUP_CONCAT(estadiamentoClinico.motivoEstadioClinico) AS motivoEstadio,
+								    estadiamentoClinico.tipoEstadio
+								FROM ( 
+								    SELECT 
+								        ec.patient_id,
+								        ec.encounter_datetime,
+								        CASE ec.value_coded
+								            WHEN 14656 THEN 'Caquexia'
+								            WHEN 7180 THEN 'Toxoplasmose'
+								            WHEN 6990 THEN 'Doença pelo HIV resultando encefalopatia'
+								            WHEN 5344 THEN 'Herpes simples> 1 mês ou viisceral'
+								            WHEN 5340 THEN 'Candidíase esofágica'
+								            WHEN 1294 THEN 'Meningite cryptococal'
+								            WHEN 5042 THEN 'Tuberculose extrapulmonar'
+								            WHEN 507 THEN 'Sarcoma de Kaposi (SK)'
+								            WHEN 1570 THEN 'Cancro do colo do útero'
+								            WHEN 60 THEN 'Meningite, NSA'
+								            WHEN 5018 THEN 'Diarreia Crónica'
+								            WHEN 5945 THEN 'Febre'
+								            WHEN 42 THEN 'Tuberculose Pulmonar'
+								            WHEN 3 THEN 'Anemia'
+								            WHEN 43 THEN 'Pneumonia'
+								            WHEN 126 THEN 'Gengivite'
+								            WHEN 6783 THEN 'Estomatite ulcerativa necrotizante'
+								            WHEN 5334 THEN 'Candidíase oral'
+								        END AS motivoEstadioClinico,
+								        ec.tipoEstadio
+								    FROM (
+								        SELECT 
+								            f.patient_id,
+								            f.encounter_datetime,
+								            f.value_coded,
+								            f.tipoEstadio
+								        FROM (
+								            -- Estadio 4
+								            SELECT 
+								                e4.patient_id,
+								                e4.encounter_datetime,
+								                o.value_coded,
+								                4 AS tipoEstadio
+								            FROM (
+								                SELECT 
+								                    p.patient_id,
+								                    e.encounter_datetime
+								                FROM patient p 
+								                    INNER JOIN encounter e ON p.patient_id = e.patient_id
+								                    INNER JOIN obs o ON o.encounter_id = e.encounter_id
+								                WHERE e.encounter_type = 6 
+								                    AND e.voided = 0 
+								                    AND o.voided = 0 
+								                    AND p.voided = 0 
+								                    AND o.concept_id = 1406 
+								                    AND e.location_id = :location 
+								                    AND o.obs_datetime <= :endDate
+								            ) e4
+								            INNER JOIN encounter e ON e.patient_id = e4.patient_id
+								            INNER JOIN obs o ON o.encounter_id = e.encounter_id 
+								                             AND o.obs_datetime = e4.encounter_datetime
+								            WHERE e.voided = 0 
+								              AND o.voided = 0 
+								              AND o.value_coded IN (14656, 7180, 6990, 5344, 5340, 1294, 5042, 507, 1570, 60)
+								            
+								            UNION ALL
+								            
+								            -- Estadio 3
+								            SELECT 
+								                e3.patient_id,
+								                e3.encounter_datetime,
+								                o.value_coded,
+								                3 AS tipoEstadio
+								            FROM (
+								                SELECT 
+								                    p.patient_id,
+								                    e.encounter_datetime
+								                FROM patient p 
+								                    INNER JOIN encounter e ON p.patient_id = e.patient_id
+								                    INNER JOIN obs o ON o.encounter_id = e.encounter_id
+								                WHERE e.encounter_type = 6 
+								                    AND e.voided = 0 
+								                    AND o.voided = 0 
+								                    AND p.voided = 0 
+								                    AND o.concept_id = 1406 
+								                    AND e.location_id = :location 
+								                    AND o.obs_datetime <= :endDate
+								            ) e3
+								            INNER JOIN encounter e ON e.patient_id = e3.patient_id
+								            INNER JOIN obs o ON o.encounter_id = e.encounter_id 
+								                             AND o.obs_datetime = e3.encounter_datetime
+								            WHERE e.voided = 0 
+								              AND o.voided = 0 
+								              AND o.value_coded IN (5018, 5945, 42, 3, 43, 60, 126, 6783, 5334)
+								        ) f
+								    ) ec
+								    ORDER BY ec.patient_id, ec.encounter_datetime
+								) AS estadiamentoClinico
+								LEFT JOIN (
+								    SELECT 
+								        p.patient_id,
+								        e.encounter_datetime
+								    FROM patient p 
+								        INNER JOIN encounter e ON p.patient_id = e.patient_id
+								        INNER JOIN obs o ON o.encounter_id = e.encounter_id
+								    WHERE e.encounter_type = 6 
+								        AND e.voided = 0 
+								        AND o.voided = 0 
+								        AND p.voided = 0 
+								        AND o.concept_id IN (1695, 730, 165515)
+								        AND e.location_id = :location 
+								        AND e.encounter_datetime BETWEEN DATE_SUB(:endDate, INTERVAL 12 MONTH) AND :endDate
+								) AS cd4 
+								    ON cd4.patient_id = estadiamentoClinico.patient_id
+								WHERE cd4.encounter_datetime IS NULL
+								GROUP BY 
+								    estadiamentoClinico.patient_id,
+								    estadiamentoClinico.encounter_datetime,
+								    estadiamentoClinico.tipoEstadio
+								 )estadiamentoClinicoFinal on estadiamentoClinicoFinal.patient_id=coorteFinal.patient_id
 								left join
 								(
 								   	    select  f.patient_id,
