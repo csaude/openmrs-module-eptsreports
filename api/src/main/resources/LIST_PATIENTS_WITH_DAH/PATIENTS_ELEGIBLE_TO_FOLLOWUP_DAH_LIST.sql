@@ -2364,7 +2364,7 @@ left join
     	) cd4 group by patient_id 
 ) cd4EligibilidadeMDSDAH on inicioDAH.patient_id = cd4EligibilidadeMDSDAH.patient_id  
 left join( 
-select patient_id, encounter_datetime, group_concat(motivoEstadioClinico) motivoEstadio, tipoEstadio 
+select patient_id, encounter_datetime, group_concat(motivoEstadioClinico) motivoEstadio, MAX(estadiamentoClinico.tipoEstadio) AS tipoEstadio 
 from( 
 	select estadiamentoClinico.patient_id, encounter_datetime encounter_datetime, 
 		case estadiamentoClinico.value_coded 
@@ -2434,7 +2434,7 @@ from(
 			inner join encounter e on e.patient_id = estadio3.patient_id 
 			inner join obs o on o.encounter_id = e.encounter_id and o.obs_datetime = estadio3.encounter_datetime 
 		where e.voided = 0 and o.voided = 0 and o.value_coded in (5018, 5945, 42, 3, 43, 60, 126, 6783, 5334) 
-		)estadiamentoClinico order by estadiamentoClinico.patient_id, estadiamentoClinico.encounter_datetime 
+		)estadiamentoClinico order by estadiamentoClinico.patient_id, estadiamentoClinico.encounter_datetime, tipoEstadio desc  
 	)estadiamentoClinico group by estadiamentoClinico.patient_id 
 )estadiamentoClinico on estadiamentoClinico.patient_id = inicioDAH.patient_id 
 left join 
