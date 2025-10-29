@@ -462,7 +462,7 @@ public class ResumoMensalCETAQueries {
             + ") maxFI "
             + "  inner join encounter e on e.patient_id = maxFI.patient_id "
             + "  inner join obs o on e.encounter_id = o.encounter_id "
-            + "  where e.voided = 0 and o.voided = 0 and e.encounter_type = 97 and o.concept_id=165552 and o.value_coded in (1065,165550,165551) "
+            + "  where e.voided = 0 and o.voided = 0 and e.encounter_type = 97 and o.concept_id=165611 and o.value_coded in (1065,165550,165551) "
             + "  and e.location_id =:location and e.encounter_datetime = maxFI.encounter_datetime "
             + "  group by e.patient_id ";
 
