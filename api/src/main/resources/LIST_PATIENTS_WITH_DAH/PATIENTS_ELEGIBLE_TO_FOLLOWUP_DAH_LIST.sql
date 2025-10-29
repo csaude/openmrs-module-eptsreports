@@ -2373,13 +2373,12 @@ from(
 			when 6990 then 'Doença pelo HIV resultando encefalopatia' 
 			when 5344 then 'Herpes simples> 1 mês ou viisceral' 
 			when 5340 then 'Candidíase esofágica' 
-			when 1294 then 'Miningite cryptococal' 
+			when 1294 then 'Meningite Criptocócica' 
 			when 5042 then 'Tuberculose extrapulmonar' 
 			when 507 then 'Sarcoma de Kaposi (SK)' 
 			when 1570 then 'Cancro do colo do útero' 
-			when 60 then 'Menigite, NSA' 
 			when 5018 then 'Diarreia Crónica' 
-			when 5945 then 'Febre' 
+			when 5945 then 'Febre Inexplicada' 
 			when 42 then 'Tuberculose Pulmonar' 
 			when 3 then 'Anemia' 
 			when 43 then 'Pneumonia' 
@@ -2391,11 +2390,11 @@ from(
 			when 6990 then 'Doença pelo HIV resultando encefalopatia' 
 			when 5344 then 'Herpes simples> 1 mês ou viisceral' 
 			when 5340 then 'Candidíase esofágica' 
-			when 1294 then 'Miningite cryptococal' 
+			when 1294 then 'Meningite Criptocócica' 
 			when 5042 then 'Tuberculose extrapulmonar' 
 			when 507 then 'Sarcoma de Kaposi' 
 			when 1570 then 'Cancro do colo do útero' 
-			when 60 then 'Menigite, NSA' 
+			when 60 then 'Meningite' 
 			when 5018 then 'Diarréia Crónica > 1 Mês' 
 			when 5945 then 'Febre' 
 			when 42 then 'Tuberculose Pulmonar' 
@@ -2418,7 +2417,7 @@ from(
 		) estadio4 
 			inner join encounter e on e.patient_id = estadio4.patient_id 
 			inner join obs o on o.encounter_id = e.encounter_id and o.obs_datetime = estadio4.encounter_datetime 
-		where e.voided = 0 and o.voided = 0 and o.value_coded in (14656, 7180, 6990, 5344, 5340, 1294, 5042, 507, 1570, 60) 
+		where e.voided = 0 and o.voided = 0 and o.value_coded in (14656, 7180, 6990, 5344, 5340, 1294, 5042, 507, 1570) 
 
 		union 
 		
