@@ -6,6 +6,8 @@ import org.openmrs.Location;
 import org.openmrs.module.eptsreports.reporting.library.indicators.EptsGeneralIndicator;
 import org.openmrs.module.eptsreports.reporting.utils.EptsQuerysUtils;
 import org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils;
+import org.openmrs.module.eptsreports.reporting.utils.TxCurrColumnsQuantity;
+import org.openmrs.module.eptsreports.reporting.utils.TxCurrQuery;
 import org.openmrs.module.reporting.cohort.definition.CohortDefinition;
 import org.openmrs.module.reporting.cohort.definition.SqlCohortDefinition;
 import org.openmrs.module.reporting.dataset.definition.CohortIndicatorDataSetDefinition;
@@ -31,7 +33,14 @@ public class ListOfPatientsEligileToTPTDataSet extends BaseDataSet {
     SqlDataSetDefinition dsd = new SqlDataSetDefinition();
     dsd.setName("Find list of patients who are eligible to TPT");
     dsd.addParameters(list);
-    dsd.setSqlQuery(EptsQuerysUtils.loadQuery(FIND_PATIENTS_ELIGIBLE_TPT_LIST));
+
+    String query =
+        String.format(
+            EptsQuerysUtils.loadQuery(FIND_PATIENTS_ELIGIBLE_TPT_LIST),
+            TxCurrQuery.findPatientsInTxCurr(TxCurrColumnsQuantity.ALL));
+
+    dsd.setSqlQuery(query);
+
     return dsd;
   }
 
@@ -64,7 +73,12 @@ public class ListOfPatientsEligileToTPTDataSet extends BaseDataSet {
     definition.addParameter(new Parameter("endDate", "End Date", Date.class));
     definition.addParameter(new Parameter("location", "location", Location.class));
 
-    definition.setQuery(EptsQuerysUtils.loadQuery(FIND_PATIENTS_ELIGIBLE_TPT_TOTAL));
+    String query =
+        String.format(
+            EptsQuerysUtils.loadQuery(FIND_PATIENTS_ELIGIBLE_TPT_TOTAL),
+            TxCurrQuery.findPatientsInTxCurr(TxCurrColumnsQuantity.ALL));
+
+    definition.setQuery(query);
 
     return definition;
   }
