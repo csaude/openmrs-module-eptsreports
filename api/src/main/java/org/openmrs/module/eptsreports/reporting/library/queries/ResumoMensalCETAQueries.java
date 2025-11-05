@@ -39,6 +39,23 @@ public class ResumoMensalCETAQueries {
   }
 
   /**
+   * Caso o utente não tenha Ficha Inicial CETA registada no sistema
+   *
+   * @return String
+   */
+  public static String findPatientsWhoHaveAtLeastOneFichaInicialCETA() {
+
+    String query =
+        "Select p.patient_id "
+            + "From patient p "
+            + "inner join encounter e on p.patient_id=e.patient_id "
+            + "where p.voided=0 and e.voided=0 and e.encounter_type = 97 and e.location_id=:location "
+            + "and e.encounter_datetime <= :endDate ";
+
+    return query;
+  }
+
+  /**
    * Excluindo todos os utentes com registo da Ficha FICA-BEM entre data início de reporte -12 meses
    * e data início de reporte para RF32, RF33, RF34, e RF35.
    *

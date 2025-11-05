@@ -743,9 +743,17 @@ public class ResumoMensalCETACohortQueries {
                     .findPatientsWhoHaveScreeningCriteriaSecondConsultationInFichaInicialCETA()),
             mappings));
 
-    definition.addSearch("RF28", EptsReportUtils.map(getPatientsRF32(), mappings));
+    definition.addSearch(
+        "INICIAL-CETA-ENDDATE",
+        EptsReportUtils.map(
+            this.genericCohortQueries.generalSql(
+                "INICIAL-CETA-ENDDATE",
+                ResumoMensalCETAQueries.findPatientsWhoHaveAtLeastOneFichaInicialCETA()),
+            mappings));
 
-    definition.setCompositionString("INICIAL-CETA OR RF28");
+    definition.addSearch("RF32", EptsReportUtils.map(getPatientsRF32(), mappings));
+
+    definition.setCompositionString("INICIAL-CETA OR (RF32 NOT INICIAL-CETA-ENDDATE)");
 
     return definition;
   }
@@ -774,9 +782,17 @@ public class ResumoMensalCETACohortQueries {
             mappings));
 
     definition.addSearch(
+        "INICIAL-CETA-ENDDATE",
+        EptsReportUtils.map(
+            this.genericCohortQueries.generalSql(
+                "INICIAL-CETA-ENDDATE",
+                ResumoMensalCETAQueries.findPatientsWhoHaveAtLeastOneFichaInicialCETA()),
+            mappings));
+
+    definition.addSearch(
         "DISAG1", EptsReportUtils.map(getPatientsDisagregationsSecondLineTARV26_1(), mappings));
 
-    definition.setCompositionString("(RF29 OR CV-1000) NOT DISAG1");
+    definition.setCompositionString("((RF29 NOT INICIAL-CETA-ENDDATE)  OR CV-1000) NOT DISAG1");
 
     return definition;
   }
@@ -802,7 +818,7 @@ public class ResumoMensalCETACohortQueries {
                     .findPatientsWhoHaveScreeningCriteriaReintegretedInFichaInicialCETA()),
             mappings));
 
-    definition.addSearch("RF30", EptsReportUtils.map(getPatientsRF34(), mappings));
+    definition.addSearch("RF34", EptsReportUtils.map(getPatientsRF34(), mappings));
 
     definition.addSearch(
         "DISAG1", EptsReportUtils.map(getPatientsDisagregationsSecondLineTARV26_1(), mappings));
@@ -811,7 +827,16 @@ public class ResumoMensalCETACohortQueries {
         "DISAG2",
         EptsReportUtils.map(getPatientsDisagregationsCVGreaterThan1000Copies26_2(), mappings));
 
-    definition.setCompositionString("(REINTEGRADO OR RF30) NOT (DISAG1 OR DISAG2)");
+    definition.addSearch(
+        "INICIAL-CETA-ENDDATE",
+        EptsReportUtils.map(
+            this.genericCohortQueries.generalSql(
+                "INICIAL-CETA-ENDDATE",
+                ResumoMensalCETAQueries.findPatientsWhoHaveAtLeastOneFichaInicialCETA()),
+            mappings));
+
+    definition.setCompositionString(
+        "(REINTEGRADO OR (RF34 NOT INICIAL-CETA-ENDDATE)) NOT (DISAG1 OR DISAG2)");
 
     return definition;
   }
@@ -837,7 +862,7 @@ public class ResumoMensalCETACohortQueries {
                     .findPatientsWhoHaveScreeningCriteriaPsychosocialFactorsInFichaInicialCETA()),
             mappings));
 
-    definition.addSearch("RF31", EptsReportUtils.map(getPatientsRF35(), mappings));
+    definition.addSearch("RF35", EptsReportUtils.map(getPatientsRF35(), mappings));
 
     definition.addSearch(
         "DISAG1", EptsReportUtils.map(getPatientsDisagregationsSecondLineTARV26_1(), mappings));
@@ -850,7 +875,16 @@ public class ResumoMensalCETACohortQueries {
         "DISAG3",
         EptsReportUtils.map(getPatientsDisagregationsPatientsReintegreted26_3(), mappings));
 
-    definition.setCompositionString("(PSICOSSOCIAIS OR RF31) NOT (DISAG1 OR DISAG2 OR DISAG3)");
+    definition.addSearch(
+        "INICIAL-CETA-ENDDATE",
+        EptsReportUtils.map(
+            this.genericCohortQueries.generalSql(
+                "INICIAL-CETA-ENDDATE",
+                ResumoMensalCETAQueries.findPatientsWhoHaveAtLeastOneFichaInicialCETA()),
+            mappings));
+
+    definition.setCompositionString(
+        "(PSICOSSOCIAIS OR (RF35 NOT INICIAL-CETA-ENDDATE)) NOT (DISAG1 OR DISAG2 OR DISAG3)");
 
     return definition;
   }
