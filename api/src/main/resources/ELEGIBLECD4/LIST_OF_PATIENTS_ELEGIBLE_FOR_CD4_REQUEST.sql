@@ -393,7 +393,7 @@
 			           )C3 on C3.patient_id=p.person_id
 			           left join
 			           (
-			            select C4.patient_id,4 criteria
+			          	select C4.patient_id,4 criteria
 			                  from
 			                  (
 			                  select III.patient_id,III.data_estadio
@@ -491,7 +491,26 @@
 			                      where cd4.data_cd4 BETWEEN estadioOMS.data_estadio and CURDATE()
 			                      group by estadioOMS.patient_id
 			                  )exclusao on exclusao.patient_id=C4.patient_id
-			                  where exclusao.patient_id is null
+
+			                  left join
+			             			 (
+			             			 select cd4.patient_id
+								    from
+								    (
+								    SELECT p.patient_id,e.encounter_datetime  
+								    FROM patient p 
+										INNER JOIN encounter e ON p.patient_id = e.patient_id 
+									    INNER JOIN obs o ON o.encounter_id = e.encounter_id 
+									    WHERE e.encounter_type = 6 
+									      AND e.voided = 0 
+									      AND o.voided = 0 
+									      AND p.voided = 0 
+									      AND o.concept_id IN (1695,730,165515) 
+									      AND e.location_id = :location 
+									      AND e.encounter_datetime BETWEEN DATE_SUB(:endDate, INTERVAL 12 MONTH) AND :endDate
+									) cd4 
+									)cd4 on cd4.patient_id=C4.patient_id
+			                  where exclusao.patient_id is null and  cd4.patient_id is null
 			                  group by C4.patient_id
 			           )C4 on C4.patient_id=p.person_id
 			           left join
@@ -1252,29 +1271,40 @@
 		                      )cd4 on cd4.patient_id=coorteFinal.patient_id
 		                      left join
 		                      (
-		                      
-		                             select cd4.patient_id,cd4.data_resultado_cd4 data_resultado_cd4,o.value_numeric valor_cd4 ,o.encounter_id 
-					                 from 
-					                 (
-						              select cd4.patient_id,max(cd4.data_resultado) data_resultado_cd4
-						              from (
-					                       select p.patient_id,e.encounter_datetime data_resultado
-						                  from patient p   
-						                  inner join encounter e on p.patient_id = e.patient_id   
-						                  inner join obs o on o.encounter_id = e.encounter_id   
-						                  where p.voided = 0 
-						                  and  e.voided = 0  
-						                  and  o.voided = 0
-						                  and  o.concept_id in (1695,730,165515)
-						                  and  e.encounter_datetime <= :endDate
-						                  and  e.encounter_type=6
-						                  and  e.location_id=:location
-						                  )cd4
-						                  group by cd4.patient_id
-						                  )cd4
-						                  left join encounter e on e.patient_id=cd4.patient_id
-						                  left join obs o on o.encounter_id=e.encounter_id 
-						                  where o.concept_id in (1695,730,165515) and cd4.data_resultado_cd4=o.obs_datetime and o.voided=0 and e.encounter_type=6
+		                      									select cd4.patient_id, 
+										                            cd4.data_resultado_cd4,
+										                            case
+														             when cd4.valor_cd4=165513 then '<=200' 
+														             when cd4.valor_cd4=1254 then '>200'  
+														             else cd4.valor_cd4
+														             end as valor_cd4
+										                            from
+										                            (
+															 select cd4.patient_id,
+										                               cd4.data_resultado_cd4 data_resultado_cd4,
+										                               if(o.concept_id=165515, o.value_coded, o.value_numeric) valor_cd4 ,
+										                               o.encounter_id from 
+										                        (
+												              	select cd4.patient_id,max(cd4.data_resultado) data_resultado_cd4
+																	 from (
+											                       select p.patient_id,e.encounter_datetime data_resultado
+												                  from patient p   
+												                  inner join encounter e on p.patient_id = e.patient_id   
+												                  inner join obs o on o.encounter_id = e.encounter_id   
+												                  where p.voided = 0 
+												                  and  e.voided = 0  
+												                  and  o.voided = 0
+												                  and  o.concept_id in (1695,730,165515)
+												                  and  e.encounter_datetime <= :endDate
+												                  and  e.encounter_type=6
+												                  and  e.location_id=:location
+												                  )cd4
+												                  group by cd4.patient_id
+												                  )cd4
+												                  left join encounter e on e.patient_id=cd4.patient_id
+												                  left join obs o on o.encounter_id=e.encounter_id 
+												                  where o.concept_id in (1695,730,165515) and cd4.data_resultado_cd4=o.obs_datetime and o.voided=0 and e.encounter_type=6
+												                  )cd4
 		                      )ultimoCD4 on ultimoCD4.patient_id=coorteFinal.patient_id
 		                       left join
 		                      (
@@ -1422,9 +1452,9 @@
 									        estadiamentoClinico.patient_id, 
 									        encounter_datetime, 
 									        CASE estadiamentoClinico.value_coded 
-									            WHEN 14656 THEN 'Caquexia' 
+									            WHEN 14656 THEN 'Síndrome de caquexia' 
 									            WHEN 7180 THEN 'Toxoplasmose' 
-									            WHEN 6990 THEN 'Doença pelo HIV resultando encefalopatia' 
+									            WHEN 6990 THEN 'Encefalopatia por HIV' 
 									            WHEN 5344 THEN 'Herpes simples> 1 mês ou viisceral' 
 									            WHEN 5340 THEN 'Candidíase esofágica' 
 									            WHEN 1294 THEN 'Miningite cryptococal' 
@@ -1433,12 +1463,12 @@
 									            WHEN 1570 THEN 'Cancro do colo do útero' 
 									            WHEN 60 THEN 'Menigite, NSA' 
 									            WHEN 5018 THEN 'Diarreia Crónica' 
-									            WHEN 5945 THEN 'Febre' 
+									            WHEN 5945 THEN 'Febre Inexplicada' 
 									            WHEN 42 THEN 'Tuberculose Pulmonar' 
 									            WHEN 3 THEN 'Anemia' 
 									            WHEN 43 THEN 'Pneumonia' 
 									            WHEN 126 THEN 'Gengivite' 
-									            WHEN 6783 THEN 'Estomatite ulcerativa necrotizante' 
+									            WHEN 6783 THEN 'Estomatite' 
 									            WHEN 5334 THEN 'Candidíase oral' 
 									        END AS motivoEstadioClinico, 
 									        tipoEstadio 
@@ -1540,9 +1570,9 @@
 								        ec.patient_id,
 								        ec.encounter_datetime,
 								        CASE ec.value_coded
-								            WHEN 14656 THEN 'Caquexia'
+								            WHEN 14656 THEN 'Síndrome de caquexia'
 								            WHEN 7180 THEN 'Toxoplasmose'
-								            WHEN 6990 THEN 'Doença pelo HIV resultando encefalopatia'
+								            WHEN 6990 THEN 'Encefalopatia por HIV'
 								            WHEN 5344 THEN 'Herpes simples> 1 mês ou viisceral'
 								            WHEN 5340 THEN 'Candidíase esofágica'
 								            WHEN 1294 THEN 'Meningite cryptococal'
@@ -1551,12 +1581,12 @@
 								            WHEN 1570 THEN 'Cancro do colo do útero'
 								            WHEN 60 THEN 'Meningite, NSA'
 								            WHEN 5018 THEN 'Diarreia Crónica'
-								            WHEN 5945 THEN 'Febre'
+								            WHEN 5945 THEN 'Febre Inexplicada'
 								            WHEN 42 THEN 'Tuberculose Pulmonar'
 								            WHEN 3 THEN 'Anemia'
 								            WHEN 43 THEN 'Pneumonia'
 								            WHEN 126 THEN 'Gengivite'
-								            WHEN 6783 THEN 'Estomatite ulcerativa necrotizante'
+								            WHEN 6783 THEN 'Estomatite'
 								            WHEN 5334 THEN 'Candidíase oral'
 								        END AS motivoEstadioClinico,
 								        ec.tipoEstadio
