@@ -124,7 +124,7 @@ public class SetupDataQualitytIncompatibleDSDReport extends EptsDataExportManage
               getExcelDesignUuid(),
               null);
       Properties props = new Properties();
-      props.put("repeatingSections", "sheet:2,row:7,dataset:EC1 | sheet:3,row:7,dataset:EC2");
+      props.put("repeatingSections", "sheet:2,row:8,dataset:EC1 | sheet:3,row:8,dataset:EC2");
       props.put("sortWeight", "5000");
       props.put("sortWeight", "5000");
       reportDesign.setProperties(props);
