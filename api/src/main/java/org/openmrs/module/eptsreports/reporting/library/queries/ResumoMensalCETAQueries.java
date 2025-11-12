@@ -501,6 +501,7 @@ public class ResumoMensalCETAQueries {
             + "	inner join obs  oG on e.encounter_id=oG.encounter_id "
             + "	where e.voided=0 and o.voided=0 and oG.voided= 0 and p.voided=0 and e.encounter_type = 97 and "
             + "	o.concept_id = 165539 and oG.concept_id = 165541 and o.value_numeric > 0 "
+            + "	and o.obs_group_id = oG.obs_id "
             + "and e.encounter_datetime<=:endDate and e.location_id=:location "
             + "group by p.patient_id "
             + ")f ";
@@ -517,12 +518,13 @@ public class ResumoMensalCETAQueries {
 
     String query =
         "select patient_id from ( "
-            + "select p.patient_id, max(e.encounter_datetime) encounter_datetime from patient p "
+            + "select p.patient_id, max(e.encounter_datetime) encounter_datetime,o.value_numeric from patient p "
             + "	inner join encounter e on p.patient_id=e.patient_id "
             + "	inner join obs  o on e.encounter_id=o.encounter_id "
             + "	inner join obs  oG on e.encounter_id=oG.encounter_id "
             + "	where e.voided=0 and o.voided=0 and oG.voided= 0 and p.voided=0 and e.encounter_type = 97 and "
             + "	o.concept_id = 165539 and oG.concept_id = 165542 and o.value_numeric > 0 "
+            + "	and o.obs_group_id = oG.obs_id "
             + "and e.encounter_datetime<=:endDate and e.location_id=:location "
             + "group by p.patient_id "
             + ")f ";
@@ -571,6 +573,7 @@ public class ResumoMensalCETAQueries {
             + "	where e.voided=0 and o.voided=0 and oG.voided= 0 and p.voided=0 and e.encounter_type = 97 and "
             + "	o.concept_id = 165539 and oG.concept_id = 165543 and o.value_numeric > 0 "
             + "and e.encounter_datetime<=:endDate and e.location_id=:location "
+            + "	and o.obs_group_id = oG.obs_id "
             + "group by p.patient_id "
             + ")f ";
 

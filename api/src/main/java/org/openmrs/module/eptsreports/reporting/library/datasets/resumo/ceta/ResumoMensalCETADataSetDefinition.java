@@ -125,56 +125,56 @@ public class ResumoMensalCETADataSetDefinition extends BaseDataSet {
     ColumnParameters a17 =
         new ColumnParameters(
             "15-19",
-            "15-19 male - Reintegrado/Ma Adesao",
+            "15-19 male - Reintegrado",
             "gender=M|age=15-19|" + dimensionName + "=reintegreted",
             "17");
 
     ColumnParameters a18 =
         new ColumnParameters(
             "15-19",
-            "15-19 female - Reintegrado/Ma Adesao",
+            "15-19 female - Reintegrado",
             "gender=F|age=15-19|" + dimensionName + "=reintegreted",
             "18");
 
     ColumnParameters a19 =
         new ColumnParameters(
             "20-24",
-            "20-24 male - Reintegrado/Ma Adesao",
+            "20-24 male - Reintegrado",
             "gender=M|age=20-24|" + dimensionName + "=reintegreted",
             "19");
 
     ColumnParameters a20 =
         new ColumnParameters(
             "20-24",
-            "20-24 female - Reintegrado/Ma Adesao",
+            "20-24 female - Reintegrado",
             "gender=F|age=20-24|" + dimensionName + "=reintegreted",
             "20");
 
     ColumnParameters a21 =
         new ColumnParameters(
             "25+",
-            "25+ male - Reintegrado/Ma Adesao",
+            "25+ male - Reintegrado",
             "gender=M|age=25+|" + dimensionName + "=reintegreted",
             "21");
 
     ColumnParameters a22 =
         new ColumnParameters(
             "25+",
-            "25+ female - Reintegrado/Ma Adesao",
+            "25+ female - Reintegrado",
             "gender=F|age=25+|" + dimensionName + "=reintegreted",
             "22");
 
     ColumnParameters a23 =
         new ColumnParameters(
             "totalM",
-            "Total male - Reintegrado/Ma Adesao",
+            "Total male - Reintegrado",
             "gender=M|age=15+|" + dimensionName + "=reintegreted",
             "23");
 
     ColumnParameters a24 =
         new ColumnParameters(
             "totalF",
-            "Total female - Reintegrado/Ma Adesao",
+            "Total female - Reintegrado",
             "gender=F|age=15+|" + dimensionName + "=reintegreted",
             "24");
 
