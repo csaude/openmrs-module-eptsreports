@@ -1024,23 +1024,7 @@ public class ResumoMensalCETACohortQueries {
                 ResumoMensalCETAQueries.findPatientsRegisteredInPsychosocialFactorsInAPSSForm()),
             mappings));
 
-    definition.addSearch(
-        "CUIDADO-FRESUMO",
-        EptsReportUtils.map(
-            this.genericCohortQueries.generalSql(
-                "CUIDADO-FRESUMO",
-                ResumoMensalCETAQueries
-                    .findPatientsRegisteredInTARVCuidadosOrHaveMasterCardFichaResumo()),
-            mappings));
-
-    definition.addSearch(
-        "RF31-FILA-RL",
-        EptsReportUtils.map(
-            this.genericCohortQueries.generalSql(
-                "RF31-FILA-RL", ResumoMensalCETAQueries.findPatientsWhoPickedUpARV()),
-            mappings));
-
-    definition.setCompositionString("RF31-PSICOSSOCIAIS OR  (CUIDADO-FRESUMO NOT RF31-FILA-RL)");
+    definition.setCompositionString("RF31-PSICOSSOCIAIS");
 
     return definition;
   }

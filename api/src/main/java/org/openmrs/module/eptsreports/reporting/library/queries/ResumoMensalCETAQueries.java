@@ -95,7 +95,7 @@ public class ResumoMensalCETAQueries {
             + "where e.voided=0 "
             + "and p.voided=0 "
             + "and e.encounter_type=6 "
-            + "and e.encounter_datetime < :endDate "
+            + "and e.encounter_datetime <= :endDate "
             + "and e.location_id=:location "
             + "group by p.patient_id "
             + "having nConsultas = 2 "
