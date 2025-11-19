@@ -95,10 +95,10 @@ public class ResumoMensalCETAQueries {
             + "where e.voided=0 "
             + "and p.voided=0 "
             + "and e.encounter_type=6 "
-            + "and e.encounter_datetime <= :endDate "
+            + "and e.encounter_datetime < :startDate "
             + "and e.location_id=:location "
             + "group by p.patient_id "
-            + "having nConsultas = 2 "
+            + "having nConsultas = 1 "
             + ") firstConsultation "
             + "inner join "
             + "( "
@@ -166,7 +166,7 @@ public class ResumoMensalCETAQueries {
    *
    * @return String
    */
-  public static String findPatientsWithReinicioFichaClinicaAndMaAdesaoAPSS() {
+  public static String findPatientsWithReinicioFichaClinicaAndFichaResumo() {
 
     String query =
         "select reinicio.patient_id from "
@@ -188,23 +188,7 @@ public class ResumoMensalCETAQueries {
             + "inner join obs o on o.person_id = reinicio.patient_id "
             + "where o.concept_id in (6272,6273) and o.value_coded = 1705 "
             + "and o.obs_datetime = reinicio.data_estado and o.voided = 0 "
-            + "group by reinicio.patient_id "
-            + " "
-            + "union "
-            + " "
-            + "select adesao.patient_id from "
-            + "( "
-            + "select p.patient_id, max(o.obs_datetime) data_estado from patient p "
-            + "inner join encounter e on p.patient_id=e.patient_id "
-            + "inner join obs  o on e.encounter_id=o.encounter_id "
-            + "where e.voided=0 and o.voided=0 and p.voided=0 and e.encounter_type in (6,35) and "
-            + "o.concept_id = 6223 and o.obs_datetime>=:startDate and o.obs_datetime<=:endDate and e.location_id=:location "
-            + "group by p.patient_id "
-            + ") adesao "
-            + "inner join obs o on o.person_id = adesao.patient_id "
-            + "where o.concept_id = 6223 and o.value_coded = 1385 "
-            + "and o.obs_datetime = adesao.data_estado and o.voided = 0 "
-            + "group by adesao.patient_id ";
+            + "group by reinicio.patient_id ";
 
     return query;
   }

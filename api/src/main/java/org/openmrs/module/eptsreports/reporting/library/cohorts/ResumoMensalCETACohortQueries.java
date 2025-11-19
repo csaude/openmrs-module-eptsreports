@@ -996,7 +996,7 @@ public class ResumoMensalCETACohortQueries {
         EptsReportUtils.map(
             this.genericCohortQueries.generalSql(
                 "RF34-REINTEGRADO",
-                ResumoMensalCETAQueries.findPatientsWithReinicioFichaClinicaAndMaAdesaoAPSS()),
+                ResumoMensalCETAQueries.findPatientsWithReinicioFichaClinicaAndFichaResumo()),
             mappings));
 
     definition.setCompositionString("RF34-REINTEGRADO");
