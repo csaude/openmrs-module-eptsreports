@@ -2080,3 +2080,6 @@
 									              where date(final.data_resultado_anterior)=date(finalCV.data_ultimo_resultado_cv_anterior_lab) 
 							   )finalCVLAB on finalCVLAB.patient_id=coorteFinal.patient_id
 								group by coorteFinal.patient_id
+								order by coorteFinal.patient_id ASC
+								
+								
