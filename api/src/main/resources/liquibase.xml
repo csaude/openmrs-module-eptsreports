@@ -34,7 +34,7 @@
 			path="_metadata/SESPMetadataForRelease430_20092025.sql" />
 	</changeSet>
 	
-	<changeSet id="create-disa-sync-log-table" author="eusebio.maposse">
+<changeSet id="20251209-13:00" author="csaude">
 
     <preConditions onFail="MARK_RAN">
         <not>
@@ -43,8 +43,9 @@
     </preConditions>
 
     <createTable tableName="disa_sync_log">
-        <column name="id" type="int">
-            <constraints primaryKey="true" nullable="false" primaryKeyName="pk_disa_sync_log"/>
+
+        <column name="id" type="int" autoIncrement="true">
+            <constraints primaryKey="true" nullable="false"/>
         </column>
 
         <column name="patient_id" type="int"/>
@@ -54,9 +55,8 @@
         <column name="request_id" type="varchar(50)"/>
         <column name="creator" type="int"/>
 
-        <column name="date_created" type="datetime">
-            <defaultValueComputed>CURRENT_TIMESTAMP</defaultValueComputed>
-        </column>
+        <!-- Liquibase 1.9 NÃO aceita defaultValue para CURRENT_TIMESTAMP -->
+        <column name="date_created" type="datetime"/>
 
         <column name="type_of_result" type="varchar(50)">
             <constraints nullable="false"/>
@@ -66,25 +66,26 @@
         <column name="lastname" type="varchar(100)"/>
         <column name="result_status" type="varchar(50)"/>
         <column name="rejected_description" type="varchar(255)"/>
+
     </createTable>
 
     <addUniqueConstraint 
-            tableName="disa_sync_log"
-            columnNames="request_id, type_of_result"
-            constraintName="request_id_type_of_result"/>
+        tableName="disa_sync_log"
+        constraintName="request_id_type_of_result"
+        columnNames="request_id, type_of_result"/>
 
     <createIndex 
-            tableName="disa_sync_log"
-            indexName="sync_log_encounter">
+        tableName="disa_sync_log"
+        indexName="sync_log_encounter">
         <column name="encounter_id"/>
     </createIndex>
 
     <addForeignKeyConstraint
-            baseTableName="disa_sync_log"
-            baseColumnNames="encounter_id"
-            constraintName="fk_sync_log_encounter"
-            referencedTableName="encounter"
-            referencedColumnNames="encounter_id"/>
+        constraintName="fk_sync_log_encounter"
+        baseTableName="disa_sync_log"
+        baseColumnNames="encounter_id"
+        referencedTableName="encounter"
+        referencedColumnNames="encounter_id"/>
+        
 </changeSet>
-	 
 </databaseChangeLog>
