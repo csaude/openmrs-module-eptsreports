@@ -33,5 +33,58 @@
 		<sqlFile
 			path="_metadata/SESPMetadataForRelease430_20092025.sql" />
 	</changeSet>
+	
+	<changeSet id="create-disa-sync-log-table" author="eusebio.maposse">
+
+    <preConditions onFail="MARK_RAN">
+        <not>
+            <tableExists tableName="disa_sync_log"/>
+        </not>
+    </preConditions>
+
+    <createTable tableName="disa_sync_log">
+        <column name="id" type="int">
+            <constraints primaryKey="true" nullable="false" primaryKeyName="pk_disa_sync_log"/>
+        </column>
+
+        <column name="patient_id" type="int"/>
+        <column name="encounter_id" type="int"/>
+
+        <column name="patient_identifier" type="varchar(50)"/>
+        <column name="request_id" type="varchar(50)"/>
+        <column name="creator" type="int"/>
+
+        <column name="date_created" type="datetime">
+            <defaultValueComputed>CURRENT_TIMESTAMP</defaultValueComputed>
+        </column>
+
+        <column name="type_of_result" type="varchar(50)">
+            <constraints nullable="false"/>
+        </column>
+
+        <column name="firstname" type="varchar(100)"/>
+        <column name="lastname" type="varchar(100)"/>
+        <column name="result_status" type="varchar(50)"/>
+        <column name="rejected_description" type="varchar(255)"/>
+    </createTable>
+
+    <addUniqueConstraint 
+            tableName="disa_sync_log"
+            columnNames="request_id, type_of_result"
+            constraintName="request_id_type_of_result"/>
+
+    <createIndex 
+            tableName="disa_sync_log"
+            indexName="sync_log_encounter">
+        <column name="encounter_id"/>
+    </createIndex>
+
+    <addForeignKeyConstraint
+            baseTableName="disa_sync_log"
+            baseColumnNames="encounter_id"
+            constraintName="fk_sync_log_encounter"
+            referencedTableName="encounter"
+            referencedColumnNames="encounter_id"/>
+</changeSet>
 	 
 </databaseChangeLog>
