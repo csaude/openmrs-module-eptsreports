@@ -1,7 +1,7 @@
 select coorte12meses_final.*,
 		coorte12meses_final.data_fila as LAST_FILA, 
 		coorte12meses_final.data_seguimento as ULTIMO_SEGUIMENTO,
-		max(obs_seguimento.value_datetime) as PROXIMO_SEGUIMENTO,		
+		max(DATE_FORMAT(DATE(obs_seguimento.value_datetime), '%d/%m/%Y')) as PROXIMO_SEGUIMENTO,		
 		case obs_dispensa.value_coded 
 			when 165175 then 'HORARIO NORMAL DE EXPEDIENTE'
 			when 165176 then 'FORA DO HORÁRIO'
