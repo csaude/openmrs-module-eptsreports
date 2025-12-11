@@ -33,5 +33,70 @@
 		<sqlFile
 			path="_metadata/SESPMetadataForRelease430_20092025.sql" />
 	</changeSet>
-	 
+
+	<changeSet id="20251209-13:00" author="csaude">
+
+		<preConditions onFail="MARK_RAN">
+			<not>
+				<tableExists tableName="disa_sync_log" />
+			</not>
+		</preConditions>
+
+		<createTable tableName="disa_sync_log">
+
+			<column name="id" type="int" autoIncrement="true">
+				<constraints primaryKey="true" nullable="false" />
+			</column>
+
+			<column name="patient_id" type="int" />
+			<column name="encounter_id" type="int" />
+
+			<column name="patient_identifier" type="varchar(50)" />
+			<column name="request_id" type="varchar(50)" />
+			<column name="creator" type="int" />
+
+			<!-- Liquibase 1.9 NÃO aceita defaultValue para CURRENT_TIMESTAMP -->
+			<column name="date_created" type="datetime" />
+
+			<column name="type_of_result" type="varchar(50)">
+				<constraints nullable="false" />
+			</column>
+
+			<column name="firstname" type="varchar(100)" />
+			<column name="lastname" type="varchar(100)" />
+			<column name="result_status" type="varchar(50)" />
+			<column name="rejected_description" type="varchar(255)" />
+
+		</createTable>
+
+		<addUniqueConstraint tableName="disa_sync_log"
+			constraintName="request_id_type_of_result"
+			columnNames="request_id, type_of_result" />
+
+		<createIndex tableName="disa_sync_log"
+			indexName="sync_log_encounter">
+			<column name="encounter_id" />
+		</createIndex>
+
+		<addForeignKeyConstraint
+			constraintName="fk_sync_log_encounter" baseTableName="disa_sync_log"
+			baseColumnNames="encounter_id" referencedTableName="encounter"
+			referencedColumnNames="encounter_id" />
+
+	</changeSet>
+	<changeSet id="20251211-retire-muzima-config-htc"
+		author="mUzima">
+		<preConditions onFail="MARK_RAN" onError="MARK_RAN">
+			<tableExists tableName="muzima_config" />
+		</preConditions>
+
+		<sql>
+			UPDATE muzima_config
+			SET retired = 1,
+			retired_by = 1,
+			retire_reason = 'CDC REQUEST',
+			date_retired = NOW()
+			WHERE uuid = '1eaa9574-fa5a-4655-bd63-466b538c5b5d';
+		</sql>
+	</changeSet>
 </databaseChangeLog>
