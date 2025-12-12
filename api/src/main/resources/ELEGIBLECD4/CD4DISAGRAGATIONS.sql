@@ -333,7 +333,7 @@
 			           )C3 on C3.patient_id=p.person_id
 			           left join
 			           (
-			            select C4.patient_id,4 criteria
+			            	select C4.patient_id,4 criteria
 			                  from
 			                  (
 			                  select III.patient_id,III.data_estadio
@@ -431,7 +431,26 @@
 			                      where cd4.data_cd4 BETWEEN estadioOMS.data_estadio and CURDATE()
 			                      group by estadioOMS.patient_id
 			                  )exclusao on exclusao.patient_id=C4.patient_id
-			                  where exclusao.patient_id is null
+
+			                  left join
+			             			 (
+			             		select cd4.patient_id
+								    from
+								    (
+								    SELECT p.patient_id,e.encounter_datetime  
+								    FROM patient p 
+										INNER JOIN encounter e ON p.patient_id = e.patient_id 
+									    INNER JOIN obs o ON o.encounter_id = e.encounter_id 
+									    WHERE e.encounter_type = 6 
+									      AND e.voided = 0 
+									      AND o.voided = 0 
+									      AND p.voided = 0 
+									      AND o.concept_id IN (1695,730,165515) 
+									      AND e.location_id = :location 
+									      AND e.encounter_datetime BETWEEN DATE_SUB(:endDate, INTERVAL 12 MONTH) AND :endDate
+									) cd4 
+									)cd4 on cd4.patient_id=C4.patient_id
+			                  where exclusao.patient_id is null and  cd4.patient_id is null
 			                  group by C4.patient_id
 			           )C4 on C4.patient_id=p.person_id
 			           left join
