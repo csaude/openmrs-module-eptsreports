@@ -534,7 +534,7 @@ public class MQCategory9DAHCohortQueries {
     definition.addSearch(
         "PREGNANT",
         EptsReportUtils.map(
-            this.category9CohortQueries.findPatientsWhoArePregnantDuringPreviousPeriodRF10(),
+            this.findPatientsWhoArePregnantDuringPreviousPeriodRF10DuringRevisioPeriod(),
             mappingsAll));
 
     definition.addSearch(
@@ -1086,6 +1086,27 @@ public class MQCategory9DAHCohortQueries {
     String query =
         MQCategory9QueriesInterface.QUERY
             .findPatientsWhithCD4OnFirstClinicalConsultationDuringInclusionDateNumeratorCategory9;
+
+    definition.setQuery(query);
+
+    return definition;
+  }
+
+  @DocumentedDefinition(
+      value = "findPatientsWhoArePregnantDuringPreviousPeriodRF10DuringRevisioPeriod")
+  public CohortDefinition findPatientsWhoArePregnantDuringPreviousPeriodRF10DuringRevisioPeriod() {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName("findPatientsWhoArePregnantDuringPreviousPeriodRF10DuringRevisioPeriod");
+    definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
+
+    String query =
+        MQCategory9DAHQueriesInterface.QUERY
+            .findPatientsWhoArePregnantDuringPreviousPeriodRF10DuringRevisionPeriod;
 
     definition.setQuery(query);
 
