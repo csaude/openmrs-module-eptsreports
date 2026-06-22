@@ -152,7 +152,7 @@ public interface MQCategory9DAHQueriesInterface {
             + "        where  pe.voided=0 and p.voided=0 and e.voided=0 and o.voided=0 and e.encounter_type=6 and "
             + "               e.location_id=:location and pe.gender='F' and "
             + "               o.concept_id=1982 and o.value_coded=1065 and "
-            + "               e.encounter_datetime between DATE_ADD(DATE_SUB(:endRevisionDate, INTERVAL 12 MONTH), INTERVAL 1 DAY) and :endRevisionDate "
+            + "               e.encounter_datetime between DATE_ADD(DATE_SUB(:endRevisionDate, INTERVAL 12 MONTH), INTERVAL 1 DAY) and :endInclusionDate "
             + "        group by p.patient_id "
             + "    ) pregnant "
             + "    where pregnant.patient_id not in "
@@ -271,29 +271,5 @@ public interface MQCategory9DAHQueriesInterface {
             + "           tblam.voided=0 and tblam.concept_id=23951 and tblam.value_coded in (703,664) and tblam.obs_datetime<=:endRevisionDate "
             + ") tblam on rf42.patient_id=tblam.patient_id "
             + "where tblam.obs_datetime between rf42.data_estado and DATE_ADD(rf42.data_estado, INTERVAL 33 DAY) ";
-
-    public static final String
-        findPatientsWhoArePregnantDuringPreviousPeriodRF10DuringRevisionPeriod =
-            "select pregnant.patient_id from "
-                + "( "
-                + "Select p.patient_id, min(e.encounter_datetime) encounter_datetime from person pe "
-                + "inner join patient p on pe.person_id=p.patient_id "
-                + "inner join encounter e on p.patient_id=e.patient_id "
-                + "inner join obs o on e.encounter_id=o.encounter_id "
-                + "where pe.voided=0 and p.voided=0 and e.voided=0 and o.voided=0  and e.encounter_type=6 and e.location_id=:location and pe.gender='F' and "
-                + "o.concept_id=1982 and o.value_coded=1065 and e.encounter_datetime  between DATE_ADD(DATE_SUB(:endRevisionDate, INTERVAL 12 MONTH), INTERVAL 1 DAY) and :endRevisionDate "
-                + "group by p.patient_id "
-                + ")pregnant "
-                + "where pregnant.patient_id not in "
-                + "( "
-                + "Select p.patient_id from person pe "
-                + "inner join patient p on pe.person_id=p.patient_id "
-                + "inner join encounter e on p.patient_id=e.patient_id "
-                + "inner join obs o on e.encounter_id=o.encounter_id "
-                + "where pe.voided=0 and p.voided=0 and e.voided=0 and o.voided=0  and e.encounter_type=6 and e.location_id=:location and pe.gender='F' and "
-                + "o.concept_id=1982 and o.value_coded=1065 "
-                + "and e.encounter_datetime >= DATE_SUB(pregnant.encounter_datetime, INTERVAL 3 Month) and e.encounter_datetime < pregnant.encounter_datetime "
-                + "group by p.patient_id "
-                + ") ";
   }
 }

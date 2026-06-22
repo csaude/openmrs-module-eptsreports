@@ -151,12 +151,13 @@ public class MQCategory9DataSet extends MQAbstractDataSet {
         StringUtils.EMPTY);
 
     dataSetDefinition.addColumn(
-        "CAT9ADULTOS96DENOMINADOR",
+        "CAT9ADULTOS95DENOMINADOR",
         "9.6. % de adultos  (>=15 anos) com CD4 ≤ 200 cel/ml e com resultado de TB LAM dentro de 33 dias após consulta clínica inicial do TARV - Denomindor",
         EptsReportUtils.map(
             this.setIndicatorWithAllParameters(
-                this.mqCategory9DAHCohortQueries.findDenominator_9_5(),
-                "CAT9ADULTOS96DENOMINADOR",
+                this.mQCategory9CohortQueries
+                    .findPatientsInARTWhoHaveAreFirstConsultationNumeratorAdultCategory9Section9_1Childrens(),
+                "CAT9ADULTOS95DENOMINADOR",
                 mappings),
             mappings),
         StringUtils.EMPTY);
