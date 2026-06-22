@@ -28,10 +28,10 @@
 	<changeSet id="20251220-17:00" author="csaude"
 		runAlways="true">
 		<comment>
-			SESP Release version 4.4.0
+			SESP Release version 4.5.0
 		</comment>
 		<sqlFile
-			path="_metadata/SESPMetadataForRelease440_20122025.sql" />
+			path="_metadata/SESPMetadataForRelease450_22062026.sql" />
 	</changeSet>
 
 	<changeSet id="20251209-13:00" author="csaude">
