@@ -83,11 +83,7 @@ public class SetupQualityImprovementReport extends EptsPeriodIndicatorDataExport
     try {
       reportDesign =
           createXlsReportDesign(
-              reportDefinition,
-              "MQ.xls",
-              "Melhoria de Qualidade - 2025",
-              getExcelDesignUuid(),
-              null);
+              reportDefinition, "MQ.xls", this.getName(), getExcelDesignUuid(), null);
       Properties props = new Properties();
       props.put("sortWeight", "5000");
       reportDesign.setProperties(props);
