@@ -105,49 +105,44 @@ public class SetupMERQuarterly extends EptsPeriodIndicatorDataExportManager {
     reportDefinition.setDescription(this.getDescription());
     reportDefinition.setParameters(this.txRttDataset.getParameters());
 
-    // reportDefinition.addDataSetDefinition(
-    // "N", Mapped.mapStraightThrough(this.txNewDataset.constructTxNewDataset()));
-    //
-    // reportDefinition.addDataSetDefinition(
-    // "TR", Mapped.mapStraightThrough(this.txTfrInDataset.constructTxTRFIN()));
-    //
-    // reportDefinition.addDataSetDefinition(
-    // "C",
-    // Mapped.mapStraightThrough(this.txCurrDataset.constructTxCurrDataset(true)));
-    //
-    // reportDefinition.addDataSetDefinition(
-    // "P", Mapped.mapStraightThrough(this.txPvlsDataset.constructTxPvlsDatset()));
-    //
-    // reportDefinition.addDataSetDefinition(
-    // "ML", Mapped.mapStraightThrough(this.txMlDataset.constructtxMlDataset()));
-    //
-    // reportDefinition.addDataSetDefinition(
-    // "R", Mapped.mapStraightThrough(this.txRttDataset.constructTxRttDataset()));
-    //
-    // reportDefinition.addDataSetDefinition(
-    // "PREP",
-    // Mapped.mapStraightThrough(this.prepNewDataset.constructPrepNewDataset()));
+    reportDefinition.addDataSetDefinition(
+        "N", Mapped.mapStraightThrough(this.txNewDataset.constructTxNewDataset()));
+
+    reportDefinition.addDataSetDefinition(
+        "TR", Mapped.mapStraightThrough(this.txTfrInDataset.constructTxTRFIN()));
+
+    reportDefinition.addDataSetDefinition(
+        "C", Mapped.mapStraightThrough(this.txCurrDataset.constructTxCurrDataset(true)));
+
+    reportDefinition.addDataSetDefinition(
+        "P", Mapped.mapStraightThrough(this.txPvlsDataset.constructTxPvlsDatset()));
+
+    reportDefinition.addDataSetDefinition(
+        "ML", Mapped.mapStraightThrough(this.txMlDataset.constructtxMlDataset()));
+
+    reportDefinition.addDataSetDefinition(
+        "R", Mapped.mapStraightThrough(this.txRttDataset.constructTxRttDataset()));
+
+    reportDefinition.addDataSetDefinition(
+        "PREP", Mapped.mapStraightThrough(this.prepNewDataset.constructPrepNewDataset()));
 
     reportDefinition.addDataSetDefinition(
         "PrEP_CT", Mapped.mapStraightThrough(this.prepCtDataset.constructPrepCtDataset()));
 
-    // reportDefinition.addDataSetDefinition(
-    // "PMTCT_EID",
-    // Mapped.mapStraightThrough(this.pmtcteidDataSet.constructPMTCTEIDDataset()));
-    //
-    // reportDefinition.addDataSetDefinition(
-    // "PMTCT_HEI",
-    // Mapped.mapStraightThrough(this.pmtctheiDataSet.constructPMTCTHEIDataset()));
-    //
-    // reportDefinition.addDataSetDefinition(
-    // "T-S",
-    // Mapped.mapStraightThrough(
-    // this.txPvlsSuplementalDataSet.constructTxPvlsSupplementalDataset()));
-    //
-    // reportDefinition.addDataSetDefinition(
-    // "D",
-    //
-    // Mapped.mapStraightThrough(this.datimCodeDataSet.constructDataset(this.getParameters())));
+    reportDefinition.addDataSetDefinition(
+        "PMTCT_EID", Mapped.mapStraightThrough(this.pmtcteidDataSet.constructPMTCTEIDDataset()));
+
+    reportDefinition.addDataSetDefinition(
+        "PMTCT_HEI", Mapped.mapStraightThrough(this.pmtctheiDataSet.constructPMTCTHEIDataset()));
+
+    reportDefinition.addDataSetDefinition(
+        "T-S",
+        Mapped.mapStraightThrough(
+            this.txPvlsSuplementalDataSet.constructTxPvlsSupplementalDataset()));
+
+    reportDefinition.addDataSetDefinition(
+        "D",
+        Mapped.mapStraightThrough(this.datimCodeDataSet.constructDataset(this.getParameters())));
 
     reportDefinition.setBaseCohortDefinition(
         EptsReportUtils.map(
