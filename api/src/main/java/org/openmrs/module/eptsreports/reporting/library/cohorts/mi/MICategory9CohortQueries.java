@@ -2,8 +2,10 @@ package org.openmrs.module.eptsreports.reporting.library.cohorts.mi;
 
 import java.util.Date;
 import org.openmrs.Location;
+import org.openmrs.module.eptsreports.reporting.library.cohorts.mq.MQCategory19CohortQueries;
 import org.openmrs.module.eptsreports.reporting.library.cohorts.mq.MQCategory9CohortQueries;
 import org.openmrs.module.eptsreports.reporting.library.cohorts.mq.MQCohortQueries;
+import org.openmrs.module.eptsreports.reporting.library.queries.mi.MICategory9DAHQueriesInterface;
 import org.openmrs.module.eptsreports.reporting.library.queries.mq.MICategory9QueriesInterface;
 import org.openmrs.module.eptsreports.reporting.utils.EptsReportUtils;
 import org.openmrs.module.eptsreports.reporting.utils.TypePTV;
@@ -20,6 +22,7 @@ public class MICategory9CohortQueries {
 
   @Autowired private MQCohortQueries mQCohortQueries;
   @Autowired private MQCategory9CohortQueries mQCategory9CohortQueries;
+  @Autowired private MQCategory19CohortQueries mqCategory19CohortQueries;
 
   @DocumentedDefinition(value = "findPatientsFirstConsultationOnInclusionDate")
   public CohortDefinition findPatientsFirstConsultationOnInclusionDate() {
@@ -233,6 +236,135 @@ public class MICategory9CohortQueries {
   }
 
   @DocumentedDefinition(
+      value =
+          "findPatientsWhithCD4OnFirstClinicalConsultationDuringInclusionPeriodDenominatorCategory9")
+  public CohortDefinition
+      findPatientsWhithCD4OnFirstClinicalConsultationDuringInclusionPeriodDenominatorCategory9() {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName(
+        "findPatientsWhithCD4OnFirstClinicalConsultationDuringInclusionPeriodDenominatorCategory9");
+    definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
+
+    String query =
+        "select patient_id from ("
+            + MICategory9DAHQueriesInterface.QUERY
+                .findPatientsWithCD4ResultInClinicalConsultationBetweenTheFirstCCPlus33Days
+            + ") t ";
+
+    definition.setQuery(query);
+
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "findDAHNumeratorSerumCrAgResultCohort")
+  private CohortDefinition findDAHNumeratorSerumCrAgResulCohort() {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName("findDAHNumeratorSerumCrAgResult");
+    definition.addParameter(
+        new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "Data Fim Revisão", Date.class));
+    definition.addParameter(new Parameter("location", "location", Date.class));
+    String query = MICategory9DAHQueriesInterface.QUERY.findDAHNumeratorSerumCrAgResult;
+
+    definition.setQuery(query);
+
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "findCd4Result33DaysAfterRestartClinicalConsultation")
+  private CohortDefinition findCd4Result33DaysAfterRestartClinicalConsultation() {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName("findCd4Result33DaysAfterRestartClinicalConsultation");
+    definition.addParameter(
+        new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "Data Fim Revisão", Date.class));
+    definition.addParameter(new Parameter("location", "location", Date.class));
+
+    String query =
+        "select patient_id from ("
+            + MICategory9DAHQueriesInterface.QUERY
+                .findCd4Result33DaysAfterRestartClinicalConsultation
+            + ") t";
+
+    definition.setQuery(query);
+
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "findDahSerumCrAgResultAtRestart")
+  private CohortDefinition findDahSerumCrAgResultAtRestart() {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName("findDahSerumCrAgResultAtRestart");
+    definition.addParameter(
+        new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "Data Fim Revisão", Date.class));
+    definition.addParameter(new Parameter("location", "location", Date.class));
+
+    String query =
+        "select patient_id from ("
+            + MICategory9DAHQueriesInterface.QUERY.findDahSerumCrAgResultAtRestart
+            + ") t";
+
+    definition.setQuery(query);
+
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "findDahTbLamResultAtRestart")
+  private CohortDefinition findDahTbLamResultAtRestart() {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName("findDahTbLamResultAtRestart");
+    definition.addParameter(
+        new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "Data Fim Revisão", Date.class));
+    definition.addParameter(new Parameter("location", "location", Date.class));
+
+    String query =
+        "select patient_id from ("
+            + MICategory9DAHQueriesInterface.QUERY.findDahTbLamResultAtRestart
+            + ") t";
+
+    definition.setQuery(query);
+
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "findDahTbLamResult")
+  private CohortDefinition findDahTbLamResult() {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName("findDahTbLamResult");
+    definition.addParameter(
+        new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "Data Fim Revisão", Date.class));
+    definition.addParameter(new Parameter("location", "location", Date.class));
+    String query = MICategory9DAHQueriesInterface.QUERY.findDahTbLamResult;
+
+    definition.setQuery(query);
+
+    return definition;
+  }
+
+  @DocumentedDefinition(
       value = "findPatientsInARTWhoHaveAreFirstConsultationDenominatorAdultCategory9_9_1")
   public CohortDefinition
       findPatientsInARTWhoHaveAreFirstConsultationDenominatorAdultCategory9_9_1() {
@@ -324,14 +456,14 @@ public class MICategory9CohortQueries {
 
   @DocumentedDefinition(
       value =
-          "findAdultPatientsWithRequestCD4InTheSameClinicalConsultationMarkedAsReinicioDenominator9_3")
+          "findAdultPatientsWithRequestCD4InTheSameClinicalConsultationMarkedAsReinicioDenominator9_3_9_4")
   public CohortDefinition
-      findAdultPatientsWithRequestCD4InTheSameClinicalConsultationMarkedAsReinicioDenominator9_3() {
+      findAdultPatientsWithRequestCD4InTheSameClinicalConsultationMarkedAsReinicioDenominator9_3_9_4() {
 
     final CompositionCohortDefinition definition = new CompositionCohortDefinition();
 
     definition.setName(
-        "findAdultPatientsWithRequestCD4InTheSameClinicalConsultationMarkedAsReinicioDenominator9_3");
+        "findAdultPatientsWithRequestCD4InTheSameClinicalConsultationMarkedAsReinicioDenominator9_3_9_4");
 
     definition.addParameter(
         new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
@@ -388,7 +520,7 @@ public class MICategory9CohortQueries {
         "DENOMINATOR-9-3",
         EptsReportUtils.map(
             this
-                .findAdultPatientsWithRequestCD4InTheSameClinicalConsultationMarkedAsReinicioDenominator9_3(),
+                .findAdultPatientsWithRequestCD4InTheSameClinicalConsultationMarkedAsReinicioDenominator9_3_9_4(),
             mappings));
 
     definition.addSearch(
@@ -428,7 +560,7 @@ public class MICategory9CohortQueries {
         "DENOMINATOR-9-4",
         EptsReportUtils.map(
             this
-                .findAdultPatientsWithRequestCD4InTheSameClinicalConsultationMarkedAsReinicioDenominator9_3(),
+                .findAdultPatientsWithRequestCD4InTheSameClinicalConsultationMarkedAsReinicioDenominator9_3_9_4(),
             mappings));
 
     definition.addSearch(
@@ -658,7 +790,7 @@ public class MICategory9CohortQueries {
     definition.addSearch(
         "DENOMINATOR",
         EptsReportUtils.map(
-            this.findPragnantWomanWhoHaveAreFirstConsultationDenominatorCategory9_9_9(),
+            this.findPragnantWomanWhoHaveAreFirstConsultationDenominatorCategory9_9_17(),
             mappingsForDenominator));
 
     definition.addSearch(
@@ -829,14 +961,14 @@ public class MICategory9CohortQueries {
 
   @DocumentedDefinition(
       value =
-          "findPregnantWomanPatientsWhoHaveAreFirstConsultationAndHaveNumeratorAdultCategory9_9_10")
+          "findPregnantWomanPatientsWhoHaveAreFirstConsultationAndHaveNumeratorAdultCategory9_9_18")
   public CohortDefinition
-      findPregnantWomanPatientsWhoHaveAreFirstConsultationAndHaveNumeratorAdultCategory9_9_10() {
+      findPregnantWomanPatientsWhoHaveAreFirstConsultationAndHaveNumeratorAdultCategory9_9_18() {
 
     final CompositionCohortDefinition definition = new CompositionCohortDefinition();
 
     definition.setName(
-        "findPregnantWomanPatientsWhoHaveAreFirstConsultationAndHaveNumeratorAdultCategory9_9_10");
+        "findPregnantWomanPatientsWhoHaveAreFirstConsultationAndHaveNumeratorAdultCategory9_9_18");
 
     definition.addParameter(
         new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
@@ -852,7 +984,7 @@ public class MICategory9CohortQueries {
     definition.addSearch(
         "DENOMINATOR",
         EptsReportUtils.map(
-            this.findPragnantWomanWhoHaveAreFirstConsultationDenominatorCategory9_9_10(),
+            this.findPragnantWomanWhoHaveAreFirstConsultationDenominatorCategory9_9_18(),
             mappingsForDenominator));
 
     definition.addSearch(
@@ -868,12 +1000,12 @@ public class MICategory9CohortQueries {
   }
 
   @DocumentedDefinition(
-      value = "findPragnantWomanWhoHaveAreFirstConsultationDenominatorCategory9_9_9")
-  public CohortDefinition findPragnantWomanWhoHaveAreFirstConsultationDenominatorCategory9_9_9() {
+      value = "findPragnantWomanWhoHaveAreFirstConsultationDenominatorCategory9_9_17")
+  public CohortDefinition findPragnantWomanWhoHaveAreFirstConsultationDenominatorCategory9_9_17() {
 
     final CompositionCohortDefinition definition = new CompositionCohortDefinition();
 
-    definition.setName("findPragnantWomanWhoHaveAreFirstConsultationDenominatorCategory9_9_9");
+    definition.setName("findPragnantWomanWhoHaveAreFirstConsultationDenominatorCategory9_9_17");
 
     definition.addParameter(
         new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
@@ -900,12 +1032,12 @@ public class MICategory9CohortQueries {
   }
 
   @DocumentedDefinition(
-      value = "findPragnantWomanWhoHaveAreFirstConsultationDenominatorCategory9_9_10")
-  public CohortDefinition findPragnantWomanWhoHaveAreFirstConsultationDenominatorCategory9_9_10() {
+      value = "findPragnantWomanWhoHaveAreFirstConsultationDenominatorCategory9_9_18")
+  public CohortDefinition findPragnantWomanWhoHaveAreFirstConsultationDenominatorCategory9_9_18() {
 
     final CompositionCohortDefinition definition = new CompositionCohortDefinition();
 
-    definition.setName("findPragnantWomanWhoHaveAreFirstConsultationDenominatorCategory9_9_10");
+    definition.setName("findPragnantWomanWhoHaveAreFirstConsultationDenominatorCategory9_9_18");
 
     definition.addParameter(
         new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
@@ -952,7 +1084,7 @@ public class MICategory9CohortQueries {
     definition.addSearch(
         "DENOMINATOR",
         EptsReportUtils.map(
-            this.findPragnantWomanWhoHaveAreFirstConsultationDenominatorCategory9_9_9(),
+            this.findPragnantWomanWhoHaveAreFirstConsultationDenominatorCategory9_9_17(),
             mappingsFirstConsultation));
 
     definition.addSearch(
@@ -990,7 +1122,7 @@ public class MICategory9CohortQueries {
     definition.addSearch(
         "DENOMINATOR",
         EptsReportUtils.map(
-            this.findPragnantWomanWhoHaveAreFirstConsultationDenominatorCategory9_9_9(),
+            this.findPragnantWomanWhoHaveAreFirstConsultationDenominatorCategory9_9_17(),
             mappingsFirstConsultation));
 
     definition.addSearch(
@@ -1001,6 +1133,509 @@ public class MICategory9CohortQueries {
             mappings));
 
     definition.setCompositionString("(DENOMINATOR AND CD4-33-DAYS)");
+
+    return definition;
+  }
+
+  // FR29 - DAH: Resultado de CrAG sérico e TB_LAM - Adulto
+  @DocumentedDefinition(value = "DenominatorCategory9_9_5")
+  public CohortDefinition findDenominator_9_5() {
+
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+
+    definition.setName("DenominatorCategory9_9_5");
+    definition.addParameter(
+        new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "Data Fim Revisão", Date.class));
+    definition.addParameter(new Parameter("location", "location", Date.class));
+
+    final String mappings =
+        "startInclusionDate=${endRevisionDate-3m+1d},endInclusionDate=${endRevisionDate-2m},endRevisionDate=${endRevisionDate},location=${location}";
+
+    definition.addSearch(
+        "FIRST-CONSULTATION",
+        EptsReportUtils.map(this.findPatientsFirstConsultationOnInclusionDate(), mappings));
+
+    definition.addSearch(
+        "CD4-RESULT-IN-33DAYS",
+        EptsReportUtils.map(
+            this
+                .findPatientsWhithCD4OnFirstClinicalConsultationDuringInclusionPeriodDenominatorCategory9(),
+            mappings));
+
+    definition.addSearch(
+        "TRANSFERED-IN",
+        EptsReportUtils.map(
+            this.mQCohortQueries.findPatientsWhoWhereMarkedAsTransferedInOnMasterCardRF5Category9(),
+            mappings));
+
+    definition.addSearch(
+        "PREGNANT-IN-ART-START",
+        EptsReportUtils.map(
+            this.mQCohortQueries.findPatientsWhoArePregnantInclusionDateRF08(), mappings));
+
+    definition.addSearch(
+        "PREGNANT-IN-INITIAL-CONSULTATION",
+        EptsReportUtils.map(this.findPatientsWhoArePregnantDuringInclusionPeriod(), mappings));
+
+    definition.setCompositionString(
+        "(FIRST-CONSULTATION AND CD4-RESULT-IN-33DAYS) NOT (TRANSFERED-IN OR PREGNANT-IN-ART-START OR  PREGNANT-IN-INITIAL-CONSULTATION)");
+
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "findDAHNumeratorSerumCrAgResultAdult")
+  public CohortDefinition findNumerator_9_5() {
+
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+
+    definition.setName("DAHNumeratorSerumCrAgResultAdult");
+    definition.addParameter(
+        new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "Data Fim Revisão", Date.class));
+    definition.addParameter(new Parameter("location", "location", Date.class));
+
+    final String mappings =
+        "startInclusionDate=${endRevisionDate-3m+1d},endInclusionDate=${endRevisionDate-2m},endRevisionDate=${endRevisionDate},location=${location}";
+    final String mappingsForDenominator =
+        "startInclusionDate=${endRevisionDate},endInclusionDate=${endRevisionDate},endRevisionDate=${endRevisionDate},location=${location}";
+
+    definition.addSearch(
+        "DENOMINATOR", EptsReportUtils.map(this.findDenominator_9_5(), mappingsForDenominator));
+
+    definition.addSearch(
+        "NUMERATOR", EptsReportUtils.map(this.findDAHNumeratorSerumCrAgResulCohort(), mappings));
+
+    definition.setCompositionString("DENOMINATOR AND NUMERATOR");
+
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "findDenominator_9_6")
+  public CohortDefinition findDenominator_9_6() {
+
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+
+    definition.setName("findDenominator_9_6");
+    definition.addParameter(
+        new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "Data Fim Revisão", Date.class));
+    definition.addParameter(new Parameter("location", "location", Date.class));
+
+    final String mappings =
+        "startInclusionDate=${endRevisionDate-3m+1d},endInclusionDate=${endRevisionDate-2m},endRevisionDate=${endRevisionDate-2m},location=${location}";
+    final String mappingsForDenominator =
+        "startInclusionDate=${endRevisionDate},endInclusionDate=${endRevisionDate},endRevisionDate=${endRevisionDate},location=${location}";
+
+    definition.addSearch(
+        "DENOMINATOR-9-5", EptsReportUtils.map(this.findDenominator_9_5(), mappingsForDenominator));
+
+    definition.addSearch(
+        "TB-ACTIVE",
+        EptsReportUtils.map(
+            mqCategory19CohortQueries.findAllPatientsWhoHaveTBDiagnosticActive(), mappings));
+
+    definition.setCompositionString("DENOMINATOR-9-5 NOT TB-ACTIVE");
+
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "findNumerator_9_6")
+  public CohortDefinition findNumerator_9_6() {
+
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+
+    definition.setName("findNumerator_9_6");
+    definition.addParameter(
+        new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "Data Fim Revisão", Date.class));
+    definition.addParameter(new Parameter("location", "location", Date.class));
+
+    final String mappings =
+        "startInclusionDate=${endRevisionDate-3m+1d},endInclusionDate=${endRevisionDate-2m},endRevisionDate=${endRevisionDate},location=${location}";
+    final String mappingsForDenominator =
+        "startInclusionDate=${endRevisionDate},endInclusionDate=${endRevisionDate},endRevisionDate=${endRevisionDate},location=${location}";
+
+    definition.addSearch(
+        "DENOMINATOR-9-6", EptsReportUtils.map(this.findDenominator_9_6(), mappingsForDenominator));
+
+    definition.addSearch("TB-LAM", EptsReportUtils.map(this.findDahTbLamResult(), mappings));
+
+    definition.setCompositionString("DENOMINATOR-9-6 NOT TB-LAM");
+
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "findDenominator_9_7_9_8_9_15_9_16")
+  public CohortDefinition findDenominator_9_7_9_8_9_15_9_16() {
+
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+
+    definition.setName("findDenominator_9_7_9_8_9_15_9_16");
+    definition.addParameter(
+        new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "Data Fim Revisão", Date.class));
+    definition.addParameter(new Parameter("location", "location", Date.class));
+
+    final String mappings =
+        "startInclusionDate=${endRevisionDate-3m+1d},endInclusionDate=${endRevisionDate-2m},endRevisionDate=${endRevisionDate},location=${location}";
+
+    definition.addSearch(
+        "CD4-RESULT",
+        EptsReportUtils.map(this.findCd4Result33DaysAfterRestartClinicalConsultation(), mappings));
+
+    definition.addSearch(
+        "TRANSFERED-IN",
+        EptsReportUtils.map(
+            this.mQCohortQueries.findPatientsWhoWhereMarkedAsTransferedInOnMasterCardRF5Category9(),
+            mappings));
+
+    definition.setCompositionString("CD4-RESULT NOT TRANSFERED-IN");
+
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "findNumerator_9_7_9_15_9_16")
+  public CohortDefinition findNumerator_9_7_9_15_9_16() {
+
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+
+    definition.setName("findNumerator_9_7_9_15");
+    definition.addParameter(
+        new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "Data Fim Revisão", Date.class));
+    definition.addParameter(new Parameter("location", "location", Date.class));
+
+    final String mappings =
+        "startInclusionDate=${endRevisionDate-3m+1d},endInclusionDate=${endRevisionDate-2m},endRevisionDate=${endRevisionDate},location=${location}";
+    final String mappingsForDenominator =
+        "startInclusionDate=${endRevisionDate},endInclusionDate=${endRevisionDate},endRevisionDate=${endRevisionDate},location=${location}";
+
+    definition.addSearch(
+        "DENOMINATOR-9-7-9-8",
+        EptsReportUtils.map(this.findDenominator_9_7_9_8_9_15_9_16(), mappingsForDenominator));
+
+    definition.addSearch(
+        "CRAG-RESULT", EptsReportUtils.map(this.findDahSerumCrAgResultAtRestart(), mappings));
+
+    definition.setCompositionString("DENOMINATOR-9-7-9-8 AND CRAG-RESULT");
+
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "findNumerator_9_8")
+  public CohortDefinition findNumerator_9_8() {
+
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+
+    definition.setName("findNumerator_9_8");
+    definition.addParameter(
+        new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "Data Fim Revisão", Date.class));
+    definition.addParameter(new Parameter("location", "location", Date.class));
+
+    final String mappings =
+        "startInclusionDate=${endRevisionDate-3m+1d},endInclusionDate=${endRevisionDate-2m},endRevisionDate=${endRevisionDate},location=${location}";
+    final String mappingsForDenominator =
+        "startInclusionDate=${endRevisionDate},endInclusionDate=${endRevisionDate},endRevisionDate=${endRevisionDate},location=${location}";
+
+    definition.addSearch(
+        "DENOMINATOR-9-7-9-8",
+        EptsReportUtils.map(this.findDenominator_9_7_9_8_9_15_9_16(), mappingsForDenominator));
+
+    definition.addSearch(
+        "TB-LAM", EptsReportUtils.map(this.findDahTbLamResultAtRestart(), mappings));
+
+    definition.setCompositionString("DENOMINATOR-9-7-9-8 AND TB-LAM");
+
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "findDenominator_9_13_9_14")
+  public CohortDefinition findDenominator_9_13_9_14() {
+
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+
+    definition.setName("findDenominator_9_13_9_14");
+    definition.addParameter(
+        new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "Data Fim Revisão", Date.class));
+    definition.addParameter(new Parameter("location", "location", Date.class));
+
+    final String mappings =
+        "startInclusionDate=${endRevisionDate-3m+1d},endInclusionDate=${endRevisionDate-2m},endRevisionDate=${endRevisionDate},location=${location}";
+
+    definition.addSearch(
+        "FIRST-CONSULTATION",
+        EptsReportUtils.map(this.findPatientsFirstConsultationOnInclusionDate(), mappings));
+
+    definition.addSearch(
+        "CD4-RESULT-IN-33DAYS",
+        EptsReportUtils.map(
+            this
+                .findPatientsWhithCD4OnFirstClinicalConsultationDuringInclusionPeriodDenominatorCategory9(),
+            mappings));
+
+    definition.addSearch(
+        "TRANSFERED-IN",
+        EptsReportUtils.map(
+            this.mQCohortQueries.findPatientsWhoWhereMarkedAsTransferedInOnMasterCardRF5Category9(),
+            mappings));
+
+    definition.addSearch(
+        "PREGNANT-IN-ART-START",
+        EptsReportUtils.map(
+            this.mQCohortQueries.findPatientsWhoArePregnantInclusionDateRF08(), mappings));
+
+    definition.addSearch(
+        "BREASTFEEDING-IN-ART-START",
+        EptsReportUtils.map(
+            this.mQCohortQueries.findPatientsWhoAreBreastfeedingInARTInitiation(), mappings));
+
+    definition.addSearch(
+        "PREGNANT-IN-INITIAL-CONSULTATION",
+        EptsReportUtils.map(this.findPatientsWhoArePregnantDuringInclusionPeriod(), mappings));
+
+    definition.addSearch(
+        "BREASTFEEDING-IN-INITIAL-CONSULTATION",
+        EptsReportUtils.map(this.findPatientsWhoAreBreastfeedingInFirstConsultation(), mappings));
+
+    definition.setCompositionString(
+        "(FIRST-CONSULTATION AND CD4-RESULT-IN-33DAYS) NOT (TRANSFERED-IN OR PREGNANT-IN-ART-START OR BREASTFEEDING-IN-ART-START OR PREGNANT-IN-INITIAL-CONSULTATION OR BREASTFEEDING-IN-INITIAL-CONSULTATION)");
+
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "findNumerator_9_13")
+  public CohortDefinition findNumerator_9_13() {
+
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+
+    definition.setName("findNumerator_9_13");
+    definition.addParameter(
+        new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "Data Fim Revisão", Date.class));
+    definition.addParameter(new Parameter("location", "location", Date.class));
+
+    final String mappings =
+        "startInclusionDate=${endRevisionDate-3m+1d},endInclusionDate=${endRevisionDate-2m},endRevisionDate=${endRevisionDate},location=${location}";
+    final String mappingsForDenominator =
+        "startInclusionDate=${endRevisionDate},endInclusionDate=${endRevisionDate},endRevisionDate=${endRevisionDate},location=${location}";
+
+    definition.addSearch(
+        "DENOMINATOR-13",
+        EptsReportUtils.map(this.findDenominator_9_13_9_14(), mappingsForDenominator));
+
+    definition.addSearch(
+        "CRAG-RESULT", EptsReportUtils.map(this.findDAHNumeratorSerumCrAgResulCohort(), mappings));
+
+    definition.setCompositionString("DENOMINATOR-13 AND CRAG-RESULT");
+
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "findNumerator_9_14")
+  public CohortDefinition findNumerator_9_14() {
+
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+
+    definition.setName("findNumerator_9_14");
+    definition.addParameter(
+        new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "Data Fim Revisão", Date.class));
+    definition.addParameter(new Parameter("location", "location", Date.class));
+
+    final String mappings =
+        "startInclusionDate=${endRevisionDate-3m+1d},endInclusionDate=${endRevisionDate-2m},endRevisionDate=${endRevisionDate},location=${location}";
+    final String mappingsForDenominator =
+        "startInclusionDate=${endRevisionDate},endInclusionDate=${endRevisionDate},endRevisionDate=${endRevisionDate},location=${location}";
+
+    definition.addSearch(
+        "DENOMINATOR-13",
+        EptsReportUtils.map(this.findDenominator_9_13_9_14(), mappingsForDenominator));
+
+    definition.addSearch("TBLAM-RESULT", EptsReportUtils.map(this.findDahTbLamResult(), mappings));
+
+    definition.setCompositionString("DENOMINATOR-13 AND TBLAM-RESULT");
+
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "findCD4ResultOcurredInClinicalConsultation33DaysAfterTheFirstCPN")
+  private CohortDefinition findCD4ResultOcurredInClinicalConsultation33DaysAfterTheFirstCPN() {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName("findCD4ResultOcurredInClinicalConsultation33DaysAfterTheFirstCPN");
+    definition.addParameter(
+        new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "Data Fim Revisão", Date.class));
+    definition.addParameter(new Parameter("location", "location", Date.class));
+
+    String query =
+        "select patient_id from ("
+            + MICategory9DAHQueriesInterface.QUERY
+                .findCD4ResultOcurredInClinicalConsultation33DaysAfterTheFirstCPN
+            + ") t";
+
+    definition.setQuery(query);
+
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "findDahSerumCrAgResultPregnantWomen")
+  private CohortDefinition findDahSerumCrAgResultPregnantWomenCohort() {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName("findDahSerumCrAgResultPregnantWomen");
+    definition.addParameter(
+        new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "Data Fim Revisão", Date.class));
+    definition.addParameter(new Parameter("location", "location", Date.class));
+
+    String query = MICategory9DAHQueriesInterface.QUERY.findDahSerumCrAgResultPregnantWomen;
+
+    definition.setQuery(query);
+
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "findDahTbLamResultPregnantWomen")
+  private CohortDefinition findDahTbLamResultPregnantWomen() {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName("findDahTbLamResultPregnantWomen");
+    definition.addParameter(
+        new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "Data Fim Revisão", Date.class));
+    definition.addParameter(new Parameter("location", "location", Date.class));
+
+    String query = MICategory9DAHQueriesInterface.QUERY.findDahTbLamResultPregnantWomen;
+
+    definition.setQuery(query);
+
+    return definition;
+  }
+
+  @DocumentedDefinition(
+      value = "findPragnantWomanWhoHaveAreFirstConsultationDenominatorCategory9_9_19_9_20")
+  public CohortDefinition
+      findPragnantWomanWhoHaveAreFirstConsultationDenominatorCategory9_9_19_9_20() {
+
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+
+    definition.setName(
+        "findPragnantWomanWhoHaveAreFirstConsultationDenominatorCategory9_9_19_9_20");
+
+    definition.addParameter(
+        new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "Data Fim Revisão", Date.class));
+    definition.addParameter(new Parameter("location", "location", Date.class));
+
+    final String mappings =
+        "startInclusionDate=${endRevisionDate-3m+1d},endInclusionDate=${endRevisionDate-2m},endRevisionDate=${endRevisionDate},location=${location}";
+
+    definition.addSearch(
+        "PREGNANT-INCLUSION-DATE",
+        EptsReportUtils.map(this.findPatientsWhoArePregnantDuringPreviousPeriod(), mappings));
+
+    definition.addSearch(
+        "CD4-RESULT-IN-33DAYS",
+        EptsReportUtils.map(
+            this.findCD4ResultOcurredInClinicalConsultation33DaysAfterTheFirstCPN(), mappings));
+
+    definition.addSearch(
+        "TRANSFERED-IN",
+        EptsReportUtils.map(
+            this.mQCohortQueries.findPatientsWhoWhereMarkedAsTransferedInOnMasterCardRF5Category9(),
+            mappings));
+
+    definition.addSearch(
+        "TB-ACTIVE",
+        EptsReportUtils.map(
+            mqCategory19CohortQueries.findAllPatientsWhoHaveTBDiagnosticActive(), mappings));
+
+    definition.setCompositionString(
+        "(PREGNANT-INCLUSION-DATE AND CD4-RESULT-IN-33DAYS) NOT (TRANSFERED-IN OR TB-ACTIVE)");
+
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "findNumerator_9_19")
+  public CohortDefinition findNumerator_9_19() {
+
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+
+    definition.setName("findNumerator_9_19");
+    definition.addParameter(
+        new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "Data Fim Revisão", Date.class));
+    definition.addParameter(new Parameter("location", "location", Date.class));
+
+    final String mappings =
+        "startInclusionDate=${endRevisionDate-3m+1d},endInclusionDate=${endRevisionDate-2m},endRevisionDate=${endRevisionDate},location=${location}";
+    final String mappingsForDenominator =
+        "startInclusionDate=${endRevisionDate},endInclusionDate=${endRevisionDate},endRevisionDate=${endRevisionDate},location=${location}";
+
+    definition.addSearch(
+        "DENOMINATOR-19",
+        EptsReportUtils.map(
+            this.findPragnantWomanWhoHaveAreFirstConsultationDenominatorCategory9_9_19_9_20(),
+            mappingsForDenominator));
+
+    definition.addSearch(
+        "CRAG-RESULT",
+        EptsReportUtils.map(this.findDahSerumCrAgResultPregnantWomenCohort(), mappings));
+
+    definition.setCompositionString("DENOMINATOR-19 AND CRAG-RESULT");
+
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "findNumerator_9_20")
+  public CohortDefinition findNumerator_9_20() {
+
+    final CompositionCohortDefinition definition = new CompositionCohortDefinition();
+
+    definition.setName("findNumerator_9_20");
+    definition.addParameter(
+        new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "Data Fim Revisão", Date.class));
+    definition.addParameter(new Parameter("location", "location", Date.class));
+
+    final String mappings =
+        "startInclusionDate=${endRevisionDate-3m+1d},endInclusionDate=${endRevisionDate-2m},endRevisionDate=${endRevisionDate},location=${location}";
+    final String mappingsForDenominator =
+        "startInclusionDate=${endRevisionDate},endInclusionDate=${endRevisionDate},endRevisionDate=${endRevisionDate},location=${location}";
+
+    definition.addSearch(
+        "DENOMINATOR-20",
+        EptsReportUtils.map(
+            this.findPragnantWomanWhoHaveAreFirstConsultationDenominatorCategory9_9_19_9_20(),
+            mappingsForDenominator));
+
+    definition.addSearch(
+        "TBLAM-RESULT", EptsReportUtils.map(this.findDahTbLamResultPregnantWomen(), mappings));
+
+    definition.setCompositionString("DENOMINATOR-20 AND TBLAM-RESULT");
 
     return definition;
   }
