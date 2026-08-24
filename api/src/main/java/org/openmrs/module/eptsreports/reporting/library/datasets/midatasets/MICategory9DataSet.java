@@ -261,7 +261,7 @@ public class MICategory9DataSet extends MQAbstractDataSet {
                 "CAT9ADULTOS911NUMERADOR",
                 mappings),
             mappings),
-        "ageOnReinicio=15-");
+        "ageOnReinicio=0-14");
 
     dataSetDefinition.addColumn(
         "CAT9ADULTOS911DENOMINADOR",
@@ -273,7 +273,7 @@ public class MICategory9DataSet extends MQAbstractDataSet {
                 "CAT9ADULTOS911DENOMINADOR",
                 mappings),
             mappings),
-        "ageOnReinicio=15-");
+        "ageOnReinicio=0-14");
 
     dataSetDefinition.addColumn(
         "CAT9ADULTOS912NUMERADOR",
@@ -285,7 +285,7 @@ public class MICategory9DataSet extends MQAbstractDataSet {
                 "CAT9ADULTOS912NUMERADOR",
                 mappings),
             mappings),
-        "ageOnReinicio=15-");
+        "ageOnReinicio=0-14");
 
     dataSetDefinition.addColumn(
         "CAT9ADULTOS912DENOMINADOR",
@@ -297,7 +297,7 @@ public class MICategory9DataSet extends MQAbstractDataSet {
                 "CAT9ADULTOS912DENOMINADOR",
                 mappings),
             mappings),
-        "ageOnReinicio=15-");
+        "ageOnReinicio=0-14");
 
     dataSetDefinition.addColumn(
         "CAT9ADULTOS913NUMERADOR",
@@ -454,7 +454,7 @@ public class MICategory9DataSet extends MQAbstractDataSet {
         EptsReportUtils.map(
             this.setIndicatorWithAllParameters(
                 miCategory9CohortQueries
-                    .findPragnantWomanWhoHaveAreFirstConsultationDenominatorCategory9_9_19_9_20(),
+                    .findPragnantWomanWhoHaveAreFirstConsultationDenominatorCategory9_9_19(),
                 "CAT9PREGNANT919DENOMINATOR",
                 mappings),
             mappings),
@@ -477,7 +477,7 @@ public class MICategory9DataSet extends MQAbstractDataSet {
         EptsReportUtils.map(
             this.setIndicatorWithAllParameters(
                 miCategory9CohortQueries
-                    .findPragnantWomanWhoHaveAreFirstConsultationDenominatorCategory9_9_19_9_20(),
+                    .findPragnantWomanWhoHaveAreFirstConsultationDenominatorCategory9_9_20(),
                 "CAT9PREGNANT920DENOMINATOR",
                 mappings),
             mappings),

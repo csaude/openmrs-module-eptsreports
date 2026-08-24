@@ -1001,6 +1001,14 @@ public class MIAgeDimentions {
             mappingsMI));
 
     dimension.addCohortDefinition(
+        "0-14",
+        EptsReportUtils.map(
+            mIAgeDimensions
+                .findPatientsWhoReinitiatedTreatmentInClinicalConsultationWithAgeBetweenstartAndFinalAge(
+                    0, 14),
+            mappingsMI));
+
+    dimension.addCohortDefinition(
         "15+MI",
         EptsReportUtils.map(
             mIAgeDimensions.findPatientsWhoReinitiatedTreatmentInClinicalConsultation(15),
