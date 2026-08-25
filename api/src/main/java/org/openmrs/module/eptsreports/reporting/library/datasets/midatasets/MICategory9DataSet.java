@@ -162,7 +162,7 @@ public class MICategory9DataSet extends MQAbstractDataSet {
         "9.7 % de adultos  (>=15 anos) com CD4 ≤ 200 cel/µl e com resultado de CrAG Sérico dentro de 33 dias após consulta de reinício do TARV - Numerador",
         EptsReportUtils.map(
             this.setIndicatorWithAllParameters(
-                this.miCategory9CohortQueries.findNumerator_9_7_9_15_9_16(),
+                this.miCategory9CohortQueries.findNumerator_9_7_9_15(),
                 "CAT9ADULTOS97NUMERADOR",
                 mappings),
             mappings),
@@ -184,7 +184,7 @@ public class MICategory9DataSet extends MQAbstractDataSet {
         "9.8 % de adultos  (>=15 anos) com CD4 ≤ 200 cel/µl e com resultado de TB LAM dentro de 33 dias após consulta de reinício do TARV - Numerador",
         EptsReportUtils.map(
             this.setIndicatorWithAllParameters(
-                this.miCategory9CohortQueries.findNumerator_9_8(),
+                this.miCategory9CohortQueries.findNumerator_9_8_9_16(),
                 "CAT9ADULTOS98NUMERADOR",
                 mappings),
             mappings),
@@ -348,7 +348,7 @@ public class MICategory9DataSet extends MQAbstractDataSet {
         "9.15 % de crianças (10-14 anos de idade) com CD4 ≤ 200 cel/µl e que receberam o resultado de CrAG Sérico dentro de 33 dias após reinício do TARV - Numerador",
         EptsReportUtils.map(
             this.setIndicatorWithAllParameters(
-                this.miCategory9CohortQueries.findNumerator_9_7_9_15_9_16(),
+                this.miCategory9CohortQueries.findNumerator_9_7_9_15(),
                 "CAT9ADULTOS915NUMERADOR",
                 mappings),
             mappings),
@@ -370,7 +370,7 @@ public class MICategory9DataSet extends MQAbstractDataSet {
         "9.16 % de crianças (5-14 anos de idade) com CD4 ≤ 200 cel/µl e que receberam o resultado de TB LAM dentro de 33 dias após consulta reinício do TARV - Numerador",
         EptsReportUtils.map(
             this.setIndicatorWithAllParameters(
-                this.miCategory9CohortQueries.findNumerator_9_7_9_15_9_16(),
+                this.miCategory9CohortQueries.findNumerator_9_8_9_16(),
                 "CAT9ADULTOS916NUMERADOR",
                 mappings),
             mappings),

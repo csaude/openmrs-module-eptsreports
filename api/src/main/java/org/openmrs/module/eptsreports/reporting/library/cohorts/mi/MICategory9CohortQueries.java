@@ -1300,8 +1300,8 @@ public class MICategory9CohortQueries {
     return definition;
   }
 
-  @DocumentedDefinition(value = "findNumerator_9_7_9_15_9_16")
-  public CohortDefinition findNumerator_9_7_9_15_9_16() {
+  @DocumentedDefinition(value = "findNumerator_9_7_9_15")
+  public CohortDefinition findNumerator_9_7_9_15() {
 
     final CompositionCohortDefinition definition = new CompositionCohortDefinition();
 
@@ -1329,12 +1329,12 @@ public class MICategory9CohortQueries {
     return definition;
   }
 
-  @DocumentedDefinition(value = "findNumerator_9_8")
-  public CohortDefinition findNumerator_9_8() {
+  @DocumentedDefinition(value = "findNumerator_9_8_9_16")
+  public CohortDefinition findNumerator_9_8_9_16() {
 
     final CompositionCohortDefinition definition = new CompositionCohortDefinition();
 
-    definition.setName("findNumerator_9_8");
+    definition.setName("findNumerator_9_8_9_16");
     definition.addParameter(
         new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
     definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
@@ -1633,7 +1633,7 @@ public class MICategory9CohortQueries {
     definition.addSearch(
         "DENOMINATOR-19",
         EptsReportUtils.map(
-            this.findPragnantWomanWhoHaveAreFirstConsultationDenominatorCategory9_9_20(),
+            this.findPragnantWomanWhoHaveAreFirstConsultationDenominatorCategory9_9_19(),
             mappingsForDenominator));
 
     definition.addSearch(
