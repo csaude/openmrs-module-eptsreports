@@ -31,9 +31,20 @@ from
 				DATE_FORMAT(date(TPT_INI_FR16_CO.data_final_3HP), '%d/%m/%Y') as dataFinal3hpResumo,
 				DATE_FORMAT(date(TPT_INI_FR16.data_final_3HP), '%d/%m/%Y') as dataFinal3hpClinica,
 				DATE_FORMAT(date(inicio3hp_TPT_INI_FR4.data_inicio_3HP), '%d/%m/%Y') as data_inicio_3HP,
-				inicio3hp_TPT_INI_FR4.expected3hpCompletion,
+				DATE_FORMAT(date(inicio3hp_TPT_INI_FR4.expected3hpCompletion), '%d/%m/%Y') as expected3hpCompletion,
 				DATE_FORMAT(date(final3hp.data_final_3HP), '%d/%m/%Y') as data_final_3HP,
-				timestampdiff(day,tpt.inicio3hp_TPT_INI_FR4.expected3hpCompletion, final3hp.data_final_3HP) expected3hpDiference
+				timestampdiff(day,tpt.inicio3hp_TPT_INI_FR4.expected3hpCompletion, final3hp.data_final_3HP) expected3hpDiference, 
+				DATE_FORMAT(date(inilfxfilt.data_inicio_lfxfilt), '%d/%m/%Y') as data_inicio_lfxfilt,
+				DATE_FORMAT(date(inilfxseguimento.data_inicio_lfxSeguimento), '%d/%m/%Y') as data_inicio_lfxSeguimento,
+				DATE_FORMAT(date(inilfxresumo.data_inicio_lfxresumo), '%d/%m/%Y') as data_inicio_lfxresumo,
+			    DATE_FORMAT(date(finallfxfilt.data_final_lfxfilt), '%d/%m/%Y') as data_final_lfxfilt,
+				finallfxfilt.tipoDispensalfx, 
+				DATE_FORMAT(date(finallfxseguimento.data_final_lfxSeguimento), '%d/%m/%Y') as data_final_lfxSeguimento,
+				DATE_FORMAT(date(finallfxresumo.data_final_lfxresumo), '%d/%m/%Y') as data_final_lfxresumo,
+				DATE_FORMAT(date(inicioLfx_TPT_INI_FR5_1.data_completa_6meses_lfx), '%d/%m/%Y') as data_completa_6meses_lfx, 
+				timestampdiff(day,inicioLfx_TPT_INI_FR5_1.data_completa_6meses_lfx,finallfx.data_final_lfx) as diferencaFinalEsperada_lfx,
+				DATE_FORMAT(date(inicioLfx_TPT_INI_FR5_1.data_inicio_tpi), '%d/%m/%Y') as data_inicio_lfx,
+				DATE_FORMAT(date(finallfx.data_final_lfx), '%d/%m/%Y') as data_final_lfx
 	from  	
 		(  
 				select inicio_tpi.patient_id, min(data_inicio_3HP) data_inicio_tpi  
@@ -273,6 +284,105 @@ from
 						) inicioAnterior on inicioAnterior.patient_id=inicio.patient_id 																		
 							and inicioAnterior.data_inicio_tpi between (inicio.data_inicio_tpi - INTERVAL 7 MONTH) and (inicio.data_inicio_tpi - INTERVAL 1 day) 
 					   where inicioAnterior.patient_id is null 	
+					   
+					   -- =================LFX=========================
+					   
+                        union  
+                    
+                    /*
+                        Patients who have (Última profilaxia TPT with value “Levofloxacina (LFX)” and Data Inicio) selected in Ficha Resumo - Mastercard (LFX Start Date) during the reporting period or
+
+                        Patients who have Profilaxia TPT with the value “Levofloxacina (LFX)” and Estado da Profilaxia with the value “Inicio (I)”) marked on Ficha Clínica – Mastercard (LFX Start Date) during the reporting period or 
+
+                        
+                    */
+                    
+                    select  p.patient_id, min(obsState.obs_datetime) data_inicio_tpi                                                                        
+                    from    patient p                                                                                                                               
+                            inner join encounter e on p.patient_id=e.patient_id                                                                                     
+                            inner join obs obsLfx on obsLfx.encounter_id=e.encounter_id                                                                                     
+                            inner join obs obsState on obsState.encounter_id=e.encounter_id                                                             
+                    where   e.voided=0 and p.voided=0 and obsState.obs_datetime between :startDate and :endDate                                                 
+                            and obsLfx.voided=0 and obsLfx.concept_id=23985 and obsLfx.value_coded=165306 and e.encounter_type in (6,53) and  e.location_id=:location         
+                            and obsState.voided =0 and obsState.concept_id =165308 and obsState.value_coded=1256                            
+                    group by p.patient_id               
+                    
+                    
+                    union 
+                    
+                    /*
+                         Patients who have Regime de TPT with the values (“Levofloxacina (LFX)” or Levofloxacina (LFX) + Piridoxina”) and “Seguimento de tratamento TPT” = (‘Inicio’ or ‘Reinicio’) marked on Ficha de Levantamento de TPT (FILT) (LFX FILT Start Date)during the reporting period or
+                    */
+                    
+                     select p.patient_id, min(e.encounter_datetime) data_inicio_LFX                                                                         
+                     from   patient p                                                                                                                           
+                            inner join encounter e on p.patient_id=e.patient_id                                                                                     
+                            inner join obs o on o.encounter_id=e.encounter_id                                                                                       
+                            inner join obs seguimentoTPT on seguimentoTPT.encounter_id=e.encounter_id                                                               
+                     where  e.voided=0 and p.voided=0 and e.encounter_datetime between :startDate and :endDate                                                  
+                            and o.voided=0 and o.concept_id=23985 and o.value_coded in (165306,23983) and e.encounter_type=60 and e.location_id=:location              
+                            and seguimentoTPT.voided =0 and seguimentoTPT.concept_id =23987 and seguimentoTPT.value_coded in (1256,1705)                            
+                     group by p.patient_id 
+                     
+                     
+                    union 
+                    /*
+                       	Patients who have Regime de TPT with the values (“Levofloxacina (LFX)” or Levofloxacina (LFX) + Piridoxina”) and “Seguimento de Tratamento TPT” with values “Continua” or no value marked on the first pick- up on Ficha de Levantamento de TPT (FILT) during the reporting period as FILT LFX Start Date and:
+
+					No other Regimes de TPT = “LFX” or “Levofloxacina + Piridoxina”) marked on FILT in the 7 months prior to the LFX FILT Start Date and
+					No other LFX Start Dates marked on Ficha Clinica (Profilaxia TPT with the value “Levofloxacina (LFX)” and Estado da Profilaxia with the value “Inicio (I)”) in the 7 months prior to this FILT LFX Start Date and
+					No other LFX Start Dates marked on Ficha de Seguimento  (Profilaxia TPT with the value “Levofloxacina (LFX)” and Data Início) in the 7 months prior to this FILT LFX Start Date and
+					No other LFX Start Dates marked on Ficha resumo (Última profilaxia TPT with value “Levofloxacina (LFX)” and Data Inicio) selected in the 7 months prior to this FILT LFX Start Date
+                    */
+                    
+                      select inicio.patient_id,inicio.data_inicio_tpi                                                                                       
+                      from                                                                                                                                      
+                        (   
+                            
+                            Select firstFilt.patient_id,firstFilt.dataFirstFilt data_inicio_tpi
+                            from 
+                            (   select  p.patient_id,min(e.encounter_datetime) dataFirstFilt                                                                    
+                                from    patient p                                                                                                               
+                                        inner join encounter e on p.patient_id=e.patient_id                                                 
+                                where   e.voided=0 and p.voided=0 and e.encounter_datetime between :startDate and :endDate                                          
+                                        and e.encounter_type=60 and  e.location_id=:location                    
+                                group by p.patient_id
+                            ) firstFilt
+                            inner join encounter e on e.patient_id=firstFilt.patient_id
+                            inner join obs obsTPT on obsTPT.encounter_id=e.encounter_id
+                            left join obs seguimentoTPT on (seguimentoTPT.encounter_id=e.encounter_id and seguimentoTPT.voided=0 and 
+                                                                seguimentoTPT.concept_id=23987)
+                            where   firstFilt.dataFirstFilt=e.encounter_datetime and 
+                                    e.encounter_type=60 and obsTPT.voided=0 and obsTPT.concept_id=23985 and obsTPT.value_coded in (165306,23983) and 
+                                    e.location_id=:location and (seguimentoTPT.value_coded = 1257 or seguimentoTPT.value_coded is null)                                                                                                             
+                        ) inicio                                                                                                                                
+                        left join                                                                                                                               
+                        (   
+                            
+                            select  p.patient_id, obsState.obs_datetime data_inicio_tpi                                                                         
+                            from    patient p                                                                                                                               
+                                    inner join encounter e on p.patient_id=e.patient_id                                                                                     
+                                    inner join obs obsLfx on obsLfx.encounter_id=e.encounter_id                                                                                     
+                                    inner join obs obsState on obsState.encounter_id=e.encounter_id                                                             
+                            where   e.voided=0 and p.voided=0 and obsState.obs_datetime between (:startDate - INTERVAL 14 MONTH) and :endDate                                                   
+                                    and obsLfx.voided=0 and obsLfx.concept_id=23985 and obsLfx.value_coded=165306 and e.encounter_type in (6,53,9) and  e.location_id=:location         
+                                    and obsState.voided =0 and obsState.concept_id =165308 and obsState.value_coded=1256                            
+                            
+                            union 
+                            
+                            
+                            select p.patient_id, e.encounter_datetime data_inicio_tpi                                                                       
+                            from    patient p                                                                                                                           
+                                    inner join encounter e on p.patient_id=e.patient_id                                                                                     
+                                    inner join obs o on o.encounter_id=e.encounter_id                                       
+                             where  e.voided=0 and p.voided=0 and e.encounter_datetime between (:startDate - INTERVAL 14 MONTH) and :endDate                                                    
+                                    and o.voided=0 and o.concept_id=23985 and o.value_coded in (165306,23983) and e.encounter_type=60 and  e.location_id=:location              
+                                                                
+
+                        ) inicioAnterior on inicioAnterior.patient_id=inicio.patient_id                                                                         
+                            and inicioAnterior.data_inicio_tpi between (inicio.data_inicio_tpi - INTERVAL 7 MONTH) and (inicio.data_inicio_tpi - INTERVAL 1 day) 
+                       where inicioAnterior.patient_id is null  
+					
 					) inicio_tpi  
             group by inicio_tpi.patient_id  
         ) inicio_tpi
@@ -529,7 +639,111 @@ from
 			) startINH
 			group by patient_id			
 		
-		) inicioInh_TPT_INI_FR5 on inicio_tpi.patient_id=inicioInh_TPT_INI_FR5.patient_id         
+		) inicioInh_TPT_INI_FR5 on inicio_tpi.patient_id=inicioInh_TPT_INI_FR5.patient_id   
+		left join
+		(
+		select patient_id,min(data_inicio_tpi) data_inicio_tpi,
+                    -- LFX Expected Completion Date/ LFX: Data Fim Esperada – Sheet 1: Column AH Expected Completion Date = LFX Start Date (defined in TPT_INI_FR19) + 173 days
+                    DATE_ADD(min(data_inicio_tpi), INTERVAL 173 DAY) data_completa_6meses_lfx
+            from 
+            (
+            
+                    /*
+                        Patients who have (Última profilaxia TPT with value “Levofloxacina (LFX)” and Data Inicio) selected in Ficha Resumo - Mastercard (LFX Start Date) during the reporting period or
+
+                        Patients who have Profilaxia TPT with the value “Levofloxacina (LFX)” and Estado da Profilaxia with the value “Inicio (I)”) marked on Ficha Clínica – Mastercard (LFX Start Date) during the reporting period or 
+                        
+                    */
+                    
+                    select  p.patient_id, min(obsState.obs_datetime) data_inicio_tpi                                                                        
+                    from    patient p                                                                                                                               
+                            inner join encounter e on p.patient_id=e.patient_id                                                                                     
+                            inner join obs obsLfx on obsLfx.encounter_id=e.encounter_id                                                                                     
+                            inner join obs obsState on obsState.encounter_id=e.encounter_id                                                             
+                    where   e.voided=0 and p.voided=0 and obsState.obs_datetime between :startDate and :endDate                                                 
+                            and obsLfx.voided=0 and obsLfx.concept_id=23985 and obsLfx.value_coded=165306 and e.encounter_type in (6,53) and e.location_id=:location            
+                            and obsState.voided =0 and obsState.concept_id =165308 and obsState.value_coded=1256                            
+                    group by p.patient_id               
+                    
+                    
+                    union 
+                    
+                    /*
+                        Patients who have Regime de TPT with the values (“Levofloxacina (LFX)” or Levofloxacina (LFX) + Piridoxina”) and “Seguimento de tratamento TPT” = (‘Inicio’ or ‘Reinicio’) marked on Ficha de Levantamento de TPT (FILT) (LFX FILT Start Date)during the reporting period or)
+                    */
+                    
+                     select p.patient_id, min(e.encounter_datetime) data_inicio_LFX                                                                         
+                     from   patient p                                                                                                                           
+                            inner join encounter e on p.patient_id=e.patient_id                                                                                     
+                            inner join obs o on o.encounter_id=e.encounter_id                                                                                       
+                            inner join obs seguimentoTPT on seguimentoTPT.encounter_id=e.encounter_id                                                               
+                     where  e.voided=0 and p.voided=0 and e.encounter_datetime between :startDate and :endDate                                                  
+                            and o.voided=0 and o.concept_id=23985 and o.value_coded in (165306,23983) and e.encounter_type=60 and e.location_id=:location             
+                            and seguimentoTPT.voided =0 and seguimentoTPT.concept_id =23987 and seguimentoTPT.value_coded in (1256,1705)                            
+                     group by p.patient_id 
+                     
+                     
+                    union 
+
+                    /*
+                        Patients who have Regime de TPT with the values (“Levofloxacina (LFX)” or Levofloxacina (LFX) + Piridoxina”) and “Seguimento de Tratamento TPT” with values “Continua” or no value marked on the first pick- up on Ficha de Levantamento de TPT (FILT) during the reporting period as FILT LFX Start Date and:
+
+                        No other Regimes de TPT = “LFX” or “Levofloxacina + Piridoxina”) marked on FILT in the 7 months prior to the LFX FILT Start Date and
+                        No other LFX Start Dates marked on Ficha Clinica (Profilaxia TPT with the value “Levofloxacina (LFX)” and Estado da Profilaxia with the value “Inicio (I)”) in the 7 months prior to this FILT LFX Start Date and
+                        No other LFX Start Dates marked on Ficha de Seguimento  (Profilaxia TPT with the value “Levofloxacina (LFX)” and Data Início) in the 7 months prior to this FILT LFX Start Date and
+                        No other LFX Start Dates marked on Ficha resumo (Última profilaxia TPT with value “Levofloxacina (LFX)” and Data Inicio) selected in the 7 months prior to this FILT LFX Start Date
+                    */
+                    
+                      select inicio.patient_id,inicio.data_inicio_tpi                                                                                       
+                      from                                                                                                                                      
+                        (   
+                            
+                            Select firstFilt.patient_id,firstFilt.dataFirstFilt data_inicio_tpi
+                            from 
+                            (   select  p.patient_id,min(e.encounter_datetime) dataFirstFilt                                                                    
+                                from    patient p                                                                                                               
+                                        inner join encounter e on p.patient_id=e.patient_id                                                 
+                                where   e.voided=0 and p.voided=0 and e.encounter_datetime between :startDate and :endDate                                          
+                                        and e.encounter_type=60 and  e.location_id=:location                    
+                                group by p.patient_id
+                            ) firstFilt
+                            inner join encounter e on e.patient_id=firstFilt.patient_id
+                            inner join obs obsTPT on obsTPT.encounter_id=e.encounter_id
+                            left join obs seguimentoTPT on (seguimentoTPT.encounter_id=e.encounter_id and seguimentoTPT.voided=0 and 
+                                                                seguimentoTPT.concept_id=23987)
+                            where   firstFilt.dataFirstFilt=e.encounter_datetime and 
+                                    e.encounter_type=60 and obsTPT.voided=0 and obsTPT.concept_id=23985 and obsTPT.value_coded in (165306,23983) and 
+                                    e.location_id=:location and (seguimentoTPT.value_coded = 1257 or seguimentoTPT.value_coded is null)                                                                                                             
+                        ) inicio                                                                                                                                
+                        left join                                                                                                                               
+                        (   
+                            
+                            select  p.patient_id, obsState.obs_datetime data_inicio_tpi                                                                         
+                            from    patient p                                                                                                                               
+                                    inner join encounter e on p.patient_id=e.patient_id                                                                                     
+                                    inner join obs obsLfx on obsLfx.encounter_id=e.encounter_id                                                                                     
+                                    inner join obs obsState on obsState.encounter_id=e.encounter_id                                                             
+                            where   e.voided=0 and p.voided=0 and obsState.obs_datetime between (:startDate - INTERVAL 14 MONTH) and :endDate                                                   
+                                    and obsLfx.voided=0 and obsLfx.concept_id=23985 and obsLfx.value_coded=165306 and e.encounter_type in (6,53) and  e.location_id=:location            
+                                    and obsState.voided =0 and obsState.concept_id =165308 and obsState.value_coded=1256                            
+                            
+                            union 
+                            
+                            
+                            select p.patient_id, e.encounter_datetime data_inicio_tpi                                                                       
+                            from    patient p                                                                                                                           
+                                    inner join encounter e on p.patient_id=e.patient_id                                                                                     
+                                    inner join obs o on o.encounter_id=e.encounter_id                                       
+                             where  e.voided=0 and p.voided=0 and e.encounter_datetime between (:startDate - INTERVAL 14 MONTH) and :endDate                                                    
+                                    and o.voided=0 and o.concept_id=23985 and o.value_coded in (165306,23983) and e.encounter_type=60 and  e.location_id=:location             
+                                                                
+
+                        ) inicioAnterior on inicioAnterior.patient_id=inicio.patient_id                                                                         
+                            and inicioAnterior.data_inicio_tpi between (inicio.data_inicio_tpi - INTERVAL 7 MONTH) and (inicio.data_inicio_tpi - INTERVAL 1 day) 
+                       where inicioAnterior.patient_id is null  
+            ) startLFX
+            group by patient_id 
+		)inicioLfx_TPT_INI_FR5_1 on inicio_tpi.patient_id=inicioLfx_TPT_INI_FR5_1.patient_id 
 		left join 
 		-- TPT_INI_FR7
 		(  
@@ -1037,94 +1251,531 @@ from
 			)
 			finalinh group by finalinh.patient_id	
 			
-        )finalinh on finalinh.patient_id=inicioInh_TPT_INI_FR5.patient_id  and finalinh.data_final_inh >=inicioInh_TPT_INI_FR5.data_inicio_tpi 			 
+        )finalinh on finalinh.patient_id=inicioInh_TPT_INI_FR5.patient_id  and finalinh.data_final_inh >=inicioInh_TPT_INI_FR5.data_inicio_tpi 
+        left join
+        (
+        /*
+                        LFX Initiation Date on FILT/ LFX: Data Início FILT – Sheet 1: Column AA
+                        The earliest LFX drug pick-up date registered on FILT (Regime TPT = “Levofloxacina” or “Levofloxacina + Piridoxina”) that falls during the reporting period (TPT_INI_FR5.1)
+                    */
+
+                                    select patient_id,min(data_inicio_LFX)  data_inicio_lfxfilt
+                from 
+                    (
+                    /*
+                       Patients who have Regime de TPT with the values (“Levofloxacina (LFX)” or Levofloxacina (LFX) + Piridoxina”) and “Seguimento de tratamento TPT” = (‘Inicio’ or ‘Reinicio’) marked on Ficha de Levantamento de TPT (FILT) (LFX FILT Start Date)during the reporting period or
+
+                    */
+                    
+                     select p.patient_id, min(e.encounter_datetime) data_inicio_LFX                                                                         
+                     from   patient p                                                                                                                           
+                            inner join encounter e on p.patient_id=e.patient_id                                                                                     
+                            inner join obs o on o.encounter_id=e.encounter_id                                                                                       
+                            inner join obs seguimentoTPT on seguimentoTPT.encounter_id=e.encounter_id                                                               
+                     where  e.voided=0 and p.voided=0 and e.encounter_datetime between :startDate and :endDate                                                  
+                            and o.voided=0 and o.concept_id=23985 and o.value_coded in (165306,23983) and e.encounter_type=60 and  e.location_id=:location              
+                            and seguimentoTPT.voided =0 and seguimentoTPT.concept_id =23987 and seguimentoTPT.value_coded in (1256,1705)                            
+                     group by p.patient_id 
+                     
+                     
+                    union 
+                    /*
+                         Patients who have Regime de TPT with the values (“Levofloxacina (LFX)” or Levofloxacina (LFX) + Piridoxina”) and “Seguimento de Tratamento TPT” with values “Continua” or no value marked on the first pick- up on Ficha de Levantamento de TPT (FILT) during the reporting period as FILT LFX Start Date and:
+
+                    No other Regimes de TPT = “LFX” or “Levofloxacina + Piridoxina”) marked on FILT in the 7 months prior to the LFX FILT Start Date and
+                    No other LFX Start Dates marked on Ficha Clinica (Profilaxia TPT with the value “Levofloxacina (LFX)” and Estado da Profilaxia with the value “Inicio (I)”) in the 7 months prior to this FILT LFX Start Date and
+                    No other LFX Start Dates marked on Ficha de Seguimento  (Profilaxia TPT with the value “Levofloxacina (LFX)” and Data Início) in the 7 months prior to this FILT LFX Start Date and
+                    No other LFX Start Dates marked on Ficha resumo (Última profilaxia TPT with value “Levofloxacina (LFX)” and Data Inicio) selected in the 7 months prior to this FILT LFX Start Date
+                    */
+                    
+                      select inicio.patient_id,inicio.data_inicio_tpi                                                                                       
+                      from                                                                                                                                      
+                        (   
+                            
+                            Select firstFilt.patient_id,firstFilt.dataFirstFilt data_inicio_tpi
+                            from 
+                            (   select  p.patient_id,min(e.encounter_datetime) dataFirstFilt                                                                    
+                                from    patient p                                                                                                               
+                                        inner join encounter e on p.patient_id=e.patient_id                                                 
+                                where   e.voided=0 and p.voided=0 and e.encounter_datetime between :startDate and :endDate                                          
+                                        and e.encounter_type=60 and  e.location_id=:location                    
+                                group by p.patient_id
+                            ) firstFilt
+                            inner join encounter e on e.patient_id=firstFilt.patient_id
+                            inner join obs obsTPT on obsTPT.encounter_id=e.encounter_id
+                            left join obs seguimentoTPT on (seguimentoTPT.encounter_id=e.encounter_id and seguimentoTPT.voided=0 and 
+                                                                seguimentoTPT.concept_id=23987)
+                            where   firstFilt.dataFirstFilt=e.encounter_datetime and 
+                                    e.encounter_type=60 and obsTPT.voided=0 and obsTPT.concept_id=23985 and obsTPT.value_coded in (165306,23983) and 
+                                    e.location_id=:location and (seguimentoTPT.value_coded = 1257 or seguimentoTPT.value_coded is null)                                                                                                             
+                        ) inicio                                                                                                                                
+                        left join                                                                                                                               
+                        (   
+                            
+                            select  p.patient_id, obsState.obs_datetime data_inicio_tpi                                                                         
+                            from    patient p                                                                                                                               
+                                    inner join encounter e on p.patient_id=e.patient_id                                                                                     
+                                    inner join obs obsLfx on obsLfx.encounter_id=e.encounter_id                                                                                     
+                                    inner join obs obsState on obsState.encounter_id=e.encounter_id                                                             
+                            where   e.voided=0 and p.voided=0 and obsState.obs_datetime between (:startDate - INTERVAL 14 MONTH) and :endDate                                                   
+                                    and obsLfx.voided=0 and obsLfx.concept_id=23985 and obsLfx.value_coded=165306 and e.encounter_type in (6,53) and  e.location_id=:location         
+                                    and obsState.voided =0 and obsState.concept_id =165308 and obsState.value_coded=1256                            
+                            
+                            union 
+                            
+                            
+                            select p.patient_id, e.encounter_datetime data_inicio_tpi                                                                       
+                            from    patient p                                                                                                                           
+                                    inner join encounter e on p.patient_id=e.patient_id                                                                                     
+                                    inner join obs o on o.encounter_id=e.encounter_id                                       
+                             where  e.voided=0 and p.voided=0 and e.encounter_datetime between (:startDate - INTERVAL 14 MONTH) and :endDate                                                    
+                                    and o.voided=0 and o.concept_id=23985 and o.value_coded in (165306,23983) and e.encounter_type=60 and  e.location_id=:location              
+                                                                
+
+                        ) inicioAnterior on inicioAnterior.patient_id=inicio.patient_id                                                                         
+                            and inicioAnterior.data_inicio_tpi between (inicio.data_inicio_tpi - INTERVAL 7 MONTH) and (inicio.data_inicio_tpi - INTERVAL 1 day) 
+                       where inicioAnterior.patient_id is null  
+                    ) lfxfilt
+                    group by patient_id         
+        )inilfxfilt on inilfxfilt.patient_id=inicio_tpi.patient_id
+        left join
+        (
+                                                    /*
+                        LFX Initiation Date on Ficha Clínica/ LFX: Data Início Ficha Clinica – Sheet 1: Column AB
+                        The earliest LFX initiation date (Data Início) registered on Ficha Clínica (Profilaxia TPT with the value “Levofloxacina (LFX)” and Estado da Profilaxia with the value “Inicio (I)”) that falls during the reporting period (TPT_INI_FR5.1)
+
+                    */
+
+                                            select  p.patient_id, min(obsState.obs_datetime) data_inicio_lfxseguimento                                                                        
+                    from    patient p                                                                                                                               
+                            inner join encounter e on p.patient_id=e.patient_id                                                                                     
+                            inner join obs obsInh on obsInh.encounter_id=e.encounter_id                                                                                     
+                            inner join obs obsState on obsState.encounter_id=e.encounter_id                                                             
+                    where   e.voided=0 and p.voided=0 and obsState.obs_datetime between :startDate and :endDate                                                 
+                            and obsInh.voided=0 and obsInh.concept_id=23985 and obsInh.value_coded=165306 and e.encounter_type in (6) and  e.location_id=:location         
+                            and obsState.voided =0 and obsState.concept_id =165308 and obsState.value_coded=1256                            
+                    group by p.patient_id  
+        ) inilfxseguimento on inilfxseguimento.patient_id=inicio_tpi.patient_id
+        left join 
+        (
+                                                                        /*
+                        INH Initiation Date on Ficha Resumo/ LFX: Data Início Ficha Resumo – Sheet 1: Column AC
+                        The earliest LFX initiation date registered in Ficha Resumo – Mastercard (Última profilaxia TPT with value “Levofloxacina (LFX)” with Data Inicio)) that falls during the reporting period (TPT_INI_FR5)
+                    */
+
+                                            select  p.patient_id, min(obsState.obs_datetime) data_inicio_lfxresumo                                                                        
+                    from    patient p                                                                                                                               
+                            inner join encounter e on p.patient_id=e.patient_id                                                                                     
+                            inner join obs obsInh on obsInh.encounter_id=e.encounter_id                                                                                     
+                            inner join obs obsState on obsState.encounter_id=e.encounter_id                                                             
+                    where   e.voided=0 and p.voided=0 and obsState.obs_datetime between :startDate and :endDate                                                 
+                            and obsInh.voided=0 and obsInh.concept_id=23985 and obsInh.value_coded=165306 and e.encounter_type in (53) and  e.location_id=:location         
+                            and obsState.voided =0 and obsState.concept_id =165308 and obsState.value_coded=1256                            
+                    group by p.patient_id 
+        
+        )inilfxresumo on inilfxresumo.patient_id=inicio_tpi.patient_id
+        left join 
+        (
+         /*
+            Last LFX FILT: Date/ LFX: Data Último FILT – Sheet 1: Column AD
+            The most recent FILT that has Regime de TPT with the values (Levofloxacina or Levofloxacina + Piridoxina) marked until the report generation date
+
+            Last LFX FILT: Type of Dispensation/ LFX: Último FILT - Tipo de Dispensa – Sheet 1: Column AE
+            Value of Tipo de Dispensa (Mensal or Trimestral) on the most recent FILT that has Regime de TPT with the values (Levofloxacina or Levofloxacina + Piridoxina) marked until the report generation date 
+            Possible values are: Mensal or Trimestral
+
+            */
+            select  filt.patient_id,filt.dataMaxFilt data_final_lfxfilt,
+                    if(obsDispensa.concept_id is null,'',if(obsDispensa.value_coded=1098,'Mensal','Trimestral')) tipoDispensalfx
+            from 
+            (  
+                select maxFilt.patient_id,maxFilt.dataMaxFilt,max(e2.encounter_id) encounter_id
+                from 
+                (
+                    select  p.patient_id,max(encounter_datetime) dataMaxFilt 
+                    from    patient p  
+                            inner join encounter e on p.patient_id=e.patient_id 
+                            inner join obs o on o.encounter_id=e.encounter_id 
+                    where   e.voided=0 and p.voided=0 and e.encounter_datetime<=curdate() and  
+                            e.encounter_type=60 and e.location_id=:location and o.voided=0 and 
+                            o.concept_id=23985 and o.value_coded in (165306,23983)
+                    group by p.patient_id
+                    
+                ) maxFilt 
+                inner join encounter e2 on  e2.patient_id=maxFilt.patient_id
+                where   e2.voided=0 and e2.encounter_type=60 and e2.location_id=:location and 
+                        e2.encounter_datetime=maxFilt.dataMaxFilt
+                group by maxFilt.patient_id
+            ) filt 
+            left join obs obsDispensa on obsDispensa.encounter_id=filt.encounter_id and obsDispensa.voided=0 and obsDispensa.concept_id=23986   
+        )finallfxfilt on finallfxfilt.patient_id=inicio_tpi.patient_id
+        left join 
+        (
+                                /* 
+                        LFX Completion Date on Ficha Clínica/ LFX: Data Fim Ficha Clinica – Sheet 1: Column AF
+                        The Last Profilaxia TPT with the value “Levoflaxacina (LFX)” and Estado da Profilaxia with the value “Fim (F)” marked on Ficha Clínica – Mastercard between the LFX Start Date (obtained in TPT_INI_FR24) and the report generation date.      
+            */      
+                
+            select  p.patient_id, max(e.encounter_datetime) data_final_lfxSeguimento                                                                        
+            from    patient p                                                                                                                               
+                    inner join encounter e on p.patient_id=e.patient_id                                                                                     
+                    inner join obs obsLfx on obsLfx.encounter_id=e.encounter_id                                                                                     
+                    inner join obs obsLfxState on obsLfxState.encounter_id=e.encounter_id                                                               
+            where   e.voided=0 and p.voided=0 and e.encounter_datetime between :startDate and curdate()                                                 
+                    and obsLfx.voided=0 and obsLfx.concept_id=23985 and obsLfx.value_coded=165306 and e.encounter_type in (6) and  e.location_id=:location           
+                    and obsLfxState.voided =0 and obsLfxState.concept_id =165308 and obsLfxState.value_coded=1267                           
+            group by p.patient_id  
+        
+        )finallfxseguimento on finallfxseguimento.patient_id=inicioLfx_TPT_INI_FR5_1.patient_id and finallfxseguimento.data_final_lfxSeguimento>=inicioLfx_TPT_INI_FR5_1.data_inicio_tpi
+            left join 
+        (
+                        /*
+                        LFX Completion Date on Ficha Resumo/ LFX: Data Fim Ficha Resumo – Sheet 1: Column AG
+                        The most recent (Última profilaxia TPT with value “Levoflaxacina (LFX)” and Data de Fim) selected in Ficha Resumo – Mastercard between the INH Start Date (obtained in TPT_INI_FR24) and the report generation date.        
+            */          
+            
+            select  p.patient_id, max(obsState.obs_datetime) data_final_lfxresumo                                                                       
+            from    patient p                                                                                                                               
+                    inner join encounter e on p.patient_id=e.patient_id                                                                                     
+                    inner join obs obsLfx on obsLfx.encounter_id=e.encounter_id                                                                                     
+                    inner join obs obsState on obsState.encounter_id=e.encounter_id                                                             
+            where   e.voided=0 and p.voided=0 and obsState.obs_datetime BETWEEN :startDate and curdate()                                                    
+                    and obsLfx.voided=0 and obsLfx.concept_id=23985 and obsLfx.value_coded=165306 and e.encounter_type=53 and  e.location_id=:location         
+                    and obsState.voided =0 and obsState.concept_id =165308 and obsState.value_coded=1267                            
+            group by p.patient_id 
+        
+        )finallfxresumo on finallfxresumo.patient_id=inicioLfx_TPT_INI_FR5_1.patient_id and finallfxresumo.data_final_lfxresumo>=inicioLfx_TPT_INI_FR5_1.data_inicio_tpi
+        left join  
+		 ( 
+			select 	finallfx.patient_id, max(finallfx.data_final_lfx) data_final_lfx 																		
+			from (
+			
+				select 	p.patient_id, max(obsState.obs_datetime) data_final_lfx  																		
+				from 	patient p														 			  															
+						inner join encounter e on p.patient_id=e.patient_id																				 		
+						inner join obs obslfx on obslfx.encounter_id=e.encounter_id		 																				
+						inner join obs obsState on obsState.encounter_id=e.encounter_id																
+				where 	e.voided=0 and p.voided=0 and obsState.obs_datetime BETWEEN :startDate and curdate()	 			  									
+						and obslfx.voided=0 and obslfx.concept_id=23985 and obslfx.value_coded=165306 and e.encounter_type=53 and e.location_id=:location	  		
+						and obsState.voided =0 and obsState.concept_id =165308 and obsState.value_coded=1267 							
+				group by p.patient_id
+	
+			     union
+	
+			     select 	p.patient_id, max(e.encounter_datetime) data_final_lfx  																		
+				from 	patient p														 			  															
+						inner join encounter e on p.patient_id=e.patient_id																				 		
+						inner join obs obsLfx on obsLfx.encounter_id=e.encounter_id		 																				
+						inner join obs obsLfxState on obsLfxState.encounter_id=e.encounter_id																
+				where 	e.voided=0 and p.voided=0 and e.encounter_datetime between :startDate and curdate()	 			  									
+						and obsLfx.voided=0 and obsLfx.concept_id=23985 and obsLfx.value_coded=165306 and e.encounter_type in (6) and e.location_id=:location	  		
+						and obsLfxState.voided =0 and obsLfxState.concept_id =165308 and obsLfxState.value_coded=1267 							
+				group by p.patient_id	
+			)
+			finallfx group by finallfx.patient_id	
+			
+        )finallfx on finallfx.patient_id=inicioLfx_TPT_INI_FR5_1.patient_id  and finallfx.data_final_lfx >=inicioLfx_TPT_INI_FR5_1.data_inicio_tpi 
 		left join 
 		(  
-            				select patient_id,decisao from  (  select inicio_real.patient_id,  
-            				gravida_real.data_gravida,  lactante_real.data_parto,  
-            				if(max(gravida_real.data_gravida) is null and max(lactante_real.data_parto) is null,null,  
-            				if(max(gravida_real.data_gravida) is null,'Lactante',  
-            				if(max(lactante_real.data_parto) is null,'Gravida',  
-            				if(max(lactante_real.data_parto)>max(gravida_real.data_gravida),'Lactante','Gravida')))) decisao from (	  
-            				select p.patient_id  from patient p  inner join encounter e on e.patient_id=p.patient_id   
-            				where e.voided=0 and p.voided=0 and e.encounter_type in (5,7) and e.encounter_datetime<=curdate() and e.location_id = :location  
-            				union  select pg.patient_id from patient p  
-            				inner join patient_program pg on p.patient_id=pg.patient_id  
-            				where pg.voided=0 and p.voided=0 and program_id in (1,2) and date_enrolled<=curdate() and location_id=:location  
-            				union  Select p.patient_id from patient p  
-            				inner join encounter e on p.patient_id=e.patient_id  
-            				inner join obs o on e.encounter_id=o.encounter_id  
-            				where p.voided=0 and e.voided=0 and o.voided=0 and e.encounter_type=53 and   
-            				o.concept_id=23891 and o.value_datetime is not null and   
-            				o.value_datetime<=curdate() and e.location_id=:location  )inicio_real  left join  (  
-            				Select p.patient_id,e.encounter_datetime data_gravida from patient p   
-            				inner join encounter e on p.patient_id=e.patient_id  
-            				inner join obs o on e.encounter_id=o.encounter_id  
-            				where p.voided=0 and e.voided=0 and o.voided=0 and concept_id=1982 and value_coded=1065 and   
-            				e.encounter_type in (5,6) and e.encounter_datetime  between :startDate and curdate() and e.location_id=:location  
-            				union  Select p.patient_id,e.encounter_datetime data_gravida from patient p  
-            				inner join encounter e on p.patient_id=e.patient_id  
-            				inner join obs o on e.encounter_id=o.encounter_id  
-            				where p.voided=0 and e.voided=0 and o.voided=0 and concept_id=1279 and   
-            				e.encounter_type in (5,6) and e.encounter_datetime between :startDate and curdate() and e.location_id=:location  
-            				union  Select p.patient_id,e.encounter_datetime data_gravida from patient p  
-            				inner join encounter e on p.patient_id=e.patient_id  
-            				inner join obs o on e.encounter_id=o.encounter_id  
-            				where p.voided=0 and e.voided=0 and o.voided=0 and concept_id=1600 and   
-            				e.encounter_type in (5,6) and e.encounter_datetime between :startDate and curdate() and e.location_id=:location	  
-            				union  Select p.patient_id,e.encounter_datetime data_gravida from patient p   
-            				inner join encounter e on p.patient_id=e.patient_id  
-            				inner join obs o on e.encounter_id=o.encounter_id  
-            				where p.voided=0 and e.voided=0 and o.voided=0 and concept_id=6334 and value_coded=6331 and   
-            				e.encounter_type in (5,6) and e.encounter_datetime between :startDate and curdate() and e.location_id=:location		  
-            				union  select pp.patient_id,pp.date_enrolled data_gravida from patient_program pp   
-            				where pp.program_id=8 and pp.voided=0 and   
-            				pp.date_enrolled between :startDate and curdate() and pp.location_id=:location  union  
-            				Select p.patient_id,obsART.value_datetime data_gravida from patient p   
-            				inner join encounter e on p.patient_id=e.patient_id  
-            				inner join obs o on e.encounter_id=o.encounter_id  
-            				inner join obs obsART on e.encounter_id=obsART.encounter_id  
-            				where p.voided=0 and e.voided=0 and o.voided=0 and o.concept_id=1982 and o.value_coded=1065 and   
-            				e.encounter_type=53 and obsART.value_datetime between :startDate and curdate() and e.location_id=:location and   
-            				obsART.concept_id=1190 and obsART.voided=0  union  
-            				Select p.patient_id,o.value_datetime data_gravida from patient p  
-            				inner join encounter e on p.patient_id=e.patient_id  
-            				inner join obs o on e.encounter_id=o.encounter_id  
-            				where p.voided=0 and e.voided=0 and o.voided=0 and o.concept_id=1465 and   
-            				e.encounter_type=6 and o.value_datetime between :startDate and curdate() and e.location_id=:location  
-            				) gravida_real on gravida_real.patient_id=inicio_real.patient_id    left join   (  
-            				Select p.patient_id,o.value_datetime data_parto from patient p  
-            				inner join encounter e on p.patient_id=e.patient_id  
-            				inner join obs o on e.encounter_id=o.encounter_id  
-            				where  p.voided=0 and e.voided=0 and o.voided=0 and concept_id=5599 and   
-            				e.encounter_type in (5,6) and o.value_datetime between :startDate and curdate() and e.location_id=:location	  
-            				union  Select p.patient_id, e.encounter_datetime data_parto from patient p   
-            				inner join encounter e on p.patient_id=e.patient_id  
-            				inner join obs o on e.encounter_id=o.encounter_id  
-            				where p.voided=0 and e.voided=0 and o.voided=0 and concept_id=6332 and value_coded=1065 and  
-            				e.encounter_type=6 and e.encounter_datetime between :startDate and curdate() and e.location_id=:location  
-            				union  Select p.patient_id, obsART.value_datetime data_parto from patient p   
-            				inner join encounter e on p.patient_id=e.patient_id  
-            				inner join obs o on e.encounter_id=o.encounter_id  
-            				inner join obs obsART on e.encounter_id=obsART.encounter_id  
-            				where p.voided=0 and e.voided=0 and o.voided=0 and o.concept_id=6332 and o.value_coded=1065 and   
-            				e.encounter_type=53 and e.location_id=:location and   
-            				obsART.value_datetime between :startDate and curdate() and   
-            				obsART.concept_id=1190 and obsART.voided=0  union  
-            				Select p.patient_id, e.encounter_datetime data_parto from patient p   
-            				inner join encounter e on p.patient_id=e.patient_id  
-            				inner join obs o on e.encounter_id=o.encounter_id  
-            				where p.voided=0 and e.voided=0 and o.voided=0 and concept_id=6334 and value_coded=6332 and   
-            				e.encounter_type in (5,6) and e.encounter_datetime between :startDate and curdate() and e.location_id=:location  
-            				union  select pg.patient_id,ps.start_date data_parto from patient p   
-            				inner join patient_program pg on p.patient_id=pg.patient_id  
-            				inner join patient_state ps on pg.patient_program_id=ps.patient_program_id  
-            				where pg.voided=0 and ps.voided=0 and p.voided=0 and   
-            				pg.program_id=8 and ps.state=27 and   
-            				ps.start_date between :startDate and curdate() and location_id=:location  
-            				) lactante_real on lactante_real.patient_id=inicio_real.patient_id  
-            				where lactante_real.data_parto is not null or gravida_real.data_gravida is not null  
-            				group by inicio_real.patient_id  ) gravidaLactante		  
+		  					 select patient_id,
+       decisao
+from   (select inicio_real.patient_id,
+               gravida_real.data_gravida,
+               lactante_real.data_parto,
+               if(Max(gravida_real.data_gravida) is null
+                  and Max(lactante_real.data_parto) is null, null,
+               if(Max(gravida_real.data_gravida) is null, 'Lactante', if(Max(
+               lactante_real.data_parto) is null, 'Gravida', if(Max(
+                  lactante_real.data_parto)
+               > Max(gravida_real.data_gravida), 'Lactante',
+                                                                      'Gravida'
+                                                                      ))))
+               decisao
+        from   (select p.patient_id
+                from   patient p
+                       inner join encounter e
+                               on e.patient_id = p.patient_id
+                where  e.voided = 0
+                       and p.voided = 0
+                       and e.encounter_type in ( 5, 7 )
+                       and e.encounter_datetime <= curdate()
+                       and e.location_id = :location
+                union
+                select pg.patient_id
+                from   patient p
+                       inner join patient_program pg
+                               on p.patient_id = pg.patient_id
+                where  pg.voided = 0
+                       and p.voided = 0
+                       and program_id in ( 1, 2 )
+                       and date_enrolled <= curdate()
+                       and location_id = :location
+                union
+                select p.patient_id
+                from   patient p
+                       inner join encounter e
+                               on p.patient_id = e.patient_id
+                       inner join obs o
+                               on e.encounter_id = o.encounter_id
+                where  p.voided = 0
+                       and e.voided = 0
+                       and o.voided = 0
+                       and e.encounter_type = 53
+                       and o.concept_id = 23891
+                       and o.value_datetime is not null
+                       and o.value_datetime <= curdate()
+                       and e.location_id = :location
+                       )inicio_real
+               left join (select p.patient_id,
+                                 e.encounter_datetime data_gravida
+                          from   patient p
+                                 inner join encounter e
+                                         on p.patient_id = e.patient_id
+                                 inner join obs o
+                                         on e.encounter_id = o.encounter_id
+                          where  p.voided = 0
+                                 and e.voided = 0
+                                 and o.voided = 0
+                                 and concept_id = 1982
+                                 and value_coded = 1065
+                                 and e.encounter_type in ( 5, 6 )
+                                 and e.encounter_datetime between
+                                     :startDate and curdate()
+                                 and e.location_id = :location
+                          union
+                          select p.patient_id,
+                                 e.encounter_datetime data_gravida
+                          from   patient p
+                                 inner join encounter e
+                                         on p.patient_id = e.patient_id
+                                 inner join obs o
+                                         on e.encounter_id = o.encounter_id
+                          where  p.voided = 0
+                                 and e.voided = 0
+                                 and o.voided = 0
+                                 and concept_id = 1279
+                                 and e.encounter_type in ( 5, 6 )
+                                 and e.encounter_datetime between
+                                     :startDate and curdate()
+                                 and e.location_id = :location
+                          union
+                          select p.patient_id,
+                                 e.encounter_datetime data_gravida
+                          from   patient p
+                                 inner join encounter e
+                                         on p.patient_id = e.patient_id
+                                 inner join obs o
+                                         on e.encounter_id = o.encounter_id
+                          where  p.voided = 0
+                                 and e.voided = 0
+                                 and o.voided = 0
+                                 and concept_id = 1600
+                                 and e.encounter_type in ( 5, 6 )
+                                 and e.encounter_datetime between
+                                     :startDate and curdate()
+                                 and e.location_id = :location
+                          union
+                          select p.patient_id,
+                                 e.encounter_datetime data_gravida
+                          from   patient p
+                                 inner join encounter e
+                                         on p.patient_id = e.patient_id
+                                 inner join obs o
+                                         on e.encounter_id = o.encounter_id
+                          where  p.voided = 0
+                                 and e.voided = 0
+                                 and o.voided = 0
+                                 and concept_id = 6334
+                                 and value_coded = 6331
+                                 and e.encounter_type in ( 5, 6 )
+                                 and e.encounter_datetime between
+                                     :startDate and curdate()
+                                 and e.location_id = :location
+                          union
+                          select pp.patient_id,
+                                 pp.date_enrolled data_gravida
+                          from   patient_program pp
+                          where  pp.program_id = 8
+                                 and pp.voided = 0
+                                 and pp.date_enrolled between
+                                     :startDate and curdate()
+                                 and pp.location_id = :location
+                          union
+                          select p.patient_id,
+                                 obsART.value_datetime data_gravida
+                          from   patient p
+                                 inner join encounter e
+                                         on p.patient_id = e.patient_id
+                                 inner join obs o
+                                         on e.encounter_id = o.encounter_id
+                                 inner join obs obsART
+                                         on e.encounter_id = obsART.encounter_id
+                          where  p.voided = 0
+                                 and e.voided = 0
+                                 and o.voided = 0
+                                 and o.concept_id = 1982
+                                 and o.value_coded = 1065
+                                 and e.encounter_type = 53
+                                 and obsART.value_datetime between
+                                     :startDate and curdate()
+                                 and e.location_id = :location
+                                 and obsART.concept_id = 1190
+                                 and obsART.voided = 0
+                          union
+                          select p.patient_id,
+                                 o.value_datetime data_gravida
+                          from   patient p
+                                 inner join encounter e
+                                         on p.patient_id = e.patient_id
+                                 inner join obs o
+                                         on e.encounter_id = o.encounter_id
+                          where  p.voided = 0
+                                 and e.voided = 0
+                                 and o.voided = 0
+                                 and o.concept_id = 1465
+                                 and e.encounter_type = 6
+                                 and o.value_datetime between
+                                     :startDate and curdate()
+                                 and e.location_id = :location
+                          union
+                          select p.patient_id,
+                                 data_colheita.value_datetime data_gravida
+                          from   patient p
+                                 inner join encounter e
+                                         on p.patient_id = e.patient_id
+                                 inner join obs esta_gravida
+                                         on e.encounter_id =
+                                            esta_gravida.encounter_id
+                                 inner join obs data_colheita
+                                         on data_colheita.encounter_id =
+                                            e.encounter_id
+                          where  p.voided = 0
+                                 and e.voided = 0
+                                 and esta_gravida.voided = 0
+                                 and data_colheita.voided = 0
+                                 and esta_gravida.concept_id = 1982
+                                 and esta_gravida.value_coded = 1065
+                                 and e.encounter_type = 51
+                                 and data_colheita.concept_id = 23821
+                                 and data_colheita.value_datetime between
+                                     :startDate and curdate()
+                                 and e.location_id = :location
+                                 ) gravida_real on gravida_real.patient_id = inicio_real.patient_id
+               left join (select p.patient_id,
+                                 o.value_datetime data_parto
+                          from   patient p
+                                 inner join encounter e
+                                         on p.patient_id = e.patient_id
+                                 inner join obs o
+                                         on e.encounter_id = o.encounter_id
+                          where  p.voided = 0
+                                 and e.voided = 0
+                                 and o.voided = 0
+                                 and concept_id = 5599
+                                 and e.encounter_type in ( 5, 6 )
+                                 and o.value_datetime between
+                                     :startDate and curdate()
+                                 and e.location_id = :location
+                          union
+                          select p.patient_id,
+                                 e.encounter_datetime data_parto
+                          from   patient p
+                                 inner join encounter e
+                                         on p.patient_id = e.patient_id
+                                 inner join obs o
+                                         on e.encounter_id = o.encounter_id
+                          where  p.voided = 0
+                                 and e.voided = 0
+                                 and o.voided = 0
+                                 and concept_id = 6332
+                                 and value_coded = 1065
+                                 and e.encounter_type = 6
+                                 and e.encounter_datetime between
+                                     :startDate and curdate()
+                                 and e.location_id = :location
+                          union
+                          select p.patient_id,
+                                 obsART.value_datetime data_parto
+                          from   patient p
+                                 inner join encounter e
+                                         on p.patient_id = e.patient_id
+                                 inner join obs o
+                                         on e.encounter_id = o.encounter_id
+                                 inner join obs obsART
+                                         on e.encounter_id = obsART.encounter_id
+                          where  p.voided = 0
+                                 and e.voided = 0
+                                 and o.voided = 0
+                                 and o.concept_id = 6332
+                                 and o.value_coded = 1065
+                                 and e.encounter_type = 53
+                                 and e.location_id = :location
+                                 and obsART.value_datetime between
+                                     :startDate and curdate()
+                                 and obsART.concept_id = 1190
+                                 and obsART.voided = 0
+                          union
+                          select p.patient_id,
+                                 e.encounter_datetime data_parto
+                          from   patient p
+                                 inner join encounter e
+                                         on p.patient_id = e.patient_id
+                                 inner join obs o
+                                         on e.encounter_id = o.encounter_id
+                          where  p.voided = 0
+                                 and e.voided = 0
+                                 and o.voided = 0
+                                 and concept_id = 6334
+                                 and value_coded = 6332
+                                 and e.encounter_type in ( 5, 6 )
+                                 and e.encounter_datetime between
+                                     :startDate and curdate()
+                                 and e.location_id = :location
+                          union
+                          select pg.patient_id,
+                                 ps.start_date data_parto
+                          from   patient p
+                                 inner join patient_program pg
+                                         on p.patient_id = pg.patient_id
+                                 inner join patient_state ps
+                                         on pg.patient_program_id =
+                                            ps.patient_program_id
+                          where  pg.voided = 0
+                                 and ps.voided = 0
+                                 and p.voided = 0
+                                 and pg.program_id = 8
+                                 and ps.state = 27
+                                 and ps.start_date between
+                                     :startDate and curdate()
+                                 and location_id = :location
+                          union
+                          select p.patient_id,
+                                 data_colheita.value_datetime data_gravida
+                          from   patient p
+                                 inner join encounter e
+                                         on p.patient_id = e.patient_id
+                                 inner join obs esta_gravida
+                                         on e.encounter_id =
+                                            esta_gravida.encounter_id
+                                 inner join obs data_colheita
+                                         on data_colheita.encounter_id =
+                                            e.encounter_id
+                          where  p.voided = 0
+                                 and e.voided = 0
+                                 and esta_gravida.voided = 0
+                                 and data_colheita.voided = 0
+                                 and esta_gravida.concept_id = 6332
+                                 and esta_gravida.value_coded = 1065
+                                 and e.encounter_type = 51
+                                 and data_colheita.concept_id = 23821
+                                 and data_colheita.value_datetime between
+                                     :startDate and curdate()
+                                 and e.location_id = :location
+                                 ) lactante_real on lactante_real.patient_id = inicio_real.patient_id
+        where  lactante_real.data_parto is not null
+                or gravida_real.data_gravida is not null
+        group  by inicio_real.patient_id
+        ) gravidaLactante  
             				inner join person pe on pe.person_id=gravidaLactante.patient_id		  
             				where pe.voided=0 and pe.gender='F'  
         )gravidaLactante on gravidaLactante.patient_id=inicio_tpi.patient_id  
