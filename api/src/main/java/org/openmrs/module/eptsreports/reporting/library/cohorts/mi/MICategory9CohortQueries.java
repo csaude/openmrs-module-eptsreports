@@ -489,7 +489,12 @@ public class MICategory9CohortQueries {
                 .findPatientsWhoWhereMarkedAsTransferedInAndOnARTOnInAPeriodOnMasterCardRF06(),
             mappings));
 
-    definition.setCompositionString("(REINICIO NOT TRANSFERED-IN)");
+    definition.addSearch(
+        "PREGNANT-INCLUSION-DATE-RF10-1",
+        EptsReportUtils.map(this.findPatientsWhoArePregnantDuringPreviousPeriod(), mappings));
+
+    definition.setCompositionString(
+        "REINICIO NOT (TRANSFERED-IN OR PREGNANT-INCLUSION-DATE-RF10-1)");
 
     return definition;
   }
@@ -1295,7 +1300,12 @@ public class MICategory9CohortQueries {
             this.mQCohortQueries.findPatientsWhoWhereMarkedAsTransferedInOnMasterCardRF5Category9(),
             mappings));
 
-    definition.setCompositionString("CD4-RESULT NOT TRANSFERED-IN");
+    definition.addSearch(
+        "PREGNANT-INCLUSION-DATE-RF10-1",
+        EptsReportUtils.map(this.findPatientsWhoArePregnantDuringPreviousPeriod(), mappings));
+
+    definition.setCompositionString(
+        "CD4-RESULT NOT (TRANSFERED-IN OR PREGNANT-INCLUSION-DATE-RF10-1)");
 
     return definition;
   }
