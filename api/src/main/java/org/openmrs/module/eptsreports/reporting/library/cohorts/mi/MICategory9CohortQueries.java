@@ -302,6 +302,29 @@ public class MICategory9CohortQueries {
     return definition;
   }
 
+  @DocumentedDefinition(value = "findWomenMarkedAsPregnantOnTheSameConsultationOfReinicio")
+  private CohortDefinition findWomenMarkedAsPregnantOnTheSameConsultationOfReinicio() {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName("findWomenMarkedAsPregnantOnTheSameConsultationOfReinicio");
+    definition.addParameter(
+        new Parameter("startInclusionDate", "Data Inicio Inclusão", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "Data Fim Inclusão", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "Data Fim Revisão", Date.class));
+    definition.addParameter(new Parameter("location", "location", Date.class));
+
+    String query =
+        "select patient_id from ("
+            + MICategory9DAHQueriesInterface.QUERY
+                .findWomenMarkedAsPregnantOnTheSameConsultationOfReinicio
+            + ") t";
+
+    definition.setQuery(query);
+
+    return definition;
+  }
+
   @DocumentedDefinition(value = "findDahSerumCrAgResultAtRestart")
   private CohortDefinition findDahSerumCrAgResultAtRestart() {
 
@@ -490,11 +513,12 @@ public class MICategory9CohortQueries {
             mappings));
 
     definition.addSearch(
-        "PREGNANT-INCLUSION-DATE-RF10-1",
-        EptsReportUtils.map(this.findPatientsWhoArePregnantDuringPreviousPeriod(), mappings));
+        "PREGNANT-IN-REINICIO-RF49",
+        EptsReportUtils.map(
+            this.findWomenMarkedAsPregnantOnTheSameConsultationOfReinicio(),
+            mappingsBackThreeMonths));
 
-    definition.setCompositionString(
-        "REINICIO NOT (TRANSFERED-IN OR PREGNANT-INCLUSION-DATE-RF10-1)");
+    definition.setCompositionString("REINICIO NOT (TRANSFERED-IN OR PREGNANT-IN-REINICIO-RF49)");
 
     return definition;
   }
@@ -1301,11 +1325,11 @@ public class MICategory9CohortQueries {
             mappings));
 
     definition.addSearch(
-        "PREGNANT-INCLUSION-DATE-RF10-1",
-        EptsReportUtils.map(this.findPatientsWhoArePregnantDuringPreviousPeriod(), mappings));
+        "PREGNANT-IN-REINICIO-RF49",
+        EptsReportUtils.map(
+            this.findWomenMarkedAsPregnantOnTheSameConsultationOfReinicio(), mappings));
 
-    definition.setCompositionString(
-        "CD4-RESULT NOT (TRANSFERED-IN OR PREGNANT-INCLUSION-DATE-RF10-1)");
+    definition.setCompositionString("CD4-RESULT NOT (TRANSFERED-IN OR PREGNANT-IN-REINICIO-RF49)");
 
     return definition;
   }

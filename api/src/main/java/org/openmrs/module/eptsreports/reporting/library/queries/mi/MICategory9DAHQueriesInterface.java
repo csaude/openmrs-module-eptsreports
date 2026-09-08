@@ -83,6 +83,27 @@ public interface MICategory9DAHQueriesInterface {
             + "       cd4.voided=0 and ((cd4.concept_id=1695 and cd4.value_numeric<=200) or (cd4.concept_id=165515 and cd4.value_coded=165513)) and "
             + "       e.encounter_datetime<=:endRevisionDate ";
 
+    public static final String findWomenMarkedAsPregnantOnTheSameConsultationOfReinicio =
+        "select reinicio.patient_id, "
+            + "       reinicio.data_estado "
+            + "from "
+            + "( "
+            + "    select p.patient_id, min(e.encounter_datetime) data_estado "
+            + "    from   patient p "
+            + "           inner join encounter e on p.patient_id=e.patient_id "
+            + "           inner join obs o on e.encounter_id=o.encounter_id "
+            + "    where  e.voided=0 and o.voided=0 and p.voided=0 and e.encounter_type=6 and "
+            + "           o.concept_id=6273 and o.value_coded=1705 and "
+            + "           e.location_id=:location and "
+            + "           e.encounter_datetime between :startInclusionDate and :endInclusionDate "
+            + "    group by p.patient_id "
+            + ") reinicio "
+            + "inner join encounter e on e.patient_id=reinicio.patient_id "
+            + "inner join obs grav on e.encounter_id=grav.encounter_id "
+            + "where  e.encounter_type=6 and e.location_id=:location and e.voided=0 and "
+            + "       e.encounter_datetime = reinicio.data_estado and "
+            + "       grav.voided=0 and grav.concept_id=1982 and grav.value_coded=1065 ";
+
     public static final String findDahSerumCrAgResultAtRestart =
         "select rf42.patient_id, "
             + "       rf42.data_estado, "
