@@ -20,6 +20,8 @@ public class MIAgeDimentions {
 
   @Autowired private MQAgeDimensions mQAgeDimensions;
 
+  @Autowired private MIAgeDimentions mIAgeDimensions;
+
   public CohortDefinitionDimension getDimensionForPatientsWhoAreNewlyEnrolledOnART() {
 
     final CohortDefinitionDimension dimension = new CohortDefinitionDimension();
@@ -739,6 +741,18 @@ public class MIAgeDimentions {
         "startInclusionDate=${endRevisionDate-3m+1d},endInclusionDate=${endRevisionDate-2m},endRevisionDate=${endRevisionDate},location=${location}";
 
     dimension.addCohortDefinition(
+        "5-14",
+        EptsReportUtils.map(
+            this.findPatientsWithAgeBetweenStartAndFinalAgeInTheFirstClinicalConsultaion(5, 14),
+            mappingsBackThreeMonths));
+
+    dimension.addCohortDefinition(
+        "10-14",
+        EptsReportUtils.map(
+            this.findPatientsWithAgeBetweenStartAndFinalAgeInTheFirstClinicalConsultaion(10, 14),
+            mappingsBackThreeMonths));
+
+    dimension.addCohortDefinition(
         "15-",
         EptsReportUtils.map(
             this.calculateAgeOnTheFirstConsultationDateBiggerThanParam(15), mappings));
@@ -828,6 +842,75 @@ public class MIAgeDimentions {
     return definition;
   }
 
+  @DocumentedDefinition(
+      value = "findPatientsWithAgeBetweenStartAndFinalAgeInTheFirstClinicalConsultaion")
+  public CohortDefinition findPatientsWithAgeBetweenStartAndFinalAgeInTheFirstClinicalConsultaion(
+      int startAge, int finalAge) {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName("findPatientsWhoReinitiatedTreatmentInClinicalConsultation");
+    definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
+
+    String query =
+        MICategory9QueriesInterface.QUERY
+            .findPatientsWithAgeBetweenStartAndFinalAgeInTheFirstClinicalConsultaion(
+                startAge, finalAge);
+
+    definition.setQuery(query);
+
+    return definition;
+  }
+
+  @DocumentedDefinition(value = "findPatientsWhoReinitiatedTreatmentInClinicalConsultation")
+  public CohortDefinition findPatientsWhoReinitiatedTreatmentInClinicalConsultation(int age) {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName("findPatientsWhoReinitiatedTreatmentInClinicalConsultation");
+    definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
+
+    String query =
+        GenericMIQueryIntarface.QUERY.findPatientsWhoReinitiatedTreatmentInClinicalConsultation(
+            age);
+
+    definition.setQuery(query);
+
+    return definition;
+  }
+
+  @DocumentedDefinition(
+      value =
+          "findPatientsWhoReinitiatedTreatmentInClinicalConsultationWithAgeBetweenstartAndFinalAge")
+  public CohortDefinition
+      findPatientsWhoReinitiatedTreatmentInClinicalConsultationWithAgeBetweenstartAndFinalAge(
+          int startAge, int finalAge) {
+
+    final SqlCohortDefinition definition = new SqlCohortDefinition();
+
+    definition.setName(
+        "findPatientsWhoReinitiatedTreatmentInClinicalConsultationWithAgeBetweenstartAndFinalAge");
+    definition.addParameter(new Parameter("startInclusionDate", "Start Date", Date.class));
+    definition.addParameter(new Parameter("endInclusionDate", "End Date", Date.class));
+    definition.addParameter(new Parameter("endRevisionDate", "End Revision Date", Date.class));
+    definition.addParameter(new Parameter("location", "Location", Location.class));
+
+    String query =
+        GenericMIQueryIntarface.QUERY
+            .findPatientsWhoReinitiatedTreatmentInClinicalConsultationWithAgeBetweenstartAndFinalAge(
+                startAge, finalAge);
+
+    definition.setQuery(query);
+
+    return definition;
+  }
+
   public CohortDefinitionDimension getDimensionAgeEndInclusionDateEndRevisionDate() {
     final CohortDefinitionDimension dimension = new CohortDefinitionDimension();
 
@@ -897,6 +980,39 @@ public class MIAgeDimentions {
 
     final String mappings =
         "startInclusionDate=${endRevisionDate-3m+1d},endInclusionDate=${endRevisionDate-2m},endRevisionDate=${endRevisionDate},location=${location}";
+
+    final String mappingsMI =
+        "startInclusionDate=${endRevisionDate-3m+1d},endInclusionDate=${endRevisionDate-2m},endRevisionDate=${endRevisionDate-2m},location=${location}";
+
+    dimension.addCohortDefinition(
+        "5-14",
+        EptsReportUtils.map(
+            mIAgeDimensions
+                .findPatientsWhoReinitiatedTreatmentInClinicalConsultationWithAgeBetweenstartAndFinalAge(
+                    5, 14),
+            mappingsMI));
+
+    dimension.addCohortDefinition(
+        "10-14",
+        EptsReportUtils.map(
+            mIAgeDimensions
+                .findPatientsWhoReinitiatedTreatmentInClinicalConsultationWithAgeBetweenstartAndFinalAge(
+                    10, 14),
+            mappingsMI));
+
+    dimension.addCohortDefinition(
+        "0-14",
+        EptsReportUtils.map(
+            mIAgeDimensions
+                .findPatientsWhoReinitiatedTreatmentInClinicalConsultationWithAgeBetweenstartAndFinalAge(
+                    0, 14),
+            mappingsMI));
+
+    dimension.addCohortDefinition(
+        "15+MI",
+        EptsReportUtils.map(
+            mIAgeDimensions.findPatientsWhoReinitiatedTreatmentInClinicalConsultation(15),
+            mappingsMI));
 
     dimension.addCohortDefinition(
         "15+",

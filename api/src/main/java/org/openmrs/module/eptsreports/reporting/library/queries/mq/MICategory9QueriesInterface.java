@@ -309,5 +309,23 @@ public interface MICategory9QueriesInterface {
 
       return String.format(sql, startAge);
     }
+
+    public static final String
+        findPatientsWithAgeBetweenStartAndFinalAgeInTheFirstClinicalConsultaion(
+            int startAge, int finalAge) {
+
+      final String sql =
+          "select patient_id from ( "
+              + "Select p.patient_id, min(e.encounter_datetime) encounter_datetime from patient p "
+              + "inner join encounter e on p.patient_id=e.patient_id "
+              + "where p.voided=0 and e.voided=0 and e.encounter_type=6 and e.location_id=:location "
+              + "group by p.patient_id "
+              + ")firstConsultation "
+              + "inner join person pe on pe.person_id=firstConsultation.patient_id "
+              + "where  TIMESTAMPDIFF(year,pe.birthdate,firstConsultation.encounter_datetime) between %s and %s and  birthdate IS NOT NULL "
+              + "and firstConsultation.encounter_datetime between :startInclusionDate and :endInclusionDate ";
+
+      return String.format(sql, startAge, finalAge);
+    }
   }
 }
