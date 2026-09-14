@@ -1,0 +1,225 @@
+package org.openmrs.module.eptsreports.reporting.library.queries.mi;
+
+public interface MICategory9DAHQueriesInterface {
+
+  class QUERY {
+
+    public static final String
+        findPatientsWithCD4ResultInClinicalConsultationBetweenTheFirstCCPlus33Days =
+            "select firstConsultation.patient_id, "
+                + "       firstConsultation.encounter_datetime, "
+                + "       cd4.concept_id, "
+                + "       cd4.value_numeric, "
+                + "       cd4.value_coded "
+                + "from "
+                + "  ( "
+                + "    Select p.patient_id, min(e.encounter_datetime) encounter_datetime "
+                + "    from   patient p "
+                + "           inner join encounter e on p.patient_id=e.patient_id "
+                + "    where  p.voided=0 and e.voided=0 and e.encounter_type=6 and "
+                + "           e.location_id=:location and e.encounter_datetime between :startInclusionDate and :endInclusionDate "
+                + "    group by p.patient_id "
+                + "  ) firstConsultation "
+                + "  inner join encounter e on e.patient_id=firstConsultation.patient_id "
+                + "  inner join obs cd4 on e.encounter_id=cd4.encounter_id "
+                + "where e.encounter_type=6 and e.location_id=:location and e.voided=0 and "
+                + "      e.encounter_datetime between firstConsultation.encounter_datetime and DATE_ADD(firstConsultation.encounter_datetime, INTERVAL 33 DAY) and "
+                + "      cd4.voided=0 and ((cd4.concept_id=1695 and cd4.value_numeric<=200) or (cd4.concept_id=165515 and cd4.value_coded=165513)) and "
+                + "      e.encounter_datetime <= :endRevisionDate ";
+
+    public static final String findDAHNumeratorSerumCrAgResult =
+        "select rf29.patient_id "
+            + "from "
+            + "( "
+            + findPatientsWithCD4ResultInClinicalConsultationBetweenTheFirstCCPlus33Days
+            + ") rf29 "
+            + "inner join "
+            + "( "
+            + "    Select p.patient_id, crag.value_coded, crag.obs_datetime "
+            + "    from   patient p "
+            + "           inner join encounter e on p.patient_id=e.patient_id "
+            + "           inner join obs crag on e.encounter_id=crag.encounter_id "
+            + "    where  p.voided=0 and e.voided=0 and e.encounter_type in (6,90) and e.location_id=:location and "
+            + "           crag.voided=0 and crag.concept_id=23952 and crag.value_coded in (703,664) and crag.obs_datetime<=:endRevisionDate "
+            + ") rf30 on rf29.patient_id=rf30.patient_id "
+            + "where rf30.obs_datetime between rf29.encounter_datetime and DATE_ADD(rf29.encounter_datetime, INTERVAL 33 DAY) ";
+
+    public static final String findDahTbLamResult =
+        "select rf29.patient_id "
+            + "from "
+            + "( "
+            + findPatientsWithCD4ResultInClinicalConsultationBetweenTheFirstCCPlus33Days
+            + ") rf29 "
+            + "inner join "
+            + "( "
+            + "    Select p.patient_id, crag.value_coded, crag.obs_datetime "
+            + "    from   patient p "
+            + "           inner join encounter e on p.patient_id=e.patient_id "
+            + "           inner join obs crag on e.encounter_id=crag.encounter_id "
+            + "    where  p.voided=0 and e.voided=0 and e.encounter_type in (6,90) and e.location_id=:location and "
+            + "           crag.voided=0 and crag.concept_id=23951 and crag.value_coded in (703,664) and crag.obs_datetime<=:endRevisionDate "
+            + ") rf31 on rf29.patient_id=rf31.patient_id "
+            + "where rf31.obs_datetime between rf29.encounter_datetime and DATE_ADD(rf29.encounter_datetime, INTERVAL 33 DAY) ";
+
+    public static final String findCd4Result33DaysAfterRestartClinicalConsultation =
+        "select reinicio.patient_id, "
+            + "       reinicio.data_estado "
+            + "from "
+            + "( "
+            + "    select p.patient_id, min(e.encounter_datetime) data_estado "
+            + "    from   patient p "
+            + "           inner join encounter e on p.patient_id=e.patient_id "
+            + "           inner join obs o on e.encounter_id=o.encounter_id "
+            + "    where  e.voided=0 and o.voided=0 and p.voided=0 and e.encounter_type=6 and "
+            + "           o.concept_id=6273 and o.value_coded=1705 and "
+            + "           e.location_id=:location and "
+            + "           e.encounter_datetime between :startInclusionDate and :endInclusionDate "
+            + "    group by p.patient_id "
+            + ") reinicio "
+            + "inner join encounter e on e.patient_id=reinicio.patient_id "
+            + "inner join obs cd4 on e.encounter_id=cd4.encounter_id "
+            + "where  e.encounter_type=6 and e.location_id=:location and e.voided=0 and "
+            + "       e.encounter_datetime between reinicio.data_estado and DATE_ADD(reinicio.data_estado, INTERVAL 33 DAY) and "
+            + "       cd4.voided=0 and ((cd4.concept_id=1695 and cd4.value_numeric<=200) or (cd4.concept_id=165515 and cd4.value_coded=165513)) and "
+            + "       e.encounter_datetime<=:endRevisionDate ";
+
+    public static final String findWomenMarkedAsPregnantOnTheSameConsultationOfReinicio =
+        "select reinicio.patient_id, "
+            + "       reinicio.data_estado "
+            + "from "
+            + "( "
+            + "    select p.patient_id, min(e.encounter_datetime) data_estado "
+            + "    from   patient p "
+            + "           inner join encounter e on p.patient_id=e.patient_id "
+            + "           inner join obs o on e.encounter_id=o.encounter_id "
+            + "    where  e.voided=0 and o.voided=0 and p.voided=0 and e.encounter_type=6 and "
+            + "           o.concept_id=6273 and o.value_coded=1705 and "
+            + "           e.location_id=:location and "
+            + "           e.encounter_datetime between :startInclusionDate and :endInclusionDate "
+            + "    group by p.patient_id "
+            + ") reinicio "
+            + "inner join encounter e on e.patient_id=reinicio.patient_id "
+            + "inner join obs grav on e.encounter_id=grav.encounter_id "
+            + "where  e.encounter_type=6 and e.location_id=:location and e.voided=0 and "
+            + "       e.encounter_datetime = reinicio.data_estado and "
+            + "       grav.voided=0 and grav.concept_id=1982 and grav.value_coded=1065 ";
+
+    public static final String findDahSerumCrAgResultAtRestart =
+        "select rf42.patient_id, "
+            + "       rf42.data_estado, "
+            + "       crag.value_coded resultadoCrag, "
+            + "       crag.obs_datetime dataCrag "
+            + "from "
+            + "( "
+            + findCd4Result33DaysAfterRestartClinicalConsultation
+            + ") rf42 "
+            + "inner join "
+            + "( "
+            + "    Select p.patient_id, crag.value_coded, crag.obs_datetime "
+            + "    from   patient p "
+            + "           inner join encounter e on p.patient_id=e.patient_id "
+            + "           inner join obs crag on e.encounter_id=crag.encounter_id "
+            + "    where  p.voided=0 and e.voided=0 and e.encounter_type in (6,90) and e.location_id=:location and "
+            + "           crag.voided=0 and crag.concept_id=23952 and crag.value_coded in (703,664) and crag.obs_datetime<=:endRevisionDate "
+            + ") crag on rf42.patient_id=crag.patient_id "
+            + "where crag.obs_datetime between rf42.data_estado and DATE_ADD(rf42.data_estado, INTERVAL 33 DAY) ";
+
+    public static final String findDahTbLamResultAtRestart =
+        "select rf42.patient_id, "
+            + "       rf42.data_estado, "
+            + "       tblam.value_coded resultadoTBLam, "
+            + "       tblam.obs_datetime dataTBLam "
+            + "from "
+            + "( "
+            + findCd4Result33DaysAfterRestartClinicalConsultation
+            + ") rf42 "
+            + "inner join "
+            + "( "
+            + "    Select p.patient_id, tblam.value_coded, tblam.obs_datetime "
+            + "    from   patient p "
+            + "           inner join encounter e on p.patient_id=e.patient_id "
+            + "           inner join obs tblam on e.encounter_id=tblam.encounter_id "
+            + "    where  p.voided=0 and e.voided=0 and e.encounter_type in (6,90) and e.location_id=:location and "
+            + "           tblam.voided=0 and tblam.concept_id=23951 and tblam.value_coded in (703,664) and tblam.obs_datetime<=:endRevisionDate "
+            + ") tblam on rf42.patient_id=tblam.patient_id "
+            + "where tblam.obs_datetime between rf42.data_estado and DATE_ADD(rf42.data_estado, INTERVAL 33 DAY) ";
+
+    public static final String findCD4ResultOcurredInClinicalConsultation33DaysAfterTheFirstCPN =
+        "select cpnrf10.patient_id, "
+            + "       cpnrf10.dataPrimeiraCPN, "
+            + "       cd4.concept_id, "
+            + "       cd4.value_numeric, "
+            + "       cd4.value_coded "
+            + "from "
+            + "( "
+            + "    select pregnant.patient_id, "
+            + "           pregnant.encounter_datetime dataPrimeiraCPN "
+            + "    from "
+            + "    ( "
+            + "        Select p.patient_id, min(e.encounter_datetime) encounter_datetime "
+            + "        from   person pe "
+            + "               inner join patient p on pe.person_id=p.patient_id "
+            + "               inner join encounter e on p.patient_id=e.patient_id "
+            + "               inner join obs o on e.encounter_id=o.encounter_id "
+            + "        where  pe.voided=0 and p.voided=0 and e.voided=0 and o.voided=0 and e.encounter_type=6 and "
+            + "               e.location_id=:location and pe.gender='F' and "
+            + "               o.concept_id=1982 and o.value_coded=1065 and "
+            + "               e.encounter_datetime between :startInclusionDate and :endInclusionDate "
+            + "        group by p.patient_id "
+            + "    ) pregnant "
+            + "    where pregnant.patient_id not in "
+            + "    ( "
+            + "        Select p.patient_id from person pe "
+            + "        inner join patient p on pe.person_id=p.patient_id "
+            + "        inner join encounter e on p.patient_id=e.patient_id "
+            + "        inner join obs o on e.encounter_id=o.encounter_id "
+            + "        where  pe.voided=0 and p.voided=0 and e.voided=0 and o.voided=0 and e.encounter_type=6 and "
+            + "               e.location_id=:location and pe.gender='F' and "
+            + "               o.concept_id=1982 and o.value_coded=1065 and "
+            + "               e.encounter_datetime >= DATE_SUB(pregnant.encounter_datetime, INTERVAL 3 MONTH) and "
+            + "               e.encounter_datetime < pregnant.encounter_datetime "
+            + "        group by p.patient_id "
+            + "    ) "
+            + ") cpnrf10 "
+            + "inner join encounter e on e.patient_id=cpnrf10.patient_id "
+            + "inner join obs cd4 on e.encounter_id=cd4.encounter_id "
+            + "where  e.encounter_type=6 and e.location_id=:location and e.voided=0 and "
+            + "       e.encounter_datetime between cpnrf10.dataPrimeiraCPN and DATE_ADD(cpnrf10.dataPrimeiraCPN, INTERVAL 33 DAY) and "
+            + "       cd4.voided=0 and ((cd4.concept_id=1695 and cd4.value_numeric<=200) or (cd4.concept_id=165515 and cd4.value_coded=165513)) and "
+            + "       e.encounter_datetime<=:endRevisionDate ";
+
+    public static final String findDahSerumCrAgResultPregnantWomen =
+        "select rf36.patient_id "
+            + "from "
+            + "( "
+            + findCD4ResultOcurredInClinicalConsultation33DaysAfterTheFirstCPN
+            + ") rf36 "
+            + "inner join "
+            + "( "
+            + "    Select p.patient_id, crag.value_coded, crag.obs_datetime "
+            + "    from   patient p "
+            + "           inner join encounter e on p.patient_id=e.patient_id "
+            + "           inner join obs crag on e.encounter_id=crag.encounter_id "
+            + "    where  p.voided=0 and e.voided=0 and e.encounter_type in (6,90) and e.location_id=:location and "
+            + "           crag.voided=0 and crag.concept_id=23952 and crag.value_coded in (703,664) and crag.obs_datetime<=:endRevisionDate "
+            + ") crag on rf36.patient_id=crag.patient_id "
+            + "where crag.obs_datetime between rf36.dataPrimeiraCPN and DATE_ADD(rf36.dataPrimeiraCPN, INTERVAL 33 DAY) ";
+
+    public static final String findDahTbLamResultPregnantWomen =
+        "select rf36.patient_id "
+            + "from "
+            + "( "
+            + findCD4ResultOcurredInClinicalConsultation33DaysAfterTheFirstCPN
+            + ") rf36 "
+            + "inner join "
+            + "( "
+            + "    Select p.patient_id, tblam.value_coded, tblam.obs_datetime "
+            + "    from   patient p "
+            + "           inner join encounter e on p.patient_id=e.patient_id "
+            + "           inner join obs tblam on e.encounter_id=tblam.encounter_id "
+            + "    where  p.voided=0 and e.voided=0 and e.encounter_type in (6,90) and e.location_id=:location and "
+            + "           tblam.voided=0 and tblam.concept_id=23951 and tblam.value_coded in (703,664) and tblam.obs_datetime<=:endRevisionDate "
+            + ") tblam on rf36.patient_id=tblam.patient_id "
+            + "where tblam.obs_datetime between rf36.dataPrimeiraCPN and DATE_ADD(rf36.dataPrimeiraCPN, INTERVAL 33 DAY) ";
+  }
+}
