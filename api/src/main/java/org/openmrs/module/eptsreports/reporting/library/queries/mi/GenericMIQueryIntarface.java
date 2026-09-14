@@ -30,5 +30,40 @@ public interface GenericMIQueryIntarface {
 
       return String.format(sql, startAge, endAge);
     }
+
+    public static final String findPatientsWhoReinitiatedTreatmentInClinicalConsultation(
+        int startAge) {
+
+      final String sql =
+          "	select reinicio.patient_id from ( "
+              + "	select p.patient_id, min(e.encounter_datetime) data_reinicio from patient p "
+              + "	inner join encounter e on p.patient_id=e.patient_id "
+              + "	inner join obs  o on e.encounter_id=o.encounter_id "
+              + "	where e.voided=0 and o.voided=0 and p.voided=0 and  e.encounter_type = 6 and o.concept_id = 6273 and o.value_coded = 1705 and e.location_id=:location "
+              + "	and e.encounter_datetime between :startInclusionDate and :endRevisionDate "
+              + "	group by p.patient_id "
+              + "	) reinicio "
+              + "	INNER JOIN person pe ON reinicio.patient_id=pe.person_id WHERE pe.birthdate IS NOT NULL AND TIMESTAMPDIFF(YEAR, pe.birthdate, data_reinicio) >= %s ";
+
+      return String.format(sql, startAge);
+    }
+
+    public static final String
+        findPatientsWhoReinitiatedTreatmentInClinicalConsultationWithAgeBetweenstartAndFinalAge(
+            int startAge, int finalAge) {
+
+      final String sql =
+          "	select reinicio.patient_id from ( "
+              + "	select p.patient_id, min(e.encounter_datetime) data_reinicio from patient p "
+              + "	inner join encounter e on p.patient_id=e.patient_id "
+              + "	inner join obs  o on e.encounter_id=o.encounter_id "
+              + "	where e.voided=0 and o.voided=0 and p.voided=0 and  e.encounter_type = 6 and o.concept_id = 6273 and o.value_coded = 1705 and e.location_id=:location "
+              + "	and e.encounter_datetime between :startInclusionDate and :endRevisionDate "
+              + "	group by p.patient_id "
+              + "	) reinicio "
+              + "	INNER JOIN person pe ON reinicio.patient_id=pe.person_id WHERE pe.birthdate IS NOT NULL AND TIMESTAMPDIFF(YEAR, pe.birthdate, data_reinicio) between %s and %s ";
+
+      return String.format(sql, startAge, finalAge);
+    }
   }
 }
