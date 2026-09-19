@@ -192,5 +192,16 @@
 			</snapshots>
 		</pluginRepository>
 	</pluginRepositories>
-
+	<distributionManagement>
+		<repository>
+			<id>github</id>
+			<name>GitHub csaude Apache Maven Packages</name>
+			<url>https://maven.pkg.github.com/csaude/openmrs-module-eptsreports</url>
+		</repository>
+		<snapshotRepository>
+			<id>github</id>
+			<name>GitHub csaude Apache Maven Packages</name>
+			<url>https://maven.pkg.github.com/csaude/openmrs-module-eptsreports</url>
+		</snapshotRepository>
+	</distributionManagement>
 </project>
