@@ -20,8 +20,6 @@ public class MIAgeDimentions {
 
   @Autowired private MQAgeDimensions mQAgeDimensions;
 
-  @Autowired private MIAgeDimentions mIAgeDimensions;
-
   public CohortDefinitionDimension getDimensionForPatientsWhoAreNewlyEnrolledOnART() {
 
     final CohortDefinitionDimension dimension = new CohortDefinitionDimension();
@@ -987,7 +985,7 @@ public class MIAgeDimentions {
     dimension.addCohortDefinition(
         "5-14",
         EptsReportUtils.map(
-            mIAgeDimensions
+            this
                 .findPatientsWhoReinitiatedTreatmentInClinicalConsultationWithAgeBetweenstartAndFinalAge(
                     5, 14),
             mappingsMI));
@@ -995,7 +993,7 @@ public class MIAgeDimentions {
     dimension.addCohortDefinition(
         "10-14",
         EptsReportUtils.map(
-            mIAgeDimensions
+            this
                 .findPatientsWhoReinitiatedTreatmentInClinicalConsultationWithAgeBetweenstartAndFinalAge(
                     10, 14),
             mappingsMI));
@@ -1003,7 +1001,7 @@ public class MIAgeDimentions {
     dimension.addCohortDefinition(
         "0-14",
         EptsReportUtils.map(
-            mIAgeDimensions
+            this
                 .findPatientsWhoReinitiatedTreatmentInClinicalConsultationWithAgeBetweenstartAndFinalAge(
                     0, 14),
             mappingsMI));
@@ -1011,8 +1009,7 @@ public class MIAgeDimentions {
     dimension.addCohortDefinition(
         "15+MI",
         EptsReportUtils.map(
-            mIAgeDimensions.findPatientsWhoReinitiatedTreatmentInClinicalConsultation(15),
-            mappingsMI));
+            this.findPatientsWhoReinitiatedTreatmentInClinicalConsultation(15), mappingsMI));
 
     dimension.addCohortDefinition(
         "15+",
