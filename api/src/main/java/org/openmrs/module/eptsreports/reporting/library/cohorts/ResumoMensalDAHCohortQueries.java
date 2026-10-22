@@ -783,13 +783,6 @@ public class ResumoMensalDAHCohortQueries {
             this.getNumberOfPatientsInDAHExcludingPatientsMarkedAsSaidaRF30(), mappings));
 
     definition.addSearch(
-        "I8-PEDIDO-CD4",
-        EptsReportUtils.map(
-            this.getNumberOfPatientsRequestingCD4ScreeningDuringThePeriodI8(
-                ARTSituation.SEGUIMENTO_DAH),
-            mappings));
-
-    definition.addSearch(
         "CD4-BAIXO",
         EptsReportUtils.map(
             this.genericCohortQueries.generalSql(
@@ -804,6 +797,13 @@ public class ResumoMensalDAHCohortQueries {
           EptsReportUtils.map(
               this.findPatientsWhoAreNovosIniciosTarvIndicator10Untill9RF26(), mappings));
 
+      definition.addSearch(
+          "I8-PEDIDO-CD4",
+          EptsReportUtils.map(
+              this.getNumberOfPatientsRequestingCD4ScreeningDuringThePeriodI8(
+                  ARTSituation.NEW_ENROLLED),
+              mappings));
+
       composition = "SEGUIMENTO-DAH AND CD4-BAIXO AND RF26 AND I8-PEDIDO-CD4";
 
     } else if (disagregationType == ARTSituation.RESTART) {
@@ -812,6 +812,12 @@ public class ResumoMensalDAHCohortQueries {
           "RF27",
           EptsReportUtils.map(
               this.findPatientsWhoAreReiniciosTarvIndicator10Until19RF27(), mappings));
+
+      definition.addSearch(
+          "I8-PEDIDO-CD4",
+          EptsReportUtils.map(
+              this.getNumberOfPatientsRequestingCD4ScreeningDuringThePeriodI8(ARTSituation.RESTART),
+              mappings));
 
       composition = "SEGUIMENTO-DAH AND CD4-BAIXO AND RF27 AND I8-PEDIDO-CD4";
 
@@ -822,6 +828,12 @@ public class ResumoMensalDAHCohortQueries {
           EptsReportUtils.map(
               this.findPatientsWhoAreActiveInTarvIndicator10Untill19RF28(), mappings));
 
+      definition.addSearch(
+          "I8-PEDIDO-CD4",
+          EptsReportUtils.map(
+              this.getNumberOfPatientsRequestingCD4ScreeningDuringThePeriodI8(ARTSituation.ACTIVE),
+              mappings));
+
       composition = "SEGUIMENTO-DAH AND CD4-BAIXO AND RF28 AND I8-PEDIDO-CD4";
 
     } else if (disagregationType == ARTSituation.PREGNANT) {
@@ -829,9 +841,23 @@ public class ResumoMensalDAHCohortQueries {
       definition.addSearch(
           "PREGNANT", EptsReportUtils.map(this.getNumberOfPatientsWhoArePregnantRF29(), mappings));
 
+      definition.addSearch(
+          "I8-PEDIDO-CD4",
+          EptsReportUtils.map(
+              this.getNumberOfPatientsRequestingCD4ScreeningDuringThePeriodI8(
+                  ARTSituation.PREGNANT),
+              mappings));
+
       composition = "SEGUIMENTO-DAH AND CD4-BAIXO AND PREGNANT AND I8-PEDIDO-CD4";
 
     } else if (disagregationType == ARTSituation.SEGUIMENTO_DAH) {
+
+      definition.addSearch(
+          "I8-PEDIDO-CD4",
+          EptsReportUtils.map(
+              this.getNumberOfPatientsRequestingCD4ScreeningDuringThePeriodI8(
+                  ARTSituation.SEGUIMENTO_DAH),
+              mappings));
 
       composition = "SEGUIMENTO-DAH AND CD4-BAIXO AND I8-PEDIDO-CD4";
     }
